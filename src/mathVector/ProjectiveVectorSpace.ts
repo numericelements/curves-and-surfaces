@@ -23,6 +23,7 @@ export interface ProjectiveVectorSpaceStrategy {
     add(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector;
     scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector;
     subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector;
+    norm(a: ProjectiveVector): Real;
     clone(v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector;
     fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector;
     fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector): ProjectiveComplexVector
@@ -133,6 +134,15 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
             }
             const message2 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
             throw new RangeError(message2.generateMessageString());
+        }
+    }
+
+    norm(a: ProjectiveVector): number {
+        try { 
+            return this.strategy.norm(a);
+        } catch (error) {
+            const message1 = sendRangeErrorMessage(this.constructor.name, 'norm', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(message1.generateMessageString());
         }
     }
 

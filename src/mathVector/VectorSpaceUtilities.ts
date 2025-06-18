@@ -1,4 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { COMPLEX, ComplexVector, COMPLEXVECTOR2D, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, Vector2D, Vector3D, Vector4D } from "./VectorSpaceConstructorInterface";
 
 // ------------ Type Guards ------------
@@ -111,5 +112,49 @@ export function areSameVSpaceAndDimension(v1: Vector, v2: Vector): boolean {
             return true;
         } else return false;
     } else return false;
+}
+
+export function getVectorSpaceTypeAndDimension(vector: Vector): {type: VectorSpaceType, dimension: number} {
+    if(isRealVector(vector)) {
+        const type = VectorSpaceType.REAL;
+        if(isVector1D(vector)) {
+            return {type: type, dimension: 1};
+        } else if(isVector2D(vector)) {
+            return {type: type, dimension: 2};
+        } else if(isVector3D(vector)) {
+            return {type: type, dimension: 3};
+        } else if(isVector4D(vector)) {
+            return {type: type, dimension: 4};
+        } else {
+            throw new Error("Unsupported vector space dimension");
+        }
+    } else if(isProjectiveVector(vector)) {
+        const type = VectorSpaceType.PROJECTIVE;
+        if(isVector3D(vector)){
+            return {type: type, dimension: 3};
+        } else if(isVector4D(vector)) {
+            return {type: type, dimension: 4};
+        } else {
+            throw new Error("Unsupported vector space dimension");
+        }
+    } else if(isComplexVector(vector)) {
+        const type = VectorSpaceType.COMPLEX;
+        if(isVector1D(vector)) {
+            return {type: type, dimension: 1};
+        } else if(isVector2D(vector)) {
+            return {type: type, dimension: 2};
+        } else {
+            throw new Error("Unsupported vector space dimension");
+        }
+    } else if(isProjectiveComplexVector(vector)) {
+        const type = VectorSpaceType.PROJECTIVECOMPLEX;
+        if(isVector2D(vector)) {
+            return {type: type, dimension: 2};
+        } else {
+            throw new Error("Unsupported vector space dimension");
+        }   
+    } else {
+        throw new Error("Unsupported vector space");
+    }
 }
 

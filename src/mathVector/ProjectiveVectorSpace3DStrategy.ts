@@ -2,7 +2,7 @@ import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORS
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { ProjectiveVectorSpaceStrategy } from "./ProjectiveVectorSpace";
-import { COMPLEX, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, Real, RealVector, REALVECTOR2D, WEIGHT } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, Real, RealVector, REALVECTOR2D, WEIGHT, Weight_Interface } from "./VectorSpaceConstructorInterface";
 import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
@@ -68,6 +68,26 @@ export class ProjectiveVectorSpace3DStrategy implements ProjectiveVectorSpaceStr
             } catch(error) {
                 throw error;
             }
+        } else {
+            throw new RangeError();
+        }
+    }
+
+    norm(v: ProjectiveVector): number {
+        if(isVector3D(v)) {
+            let result = 0;
+            for(let i = 0; i < v.coordinates.length - 2; i++) {
+                let component = 0;
+                if(v.coordinates[i] instanceof Weight) {
+                    const weight = v.coordinates[i] as Weight_Interface;
+                    component = weight.value.weight;
+                } else {
+                    component = v.coordinates[i] as number;
+                }
+                result += Math.pow(component, 2);
+            }
+            result = Math.sqrt(result);
+            return result;
         } else {
             throw new RangeError();
         }

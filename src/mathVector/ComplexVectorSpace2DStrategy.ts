@@ -42,6 +42,15 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy 
         }
     }
 
+    norm(vector: ComplexVector): number {
+        if(isVector2D(vector)) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'fromComplexVectorSpaceToProjectiveComplexVectorSpace', EM_TRANSFORMATION_NOT_AVAILABLE);
+            throw new RangeError(error.generateMessageString());
+        } else {
+            throw new RangeError();
+        }
+    }
+
     scale(scaleFactor: Complex, vector: ComplexVector): ComplexVector2D;
     scale(scaleFactor: number, vector: ComplexVector): ComplexVector2D;
     scale(scaleFactor: Complex | number, vector: ComplexVector): ComplexVector2D {

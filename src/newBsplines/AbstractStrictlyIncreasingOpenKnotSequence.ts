@@ -56,8 +56,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
                     const abscissa = this.knotSequence[index].abscissa;
                     const multiplicity = this.knotSequence[index].multiplicity;
                     index++;
-                    return { value: {abscissa: abscissa, multiplicity: multiplicity}, 
-                    done: false };
+                    return { value: {abscissa: abscissa, multiplicity: multiplicity}, done: false };
                 } else {
                     index = 0;
                     return { done: true };

@@ -1,10 +1,10 @@
 import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR } from "../ErrorMessages/ComplexVectorSpace";
-import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER as EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../ErrorMessages/ProjectiveComplexVectorSpace";
+import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_PRPROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER as EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../ErrorMessages/ProjectiveComplexVectorSpace";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../namedConstants/ProjectiveComplexVectorSpace";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexOperators } from "./ComplexOperators";
-import { COMPLEX, Complex, ComplexVector, ComplexVector1D, COMPLEXWEIGHT, ComplexWeight, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, VectorSpace } from "./VectorSpaceConstructorInterface";
-import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import { COMPLEX, Complex, ComplexVector, ComplexVector1D, COMPLEXWEIGHT, ComplexWeight, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, VectorSpace, Weight_Interface } from "./VectorSpaceConstructorInterface";
+import { isVector1D, isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
 
@@ -88,6 +88,24 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
         return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [nullComplex, defaultComplexWeight]};
     }
 
+    createVector(coordinates: number[][], weightManager: WeightManager): ProjectiveComplexVector {
+        const complex1: Complex = {type: COMPLEX, real: coordinates[0][0], imaginary: coordinates[0][1]};
+        const complexWeight: Complex = {type: COMPLEX, real: coordinates[1][0], imaginary: coordinates[1][1]};
+        if(coordinates.length !== this.dim) {
+            const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PRPROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(message.generateMessageString());
+        }
+        if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
+            let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [complex1, {type: COMPLEXWEIGHT,
+                real: weightManager.setWeightStatus(new Weight(coordinates[1][0], false)), imaginary: weightManager.setWeightStatus(new Weight(coordinates[1][1], false))}]};
+            return vector;
+        } else {
+            let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [complex1, {type: COMPLEXWEIGHT, 
+                real: weightManager.setWeightStatus(new Weight(coordinates[1][0])), imaginary: weightManager.setWeightStatus(new Weight(coordinates[1][1]))}]};
+            return vector;
+        }
+    }
+
     add(a: ProjectiveComplexVector, b: ProjectiveComplexVector): ProjectiveComplexVector {
         if(this.hasSameRealImagineryWeightManagement(a) && this.hasSameRealImagineryWeightManagement(b)) {
             if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive === true && b.coordinates[1].real.strictlyPositive === true) {
@@ -113,6 +131,18 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'add', EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
             throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    norm(v: ProjectiveComplexVector): number {
+        if(isVector1D(v)) {
+            let result = 0;
+            result = Math.sqrt(v.coordinates[0].real * v.coordinates[0].real + v.coordinates[0].imaginary * v.coordinates[0].imaginary);
+            result+= v.coordinates[1].real.weight * v.coordinates[1].real.weight + v.coordinates[1].imaginary.weight * v.coordinates[1].imaginary.weight; 
+            result = Math.sqrt(result);
+            return result;
+        } else {
+            throw new RangeError();
         }
     }
 

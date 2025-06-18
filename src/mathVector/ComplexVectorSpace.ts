@@ -18,7 +18,7 @@ export interface ComplexVectorSpaceStrategy {
     scale(scalar: Complex | number, vector: ComplexVector): ComplexVector;
     subtract(a: ComplexVector, b: ComplexVector): ComplexVector;
     clone(v: ComplexVector): ComplexVector;
-    // norm(v: ComplexVector): number;
+    norm(v: ComplexVector): number;
     // normalize(v: ComplexVector): ComplexVector;
     fromComplexVectorSpaceToRealVectorSpace(v: ComplexVector): RealVector;
     fromComplexVectorSpaceToProjectiveComplexVectorSpace(v: ComplexVector, weight: ComplexWeight): ProjectiveComplexVector
@@ -114,6 +114,15 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
             }
             const message2 = sendRangeErrorMessage(this.constructor.name, 'add', EM_COMPLEXVECTORS_DIFFERENT_DIM);
             throw new RangeError(message2.generateMessageString());
+        }
+    }
+
+    norm(vector: ComplexVector): number {
+        try {
+            return this.strategy.norm(vector);
+        } catch(error) {
+            const message1 = sendRangeErrorMessage(this.constructor.name, 'norm', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(message1.generateMessageString());
         }
     }
 

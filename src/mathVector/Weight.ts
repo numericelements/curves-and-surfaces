@@ -5,7 +5,7 @@ import { WEIGHT } from "./VectorSpaceConstructorInterface";
 
 export class Weight {
 
-    private type: typeof WEIGHT;
+    private readonly type: typeof WEIGHT;
     private readonly _strictlyPositive: boolean;
     protected _weight: number;
 

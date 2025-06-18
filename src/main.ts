@@ -1,7 +1,9 @@
+import { AlgorithmBootstrap } from "./newBsplines/AlgorithmBootstrap";
 import { ChartEventListener, CurveModelDefinitionEventListener, CurveSceneEventListener, FileEventListener, ShapeSpaceNavigationEventListener } from "./userInterfaceController/UserInterfaceEventListener";
 
 export function main() {
         try{
+                AlgorithmBootstrap.initialize();
                 const curveModelDefinitionEventListener = new CurveModelDefinitionEventListener();
                 const shapeSpaceNavigationEventListener = new ShapeSpaceNavigationEventListener(curveModelDefinitionEventListener);
                 const curveSceneEventListener = new CurveSceneEventListener(curveModelDefinitionEventListener, shapeSpaceNavigationEventListener);

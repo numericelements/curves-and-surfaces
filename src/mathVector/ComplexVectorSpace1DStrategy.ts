@@ -37,6 +37,14 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy 
         }
     }
 
+    norm(vector: ComplexVector): number {
+        if(isVector1D(vector)) {
+            return Math.sqrt(vector.real * vector.real + vector.imaginary * vector.imaginary);
+        } else {
+            throw new RangeError();
+        }
+    }
+
     // Overloaded scale method
     scale(scaleFactor: Complex, vector: ComplexVector): Complex;
     scale(scaleFactor: number, vector: ComplexVector): Complex;

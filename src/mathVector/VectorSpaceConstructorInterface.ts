@@ -7,16 +7,16 @@ import { Weight } from "./Weight";
 
 // ------------ Type Definitions ------------
 
-export const COMPLEX = 'Complex';
-export const WEIGHT = 'Weight';
-export const COMPLEXWEIGHT = 'ComplexWeight';
-export const REALVECTOR2D = 'RealVector2D';
-export const COMPLEXVECTOR2D = 'ComplexVector2D';
-export const PROJECTIVEVECTOR2D = 'ProjectiveVector2D';
-export const REALVECTOR3D = 'RealVector3D';
-export const PROJECTIVEVECTOR3D = 'ProjectiveVector3D';
-export const REALVECTOR4D = 'RealVector4D';
-export const PROJECTIVECOMPLEXVECTOR1D = 'ProjectiveComplexVector1D';
+export const COMPLEX = 'Complex' as const;
+export const WEIGHT = 'Weight' as const;
+export const COMPLEXWEIGHT = 'ComplexWeight' as const;
+export const REALVECTOR2D = 'RealVector2D' as const;
+export const COMPLEXVECTOR2D = 'ComplexVector2D' as const;
+export const PROJECTIVEVECTOR2D = 'ProjectiveVector2D' as const;
+export const REALVECTOR3D = 'RealVector3D' as const;
+export const PROJECTIVEVECTOR3D = 'ProjectiveVector3D' as const;
+export const REALVECTOR4D = 'RealVector4D' as const;
+export const PROJECTIVECOMPLEXVECTOR1D = 'ProjectiveComplexVector1D' as const;
 
 /** Real numbers (ℝ) */
 export type Real = number;
@@ -24,18 +24,18 @@ export type Real = number;
 /** Complex numbers (ℂ) represented as [real, imaginary] */
 // export type Complex = [number, number];
 export interface Complex {
-    type: typeof COMPLEX;
+    readonly type: typeof COMPLEX;
     real: number;
     imaginary: number;
 }
 
 export interface Weight_Interface {
-    type: typeof WEIGHT;
+    readonly type: typeof WEIGHT;
     value: Weight;
 }
 
 export interface ComplexWeight {
-    type: typeof COMPLEXWEIGHT;
+    readonly type: typeof COMPLEXWEIGHT;
     real: Weight;
     imaginary: Weight;
 }
@@ -59,29 +59,29 @@ export type RealVector1D = Real;
 export type Vector2D = RealVector2D | ComplexVector2D | ProjectiveComplexVector1D;
 
 export interface RealVector2D {
-    type: typeof REALVECTOR2D;
+    readonly type: typeof REALVECTOR2D;
     coordinates: [Real, Real];
 }
 
 export interface ProjectiveVector2D {
-    type: typeof PROJECTIVEVECTOR2D;
+    readonly type: typeof PROJECTIVEVECTOR2D;
     coordinates: [Real, Real, Weight_Interface];
 }
 
 export type Vector3D = RealVector3D | ProjectiveVector2D;
 
 export interface RealVector3D {
-    type: typeof REALVECTOR3D;
+    readonly type: typeof REALVECTOR3D;
     coordinates: [Real, Real, Real];
 }
 
 export interface ProjectiveVector3D {
-    type: typeof PROJECTIVEVECTOR3D;
+    readonly type: typeof PROJECTIVEVECTOR3D;
     coordinates: [Real, Real, Real, Weight_Interface];
 }
 
 export interface RealVector4D {
-    type: typeof REALVECTOR4D;
+    readonly type: typeof REALVECTOR4D;
     coordinates: [Real, Real, Real, Real];
 }
 
@@ -90,12 +90,12 @@ export type Vector4D = RealVector4D | ProjectiveVector3D;
 export type ComplexVector1D = Complex;
 
 export interface ComplexVector2D {
-    type: typeof COMPLEXVECTOR2D;
+    readonly type: typeof COMPLEXVECTOR2D;
     coordinates: [Complex, Complex];
 }
 
 export interface ProjectiveComplexVector1D {
-    type: typeof PROJECTIVECOMPLEXVECTOR1D;
+    readonly type: typeof PROJECTIVECOMPLEXVECTOR1D;
     coordinates: [Complex, ComplexWeight];
 }
 

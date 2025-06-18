@@ -3,7 +3,7 @@ import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS } from "../ErrorMessa
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { ProjectiveVectorSpaceStrategy } from "./ProjectiveVectorSpace";
-import { ProjectiveVector, PROJECTIVEVECTOR3D, ProjectiveVector3D, Real, RealVector, REALVECTOR3D, WEIGHT } from "./VectorSpaceConstructorInterface";
+import { ProjectiveVector, PROJECTIVEVECTOR3D, ProjectiveVector3D, Real, RealVector, REALVECTOR3D, WEIGHT, Weight_Interface } from "./VectorSpaceConstructorInterface";
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
@@ -68,6 +68,26 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
             } catch(error) {
                 throw error;
             }
+        } else {
+            throw new RangeError();
+        }
+    }
+
+    norm(v: ProjectiveVector): number {
+        if(isVector4D(v)) {
+            let result = 0;
+            for(let i = 0; i < v.coordinates.length - 2; i++) {
+                let component = 0;
+                if(v.coordinates[i] instanceof Weight) {
+                    const weight = v.coordinates[i] as Weight_Interface;
+                    component = weight.value.weight;
+                } else {
+                    component = v.coordinates[i] as number;
+                }
+                result += Math.pow(component, 2);
+            }
+            result = Math.sqrt(result);
+            return result;
         } else {
             throw new RangeError();
         }
