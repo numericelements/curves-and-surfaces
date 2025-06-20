@@ -5,7 +5,7 @@ import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy {
+export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
     
     // Implementation for 1D vectors
 

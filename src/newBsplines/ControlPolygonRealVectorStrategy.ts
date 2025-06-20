@@ -2,7 +2,7 @@ import { RealVectorSpace } from "../mathVector/RealVectorSpace";
 import { RealVector } from "../mathVector/VectorSpaceConstructorInterface";
 import { ControlPolygon, ControlPolygonStrategy } from "./ControlPolygon";
 
-export class ControlPolygonRealVectorStrategy implements ControlPolygonStrategy {
+export class ControlPolygonRealVectorStrategy implements ControlPolygonStrategy<RealVector> {
 
     private vectorSpace: RealVectorSpace;
     private controlPolygon: ControlPolygon;

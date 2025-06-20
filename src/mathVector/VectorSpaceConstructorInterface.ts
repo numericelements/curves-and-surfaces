@@ -3,6 +3,8 @@
  * Implements mathematical vector space axioms for real and complex numbers
  */
 
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { RealVectorOfDimension } from "./RealVectorSpace";
 import { Weight } from "./Weight";
 
 // ------------ Type Definitions ------------
@@ -56,6 +58,11 @@ export type Vector1D = Scalar;
 
 export type RealVector1D = Real;
 
+// export interface RealVector1D {
+//     readonly type: typeof REALVECTOR1D;  // Add this constant
+//     coordinates: Real;
+// }
+
 export type Vector2D = RealVector2D | ComplexVector2D | ProjectiveComplexVector1D;
 
 export interface RealVector2D {
@@ -99,6 +106,32 @@ export interface ProjectiveComplexVector1D {
     coordinates: [Complex, ComplexWeight];
 }
 
+export type VectorTypeForSpace<VS extends VectorSpaceType, D extends number> =
+    VS extends VectorSpaceType.REAL ? RealVectorOfDimension<D> :
+    VS extends VectorSpaceType.COMPLEX ? ComplexVectorOfDimension<D> :
+    VS extends VectorSpaceType.PROJECTIVE ? ProjectiveVectorOfDimension<D> :
+    VS extends VectorSpaceType.PROJECTIVECOMPLEX ? ProjectiveComplexVectorOfDimension<D> :
+    VectorSpaceType.UNKNOWN_VECTORSPACE;
+
+
+export type ComplexVectorOfDimension<D extends number> = 
+    D extends 1 ? ComplexVector1D :
+    D extends 2 ? ComplexVector2D :
+    ComplexVector;
+    // never;
+
+
+export type ProjectiveVectorOfDimension<D extends number> = 
+    D extends 3 ? ProjectiveVector2D :
+    D extends 4 ? ProjectiveVector3D :
+    ProjectiveVector;
+    // never;
+
+
+export type ProjectiveComplexVectorOfDimension<D extends number> = 
+    D extends 2 ? ProjectiveComplexVector1D :
+    ProjectiveComplexVector;
+    // never;
 
 
 // ------------ Vector Space Interface ------------

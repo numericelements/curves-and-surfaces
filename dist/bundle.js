@@ -52488,7 +52488,7 @@ exports.ProjectiveVectorSpace4DStrategy = ProjectiveVectorSpace4DStrategy;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RealVectorSpace = void 0;
+exports.createRealVectorSpace = exports.RealVectorSpace = void 0;
 const RealVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/RealVectorSpace */ "./src/ErrorMessages/RealVectorSpace.ts");
 const RealVectorSpace_2 = __webpack_require__(/*! ../namedConstants/RealVectorSpace */ "./src/namedConstants/RealVectorSpace.ts");
 const RealVectorSpace1DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace1DStrategy */ "./src/mathVector/RealVectorSpace1DStrategy.ts");
@@ -52625,6 +52625,14 @@ class RealVectorSpace {
     }
 }
 exports.RealVectorSpace = RealVectorSpace;
+function createRealVectorSpace(dimension) {
+    if (dimension < RealVectorSpace_2.MIN_DIMENSION_REALVECTORSPACE || dimension > RealVectorSpace_2.MAX_DIMENSION_REALVECTORSPACE) {
+        const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)("createRealVectorSpace", 'function', RealVectorSpace_1.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
+        throw new RangeError(error.generateMessageString());
+    }
+    return new RealVectorSpace(dimension);
+}
+exports.createRealVectorSpace = createRealVectorSpace;
 
 
 /***/ }),
@@ -53228,23 +53236,31 @@ exports.scaleY = scaleY;
 /*!**********************************************!*\
   !*** ./src/mathVector/VectorCollection1D.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.VectorCollection1D = exports.UNDEFINEDVECTORTYPE = void 0;
+exports.createVectorCollection1D = exports.VectorCollection1D = exports.UNDEFINEDVECTORTYPE = void 0;
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 exports.UNDEFINEDVECTORTYPE = 'UndefinedVectorType';
 class VectorCollection1D {
     constructor(vectorArray) {
-        if (vectorArray !== undefined) {
+        this._spaceDimension = BSplineR1toRn_1.INVALID_VS_DIMENSION;
+        this._vectorSpaceType = BSplineR1toRn_1.VectorSpaceType.UNKNOWN_VECTORSPACE;
+        if (vectorArray !== undefined && vectorArray.length > 0) {
             this._vectorCollection = vectorArray;
             this.checkTypeConsistency();
             this._type = this._vectorCollection[0];
+            const { type: vectorSpaceType, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorSpaceTypeAndDimension)(this._vectorCollection[0]);
+            this._vectorSpaceType = vectorSpaceType;
+            this._spaceDimension = spaceDimension;
         }
         else {
             this._vectorCollection = [];
             this._type = { type: exports.UNDEFINEDVECTORTYPE };
+            ;
         }
     }
     [Symbol.iterator]() {
@@ -53272,6 +53288,36 @@ class VectorCollection1D {
     }
     get type() {
         return this._type;
+    }
+    get vectorSpaceType() {
+        return this._vectorSpaceType;
+    }
+    get spaceDimension() {
+        return this._spaceDimension;
+    }
+    isRealVectorSpace() {
+        return this._vectorSpaceType === BSplineR1toRn_1.VectorSpaceType.REAL;
+    }
+    isComplexVectorSpace() {
+        return this._vectorSpaceType === BSplineR1toRn_1.VectorSpaceType.COMPLEX;
+    }
+    isProjectiveVectorSpace() {
+        return this._vectorSpaceType === BSplineR1toRn_1.VectorSpaceType.PROJECTIVE;
+    }
+    isProjectiveComplexVectorSpace() {
+        return this._vectorSpaceType === BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX;
+    }
+    is1D() {
+        return this._spaceDimension === 1;
+    }
+    is2D() {
+        return this._spaceDimension === 2;
+    }
+    is3D() {
+        return this._spaceDimension === 3;
+    }
+    is4D() {
+        return this._spaceDimension === 4;
     }
     checkTypeConsistency() {
         const refType = typeof this._vectorCollection[0];
@@ -53341,6 +53387,10 @@ class VectorCollection1D {
     }
 }
 exports.VectorCollection1D = VectorCollection1D;
+function createVectorCollection1D(vectors) {
+    return new VectorCollection1D(vectors);
+}
+exports.createVectorCollection1D = createVectorCollection1D;
 
 
 /***/ }),
@@ -55013,19 +55063,22 @@ exports.CurveModelObserverInCurveSceneController = CurveModelObserverInCurveScen
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.VectorSpaceType = exports.PROJECTIVECOMPLEX = exports.PROJECTIVE = exports.COMPLEX = exports.REAL = exports.CURVE_ORIGIN = void 0;
+exports.VectorSpaceType = exports.UNKNOWN_VECTORSPACE = exports.PROJECTIVECOMPLEX = exports.PROJECTIVE = exports.COMPLEX = exports.REAL = exports.INVALID_VS_DIMENSION = exports.CURVE_ORIGIN = void 0;
 const KnotSequences_1 = __webpack_require__(/*! ./KnotSequences */ "./src/namedConstants/KnotSequences.ts");
 exports.CURVE_ORIGIN = KnotSequences_1.KNOT_SEQUENCE_ORIGIN;
+exports.INVALID_VS_DIMENSION = -1;
 exports.REAL = "Real";
 exports.COMPLEX = "Complex";
 exports.PROJECTIVE = "Projective";
 exports.PROJECTIVECOMPLEX = "ProjectiveComplex";
+exports.UNKNOWN_VECTORSPACE = "Unkown_VectorSpace";
 var VectorSpaceType;
 (function (VectorSpaceType) {
     VectorSpaceType[VectorSpaceType["REAL"] = 0] = "REAL";
     VectorSpaceType[VectorSpaceType["COMPLEX"] = 1] = "COMPLEX";
     VectorSpaceType[VectorSpaceType["PROJECTIVE"] = 2] = "PROJECTIVE";
     VectorSpaceType[VectorSpaceType["PROJECTIVECOMPLEX"] = 3] = "PROJECTIVECOMPLEX";
+    VectorSpaceType[VectorSpaceType["UNKNOWN_VECTORSPACE"] = 4] = "UNKNOWN_VECTORSPACE";
 })(VectorSpaceType = exports.VectorSpaceType || (exports.VectorSpaceType = {}));
 
 
@@ -59420,7 +59473,7 @@ exports.memoizedBinomialCoefficient = memoizedBinomialCoefficient;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ControlPolygon = void 0;
+exports.createControlPolygon = exports.ControlPolygon = void 0;
 const VectorCollection1D_1 = __webpack_require__(/*! ../mathVector/VectorCollection1D */ "./src/mathVector/VectorCollection1D.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ../mathVector/VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
@@ -59466,6 +59519,10 @@ class ControlPolygon extends VectorCollection1D_1.VectorCollection1D {
     }
 }
 exports.ControlPolygon = ControlPolygon;
+function createControlPolygon(controlpPoints) {
+    return new ControlPolygon(controlpPoints);
+}
+exports.createControlPolygon = createControlPolygon;
 
 
 /***/ }),
@@ -61609,7 +61666,8 @@ class CoxDeBoorEvaluator extends BSplineEvaluator {
         this.controlPolygon = controlPolygon;
         this._isDirty = true;
         this._flatCoordinates = null;
-        this.vectorSpace = new RealVectorSpace_1.RealVectorSpace(controlPolygon.spaceDimension);
+        // this.vectorSpace = new RealVectorSpace(controlPolygon.spaceDimension);
+        this.vectorSpace = (0, RealVectorSpace_1.createRealVectorSpace)(controlPolygon.spaceDimension);
     }
     get flatCoordinates() {
         if (this._isDirty || !this._flatCoordinates) {
@@ -62068,8 +62126,9 @@ class OpenBSplineR1toRnRealVectorStrategy extends AbstractOPenBSplineR1toRnStrat
     }
     evaluate(u) {
         const evaluator = this.getEvaluatorView('coxdeboor');
-        // const result = this.vectorSpace.createVector([]);
         return evaluator.evaluate(u);
+        // const result = this.vectorSpace.createVector([]);
+        // return result;
     }
     derivative() {
         return this.openBSplineR1toRn;

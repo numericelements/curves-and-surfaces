@@ -3,7 +3,7 @@ import { ProjectiveVector } from "../mathVector/VectorSpaceConstructorInterface"
 import { ControlPolygon, ControlPolygonStrategy } from "./ControlPolygon";
 
 
-export class ControlPolygonRealProjectiveVectorStrategy implements ControlPolygonStrategy {
+export class ControlPolygonRealProjectiveVectorStrategy implements ControlPolygonStrategy<ProjectiveVector> {
 
     private vectorSpace: ProjectiveVectorSpace;
     private controlPolygon: ControlPolygon;

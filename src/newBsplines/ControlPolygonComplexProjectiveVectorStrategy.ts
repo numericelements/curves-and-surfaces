@@ -3,7 +3,7 @@ import { ProjectiveComplexVector } from "../mathVector/VectorSpaceConstructorInt
 import { ControlPolygon, ControlPolygonStrategy } from "./ControlPolygon";
 
 
-export class ControlPolygonComplexProjectiveVectorStrategy implements ControlPolygonStrategy {
+export class ControlPolygonComplexProjectiveVectorStrategy implements ControlPolygonStrategy<ProjectiveComplexVector> {
 
     private vectorSpace: ProjectiveComplexVectorSpace;
     private controlPolygon: ControlPolygon;

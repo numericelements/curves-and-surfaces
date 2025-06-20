@@ -1,5 +1,5 @@
 import { ProjectiveVectorSpace } from "../mathVector/ProjectiveVectorSpace";
-import { RealVectorSpace } from "../mathVector/RealVectorSpace";
+import { createRealVectorSpace, RealVectorSpace } from "../mathVector/RealVectorSpace";
 import { ProjectiveVector, RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { isVector2D, isVector3D, isVector4D } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
@@ -37,15 +37,16 @@ export class BSplineEvaluator {
     };
 }
 
-export class CoxDeBoorEvaluator extends BSplineEvaluator {
+export class CoxDeBoorEvaluator<T extends Vector = Vector> extends BSplineEvaluator {
 
-    private vectorSpace: RealVectorSpace;
+    private vectorSpace: RealVectorSpace<number>;
     private _isDirty: boolean = true;
     private _flatCoordinates: Float64Array | null = null;
 
     constructor(private controlPolygon: ControlPolygon) {
         super();
-        this.vectorSpace = new RealVectorSpace(controlPolygon.spaceDimension)
+        // this.vectorSpace = new RealVectorSpace(controlPolygon.spaceDimension);
+        this.vectorSpace = createRealVectorSpace(controlPolygon.spaceDimension)
     }
     
     get flatCoordinates(): Float64Array {

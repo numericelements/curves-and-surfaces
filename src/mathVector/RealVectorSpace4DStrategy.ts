@@ -4,7 +4,7 @@ import { Real, RealVector, RealVector4D, REALVECTOR4D } from "./VectorSpaceConst
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy {
+export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
     // Implementation for 4D vectors
 
     areSameDimension(a: RealVector, b: RealVector): boolean {

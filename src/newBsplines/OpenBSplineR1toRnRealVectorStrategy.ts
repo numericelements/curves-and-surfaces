@@ -66,8 +66,9 @@ export class OpenBSplineR1toRnRealVectorStrategy extends AbstractOPenBSplineR1to
 
     evaluate(u: number, ): RealVector {
         const evaluator = this.getEvaluatorView<CoxDeBoorEvaluator>('coxdeboor');
-        // const result = this.vectorSpace.createVector([]);
         return evaluator.evaluate(u);
+        // const result = this.vectorSpace.createVector([]);
+        // return result;
     }
 
     derivative(): OpenBSplineR1toRn {

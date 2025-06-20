@@ -4,24 +4,31 @@ import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
 import { RealVectorSpace2DStrategy } from "./RealVectorSpace2DStrategy";
 import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
 import { RealVectorSpace4DStrategy } from "./RealVectorSpace4DStrategy";
-import { ComplexVector, ProjectiveVector, Real, RealVector, VectorSpace, } from "./VectorSpaceConstructorInterface";
+import { ComplexVector, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, VectorSpace, } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 /**
  * Implementation of a real vector space
  */
+export type RealVectorOfDimension<D extends number> = 
+    D extends 1 ? RealVector1D :
+    D extends 2 ? RealVector2D :
+    D extends 3 ? RealVector3D :
+    D extends 4 ? RealVector4D :
+    RealVector;
+    // never;
 
 // Strategy interface
-export interface RealVectorSpaceStrategy {
+export interface RealVectorSpaceStrategy<D extends number> {
     areSameDimension(v1: RealVector, v2: RealVector): boolean;
     isInVectorSpace(v: RealVector): v is RealVector;
-    createVector(coordinates: Real[]): RealVector;
-    defaultVect(): RealVector;
-    add(a: RealVector, b: RealVector): RealVector;
-    scale(scalar: Real, v: RealVector): RealVector;
-    subtract(a: RealVector, b: RealVector): RealVector;
-    clone(v: RealVector): RealVector;
+    createVector(coordinates: Real[]): RealVectorOfDimension<D>;
+    defaultVect(): RealVectorOfDimension<D>;
+    add(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
+    scale(scalar: Real, v: RealVector): RealVectorOfDimension<D>;
+    subtract(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
+    clone(v: RealVector): RealVectorOfDimension<D>;
     norm(v: RealVector): number;
     normalize(v: RealVector): RealVector;
     crossProduct(a: RealVector, b: RealVector): RealVector;
@@ -31,25 +38,25 @@ export interface RealVectorSpaceStrategy {
 }
 
   // Main class using strategy
-export class RealVectorSpace implements VectorSpace<Real, RealVector> {
-    protected readonly dim: number;
-    protected strategy: RealVectorSpaceStrategy;
+export class RealVectorSpace<D extends number = number> implements VectorSpace<Real, RealVectorOfDimension<D>> {
+    protected readonly dim: D;
+    protected strategy: RealVectorSpaceStrategy<D>;
     
-    constructor(dimension: number) {
+    constructor(dimension: D) {
         this.dim = dimension;
       
         switch(this.dim) {
             case MIN_DIMENSION_REALVECTORSPACE:
-                this.strategy = new RealVectorSpace1DStrategy();
+                this.strategy = new RealVectorSpace1DStrategy() as unknown as RealVectorSpaceStrategy<D>;
                 break;
             case 2:
-                this.strategy = new RealVectorSpace2DStrategy();
+                this.strategy = new RealVectorSpace2DStrategy() as RealVectorSpaceStrategy<D>;
                 break;
             case 3:
-                this.strategy = new RealVectorSpace3DStrategy();
+                this.strategy = new RealVectorSpace3DStrategy() as unknown as RealVectorSpaceStrategy<D>;
                 break;
             case MAX_DIMENSION_REALVECTORSPACE:
-                this.strategy = new RealVectorSpace4DStrategy();
+                this.strategy = new RealVectorSpace4DStrategy() as unknown as RealVectorSpaceStrategy<D>;
                 break;
             default:
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -69,7 +76,7 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
       return this.strategy.isInVectorSpace(v);
     }
 
-    createVector(coordinates: Real[]): RealVector {
+    createVector(coordinates: Real[]): RealVectorOfDimension<D> {
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
@@ -78,11 +85,11 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
         return vect;
     }
 
-    defaultVect(): RealVector {
+    defaultVect(): RealVectorOfDimension<D> {
         return this.strategy.defaultVect();
     }
     
-    add(a: RealVector, b: RealVector): RealVector {
+    add(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
         try { 
             return this.strategy.add(a, b);
         } catch (error) {
@@ -95,7 +102,7 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
         }
     }
 
-    subtract(a: RealVector, b: RealVector): RealVector {
+    subtract(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
         try {
             return this.strategy.subtract(a, b);
         } catch (error) {
@@ -108,7 +115,7 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
         }
     }
 
-    scale(scalar: Real, v: RealVector): RealVector {
+    scale(scalar: Real, v: RealVector): RealVectorOfDimension<D> {
         try {
             return this.strategy.scale(scalar, v);
         } catch(error) {
@@ -117,7 +124,7 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
         }
     }
 
-    clone(v: RealVector): RealVector {
+    clone(v: RealVector): RealVectorOfDimension<D> {
         try{
             return this.strategy.clone(v);
         } catch (error) {
@@ -170,3 +177,15 @@ export class RealVectorSpace implements VectorSpace<Real, RealVector> {
     }
   }
   
+export function createRealVectorSpace(dimension: 1): RealVectorSpace<1>;
+export function createRealVectorSpace(dimension: 2): RealVectorSpace<2>;
+export function createRealVectorSpace(dimension: 3): RealVectorSpace<3>;
+export function createRealVectorSpace(dimension: 4): RealVectorSpace<4>;
+export function createRealVectorSpace(dimension: number): RealVectorSpace<number>;
+export function createRealVectorSpace(dimension: number): RealVectorSpace<any> {
+    if(dimension < MIN_DIMENSION_REALVECTORSPACE || dimension > MAX_DIMENSION_REALVECTORSPACE) {
+        const error = sendRangeErrorMessage("createRealVectorSpace", 'function', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
+        throw new RangeError(error.generateMessageString());
+    }
+    return new RealVectorSpace(dimension);
+}

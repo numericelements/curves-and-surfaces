@@ -5,7 +5,7 @@ import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
   
-export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy {
+export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3> {
     // Implementation for 3D vectors
 
     areSameDimension(v1: RealVector, v2: RealVector): boolean {

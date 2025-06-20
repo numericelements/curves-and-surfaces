@@ -37,7 +37,7 @@ describe('Algorithm Library', () => {
 
         // Test default algorithm
         const point1 = curve.evaluate(0.5) as RealVector2D;
-        expect(isVector2D(point1)).to.eql(true);
+        expect(isVector2D(point1)).to.eql(true) ;
 
         // Test specific algorithm
         const point2 = curve.evaluateWithAlgorithm(0.5, 'boehm') as RealVector2D;
