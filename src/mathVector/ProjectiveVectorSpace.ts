@@ -4,7 +4,7 @@ import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NEGA
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
-import { ProjectiveComplexVector, ProjectiveVector, Real, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { ProjectiveComplexVector, ProjectiveVector, ProjectiveVectorOfDimension, Real, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 
@@ -14,30 +14,30 @@ import { WeightManager } from "./WeightManager";
 
 
 // Strategy interface
-export interface ProjectiveVectorSpaceStrategy {
+export interface ProjectiveVectorSpaceStrategy<D extends number> {
     shareSameWeightManagement(v1: ProjectiveVector, v2: ProjectiveVector, weightManager: WeightManager): boolean;
     areSameDimension(v1: ProjectiveVector, v2: ProjectiveVector): boolean;
     isInVectorSpace(v: ProjectiveVector): v is ProjectiveVector;
-    createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVector;
-    defaultVect(weightManager: WeightManager): ProjectiveVector;
-    add(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector;
-    scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector;
-    subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector;
+    createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
+    defaultVect(weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
+    add(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
+    scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
+    subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
     norm(a: ProjectiveVector): Real;
-    clone(v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector;
+    clone(v: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
     fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector;
     fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector): ProjectiveComplexVector
 }
 
 
 // Main class using strategy
-export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector> {
-    private dim: number;
-    protected strategy: ProjectiveVectorSpaceStrategy;
+export class ProjectiveVectorSpace<D extends number = number> implements VectorSpace<Real, ProjectiveVectorOfDimension<D>> {
+    private dim: D;
+    protected strategy: ProjectiveVectorSpaceStrategy<D>;
     protected _weightManagement: WeightManagement;
     private weightManager: WeightManager;
     
-    constructor(dimension: number, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
+    constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
         this.dim = dimension;
         this._weightManagement = weightManagement;
         // Create weight manager
@@ -45,10 +45,10 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
       
         switch(this.dim) {
             case MIN_DIMENSION_PROJECTIVEVECTORSPACE:
-                this.strategy = new ProjectiveVectorSpace3DStrategy();
+                this.strategy = new ProjectiveVectorSpace3DStrategy() as ProjectiveVectorSpaceStrategy<D>;
                 break;
             case MAX_DIMENSION_PROJECTIVEVECTORSPACE:
-                this.strategy = new ProjectiveVectorSpace4DStrategy();
+                this.strategy = new ProjectiveVectorSpace4DStrategy() as unknown as ProjectiveVectorSpaceStrategy<D>;
                 break;
             default:
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -81,7 +81,7 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
         return this.strategy.isInVectorSpace(v);
     }
 
-    createVector(coordinates: Real[]): ProjectiveVector {
+    createVector(coordinates: Real[]): ProjectiveVectorOfDimension<D> {
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
@@ -99,12 +99,12 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
         }
     }
 
-    defaultVect(): ProjectiveVector {
+    defaultVect(): ProjectiveVectorOfDimension<D> {
         const vect = this.strategy.defaultVect(this.weightManager);
         return vect;
     }
     
-    add(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVector {
+    add(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try { 
             return this.strategy.add(a, b, this.weightManager);
         } catch (error) {
@@ -117,7 +117,7 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
         }
     }
 
-    subtract(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVector {
+    subtract(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.subtract(a, b, this.weightManager);
         } catch (error) {
@@ -146,7 +146,7 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
         }
     }
 
-    scale(scalar: Real, v: ProjectiveVector): ProjectiveVector {
+    scale(scalar: Real, v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.scale(scalar, v, this.weightManager);
         } catch(error) {
@@ -162,7 +162,7 @@ export class ProjectiveVectorSpace implements VectorSpace<Real, ProjectiveVector
             }
     }
 
-    clone(v: ProjectiveVector): ProjectiveVector {
+    clone(v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.clone(v, this.weightManager);
         } catch (error) {

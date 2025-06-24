@@ -4,20 +4,14 @@ import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
 import { RealVectorSpace2DStrategy } from "./RealVectorSpace2DStrategy";
 import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
 import { RealVectorSpace4DStrategy } from "./RealVectorSpace4DStrategy";
-import { ComplexVector, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, VectorSpace, } from "./VectorSpaceConstructorInterface";
+import { ComplexVector, ProjectiveVector, Real, RealVector, RealVectorOfDimension, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 /**
  * Implementation of a real vector space
  */
-export type RealVectorOfDimension<D extends number> = 
-    D extends 1 ? RealVector1D :
-    D extends 2 ? RealVector2D :
-    D extends 3 ? RealVector3D :
-    D extends 4 ? RealVector4D :
-    RealVector;
-    // never;
+
 
 // Strategy interface
 export interface RealVectorSpaceStrategy<D extends number> {

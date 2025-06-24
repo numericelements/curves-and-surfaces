@@ -4,7 +4,6 @@
  */
 
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { RealVectorOfDimension } from "./RealVectorSpace";
 import { Weight } from "./Weight";
 
 // ------------ Type Definitions ------------
@@ -12,13 +11,16 @@ import { Weight } from "./Weight";
 export const COMPLEX = 'Complex' as const;
 export const WEIGHT = 'Weight' as const;
 export const COMPLEXWEIGHT = 'ComplexWeight' as const;
+export const REALVECTOR1D = 'RealVector1D' as const;
 export const REALVECTOR2D = 'RealVector2D' as const;
+export const REALVECTOR3D = 'RealVector3D' as const;
+export const REALVECTOR4D = 'RealVector4D' as const;
+export const COMPLEXVECTOR1D = 'ComplexVector1D' as const;
 export const COMPLEXVECTOR2D = 'ComplexVector2D' as const;
 export const PROJECTIVEVECTOR2D = 'ProjectiveVector2D' as const;
-export const REALVECTOR3D = 'RealVector3D' as const;
 export const PROJECTIVEVECTOR3D = 'ProjectiveVector3D' as const;
-export const REALVECTOR4D = 'RealVector4D' as const;
 export const PROJECTIVECOMPLEXVECTOR1D = 'ProjectiveComplexVector1D' as const;
+export const UNDEFINED_VECTORTYPE = 'UndefinedVectorType' as const;
 
 /** Real numbers (ℝ) */
 export type Real = number;
@@ -62,6 +64,10 @@ export type RealVector1D = Real;
 //     readonly type: typeof REALVECTOR1D;  // Add this constant
 //     coordinates: Real;
 // }
+
+export interface UndefinedVectorType {
+    readonly type: typeof UNDEFINED_VECTORTYPE;
+}
 
 export type Vector2D = RealVector2D | ComplexVector2D | ProjectiveComplexVector1D;
 
@@ -113,6 +119,13 @@ export type VectorTypeForSpace<VS extends VectorSpaceType, D extends number> =
     VS extends VectorSpaceType.PROJECTIVECOMPLEX ? ProjectiveComplexVectorOfDimension<D> :
     VectorSpaceType.UNKNOWN_VECTORSPACE;
 
+export type RealVectorOfDimension<D extends number> = 
+    D extends 1 ? RealVector1D :
+    D extends 2 ? RealVector2D :
+    D extends 3 ? RealVector3D :
+    D extends 4 ? RealVector4D :
+    RealVector;
+    // never;
 
 export type ComplexVectorOfDimension<D extends number> = 
     D extends 1 ? ComplexVector1D :
@@ -132,6 +145,75 @@ export type ProjectiveComplexVectorOfDimension<D extends number> =
     D extends 2 ? ProjectiveComplexVector1D :
     ProjectiveComplexVector;
     // never;
+
+export const VECTOR_TYPE_INFO = {
+    UndefinedVectorType: {
+        typeString: UNDEFINED_VECTORTYPE,
+        vectorSpaceType: VectorSpaceType.UNKNOWN_VECTORSPACE,
+        spaceDimension: 0,
+        isBasicType: false
+    },
+    RealVector1D: {
+        typeString: REALVECTOR1D,
+        vectorSpaceType: VectorSpaceType.REAL,
+        spaceDimension: 1,
+        isBasicType: true
+    },
+    RealVector2D: {
+        typeString: REALVECTOR2D,
+        vectorSpaceType: VectorSpaceType.REAL,
+        spaceDimension: 2,
+        isBasicType: false
+    },
+    RealVector3D: {
+        typeString: REALVECTOR3D,
+        vectorSpaceType: VectorSpaceType.REAL,
+        spaceDimension: 3,
+        isBasicType: false
+    },
+    RealVector4D: {
+        typeString: REALVECTOR4D,
+        vectorSpaceType: VectorSpaceType.REAL,
+        spaceDimension: 4,
+        isBasicType: false
+    },
+    Complex: {
+        typeString: COMPLEX,
+        vectorSpaceType: VectorSpaceType.COMPLEX,
+        spaceDimension: 1,
+        isBasicType: false
+    },
+    ComplexVector1D: {
+        typeString: COMPLEXVECTOR1D,
+        vectorSpaceType: VectorSpaceType.COMPLEX,
+        spaceDimension: 1,
+        isBasicType: false
+    },
+    ComplexVector2D: {
+        typeString: COMPLEXVECTOR2D,
+        vectorSpaceType: VectorSpaceType.COMPLEX,
+        spaceDimension: 2,
+        isBasicType: false
+    },
+    ProjectiveVector2D: {
+        typeString: PROJECTIVEVECTOR2D,
+        vectorSpaceType: VectorSpaceType.PROJECTIVE,
+        spaceDimension: 3,
+        isBasicType: false
+    },
+    ProjectiveVector3D: {
+        typeString: PROJECTIVEVECTOR3D,
+        vectorSpaceType: VectorSpaceType.PROJECTIVE,
+        spaceDimension: 4,
+        isBasicType: false
+    },
+    ProjectiveComplexVector1D: {
+        typeString: PROJECTIVECOMPLEXVECTOR1D,
+        vectorSpaceType: VectorSpaceType.PROJECTIVECOMPLEX,
+        spaceDimension: 2,
+        isBasicType: false
+    }
+} as const;
 
 
 // ------------ Vector Space Interface ------------

@@ -1,6 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { COMPLEX, ComplexVector, COMPLEXVECTOR2D, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, Vector2D, Vector3D, Vector4D } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, ComplexVector, COMPLEXVECTOR2D, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, Vector2D, Vector3D, Vector4D, VECTOR_TYPE_INFO } from "./VectorSpaceConstructorInterface";
 
 // ------------ Type Guards ------------
 
@@ -156,5 +156,20 @@ export function getVectorSpaceTypeAndDimension(vector: Vector): {type: VectorSpa
     } else {
         throw new Error("Unsupported vector space");
     }
+}
+
+export function getVectorTypeInfo(vector: any): typeof VECTOR_TYPE_INFO[keyof typeof VECTOR_TYPE_INFO] {
+    if (typeof vector === 'number') {
+        return VECTOR_TYPE_INFO.RealVector1D;
+    }
+    if (typeof vector === 'object' && vector !== null && 'type' in vector) {
+        const typeKey = Object.keys(VECTOR_TYPE_INFO).find(key => 
+            VECTOR_TYPE_INFO[key as keyof typeof VECTOR_TYPE_INFO].typeString === vector.type
+        );
+        if (typeKey) {
+            return VECTOR_TYPE_INFO[typeKey as keyof typeof VECTOR_TYPE_INFO];
+        }
+    }
+    return VECTOR_TYPE_INFO.UndefinedVectorType;
 }
 

@@ -8,7 +8,7 @@ import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
 
-export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStrategy {
+export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStrategy<4> {
     // Implementation for 4D vectors
 
     shareSameWeightManagement(v1: ProjectiveVector3D, v2: ProjectiveVector3D, weightManager: WeightManager): boolean {
@@ -36,7 +36,7 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
         return false;
     }
 
-    createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVector {
+    createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVector3D {
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[3] === 0)) {
             let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, value: weightManager.setWeightStatus(new Weight(coordinates[3], false))}]};
             return vector;
@@ -46,12 +46,12 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
         }
     }
 
-    defaultVect(weightManager: WeightManager): ProjectiveVector {
+    defaultVect(weightManager: WeightManager): ProjectiveVector3D {
         let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: weightManager.setWeightStatus(new Weight(DEFAULT_WEIGHT_VALUE))}]};
         return vector;
     }
 
-    add(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector {
+    add(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(a) && isVector4D(b)) {
             const sumWeights = weightManager.addWeights(a.coordinates[3].value, b.coordinates[3].value);
             return {type: PROJECTIVEVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], {type: WEIGHT, value: sumWeights}]};
@@ -60,7 +60,7 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
         }
     }
 
-    subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector {
+    subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(a) && isVector4D(b)) {
             try {
                 const diffWeights = weightManager.subtractWeights(a.coordinates[3].value, b.coordinates[3].value);
@@ -93,7 +93,7 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
         }
     }
 
-    scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector {
+    scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(v)) {
             try{
                 const scaledWeight = weightManager.scaleWeight(v.coordinates[3].value, scalar);
@@ -106,7 +106,7 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
         }
     }
 
-    clone(v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector {
+    clone(v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(v)) {
             const cloneWeight = weightManager.cloneWeight(v.coordinates[3].value);
             return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, value: cloneWeight}]};

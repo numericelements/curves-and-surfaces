@@ -53241,10 +53241,9 @@ exports.scaleY = scaleY;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createVectorCollection1D = exports.VectorCollection1D = exports.UNDEFINEDVECTORTYPE = void 0;
+exports.createVectorCollection1D = exports.VectorCollection1D = void 0;
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
-exports.UNDEFINEDVECTORTYPE = 'UndefinedVectorType';
 class VectorCollection1D {
     constructor(vectorArray) {
         this._spaceDimension = BSplineR1toRn_1.INVALID_VS_DIMENSION;
@@ -53252,15 +53251,14 @@ class VectorCollection1D {
         if (vectorArray !== undefined && vectorArray.length > 0) {
             this._vectorCollection = vectorArray;
             this.checkTypeConsistency();
-            this._type = this._vectorCollection[0];
+            this._type = (0, VectorSpaceUtilities_1.getVectorTypeInfo)(this._vectorCollection[0]).typeString;
             const { type: vectorSpaceType, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorSpaceTypeAndDimension)(this._vectorCollection[0]);
             this._vectorSpaceType = vectorSpaceType;
             this._spaceDimension = spaceDimension;
         }
         else {
             this._vectorCollection = [];
-            this._type = { type: exports.UNDEFINEDVECTORTYPE };
-            ;
+            this._type = (0, VectorSpaceUtilities_1.getVectorTypeInfo)(this._vectorCollection).typeString;
         }
     }
     [Symbol.iterator]() {
@@ -53336,7 +53334,7 @@ class VectorCollection1D {
     push(vector) {
         if (this._vectorCollection.length === 0) {
             this._vectorCollection.push(vector);
-            this._type = this._vectorCollection[0];
+            this._type = (0, VectorSpaceUtilities_1.getVectorTypeInfo)(this._vectorCollection[0]).typeString;
         }
         else if (typeof vector === typeof this._vectorCollection[0]) {
             this._vectorCollection.push(vector);
@@ -53399,7 +53397,7 @@ exports.createVectorCollection1D = createVectorCollection1D;
 /*!***********************************************************!*\
   !*** ./src/mathVector/VectorSpaceConstructorInterface.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
 
@@ -53408,18 +53406,91 @@ exports.createVectorCollection1D = createVectorCollection1D;
  * Implements mathematical vector space axioms for real and complex numbers
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.PROJECTIVECOMPLEXVECTOR1D = exports.REALVECTOR4D = exports.PROJECTIVEVECTOR3D = exports.REALVECTOR3D = exports.PROJECTIVEVECTOR2D = exports.COMPLEXVECTOR2D = exports.REALVECTOR2D = exports.COMPLEXWEIGHT = exports.WEIGHT = exports.COMPLEX = void 0;
+exports.VECTOR_TYPE_INFO = exports.UNDEFINED_VECTORTYPE = exports.PROJECTIVECOMPLEXVECTOR1D = exports.PROJECTIVEVECTOR3D = exports.PROJECTIVEVECTOR2D = exports.COMPLEXVECTOR2D = exports.COMPLEXVECTOR1D = exports.REALVECTOR4D = exports.REALVECTOR3D = exports.REALVECTOR2D = exports.REALVECTOR1D = exports.COMPLEXWEIGHT = exports.WEIGHT = exports.COMPLEX = void 0;
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 // ------------ Type Definitions ------------
 exports.COMPLEX = 'Complex';
 exports.WEIGHT = 'Weight';
 exports.COMPLEXWEIGHT = 'ComplexWeight';
+exports.REALVECTOR1D = 'RealVector1D';
 exports.REALVECTOR2D = 'RealVector2D';
+exports.REALVECTOR3D = 'RealVector3D';
+exports.REALVECTOR4D = 'RealVector4D';
+exports.COMPLEXVECTOR1D = 'ComplexVector1D';
 exports.COMPLEXVECTOR2D = 'ComplexVector2D';
 exports.PROJECTIVEVECTOR2D = 'ProjectiveVector2D';
-exports.REALVECTOR3D = 'RealVector3D';
 exports.PROJECTIVEVECTOR3D = 'ProjectiveVector3D';
-exports.REALVECTOR4D = 'RealVector4D';
 exports.PROJECTIVECOMPLEXVECTOR1D = 'ProjectiveComplexVector1D';
+exports.UNDEFINED_VECTORTYPE = 'UndefinedVectorType';
+// never;
+exports.VECTOR_TYPE_INFO = {
+    UndefinedVectorType: {
+        typeString: exports.UNDEFINED_VECTORTYPE,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.UNKNOWN_VECTORSPACE,
+        spaceDimension: 0,
+        isBasicType: false
+    },
+    RealVector1D: {
+        typeString: exports.REALVECTOR1D,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.REAL,
+        spaceDimension: 1,
+        isBasicType: true
+    },
+    RealVector2D: {
+        typeString: exports.REALVECTOR2D,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.REAL,
+        spaceDimension: 2,
+        isBasicType: false
+    },
+    RealVector3D: {
+        typeString: exports.REALVECTOR3D,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.REAL,
+        spaceDimension: 3,
+        isBasicType: false
+    },
+    RealVector4D: {
+        typeString: exports.REALVECTOR4D,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.REAL,
+        spaceDimension: 4,
+        isBasicType: false
+    },
+    Complex: {
+        typeString: exports.COMPLEX,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.COMPLEX,
+        spaceDimension: 1,
+        isBasicType: false
+    },
+    ComplexVector1D: {
+        typeString: exports.COMPLEXVECTOR1D,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.COMPLEX,
+        spaceDimension: 1,
+        isBasicType: false
+    },
+    ComplexVector2D: {
+        typeString: exports.COMPLEXVECTOR2D,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.COMPLEX,
+        spaceDimension: 2,
+        isBasicType: false
+    },
+    ProjectiveVector2D: {
+        typeString: exports.PROJECTIVEVECTOR2D,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.PROJECTIVE,
+        spaceDimension: 3,
+        isBasicType: false
+    },
+    ProjectiveVector3D: {
+        typeString: exports.PROJECTIVEVECTOR3D,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.PROJECTIVE,
+        spaceDimension: 4,
+        isBasicType: false
+    },
+    ProjectiveComplexVector1D: {
+        typeString: exports.PROJECTIVECOMPLEXVECTOR1D,
+        vectorSpaceType: BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX,
+        spaceDimension: 2,
+        isBasicType: false
+    }
+};
 
 
 /***/ }),
@@ -53433,7 +53504,7 @@ exports.PROJECTIVECOMPLEXVECTOR1D = 'ProjectiveComplexVector1D';
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getVectorSpaceTypeAndDimension = exports.areSameVSpaceAndDimension = exports.sendRangeErrorMessage = exports.isProjectiveComplexVector = exports.isProjectiveVector = exports.isComplexVector = exports.isRealVector = exports.isVector4D = exports.isVector3D = exports.isVector2D = exports.isVector1D = void 0;
+exports.getVectorTypeInfo = exports.getVectorSpaceTypeAndDimension = exports.areSameVSpaceAndDimension = exports.sendRangeErrorMessage = exports.isProjectiveComplexVector = exports.isProjectiveVector = exports.isComplexVector = exports.isRealVector = exports.isVector4D = exports.isVector3D = exports.isVector2D = exports.isVector1D = void 0;
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
@@ -53625,6 +53696,19 @@ function getVectorSpaceTypeAndDimension(vector) {
     }
 }
 exports.getVectorSpaceTypeAndDimension = getVectorSpaceTypeAndDimension;
+function getVectorTypeInfo(vector) {
+    if (typeof vector === 'number') {
+        return VectorSpaceConstructorInterface_1.VECTOR_TYPE_INFO.RealVector1D;
+    }
+    if (typeof vector === 'object' && vector !== null && 'type' in vector) {
+        const typeKey = Object.keys(VectorSpaceConstructorInterface_1.VECTOR_TYPE_INFO).find(key => VectorSpaceConstructorInterface_1.VECTOR_TYPE_INFO[key].typeString === vector.type);
+        if (typeKey) {
+            return VectorSpaceConstructorInterface_1.VECTOR_TYPE_INFO[typeKey];
+        }
+    }
+    return VectorSpaceConstructorInterface_1.VECTOR_TYPE_INFO.UndefinedVectorType;
+}
+exports.getVectorTypeInfo = getVectorTypeInfo;
 
 
 /***/ }),
@@ -55063,15 +55147,10 @@ exports.CurveModelObserverInCurveSceneController = CurveModelObserverInCurveScen
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.VectorSpaceType = exports.UNKNOWN_VECTORSPACE = exports.PROJECTIVECOMPLEX = exports.PROJECTIVE = exports.COMPLEX = exports.REAL = exports.INVALID_VS_DIMENSION = exports.CURVE_ORIGIN = void 0;
+exports.VectorSpaceType = exports.INVALID_VS_DIMENSION = exports.CURVE_ORIGIN = void 0;
 const KnotSequences_1 = __webpack_require__(/*! ./KnotSequences */ "./src/namedConstants/KnotSequences.ts");
 exports.CURVE_ORIGIN = KnotSequences_1.KNOT_SEQUENCE_ORIGIN;
 exports.INVALID_VS_DIMENSION = -1;
-exports.REAL = "Real";
-exports.COMPLEX = "Complex";
-exports.PROJECTIVE = "Projective";
-exports.PROJECTIVECOMPLEX = "ProjectiveComplex";
-exports.UNKNOWN_VECTORSPACE = "Unkown_VectorSpace";
 var VectorSpaceType;
 (function (VectorSpaceType) {
     VectorSpaceType[VectorSpaceType["REAL"] = 0] = "REAL";

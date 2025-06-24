@@ -17,7 +17,7 @@ describe('ComplexVectorSpace1DStrategy', () => {
             it(`can add two ${COMPLEX} vectors and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestComplexVector(COMPLEX, [[2, 3]]);
                 const vec2 = vectorSpace.defaultVect();
-                const result = vectorSpace.add(vec1, vec2) as Complex;
+                const result = vectorSpace.add(vec1, vec2);
                 // Check coordinates
                 expect(result.real).to.eql(2);
                 expect(result.imaginary).to.eql(3);
@@ -26,7 +26,7 @@ describe('ComplexVectorSpace1DStrategy', () => {
             it(`can subtract two ${COMPLEX} vectors and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestComplexVector(COMPLEX, [[2, 3]]);
                 const vec2 = createTestComplexVector(COMPLEX, [[4, 5]]);
-                const result = vectorSpace.subtract(vec1, vec2) as Complex;
+                const result = vectorSpace.subtract(vec1, vec2);
                 // Check coordinates
                 expect(result.real).to.eql(-2);
                 expect(result.imaginary).to.eql(-2);
@@ -35,7 +35,7 @@ describe('ComplexVectorSpace1DStrategy', () => {
             it(`can scale a ${COMPLEX} vector with a scalar and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestComplexVector(COMPLEX, [[2, 3]]);
                 const scale = 2;
-                const result = vectorSpace.scale(scale, vec1) as Complex;
+                const result = vectorSpace.scale(scale, vec1);
                 // Check coordinates
                 expect(result.real).to.eql(4);
                 expect(result.imaginary).to.eql(6);
@@ -44,14 +44,14 @@ describe('ComplexVectorSpace1DStrategy', () => {
             it(`can scale a ${COMPLEX} vector with a complex and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestComplexVector(COMPLEX, [[2, 3]]);
                 const scale: Complex = { type: COMPLEX, real: 2, imaginary: 3 };
-                const result = vectorSpace.scale(scale, vec1) as Complex;
+                const result = vectorSpace.scale(scale, vec1);
                 // Check coordinates
                 expect(result.real).to.eql(-5);
                 expect(result.imaginary).to.eql(12);
             });
 
             it(`can create a ${COMPLEX} vector with user-defined coordinates`, () => {
-                const result = vectorSpace.createVector([[1, 2]]) as Complex;
+                const result = vectorSpace.createVector([[1, 2]]);
                 expect(result.type).to.eql(COMPLEX);
                 expect(result.real).to.eql(1);
                 expect(result.imaginary).to.eql(2);

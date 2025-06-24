@@ -4,39 +4,39 @@ import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } fr
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
-import { COMPLEX, Complex, ComplexVector, COMPLEXVECTOR2D, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
-import { isVector1D, isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import { Complex, ComplexVector, ComplexVectorOfDimension, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 // Strategy interface
-export interface ComplexVectorSpaceStrategy {
+export interface ComplexVectorSpaceStrategy<D extends number> {
     areSameDimension(v1: ComplexVector, v2: ComplexVector): boolean;
     isInVectorSpace(v: ComplexVector): v is ComplexVector;
-    createVector(coordinates: number[][]): ComplexVector;
-    defaultVect(): ComplexVector;
-    add(a: ComplexVector, b: ComplexVector): ComplexVector;
-    scale(scalar: Complex | number, vector: ComplexVector): ComplexVector;
-    subtract(a: ComplexVector, b: ComplexVector): ComplexVector;
-    clone(v: ComplexVector): ComplexVector;
+    createVector(coordinates: number[][]): ComplexVectorOfDimension<D>;
+    defaultVect(): ComplexVectorOfDimension<D>;
+    add(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
+    scale(scalar: Complex | number, vector: ComplexVector): ComplexVectorOfDimension<D>;
+    subtract(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
+    clone(v: ComplexVector): ComplexVectorOfDimension<D>;
     norm(v: ComplexVector): number;
     // normalize(v: ComplexVector): ComplexVector;
     fromComplexVectorSpaceToRealVectorSpace(v: ComplexVector): RealVector;
     fromComplexVectorSpaceToProjectiveComplexVectorSpace(v: ComplexVector, weight: ComplexWeight): ProjectiveComplexVector
 }
 
-export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
-    protected readonly dim: number;
-    protected strategy: ComplexVectorSpaceStrategy;
+export class ComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ComplexVectorOfDimension<D>> {
+    protected readonly dim: D;
+    protected strategy: ComplexVectorSpaceStrategy<D>;
 
-    constructor(dimension: number) {
+    constructor(dimension: D) {
         this.dim = dimension;
 
         switch (this.dim) {
             case MIN_DIMENSION_COMPLEXVECTORSPACE:
-                this.strategy = new ComplexVectorSpace1DStrategy();
+                this.strategy = new ComplexVectorSpace1DStrategy() as unknown as ComplexVectorSpaceStrategy<D>;
                 break;
             case MAX_DIMENSION_COMPLEXVECTORSPACE:
-                this.strategy = new ComplexVectorSpace2DStrategy();
+                this.strategy = new ComplexVectorSpace2DStrategy() as unknown as ComplexVectorSpaceStrategy<D>;
                 break;
             default:
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -56,7 +56,7 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         return this.strategy.isInVectorSpace(v);
     }
 
-    createVector(coordinates: number[][]): ComplexVector {
+    createVector(coordinates: number[][]): ComplexVectorOfDimension<D> {
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
@@ -100,11 +100,11 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         return weight;
     }
 
-    defaultVect(): ComplexVector {
+    defaultVect(): ComplexVectorOfDimension<D> {
         return this.strategy.defaultVect();
     }
 
-    add(a: ComplexVector, b: ComplexVector): ComplexVector {
+    add(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.add(a, b);
         } catch (error) {
@@ -126,9 +126,9 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         }
     }
 
-    scale(scalar: Complex, vector: ComplexVector): ComplexVector;
-    scale(scalar: number, vector: ComplexVector): ComplexVector;
-    scale(scalar: Complex | number, vector: ComplexVector): ComplexVector {
+    scale(scalar: Complex, vector: ComplexVector): ComplexVectorOfDimension<D>;
+    scale(scalar: number, vector: ComplexVector): ComplexVectorOfDimension<D>;
+    scale(scalar: Complex | number, vector: ComplexVector): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.scale(scalar, vector);
         } catch(error) {
@@ -137,7 +137,7 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         }
     }
 
-    subtract(a: ComplexVector, b: ComplexVector): ComplexVector {
+    subtract(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.subtract(a, b);
         } catch (error) {
@@ -150,7 +150,7 @@ export class ComplexVectorSpace implements VectorSpace<Complex, ComplexVector> {
         }
     }
 
-    clone(vector: ComplexVector): ComplexVector {
+    clone(vector: ComplexVector): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.clone(vector);
         } catch(error) {

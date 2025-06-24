@@ -1,7 +1,6 @@
 import { expect } from "chai";
 import { MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { COMPLEX, COMPLEXWEIGHT, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector2D, PROJECTIVEVECTOR2D, REALVECTOR2D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
-import { ProjectiveVectorSpace3DStrategy } from "../../src/mathVector/ProjectiveVectorSpace3DStrategy";
 import { createTestProjectiveVector } from "./ProjectiveVectorSpaceTestFactory";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
@@ -71,7 +70,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can create a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 3]) as ProjectiveVector2D;
+                const result = vectorSpace.createVector([1, 2, 3])
                 expect(result.type).to.eql(PROJECTIVEVECTOR2D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
@@ -191,7 +190,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can create a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 3]) as ProjectiveVector2D;
+                const result = vectorSpace.createVector([1, 2, 3]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR2D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
@@ -205,7 +204,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can creeate a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and null weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 0]) as ProjectiveVector2D;
+                const result = vectorSpace.createVector([1, 2, 0]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR2D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
@@ -318,7 +317,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can create a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 3]) as ProjectiveVector2D;
+                const result = vectorSpace.createVector([1, 2, 3]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR2D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
@@ -332,7 +331,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             });
 
             it(`can creeate a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and null weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 0]) as ProjectiveVector2D;
+                const result = vectorSpace.createVector([1, 2, 0]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR2D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);

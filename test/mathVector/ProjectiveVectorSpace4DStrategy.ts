@@ -1,7 +1,6 @@
 import { expect } from "chai";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector3D, PROJECTIVEVECTOR3D, REALVECTOR3D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
-import { ProjectiveVectorSpace4DStrategy } from "../../src/mathVector/ProjectiveVectorSpace4DStrategy";
 import { createTestProjectiveVector } from "./ProjectiveVectorSpaceTestFactory";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../../src/ErrorMessages/ProjectiveVectorSpace";
@@ -74,7 +73,7 @@ describe('ProjectiveVectorSpace4DStrategy', () => {
             });
 
             it(`can create a ${PROJECTIVEVECTOR3D} vector with user-defined coordinates and weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 3, 4]) as ProjectiveVector3D;
+                const result = vectorSpace.createVector([1, 2, 3, 4]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR3D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
@@ -191,7 +190,7 @@ describe('ProjectiveVectorSpace4DStrategy', () => {
             });
 
             it(`can create a ${PROJECTIVEVECTOR3D} vector with user-defined coordinates and weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 3, 4]) as ProjectiveVector3D;
+                const result = vectorSpace.createVector([1, 2, 3, 4]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR3D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
@@ -206,7 +205,7 @@ describe('ProjectiveVectorSpace4DStrategy', () => {
             });
 
             it(`can creeate a ${PROJECTIVEVECTOR3D} vector with user-defined coordinates and null weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 3, 0]) as ProjectiveVector3D;
+                const result = vectorSpace.createVector([1, 2, 3, 0]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR3D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
@@ -314,7 +313,7 @@ describe('ProjectiveVectorSpace4DStrategy', () => {
             });
 
             it(`can create a ${PROJECTIVEVECTOR3D} vector with user-defined coordinates and weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 3, 4]) as ProjectiveVector3D;
+                const result = vectorSpace.createVector([1, 2, 3, 4]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR3D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
@@ -329,7 +328,7 @@ describe('ProjectiveVectorSpace4DStrategy', () => {
             });
 
             it(`can creeate a ${PROJECTIVEVECTOR3D} vector with user-defined coordinates and null weight`, () => {
-                const result = vectorSpace.createVector([1, 2, 3, 0]) as ProjectiveVector3D;
+                const result = vectorSpace.createVector([1, 2, 3, 0]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR3D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);

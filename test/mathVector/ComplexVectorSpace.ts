@@ -130,25 +130,25 @@ describe('ComplexVectorSpace', () => {
         });
 
         it('cannot substract two ComplexVectors not of same dimension', () => {
-            let complexVectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
+            const complexVectorSpace1 = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
             const vec1: ComplexVector1D = {type: COMPLEX, real: 0, imaginary: 2};
             const vec2: ComplexVector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 2}, {type: COMPLEX, real: 1, imaginary: 0}]};
-            expect(() => complexVectorSpace.subtract(vec1, vec2)).to.throw(EM_COMPLEXVECTORS_DIFFERENT_DIM)
+            expect(() => complexVectorSpace1.subtract(vec1, vec2)).to.throw(EM_COMPLEXVECTORS_DIFFERENT_DIM)
 
-            complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
-            expect(() => complexVectorSpace.subtract(vec1, vec2)).to.throw(EM_COMPLEXVECTORS_DIFFERENT_DIM)
+            const complexVectorSpace2 = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
+            expect(() => complexVectorSpace2.subtract(vec1, vec2)).to.throw(EM_COMPLEXVECTORS_DIFFERENT_DIM)
         });
 
         it('cannot subtract two ComplexVectors of same dimension but not in the current Complex vector space', () => {
-            let complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
+            const complexVectorSpace2 = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
             const vec1: ComplexVector1D = {type: COMPLEX, real: 0, imaginary: 2};
             const vec2: ComplexVector1D = {type: COMPLEX, real: 1, imaginary: 0};
-            expect(() => complexVectorSpace.subtract(vec1, vec2)).to.throw(EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE)
+            expect(() => complexVectorSpace2.subtract(vec1, vec2)).to.throw(EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE)
             
-            complexVectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
+            const complexVectorSpace1 = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
             const vec3: ComplexVector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 2}, {type: COMPLEX, real: 1, imaginary: 0}]};
             const vec4: ComplexVector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 2, imaginary: 2}, {type: COMPLEX, real: 3, imaginary: 0}]};
-            expect(() => complexVectorSpace.subtract(vec3, vec4)).to.throw(EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE)
+            expect(() => complexVectorSpace1.subtract(vec3, vec4)).to.throw(EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE)
         });
 
         it(`cannot scale a ComplexVector of dimension outside the current Complex vector space ${MAX_DIMENSION_COMPLEXVECTORSPACE} when the scale factor is Real`, () => {

@@ -6,7 +6,7 @@ import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy {
+export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<2> {
 
     // Implementation for 2D vectors
 
