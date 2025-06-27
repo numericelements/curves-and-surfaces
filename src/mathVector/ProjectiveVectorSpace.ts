@@ -4,7 +4,8 @@ import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NEGA
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
-import { ProjectiveComplexVector, ProjectiveVector, ProjectiveVectorOfDimension, Real, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { IVector, ProjectiveVector2DTypeReal, ProjectiveVector3DTypeReal } from "./Vector";
+import { ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 
@@ -15,6 +16,7 @@ import { WeightManager } from "./WeightManager";
 
 // Strategy interface
 export interface ProjectiveVectorSpaceStrategy<D extends number> {
+    getWeight(v: ProjectiveVector): Real;
     shareSameWeightManagement(v1: ProjectiveVector, v2: ProjectiveVector, weightManager: WeightManager): boolean;
     areSameDimension(v1: ProjectiveVector, v2: ProjectiveVector): boolean;
     isInVectorSpace(v: ProjectiveVector): v is ProjectiveVector;
@@ -62,6 +64,10 @@ export class ProjectiveVectorSpace<D extends number = number> implements VectorS
 
     set weightManagement(weightManagement: WeightManagement) {
         this._weightManagement = weightManagement;
+    }
+
+    getWeight(v: ProjectiveVector): Real {
+        return this.strategy.getWeight(v);
     }
 
     shareSameWeightManagement(v1: ProjectiveVector, v2: ProjectiveVector): boolean {
@@ -182,6 +188,30 @@ export class ProjectiveVectorSpace<D extends number = number> implements VectorS
 
     fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector): ProjectiveComplexVector {
       return this.strategy.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v);
+    }
+
+    // Enhanced methods working with IVector
+    addVectors(a: IVector, b: IVector): IVector {
+        if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
+            throw new Error('Vector dimensions or types do not match');
+        }
+        const rawA = a.raw as ProjectiveVectorOfDimension<D>;
+        const rawB = b.raw as ProjectiveVectorOfDimension<D>;
+        const result = this.add(rawA, rawB);
+        
+        return this.createVectorInstance(result);
+    }
+    
+    createVectorInstance(raw: ProjectiveVectorOfDimension<D>): IVector {
+        // return this.strategy.fromRaw(raw as RealVector1D);
+        switch (this.dim) {
+            case 3:
+                return ProjectiveVector2DTypeReal.fromRaw(raw as ProjectiveVector2D);
+            case 4:
+                return ProjectiveVector3DTypeReal.fromRaw(raw as ProjectiveVector3D);
+            default:
+                throw new Error('Unsupported dimension');
+        }
     }
 }
 

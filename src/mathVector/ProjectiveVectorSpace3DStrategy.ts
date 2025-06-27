@@ -11,6 +11,15 @@ import { WeightManager } from "./WeightManager";
 export class ProjectiveVectorSpace3DStrategy implements ProjectiveVectorSpaceStrategy<3> {
     // Implementation for 3D vectors
 
+    getWeight(v: ProjectiveVector2D): Real {
+        if(this.isInVectorSpace(v)) {
+            return v.coordinates[2].value.weight;
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'getWeight', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
     shareSameWeightManagement(v1: ProjectiveVector2D, v2: ProjectiveVector2D, weightManager: WeightManager): boolean {
         if(this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {
             const weight1 = v1.coordinates[2].value;

@@ -4,6 +4,7 @@
  */
 
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { IVector } from "./Vector";
 import { Weight } from "./Weight";
 
 // ------------ Type Definitions ------------
@@ -240,4 +241,6 @@ export interface VectorSpace<K extends Scalar, V extends Vector> {
 
     /** Duplicate vector */
     clone(v: V): V;
+
+    addVectors(v1: IVector, v2: IVector): IVector;
 }

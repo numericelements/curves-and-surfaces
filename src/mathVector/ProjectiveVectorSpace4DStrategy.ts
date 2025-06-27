@@ -1,5 +1,4 @@
 import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/ProjectiveVectorSpace";
-import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS } from "../ErrorMessages/WeightManager";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { ProjectiveVectorSpaceStrategy } from "./ProjectiveVectorSpace";
@@ -10,6 +9,15 @@ import { WeightManager } from "./WeightManager";
 
 export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStrategy<4> {
     // Implementation for 4D vectors
+
+    getWeight(v: ProjectiveVector3D): Real {
+        if(this.isInVectorSpace(v)) {
+            return v.coordinates[3].value.weight;
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'getWeight', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
 
     shareSameWeightManagement(v1: ProjectiveVector3D, v2: ProjectiveVector3D, weightManager: WeightManager): boolean {
         if(this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {

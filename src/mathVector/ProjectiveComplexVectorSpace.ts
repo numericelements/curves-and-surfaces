@@ -3,6 +3,7 @@ import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DI
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../namedConstants/ProjectiveComplexVectorSpace";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexOperators } from "./ComplexOperators";
+import { IVector, ProjectiveVector1DTypeComplex } from "./Vector";
 import { COMPLEX, Complex, ComplexVector, ComplexVector1D, COMPLEXWEIGHT, ComplexWeight, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, VectorSpace, Weight_Interface } from "./VectorSpaceConstructorInterface";
 import { isVector1D, isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -246,5 +247,21 @@ export class ProjectiveComplexVectorSpace implements VectorSpace<Complex, Projec
             const error = sendRangeErrorMessage(this.constructor.name, 'clone', EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
             throw new RangeError(error.generateMessageString());
         }
+    }
+
+    // Enhanced methods working with IVector
+    addVectors(a: IVector, b: IVector): IVector {
+        if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
+            throw new Error('Vector dimensions or types do not match');
+        }
+        const rawA = a.raw as ProjectiveComplexVector;
+        const rawB = b.raw as ProjectiveComplexVector;
+        const result = this.add(rawA, rawB);
+        
+        return this.createVectorInstance(result);
+    }
+    
+    createVectorInstance(raw: ProjectiveComplexVector): IVector {
+        return ProjectiveVector1DTypeComplex.fromRaw(raw as ProjectiveComplexVector);
     }
 }

@@ -4,7 +4,8 @@ import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } fr
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
-import { Complex, ComplexVector, ComplexVectorOfDimension, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { IVector, Vector1DTypeComplex, Vector2DTypeComplex } from "./Vector";
+import { Complex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -165,5 +166,29 @@ export class ComplexVectorSpace<D extends number = number> implements VectorSpac
 
     fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
         return this.strategy.fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector, weight);
+    }
+
+    // Enhanced methods working with IVector
+    addVectors(a: IVector, b: IVector): IVector {
+        if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
+            throw new Error('Vector dimensions or types do not match');
+        }
+        const rawA = a.raw as ComplexVectorOfDimension<D>;
+        const rawB = b.raw as ComplexVectorOfDimension<D>;
+        const result = this.add(rawA, rawB);
+        
+        return this.createVectorInstance(result);
+    }
+
+    createVectorInstance(raw: ComplexVectorOfDimension<D>): IVector {
+        // return this.strategy.fromRaw(raw as RealVector1D);
+        switch (this.dim) {
+            case 1:
+                return Vector1DTypeComplex.fromRaw(raw as ComplexVector1D);
+            case 2:
+                return Vector2DTypeComplex.fromRaw(raw as ComplexVector2D);
+            default:
+                throw new Error('Unsupported dimension');
+        }
     }
 }
