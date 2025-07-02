@@ -53,8 +53,8 @@ export class ProjectiveVectorSpace<D extends number = number> implements VectorS
                 this.strategy = new ProjectiveVectorSpace4DStrategy() as unknown as ProjectiveVectorSpaceStrategy<D>;
                 break;
             default:
-            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
-            throw new RangeError(error.generateMessageString());
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
+                throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -165,7 +165,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements VectorS
             }
             const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
-            }
+        }
     }
 
     clone(v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
