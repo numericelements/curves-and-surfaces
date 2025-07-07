@@ -244,3 +244,26 @@ export interface VectorSpace<K extends Scalar, V extends Vector> {
 
     addVectors(v1: IVector, v2: IVector): IVector;
 }
+
+/**
+ * Enhanced Vector Space Interface with Identity
+ */
+export interface IdentifiableVectorSpace<K extends Scalar, V extends Vector> extends VectorSpace<K, V> {
+    /** Unique identifier for this vector space instance */
+    readonly id: string;
+    
+    /** Human-readable name for this vector space */
+    readonly name: string;
+    
+    /** Whether this is a default vector space managed by singleton */
+    readonly isDefault: boolean;
+    
+    /** Type of vector space (Real, Complex, etc.) */
+    readonly spaceType: VectorSpaceType;
+    
+    /** Check if this vector space is the same as another */
+    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean;
+    
+    /** Check if this vector space is isomorphic to another */
+    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean;
+}

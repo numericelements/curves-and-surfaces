@@ -1,11 +1,12 @@
 import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR, EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE } from "../ErrorMessages/ComplexVectorSpace";
 import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../namedConstants/ComplexVectorSpace";
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
-import { IVector, Vector1DTypeComplex, Vector2DTypeComplex } from "./Vector";
-import { Complex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { IVector, Vector1DTypeComplex, Vector2DTypeComplex, VectorSpaceIdentifierManager } from "./Vector";
+import { Complex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, ComplexWeight, COMPLEXWEIGHT, IdentifiableVectorSpace, ProjectiveComplexVector, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -25,13 +26,27 @@ export interface ComplexVectorSpaceStrategy<D extends number> {
     fromComplexVectorSpaceToProjectiveComplexVectorSpace(v: ComplexVector, weight: ComplexWeight): ProjectiveComplexVector
 }
 
-export class ComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ComplexVectorOfDimension<D>> {
+// export class ComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ComplexVectorOfDimension<D>> {
+export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Complex, ComplexVectorOfDimension<D>> {
+    private readonly _id: string;
+    private readonly _name: string;
+    private readonly _isDefault: boolean;
+    
     protected readonly dim: D;
     protected strategy: ComplexVectorSpaceStrategy<D>;
 
-    constructor(dimension: D) {
+    // constructor(dimension: D) {
+    constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
-
+        this._isDefault = isDefault;
+        const idManager = VectorSpaceIdentifierManager.getInstance();
+        if (isDefault) {
+            this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.COMPLEX, dimension);
+            this._name = name || `Default Complex Vector Space R^${dimension}`;
+        } else {
+            this._id = id || idManager.generateId();
+            this._name = name || `Complex Vector Space R^${dimension} (${this._id})`;
+        }
         switch (this.dim) {
             case MIN_DIMENSION_COMPLEXVECTORSPACE:
                 this.strategy = new ComplexVectorSpace1DStrategy() as unknown as ComplexVectorSpaceStrategy<D>;
@@ -43,6 +58,21 @@ export class ComplexVectorSpace<D extends number = number> implements VectorSpac
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
+    }
+
+    get id(): string { return this._id; }
+    get name(): string { return this._name; }
+    get isDefault(): boolean { return this._isDefault; }
+    get spaceType(): VectorSpaceType { return VectorSpaceType.COMPLEX; }
+
+    // Identity methods
+    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean {
+        return this._id === other.id;
+    }
+
+    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean {
+        return this.spaceType === other.spaceType && 
+               this.dimension() === other.dimension();
     }
 
     dimension() {

@@ -320,7 +320,7 @@ export class Optimizer {
 
     computeNewtonStep(gradient: number[], hessian: SymmetricMatrix) {
         let choleskyDecomposition = new CholeskyDecomposition(hessian)
-        if (choleskyDecomposition.success === false) {
+        if (!choleskyDecomposition.success) {
             console.log("choleskyDecomposition failed")
         }
         return choleskyDecomposition.solve(multiplyVectorByScalar(gradient, -1))

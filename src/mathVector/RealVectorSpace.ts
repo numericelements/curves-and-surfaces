@@ -1,12 +1,13 @@
 import { EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/RealVectorSpace";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../namedConstants/RealVectorSpace";
 import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
 import { RealVectorSpace2DStrategy } from "./RealVectorSpace2DStrategy";
 import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
 import { RealVectorSpace4DStrategy } from "./RealVectorSpace4DStrategy";
-import { IVector, Vector1DTypeReal, Vector2DTypeReal, Vector3DTypeReal, Vector4DTypeReal } from "./Vector";
+import { IVector, Vector1DTypeReal, Vector2DTypeReal, Vector3DTypeReal, Vector4DTypeReal, VectorSpaceIdentifierManager } from "./Vector";
 import { VectorInVectorSpace } from "./VectorInVectorSpace";
-import { Complex, ComplexVector, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, RealVectorOfDimension, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { Complex, ComplexVector, IdentifiableVectorSpace, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, RealVectorOfDimension, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -36,7 +37,7 @@ export interface EnhancedVectorSpace<K extends Scalar, V extends Vector> extends
  */
 
 // Strategy interface
-export interface RealVectorSpaceStrategy<D extends number> {
+export interface RealVectorSpaceStrategy<D extends number>  {
     areSameDimension(v1: RealVector, v2: RealVector): boolean;
     isInVectorSpace(v: RealVector): v is RealVector;
     createVector(coordinates: Real[]): RealVectorOfDimension<D>;
@@ -54,13 +55,25 @@ export interface RealVectorSpaceStrategy<D extends number> {
 }
 
   // Main class using strategy
-export class RealVectorSpace<D extends number = number> implements VectorSpace<Real, RealVectorOfDimension<D>> {
+// export class RealVectorSpace<D extends number = number> implements VectorSpace<Real, RealVectorOfDimension<D>> {
+export class RealVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Real, RealVectorOfDimension<D>> {
+    private readonly _id: string;
+    private readonly _name: string;
+    private readonly _isDefault: boolean;
     protected readonly dim: D;
     protected strategy: RealVectorSpaceStrategy<D>;
     
-    constructor(dimension: D) {
+    constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
-      
+        this._isDefault = isDefault;
+        const idManager = VectorSpaceIdentifierManager.getInstance();
+        if (isDefault) {
+            this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.REAL, dimension);
+            this._name = name || `Default Real Vector Space R^${dimension}`;
+        } else {
+            this._id = id || idManager.generateId();
+            this._name = name || `Real Vector Space R^${dimension} (${this._id})`;
+        }
         switch(this.dim) {
             case MIN_DIMENSION_REALVECTORSPACE:
                 this.strategy = new RealVectorSpace1DStrategy() as unknown as RealVectorSpaceStrategy<D>;
@@ -78,6 +91,22 @@ export class RealVectorSpace<D extends number = number> implements VectorSpace<R
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
+    }
+
+    get id(): string { return this._id; }
+    get name(): string { return this._name; }
+    get isDefault(): boolean { return this._isDefault; }
+    get spaceType(): VectorSpaceType { return VectorSpaceType.REAL; }
+
+
+    // Identity methods
+    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean {
+        return this._id === other.id;
+    }
+
+    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean {
+        return this.spaceType === other.spaceType && 
+               this.dimension() === other.dimension();
     }
 
     dimension(): number {
@@ -144,6 +173,34 @@ export class RealVectorSpace<D extends number = number> implements VectorSpace<R
 
     defaultVectInVectorSpace(): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
         return new VectorInVectorSpace(this.createVectorInstance(this.strategy.defaultVect()), this);
+    }
+
+    // Validation methods
+    private validateVectorCompatibility(a: IVector, b: IVector): void {
+        if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
+            throw new Error(`Vectors are not compatible: ${a.vectorType} vs ${b.vectorType}`);
+        }
+        if (a.dimension !== this.dim) {
+            throw new Error(`Vector dimension ${a.dimension} does not match space dimension ${this.dim}`);
+        }
+    }
+
+    private validateVectorBelongsToSpace(v: IVector): void {
+        if (v.spaceType !== VectorSpaceType.REAL) {
+            throw new Error(`Vector is not a real vector: ${v.vectorType}`);
+        }
+        if (v.dimension !== this.dim) {
+            throw new Error(`Vector dimension ${v.dimension} does not match space dimension ${this.dim}`);
+        }
+    }
+
+    // Utility methods
+    toString(): string {
+        return `${this._name} [ID: ${this._id}]`;
+    }
+
+    equals(other: any): boolean {
+        return other instanceof RealVectorSpace && this.isSameSpace(other);
     }
     
     add(a: RealVector, b: RealVector): RealVectorOfDimension<D> {

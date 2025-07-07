@@ -1,20 +1,20 @@
-import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR, EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../ErrorMessages/ComplexVectorSpace";
-import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_PRPROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER as EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../ErrorMessages/ProjectiveComplexVectorSpace";
-import { EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/ProjectiveVectorSpace";
+import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../ErrorMessages/ComplexOperators";
+import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../ErrorMessages/ComplexVectorSpace";
+import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER as EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../ErrorMessages/ProjectiveComplexVectorSpace";
 import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../namedConstants/ProjectiveComplexVectorSpace";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { ComplexOperators } from "./ComplexOperators";
 import { ProjectiveComplexVectorSpace2DStrategy } from "./ProjectiveComplexVectorSpace2DStrategy";
-import { IVector, ProjectiveVector1DTypeComplex } from "./Vector";
-import { COMPLEX, Complex, ComplexVector, ComplexVector1D, COMPLEXWEIGHT, ComplexWeight, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveComplexVectorOfDimension, Real, VectorSpace, Weight_Interface } from "./VectorSpaceConstructorInterface";
-import { isVector1D, isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import { IVector, ProjectiveVector1DTypeComplex, VectorSpaceIdentifierManager } from "./Vector";
+import { COMPLEX, Complex, ComplexVector1D, COMPLEXWEIGHT, ComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveComplexVectorOfDimension, Real, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
 
 // Strategy interface
 export interface ProjectiveComplexVectorSpaceStrategy<D extends number> {
-    getWeight(v: ProjectiveComplexVector): Real;
+    getWeight(v: ProjectiveComplexVector): ComplexWeight;
     shareSameWeightManagement(v1: ProjectiveComplexVector, v2: ProjectiveComplexVector, weightManager: WeightManager): boolean;
     areSameDimension(v1: ProjectiveComplexVector, v2: ProjectiveComplexVector): boolean;
     isInVectorSpace(v: ProjectiveComplexVector): v is ProjectiveComplexVector;
@@ -29,16 +29,32 @@ export interface ProjectiveComplexVectorSpaceStrategy<D extends number> {
 }
 
 
-export class ProjectiveComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ProjectiveComplexVectorOfDimension<D>> {
+// export class ProjectiveComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ProjectiveComplexVectorOfDimension<D>> {
+export class ProjectiveComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Complex, ProjectiveComplexVectorOfDimension<D>> {
+    private readonly _id: string;
+    private readonly _name: string;
+    private readonly _isDefault: boolean;
+
     private readonly dim: D;
     protected strategy: ProjectiveComplexVectorSpaceStrategy<D>;
     protected _weightManagement: WeightManagement;
     private weightManager: WeightManager;
 
-    constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
+    // constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
+    constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights,
+        name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
         this._weightManagement = weightManagement;
         this.weightManager = new WeightManager(weightManagement);
+        this._isDefault = isDefault;
+        const idManager = VectorSpaceIdentifierManager.getInstance();
+        if (isDefault) {
+            this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.PROJECTIVECOMPLEX, dimension);
+            this._name = name || `Default Projective Complex Vector Space R^${dimension}`;
+        } else {
+            this._id = id || idManager.generateId();
+            this._name = name || `Projective Complex Vector Space R^${dimension} (${this._id})`;
+        }
         switch (this.dim) {
             case MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE:
                 this.strategy = new ProjectiveComplexVectorSpace2DStrategy() as unknown as ProjectiveComplexVectorSpaceStrategy<D>;
@@ -53,6 +69,21 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         }
     }
 
+    get id(): string { return this._id; }
+    get name(): string { return this._name; }
+    get isDefault(): boolean { return this._isDefault; }
+    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVECOMPLEX; }
+
+    // Identity methods
+    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean {
+        return this._id === other.id;
+    }
+
+    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean {
+        return this.spaceType === other.spaceType && 
+               this.dimension() === other.dimension();
+    }
+
     get weightManagement(): WeightManagement {
         return this._weightManagement;
     }
@@ -63,6 +94,33 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
 
     dimension() {
         return this.dim;
+    }
+
+    getWeight(v: ProjectiveComplexVector): ComplexWeight {
+        if(this.isInVectorSpace(v)) {
+            return this.strategy.getWeight(v);
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'getWeight', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    getRealWeight(v: ProjectiveComplexVector): Real {
+        if(this.isInVectorSpace(v)) {
+            return this.strategy.getWeight(v).real.weight;
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'getRealWeight', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    getImagiinaryWeight(v: ProjectiveComplexVector): Real {
+        if(this.isInVectorSpace(v)) {
+            return this.strategy.getWeight(v).imaginary.weight;
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'getImagiinaryWeight', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(error.generateMessageString());
+        }
     }
 
     // There is currently only one vector space dimension, so these methods are not neccessary yet
@@ -78,15 +136,21 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
     shareSameWeightManagement(v1: ProjectiveComplexVector, v2: ProjectiveComplexVector): boolean {
         // not required with only one dimension of projective complex vector space
         // if(this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {
-            if(this.hasSameRealImagineryWeightManagement(v1) && this.hasSameRealImagineryWeightManagement(v2)) {
-                const weight1 = v1.coordinates[1].real;
-                const weight2 = v2.coordinates[1].real;
-                const realWeightManagement = this.weightManager.isSameWeightManagement(weight1, weight2);
-                return realWeightManagement;
-            } else {
-                const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
-                throw new RangeError(error.generateMessageString());
+        if(this.hasSameRealImagineryWeightManagement(v1) && this.hasSameRealImagineryWeightManagement(v2)) {
+            try {
+                return this.strategy.shareSameWeightManagement(v1, v2, this.weightManager);
+            } catch(error) {
+                if(!this.isInVectorSpace(v1) && !this.isInVectorSpace(v2)) {
+                    const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+                    throw new RangeError(error.generateMessageString());
+                }
+                const message = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM);
+                throw new RangeError(message.generateMessageString());
             }
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
+            throw new RangeError(error.generateMessageString());
+        }
         // } else {
         //     if(!this.isInVectorSpace(v1) && !this.isInVectorSpace(v2)) {
         //         const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE);
@@ -119,7 +183,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         const complex1: Complex = {type: COMPLEX, real: coordinates[0][0], imaginary: coordinates[0][1]};
         const complexWeight: Complex = {type: COMPLEX, real: coordinates[1][0], imaginary: coordinates[1][1]};
         if(coordinates.length !== this.dim) {
-            const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PRPROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
@@ -138,11 +202,15 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
             try {
                 return this.strategy.add(a, b, this.weightManager);
             } catch (error) {
+                if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && (!a.coordinates[1].real.strictlyPositive || !b.coordinates[1].real.strictlyPositive)) {
+                    const error = sendRangeErrorMessage(this.constructor.name, 'add', EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                    throw new RangeError(error.generateMessageString());
+                }
                 if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                    const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+                    const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
                     throw new RangeError(message1.generateMessageString());
                 }
-                const message2 = sendRangeErrorMessage(this.constructor.name, 'add', EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
+                const message2 = sendRangeErrorMessage(this.constructor.name, 'add', EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM);
                 throw new RangeError(message2.generateMessageString());
             }
         } else {
@@ -155,7 +223,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         try { 
             return this.strategy.norm(v);
         } catch (error) {
-            const message1 = sendRangeErrorMessage(this.constructor.name, 'norm', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+            const message1 = sendRangeErrorMessage(this.constructor.name, 'norm', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message1.generateMessageString());
         }
     }
@@ -170,8 +238,19 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         try {
             return this.strategy.scale(scaleFactor, vector, this.weightManager);
         } catch(error) {
-            const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
-            throw new RangeError(message.generateMessageString());
+            if(typeof scaleFactor === 'number') {
+                const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                throw new RangeError(error.generateMessageString());
+            } else if(!this.isInVectorSpace(vector)) {
+                const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+                throw new RangeError(message.generateMessageString());
+            } else if(error instanceof RangeError && error.message.includes(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL)) {
+                const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
+                throw new RangeError(message.generateMessageString());
+            } else {
+                const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                throw new RangeError(error.generateMessageString());
+            }
         }
     }
 
@@ -180,18 +259,35 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
             try {
                 return this.strategy.subtract(a, b, this.weightManager);
             } catch (error) {
+                if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && 
+                    ((!a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) || 
+                    (a.coordinates[1].real.strictlyPositive && !b.coordinates[1].real.strictlyPositive) ||
+                    (!a.coordinates[1].real.strictlyPositive && !b.coordinates[1].real.strictlyPositive))) {
+                    const error = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                    throw new RangeError(error.generateMessageString());
+                }
+                if(error instanceof RangeError && error.message.includes(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL)) {
+                    const error = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
+                    throw new RangeError(error.generateMessageString());
+                } else if(error instanceof RangeError && error.message.includes(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY)) {
+                    const error = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY);
+                    throw new RangeError(error.generateMessageString());
+                } else if(error instanceof RangeError && error.message.includes(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY)) {
+                    const error = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY);
+                    throw new RangeError(error.generateMessageString());
+                }
                 if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                    const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+                    const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
                     throw new RangeError(message1.generateMessageString());
                 } else if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && this.isInVectorSpace(a) && this.isInVectorSpace(b)
                     && error instanceof RangeError && error.message.includes(EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS)) {
                     const message3 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
                     throw new RangeError(message3.generateMessageString());
                 } else if(error instanceof RangeError && error.message.includes(EM_WEIGHT_SUBTRACTION_ERROR)) {
-                    const message4 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
+                    const message4 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT);
                     throw new RangeError(message4.generateMessageString());
                 }
-                const message2 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
+                const message2 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM);
                 throw new RangeError(message2.generateMessageString());
             }
         } else {
@@ -205,7 +301,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
             try {
                 return this.strategy.clone(vector, this.weightManager);
             } catch (error) {
-                const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
+                const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE)
                 throw new RangeError(message.generateMessageString());
             }
         } else {
@@ -219,11 +315,18 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
             try {
                 return this.strategy.fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector, this.weightManager);
             } catch (error) {
-                const message = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveVectorSpaceToRealVectorSpace', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
+                if(vector.coordinates[1].real.weight === 0 && this.weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
+                    const error = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                    throw new RangeError(error.generateMessageString());
+                } else if(vector.coordinates[1].imaginary.weight === 0 && this.weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
+                    const error = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                    throw new RangeError(error.generateMessageString());
+                }
+                const message = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE);
                 throw new RangeError(message.generateMessageString());
             }
         } else {
-            const error = sendRangeErrorMessage(this.constructor.name, 'clone', EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
+            const error = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
             throw new RangeError(error.generateMessageString());
         }
     }

@@ -38607,14 +38607,15 @@ exports.EM_KNOT_INCREMENT_DECREMENT = "Knot multiplicity cannot be incremented/d
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EM_PRPROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE = exports.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM = exports.EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = exports.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE = exports.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM = exports.EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
 exports.EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
 exports.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
 exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE = 'Vector dimension is out of projective complex vector space dimension range. Cannot proceed.';
 exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE = 'Projective complex vector dimension is not compatible with the complex vector space dimensions available.';
 exports.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER = 'Real and imaginary weight managements are different. These weights must conform to the same management.';
 exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE = 'Complex weight management is restricted to strictly positive weights but the current complex weight can be positive. This is incompatible, please check the weight management configuration.';
-exports.EM_PRPROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = "Projective complex vectors don't belong to the current vector space. Dimensions are incompatible.";
+exports.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = "Projective complex vectors don't belong to the current vector space. Dimensions are incompatible.";
+exports.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = "Projective complex vector has some negative real or imaginary weights. Cannot proceed.";
 
 
 /***/ }),
@@ -50059,7 +50060,7 @@ class ShapeSpaceDiffEventsStructure {
     }
     set activeControlInflections(controlOfInflections) {
         this._activeControlInflections = controlOfInflections;
-        if (this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) {
+        if (!this._activeControlInflections && !this._activeControlCurvatureExtrema) {
             this._activeNavigationWithOptimizer = false;
         }
         else {
@@ -50068,7 +50069,7 @@ class ShapeSpaceDiffEventsStructure {
     }
     set activeControlCurvatureExtrema(controlOfCurvatureExtrema) {
         this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
-        if (this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) {
+        if (!this._activeControlInflections && !this._activeControlCurvatureExtrema) {
             this._activeNavigationWithOptimizer = false;
         }
         else {
@@ -51358,6 +51359,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ComplexVectorSpace = void 0;
 const ComplexVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/ComplexVectorSpace */ "./src/ErrorMessages/ComplexVectorSpace.ts");
 const Weight_1 = __webpack_require__(/*! ../ErrorMessages/Weight */ "./src/ErrorMessages/Weight.ts");
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ComplexVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ComplexVectorSpace */ "./src/namedConstants/ComplexVectorSpace.ts");
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 const ComplexVectorSpace1DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace1DStrategy */ "./src/mathVector/ComplexVectorSpace1DStrategy.ts");
@@ -51366,9 +51368,21 @@ const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_2 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+// export class ComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ComplexVectorOfDimension<D>> {
 class ComplexVectorSpace {
-    constructor(dimension) {
+    // constructor(dimension: D) {
+    constructor(dimension, name, isDefault = false, id) {
         this.dim = dimension;
+        this._isDefault = isDefault;
+        const idManager = Vector_1.VectorSpaceIdentifierManager.getInstance();
+        if (isDefault) {
+            this._id = id || idManager.getDefaultSpaceId(BSplineR1toRn_1.VectorSpaceType.COMPLEX, dimension);
+            this._name = name || `Default Complex Vector Space R^${dimension}`;
+        }
+        else {
+            this._id = id || idManager.generateId();
+            this._name = name || `Complex Vector Space R^${dimension} (${this._id})`;
+        }
         switch (this.dim) {
             case ComplexVectorSpace_2.MIN_DIMENSION_COMPLEXVECTORSPACE:
                 this.strategy = new ComplexVectorSpace1DStrategy_1.ComplexVectorSpace1DStrategy();
@@ -51380,6 +51394,18 @@ class ComplexVectorSpace {
                 const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', ComplexVectorSpace_1.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
                 throw new RangeError(error.generateMessageString());
         }
+    }
+    get id() { return this._id; }
+    get name() { return this._name; }
+    get isDefault() { return this._isDefault; }
+    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.COMPLEX; }
+    // Identity methods
+    isSameSpace(other) {
+        return this._id === other.id;
+    }
+    isIsomorphicTo(other) {
+        return this.spaceType === other.spaceType &&
+            this.dimension() === other.dimension();
     }
     dimension() {
         return this.dim;
@@ -51762,23 +51788,36 @@ exports.ComplexVectorSpace2DStrategy = ComplexVectorSpace2DStrategy;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProjectiveComplexVectorSpace = void 0;
+const ComplexOperators_1 = __webpack_require__(/*! ../ErrorMessages/ComplexOperators */ "./src/ErrorMessages/ComplexOperators.ts");
 const ComplexVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/ComplexVectorSpace */ "./src/ErrorMessages/ComplexVectorSpace.ts");
 const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/ProjectiveComplexVectorSpace */ "./src/ErrorMessages/ProjectiveComplexVectorSpace.ts");
-const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/ProjectiveVectorSpace */ "./src/ErrorMessages/ProjectiveVectorSpace.ts");
 const WeightManager_1 = __webpack_require__(/*! ../ErrorMessages/WeightManager */ "./src/ErrorMessages/WeightManager.ts");
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ProjectiveComplexVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ProjectiveComplexVectorSpace */ "./src/namedConstants/ProjectiveComplexVectorSpace.ts");
-const ProjectiveVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 const ProjectiveComplexVectorSpace2DStrategy_1 = __webpack_require__(/*! ./ProjectiveComplexVectorSpace2DStrategy */ "./src/mathVector/ProjectiveComplexVectorSpace2DStrategy.ts");
 const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 const WeightManager_2 = __webpack_require__(/*! ./WeightManager */ "./src/mathVector/WeightManager.ts");
+// export class ProjectiveComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ProjectiveComplexVectorOfDimension<D>> {
 class ProjectiveComplexVectorSpace {
-    constructor(dimension, weightManagement = ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights) {
+    // constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
+    constructor(dimension, weightManagement = ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights, name, isDefault = false, id) {
         this.dim = dimension;
         this._weightManagement = weightManagement;
         this.weightManager = new WeightManager_2.WeightManager(weightManagement);
+        this._isDefault = isDefault;
+        const idManager = Vector_1.VectorSpaceIdentifierManager.getInstance();
+        if (isDefault) {
+            this._id = id || idManager.getDefaultSpaceId(BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX, dimension);
+            this._name = name || `Default Projective Complex Vector Space R^${dimension}`;
+        }
+        else {
+            this._id = id || idManager.generateId();
+            this._name = name || `Projective Complex Vector Space R^${dimension} (${this._id})`;
+        }
         switch (this.dim) {
             case ProjectiveComplexVectorSpace_2.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE:
                 this.strategy = new ProjectiveComplexVectorSpace2DStrategy_1.ProjectiveComplexVectorSpace2DStrategy();
@@ -51792,6 +51831,18 @@ class ProjectiveComplexVectorSpace {
             throw new RangeError(error.generateMessageString());
         }
     }
+    get id() { return this._id; }
+    get name() { return this._name; }
+    get isDefault() { return this._isDefault; }
+    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX; }
+    // Identity methods
+    isSameSpace(other) {
+        return this._id === other.id;
+    }
+    isIsomorphicTo(other) {
+        return this.spaceType === other.spaceType &&
+            this.dimension() === other.dimension();
+    }
     get weightManagement() {
         return this._weightManagement;
     }
@@ -51800,6 +51851,33 @@ class ProjectiveComplexVectorSpace {
     }
     dimension() {
         return this.dim;
+    }
+    getWeight(v) {
+        if (this.isInVectorSpace(v)) {
+            return this.strategy.getWeight(v);
+        }
+        else {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getWeight', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+    getRealWeight(v) {
+        if (this.isInVectorSpace(v)) {
+            return this.strategy.getWeight(v).real.weight;
+        }
+        else {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getRealWeight', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+    getImagiinaryWeight(v) {
+        if (this.isInVectorSpace(v)) {
+            return this.strategy.getWeight(v).imaginary.weight;
+        }
+        else {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getImagiinaryWeight', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            throw new RangeError(error.generateMessageString());
+        }
     }
     // There is currently only one vector space dimension, so these methods are not neccessary yet
     // areSameDimension(v1: ProjectiveComplexVector, v2: ProjectiveComplexVector): boolean {
@@ -51813,10 +51891,17 @@ class ProjectiveComplexVectorSpace {
         // not required with only one dimension of projective complex vector space
         // if(this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {
         if (this.hasSameRealImagineryWeightManagement(v1) && this.hasSameRealImagineryWeightManagement(v2)) {
-            const weight1 = v1.coordinates[1].real;
-            const weight2 = v2.coordinates[1].real;
-            const realWeightManagement = this.weightManager.isSameWeightManagement(weight1, weight2);
-            return realWeightManagement;
+            try {
+                return this.strategy.shareSameWeightManagement(v1, v2, this.weightManager);
+            }
+            catch (error) {
+                if (!this.isInVectorSpace(v1) && !this.isInVectorSpace(v2)) {
+                    const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'shareSameWeightManagement', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+                    throw new RangeError(error.generateMessageString());
+                }
+                const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'shareSameWeightManagement', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM);
+                throw new RangeError(message.generateMessageString());
+            }
         }
         else {
             const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'shareSameWeightManagement', ProjectiveComplexVectorSpace_1.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
@@ -51851,10 +51936,10 @@ class ProjectiveComplexVectorSpace {
         const complex1 = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: coordinates[0][0], imaginary: coordinates[0][1] };
         const complexWeight = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: coordinates[1][0], imaginary: coordinates[1][1] };
         if (coordinates.length !== this.dim) {
-            const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'createVector', ProjectiveComplexVectorSpace_1.EM_PRPROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'createVector', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
-        if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights || (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
+        if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights || (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
             let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [complex1, { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT,
                         real: weightManager.setWeightStatus(new Weight_1.Weight(coordinates[1][0], false)), imaginary: weightManager.setWeightStatus(new Weight_1.Weight(coordinates[1][1], false)) }] };
             return vector;
@@ -51871,11 +51956,15 @@ class ProjectiveComplexVectorSpace {
                 return this.strategy.add(a, b, this.weightManager);
             }
             catch (error) {
+                if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights && (!a.coordinates[1].real.strictlyPositive || !b.coordinates[1].real.strictlyPositive)) {
+                    const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'add', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                    throw new RangeError(error.generateMessageString());
+                }
                 if (!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                    const message1 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'add', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+                    const message1 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'add', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
                     throw new RangeError(message1.generateMessageString());
                 }
-                const message2 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'add', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
+                const message2 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'add', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM);
                 throw new RangeError(message2.generateMessageString());
             }
         }
@@ -51889,7 +51978,7 @@ class ProjectiveComplexVectorSpace {
             return this.strategy.norm(v);
         }
         catch (error) {
-            const message1 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'norm', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+            const message1 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'norm', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message1.generateMessageString());
         }
     }
@@ -51902,8 +51991,22 @@ class ProjectiveComplexVectorSpace {
             return this.strategy.scale(scaleFactor, vector, this.weightManager);
         }
         catch (error) {
-            const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', ComplexVectorSpace_1.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
-            throw new RangeError(message.generateMessageString());
+            if (typeof scaleFactor === 'number') {
+                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                throw new RangeError(error.generateMessageString());
+            }
+            else if (!this.isInVectorSpace(vector)) {
+                const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', ComplexVectorSpace_1.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+                throw new RangeError(message.generateMessageString());
+            }
+            else if (error instanceof RangeError && error.message.includes(ComplexOperators_1.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL)) {
+                const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', ComplexOperators_1.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
+                throw new RangeError(message.generateMessageString());
+            }
+            else {
+                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                throw new RangeError(error.generateMessageString());
+            }
         }
     }
     subtract(a, b) {
@@ -51912,20 +52015,39 @@ class ProjectiveComplexVectorSpace {
                 return this.strategy.subtract(a, b, this.weightManager);
             }
             catch (error) {
+                if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights &&
+                    ((!a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) ||
+                        (a.coordinates[1].real.strictlyPositive && !b.coordinates[1].real.strictlyPositive) ||
+                        (!a.coordinates[1].real.strictlyPositive && !b.coordinates[1].real.strictlyPositive))) {
+                    const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                    throw new RangeError(error.generateMessageString());
+                }
+                if (error instanceof RangeError && error.message.includes(ComplexOperators_1.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL)) {
+                    const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ComplexOperators_1.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
+                    throw new RangeError(error.generateMessageString());
+                }
+                else if (error instanceof RangeError && error.message.includes(ComplexOperators_1.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY)) {
+                    const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ComplexOperators_1.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY);
+                    throw new RangeError(error.generateMessageString());
+                }
+                else if (error instanceof RangeError && error.message.includes(ComplexOperators_1.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY)) {
+                    const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ComplexOperators_1.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY);
+                    throw new RangeError(error.generateMessageString());
+                }
                 if (!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                    const message1 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+                    const message1 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
                     throw new RangeError(message1.generateMessageString());
                 }
-                else if (this._weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights && this.isInVectorSpace(a) && this.isInVectorSpace(b)
+                else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights && this.isInVectorSpace(a) && this.isInVectorSpace(b)
                     && error instanceof RangeError && error.message.includes(WeightManager_1.EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS)) {
                     const message3 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', WeightManager_1.EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
                     throw new RangeError(message3.generateMessageString());
                 }
                 else if (error instanceof RangeError && error.message.includes(WeightManager_1.EM_WEIGHT_SUBTRACTION_ERROR)) {
-                    const message4 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
+                    const message4 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT);
                     throw new RangeError(message4.generateMessageString());
                 }
-                const message2 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
+                const message2 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtract', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM);
                 throw new RangeError(message2.generateMessageString());
             }
         }
@@ -51940,7 +52062,7 @@ class ProjectiveComplexVectorSpace {
                 return this.strategy.clone(vector, this.weightManager);
             }
             catch (error) {
-                const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'clone', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
+                const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'clone', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
                 throw new RangeError(message.generateMessageString());
             }
         }
@@ -51955,12 +52077,20 @@ class ProjectiveComplexVectorSpace {
                 return this.strategy.fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector, this.weightManager);
             }
             catch (error) {
-                const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'fromProjectiveVectorSpaceToRealVectorSpace', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
+                if (vector.coordinates[1].real.weight === 0 && this.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
+                    const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                    throw new RangeError(error.generateMessageString());
+                }
+                else if (vector.coordinates[1].imaginary.weight === 0 && this.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
+                    const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+                    throw new RangeError(error.generateMessageString());
+                }
+                const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE);
                 throw new RangeError(message.generateMessageString());
             }
         }
         else {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'clone', ProjectiveComplexVectorSpace_1.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', ProjectiveComplexVectorSpace_1.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
             throw new RangeError(error.generateMessageString());
         }
     }
@@ -51993,9 +52123,7 @@ exports.ProjectiveComplexVectorSpace = ProjectiveComplexVectorSpace;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProjectiveComplexVectorSpace2DStrategy = void 0;
-const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/ProjectiveComplexVectorSpace */ "./src/ErrorMessages/ProjectiveComplexVectorSpace.ts");
-const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/ProjectiveVectorSpace */ "./src/ErrorMessages/ProjectiveVectorSpace.ts");
-const ProjectiveVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 const Weight_1 = __webpack_require__(/*! ../namedConstants/Weight */ "./src/namedConstants/Weight.ts");
 const ComplexOperators_1 = __webpack_require__(/*! ./ComplexOperators */ "./src/mathVector/ComplexOperators.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
@@ -52004,13 +52132,7 @@ const Weight_2 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts
 class ProjectiveComplexVectorSpace2DStrategy {
     // Implementation for 2D vectors
     getWeight(v) {
-        if (this.isInVectorSpace(v)) {
-            return v.coordinates[1].real.weight;
-        }
-        else {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getWeight', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
-            throw new RangeError(error.generateMessageString());
-        }
+        return v.coordinates[1];
     }
     shareSameWeightManagement(v1, v2, weightManager) {
         if (this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {
@@ -52019,12 +52141,7 @@ class ProjectiveComplexVectorSpace2DStrategy {
             return weightManager.isSameWeightManagement(weight1, weight2);
         }
         else {
-            if (!this.isInVectorSpace(v1) && !this.isInVectorSpace(v2)) {
-                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'shareSameWeightManagement', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
-                throw new RangeError(error.generateMessageString());
-            }
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'shareSameWeightManagement', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
-            throw new RangeError(error.generateMessageString());
+            throw new RangeError();
         }
     }
     areSameDimension(v1, v2) {
@@ -52038,7 +52155,7 @@ class ProjectiveComplexVectorSpace2DStrategy {
         return false;
     }
     createVector(coordinates, weightManager) {
-        if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights || (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
+        if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights || (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
             let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: coordinates[0], imaginary: coordinates[1] }, { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT,
                         real: weightManager.setWeightStatus(new Weight_2.Weight(coordinates[2], false)), imaginary: weightManager.setWeightStatus(new Weight_2.Weight(coordinates[3], false)) }] };
             return vector;
@@ -52055,19 +52172,19 @@ class ProjectiveComplexVectorSpace2DStrategy {
         return vector;
     }
     add(a, b, weightManager) {
-        if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive === true && b.coordinates[1].real.strictlyPositive === true) {
+        if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
             return { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [
                     ComplexOperators_1.ComplexOperators.add(a.coordinates[0], b.coordinates[0]),
                     ComplexOperators_1.ComplexOperators.addWeights(a.coordinates[1], b.coordinates[1])
                 ]
             };
         }
-        else if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights) {
+        else if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
             const complexWeight = ComplexOperators_1.ComplexOperators.addWeights(a.coordinates[1], b.coordinates[1]);
-            if (complexWeight.real.strictlyPositive === true && complexWeight.imaginary.strictlyPositive === false) {
+            if (complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
                 complexWeight.real = new Weight_2.Weight(complexWeight.real.weight, false);
             }
-            else if (complexWeight.real.strictlyPositive === false && complexWeight.imaginary.strictlyPositive === true) {
+            else if (!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
                 complexWeight.imaginary = new Weight_2.Weight(complexWeight.imaginary.weight, false);
             }
             return { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [
@@ -52077,8 +52194,7 @@ class ProjectiveComplexVectorSpace2DStrategy {
             };
         }
         else {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'add', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
-            throw new RangeError(error.generateMessageString());
+            throw new RangeError();
         }
     }
     norm(v) {
@@ -52095,30 +52211,28 @@ class ProjectiveComplexVectorSpace2DStrategy {
     }
     scale(scaleFactor, vector, weightManager) {
         if (typeof scaleFactor === 'number') {
-            if (vector.coordinates[1].real.strictlyPositive === true) {
+            if (vector.coordinates[1].real.strictlyPositive) {
                 const scaledWeight = { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT, real: new Weight_2.Weight(vector.coordinates[1].real.weight * scaleFactor), imaginary: new Weight_2.Weight(vector.coordinates[1].imaginary.weight * scaleFactor) };
                 return { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: vector.coordinates[0].real * scaleFactor, imaginary: vector.coordinates[0].imaginary * scaleFactor },
                         scaledWeight] };
             }
-            else if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights) {
+            else if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
                 const scaledWeight = { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT, real: new Weight_2.Weight(vector.coordinates[1].real.weight * scaleFactor, false), imaginary: new Weight_2.Weight(vector.coordinates[1].imaginary.weight * scaleFactor, false) };
                 return { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: vector.coordinates[0].real * scaleFactor, imaginary: vector.coordinates[0].imaginary * scaleFactor },
                         scaledWeight] };
             }
             else {
-                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
-                throw new RangeError(error.generateMessageString());
+                throw new RangeError();
             }
         }
         else {
             const scaledWeight = ComplexOperators_1.ComplexOperators.multiplyWeight(scaleFactor, vector.coordinates[1]);
-            if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights && (scaledWeight.real.strictlyPositive === false && scaledWeight.imaginary.strictlyPositive === true)) {
+            if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights && (!scaledWeight.real.strictlyPositive && scaledWeight.imaginary.strictlyPositive)) {
                 scaledWeight.imaginary = new Weight_2.Weight(scaledWeight.imaginary.weight, false);
             }
-            else if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights) {
-                if (scaledWeight.real.strictlyPositive === false || scaledWeight.imaginary.strictlyPositive === false) {
-                    const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
-                    throw new RangeError(error.generateMessageString());
+            else if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
+                if (!scaledWeight.real.strictlyPositive || !scaledWeight.imaginary.strictlyPositive) {
+                    throw new RangeError();
                 }
             }
             return { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: ComplexOperators_1.ComplexOperators.multiply(vector.coordinates[0], scaleFactor).real, imaginary: ComplexOperators_1.ComplexOperators.multiply(vector.coordinates[0], scaleFactor).imaginary },
@@ -52126,19 +52240,19 @@ class ProjectiveComplexVectorSpace2DStrategy {
         }
     }
     subtract(a, b, weightManager) {
-        if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive === true && b.coordinates[1].real.strictlyPositive === true) {
+        if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
             return { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [
                     ComplexOperators_1.ComplexOperators.subtract(a.coordinates[0], b.coordinates[0]),
                     ComplexOperators_1.ComplexOperators.subtractWeights(a.coordinates[1], b.coordinates[1])
                 ]
             };
         }
-        else if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights) {
+        else if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
             const complexWeight = ComplexOperators_1.ComplexOperators.subtractWeights(a.coordinates[1], b.coordinates[1]);
-            if (complexWeight.real.strictlyPositive === true && complexWeight.imaginary.strictlyPositive === false) {
+            if (complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
                 complexWeight.real = new Weight_2.Weight(complexWeight.real.weight, false);
             }
-            else if (complexWeight.real.strictlyPositive === false && complexWeight.imaginary.strictlyPositive === true) {
+            else if (!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
                 complexWeight.imaginary = new Weight_2.Weight(complexWeight.imaginary.weight, false);
             }
             return { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [
@@ -52148,8 +52262,7 @@ class ProjectiveComplexVectorSpace2DStrategy {
             };
         }
         else {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'add', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
-            throw new RangeError(error.generateMessageString());
+            throw new RangeError();
         }
     }
     clone(vector) {
@@ -52161,25 +52274,23 @@ class ProjectiveComplexVectorSpace2DStrategy {
     fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector, weightManager) {
         let real = 0;
         let imaginary = 0;
-        if (vector.coordinates[1].real.weight === 0 && weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights) {
+        if (vector.coordinates[1].real.weight === 0 && weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
             real = vector.coordinates[0].real;
         }
         else if (vector.coordinates[1].real.weight > 0) {
             real = vector.coordinates[0].real / vector.coordinates[1].real.weight;
         }
         else {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
-            throw new RangeError(error.generateMessageString());
+            throw new RangeError();
         }
-        if (vector.coordinates[1].imaginary.weight === 0 && weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights) {
+        if (vector.coordinates[1].imaginary.weight === 0 && weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
             imaginary = vector.coordinates[0].imaginary;
         }
         else if (vector.coordinates[1].imaginary.weight > 0) {
             imaginary = vector.coordinates[0].imaginary / vector.coordinates[1].imaginary.weight;
         }
         else {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'fromProjectiveComplexVectorSpaceToComplexVectorSpace', ProjectiveComplexVectorSpace_1.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
-            throw new RangeError(error.generateMessageString());
+            throw new RangeError();
         }
         return { type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary };
     }
@@ -52202,6 +52313,7 @@ exports.ProjectiveVectorSpace = void 0;
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/ProjectiveVectorSpace */ "./src/ErrorMessages/ProjectiveVectorSpace.ts");
 const Weight_1 = __webpack_require__(/*! ../ErrorMessages/Weight */ "./src/ErrorMessages/Weight.ts");
 const WeightManager_1 = __webpack_require__(/*! ../ErrorMessages/WeightManager */ "./src/ErrorMessages/WeightManager.ts");
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ProjectiveVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 const ProjectiveVectorSpace3DStrategy_1 = __webpack_require__(/*! ./ProjectiveVectorSpace3DStrategy */ "./src/mathVector/ProjectiveVectorSpace3DStrategy.ts");
 const ProjectiveVectorSpace4DStrategy_1 = __webpack_require__(/*! ./ProjectiveVectorSpace4DStrategy */ "./src/mathVector/ProjectiveVectorSpace4DStrategy.ts");
@@ -52209,12 +52321,24 @@ const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const WeightManager_2 = __webpack_require__(/*! ./WeightManager */ "./src/mathVector/WeightManager.ts");
 // Main class using strategy
+// export class ProjectiveVectorSpace<D extends number = number> implements VectorSpace<Real, ProjectiveVectorOfDimension<D>> {
 class ProjectiveVectorSpace {
-    constructor(dimension, weightManagement = ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights) {
+    // constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
+    constructor(dimension, weightManagement = ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights, name, isDefault = false, id) {
         this.dim = dimension;
         this._weightManagement = weightManagement;
         // Create weight manager
         this.weightManager = new WeightManager_2.WeightManager(weightManagement);
+        this._isDefault = isDefault;
+        const idManager = Vector_1.VectorSpaceIdentifierManager.getInstance();
+        if (isDefault) {
+            this._id = id || idManager.getDefaultSpaceId(BSplineR1toRn_1.VectorSpaceType.PROJECTIVE, dimension);
+            this._name = name || `Default Projective Vector Space R^${dimension}`;
+        }
+        else {
+            this._id = id || idManager.generateId();
+            this._name = name || `Projective Vector Space R^${dimension} (${this._id})`;
+        }
         switch (this.dim) {
             case ProjectiveVectorSpace_2.MIN_DIMENSION_PROJECTIVEVECTORSPACE:
                 this.strategy = new ProjectiveVectorSpace3DStrategy_1.ProjectiveVectorSpace3DStrategy();
@@ -52226,6 +52350,18 @@ class ProjectiveVectorSpace {
                 const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
                 throw new RangeError(error.generateMessageString());
         }
+    }
+    get id() { return this._id; }
+    get name() { return this._name; }
+    get isDefault() { return this._isDefault; }
+    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVE; }
+    // Identity methods
+    isSameSpace(other) {
+        return this._id === other.id;
+    }
+    isIsomorphicTo(other) {
+        return this.spaceType === other.spaceType &&
+            this.dimension() === other.dimension();
     }
     get weightManagement() {
         return this._weightManagement;
@@ -52727,6 +52863,7 @@ exports.ProjectiveVectorSpace4DStrategy = ProjectiveVectorSpace4DStrategy;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createRealVectorSpace = exports.RealVectorSpace = void 0;
 const RealVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/RealVectorSpace */ "./src/ErrorMessages/RealVectorSpace.ts");
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const RealVectorSpace_2 = __webpack_require__(/*! ../namedConstants/RealVectorSpace */ "./src/namedConstants/RealVectorSpace.ts");
 const RealVectorSpace1DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace1DStrategy */ "./src/mathVector/RealVectorSpace1DStrategy.ts");
 const RealVectorSpace2DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace2DStrategy */ "./src/mathVector/RealVectorSpace2DStrategy.ts");
@@ -52737,9 +52874,20 @@ const VectorInVectorSpace_1 = __webpack_require__(/*! ./VectorInVectorSpace */ "
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 // Main class using strategy
+// export class RealVectorSpace<D extends number = number> implements VectorSpace<Real, RealVectorOfDimension<D>> {
 class RealVectorSpace {
-    constructor(dimension) {
+    constructor(dimension, name, isDefault = false, id) {
         this.dim = dimension;
+        this._isDefault = isDefault;
+        const idManager = Vector_1.VectorSpaceIdentifierManager.getInstance();
+        if (isDefault) {
+            this._id = id || idManager.getDefaultSpaceId(BSplineR1toRn_1.VectorSpaceType.REAL, dimension);
+            this._name = name || `Default Real Vector Space R^${dimension}`;
+        }
+        else {
+            this._id = id || idManager.generateId();
+            this._name = name || `Real Vector Space R^${dimension} (${this._id})`;
+        }
         switch (this.dim) {
             case RealVectorSpace_2.MIN_DIMENSION_REALVECTORSPACE:
                 this.strategy = new RealVectorSpace1DStrategy_1.RealVectorSpace1DStrategy();
@@ -52757,6 +52905,18 @@ class RealVectorSpace {
                 const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', RealVectorSpace_1.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
                 throw new RangeError(error.generateMessageString());
         }
+    }
+    get id() { return this._id; }
+    get name() { return this._name; }
+    get isDefault() { return this._isDefault; }
+    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.REAL; }
+    // Identity methods
+    isSameSpace(other) {
+        return this._id === other.id;
+    }
+    isIsomorphicTo(other) {
+        return this.spaceType === other.spaceType &&
+            this.dimension() === other.dimension();
     }
     dimension() {
         return this.dim;
@@ -52813,6 +52973,30 @@ class RealVectorSpace {
     }
     defaultVectInVectorSpace() {
         return new VectorInVectorSpace_1.VectorInVectorSpace(this.createVectorInstance(this.strategy.defaultVect()), this);
+    }
+    // Validation methods
+    validateVectorCompatibility(a, b) {
+        if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
+            throw new Error(`Vectors are not compatible: ${a.vectorType} vs ${b.vectorType}`);
+        }
+        if (a.dimension !== this.dim) {
+            throw new Error(`Vector dimension ${a.dimension} does not match space dimension ${this.dim}`);
+        }
+    }
+    validateVectorBelongsToSpace(v) {
+        if (v.spaceType !== BSplineR1toRn_1.VectorSpaceType.REAL) {
+            throw new Error(`Vector is not a real vector: ${v.vectorType}`);
+        }
+        if (v.dimension !== this.dim) {
+            throw new Error(`Vector dimension ${v.dimension} does not match space dimension ${this.dim}`);
+        }
+    }
+    // Utility methods
+    toString() {
+        return `${this._name} [ID: ${this._id}]`;
+    }
+    equals(other) {
+        return other instanceof RealVectorSpace && this.isSameSpace(other);
     }
     add(a, b) {
         try {
@@ -53427,7 +53611,7 @@ exports.RealVectorSpace4DStrategy = RealVectorSpace4DStrategy;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ProjectiveVector1DTypeComplex = exports.ProjectiveVector3DTypeReal = exports.ProjectiveVector2DTypeReal = exports.Vector2DTypeComplex = exports.Vector1DTypeComplex = exports.Vector4DTypeReal = exports.Vector3DTypeReal = exports.Vector2DTypeReal = exports.Vector1DTypeReal = exports.AbstractProjectiveComplexVector = exports.AbstractProjectiveVector = exports.AbstractComplexVector = exports.AbstractRealVector = exports.VectorFactory = exports.AbstractVector = exports.DefaultVectorSpaces = void 0;
+exports.ProjectiveVector1DTypeComplex = exports.ProjectiveVector3DTypeReal = exports.ProjectiveVector2DTypeReal = exports.Vector2DTypeComplex = exports.Vector1DTypeComplex = exports.Vector4DTypeReal = exports.Vector3DTypeReal = exports.Vector2DTypeReal = exports.Vector1DTypeReal = exports.AbstractProjectiveComplexVector = exports.AbstractProjectiveVector = exports.AbstractComplexVector = exports.AbstractRealVector = exports.VectorFactory = exports.AbstractVector = exports.DefaultVectorSpaces = exports.VectorSpaceIdentifierManager = void 0;
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ComplexVectorSpace_1 = __webpack_require__(/*! ./ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
 const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ./ProjectiveComplexVectorSpace */ "./src/mathVector/ProjectiveComplexVectorSpace.ts");
@@ -53436,6 +53620,44 @@ const RealVectorSpace_1 = __webpack_require__(/*! ./RealVectorSpace */ "./src/ma
 const VectorInVectorSpace_1 = __webpack_require__(/*! ./VectorInVectorSpace */ "./src/mathVector/VectorInVectorSpace.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
 const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+/**
+ * Vector Space Identifier Manager - Singleton for generating unique IDs
+ */
+class VectorSpaceIdentifierManager {
+    constructor() {
+        this.nextId = 1;
+        this.defaultSpaceIds = new Map();
+    }
+    static getInstance() {
+        if (!VectorSpaceIdentifierManager.instance) {
+            VectorSpaceIdentifierManager.instance = new VectorSpaceIdentifierManager();
+        }
+        return VectorSpaceIdentifierManager.instance;
+    }
+    /**
+     * Generate a unique identifier for a vector space
+     */
+    generateId() {
+        return `vs_${this.nextId++}_${Date.now()}`;
+    }
+    /**
+     * Get or create default space identifier for a given type and dimension
+     */
+    getDefaultSpaceId(spaceType, dimension) {
+        const key = `${spaceType}_${dimension}`;
+        if (!this.defaultSpaceIds.has(key)) {
+            this.defaultSpaceIds.set(key, `default_${key}_${this.generateId()}`);
+        }
+        return this.defaultSpaceIds.get(key);
+    }
+    /**
+     * Check if an ID represents a default space
+     */
+    isDefaultSpace(id) {
+        return id.startsWith('default_');
+    }
+}
+exports.VectorSpaceIdentifierManager = VectorSpaceIdentifierManager;
 /**
  * Singleton manager for default vector spaces
  */
@@ -53454,6 +53676,8 @@ class DefaultVectorSpaces {
     }
     getRealVectorSpace(dimension) {
         if (!this.realSpaces.has(dimension)) {
+            // Create default space with special marking
+            const defaultSpace = new RealVectorSpace_1.RealVectorSpace(dimension, `Default Real Vector Space R^${dimension}`, true);
             this.realSpaces.set(dimension, new RealVectorSpace_1.RealVectorSpace(dimension));
         }
         return this.realSpaces.get(dimension);
@@ -53475,6 +53699,23 @@ class DefaultVectorSpaces {
             this.projectiveComplexSpaces.set(dimension, new ProjectiveComplexVectorSpace_1.ProjectiveComplexVectorSpace(dimension));
         }
         return this.projectiveComplexSpaces.get(dimension);
+    }
+    /**
+     * Get all default spaces (for debugging/testing)
+     */
+    getAllDefaultSpaces() {
+        return [
+            ...Array.from(this.realSpaces.values())
+            // ...Array.from(this.complexSpaces.values()),
+            // ...Array.from(this.projectiveRealSpaces.values()),
+            // ...Array.from(this.projectiveComplexSpaces.values())
+        ];
+    }
+    /**
+     * Check if a space is managed by this singleton
+     */
+    isDefaultSpace(space) {
+        return space.isDefault && this.getAllDefaultSpaces().some(s => s.isSameSpace(space));
     }
 }
 exports.DefaultVectorSpaces = DefaultVectorSpaces;
@@ -53507,6 +53748,7 @@ exports.DefaultVectorSpaces = DefaultVectorSpaces;
 //         return `${this.vectorType}(${this.toArray().join(', ')})`;
 //     }
 // }
+// export abstract class AbstractVector implements IVector {
 class AbstractVector {
     constructor(vectorSpace) {
         this._vectorSpace = vectorSpace || this.getDefaultVectorSpace();
@@ -53567,12 +53809,38 @@ class AbstractVector {
     toString() {
         return `${this.vectorType}(${this.toArray().join(', ')})`;
     }
+    // protected validateCompatibility(other: IVector): void {
+    //     if (this.dimension !== other.dimension) {
+    //         throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
+    //     }
+    //     if (this.spaceType !== other.spaceType) {
+    //         throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
+    //     }
+    // }
+    // Enhanced validation that checks space identity
     validateCompatibility(other) {
         if (this.dimension !== other.dimension) {
             throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
         }
         if (this.spaceType !== other.spaceType) {
             throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
+        }
+        // Check if vectors belong to the same vector space instance
+        if (!this._vectorSpace.isSameSpace(other.vectorSpace)) {
+            throw new Error(`Vectors belong to different vector spaces: ${this._vectorSpace.id} vs ${other.vectorSpace.id}`);
+        }
+    }
+    // Allow operations between vectors from isomorphic spaces
+    validateIsomorphicCompatibility(other) {
+        if (this.dimension !== other.dimension) {
+            throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
+        }
+        if (this.spaceType !== other.spaceType) {
+            throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
+        }
+        // Only check isomorphism, not exact space identity
+        if (!this._vectorSpace.isIsomorphicTo(other.vectorSpace)) {
+            throw new Error(`Vector spaces are not isomorphic`);
         }
     }
 }
@@ -55311,7 +55579,7 @@ class WeightManager {
             newWeight = new Weight_1.Weight(weight.weight, false);
         }
         else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
-            if (weight.strictlyPositive === false) {
+            if (!weight.strictlyPositive) {
                 const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'setWeightStatus', WeightManager_1.EM_WEIGHT_MANAGER_WEIGHT_TYPE_ERROR);
                 throw new RangeError(error.generateMessageString());
             }
@@ -55333,11 +55601,11 @@ class WeightManager {
             newWeight = new Weight_1.Weight(0, false);
         }
         if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
-            if (weightV1.strictlyPositive === false || weightV2.strictlyPositive === false)
+            if (!weightV1.strictlyPositive || !weightV2.strictlyPositive)
                 (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_2.WM_WEIGHT_WITH_POSITIVE_VALUE_STATUS);
         }
         else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
-            if (weightV1.strictlyPositive === true || weightV2.strictlyPositive === true)
+            if (weightV1.strictlyPositive || weightV2.strictlyPositive)
                 (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_2.WM_WEIGHT_WITH_STRICTLY_POSITIVE_VALUE_STATUS);
             newWeight = new Weight_1.Weight(sumWeights, false);
         }
@@ -55701,7 +55969,7 @@ class Optimizer {
     }
     computeNewtonStep(gradient, hessian) {
         let choleskyDecomposition = new CholeskyDecomposition_1.CholeskyDecomposition(hessian);
-        if (choleskyDecomposition.success === false) {
+        if (!choleskyDecomposition.success) {
             console.log("choleskyDecomposition failed");
         }
         return choleskyDecomposition.solve((0, MathVectorBasicOperations_1.multiplyVectorByScalar)(gradient, -1));

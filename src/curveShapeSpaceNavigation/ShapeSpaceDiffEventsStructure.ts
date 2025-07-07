@@ -59,7 +59,7 @@ export class ShapeSpaceDiffEventsStructure {
 
     set activeControlInflections(controlOfInflections: boolean) {
         this._activeControlInflections = controlOfInflections;
-        if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) {
+        if(!this._activeControlInflections && !this._activeControlCurvatureExtrema) {
             this._activeNavigationWithOptimizer = false;
         } else {
             this._activeNavigationWithOptimizer = true;
@@ -68,7 +68,7 @@ export class ShapeSpaceDiffEventsStructure {
 
     set activeControlCurvatureExtrema(controlOfCurvatureExtrema: boolean) {
         this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
-        if(this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) {
+        if(!this._activeControlInflections && !this._activeControlCurvatureExtrema) {
             this._activeNavigationWithOptimizer = false;
         } else {
             this._activeNavigationWithOptimizer = true;

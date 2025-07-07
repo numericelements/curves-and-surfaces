@@ -21,7 +21,7 @@ export class WeightManager {
         if (this._weightManagement === WeightManagement.AllPositiveWeights) {
             newWeight = new Weight(weight.weight, false);
         } else if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
-            if(weight.strictlyPositive === false) {
+            if(!weight.strictlyPositive) {
                 const error = sendRangeErrorMessage(this.constructor.name, 'setWeightStatus', EM_WEIGHT_MANAGER_WEIGHT_TYPE_ERROR);
                 throw new RangeError(error.generateMessageString());
             }
@@ -42,10 +42,10 @@ export class WeightManager {
             newWeight = new Weight(0, false);
         }
         if (this._weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
-            if(weightV1.strictlyPositive === false || weightV2.strictlyPositive === false) 
+            if(!weightV1.strictlyPositive || !weightV2.strictlyPositive) 
                 sendRangeErrorMessage(this.constructor.name, 'addWeights', WM_WEIGHT_WITH_POSITIVE_VALUE_STATUS);
         } else if (this._weightManagement === WeightManagement.AllPositiveWeights) {
-            if(weightV1.strictlyPositive === true || weightV2.strictlyPositive === true) 
+            if(weightV1.strictlyPositive || weightV2.strictlyPositive) 
                 sendRangeErrorMessage(this.constructor.name, 'addWeights', WM_WEIGHT_WITH_STRICTLY_POSITIVE_VALUE_STATUS);
             newWeight = new Weight(sumWeights, false);
         } else if (this._weightManagement === WeightManagement.SomeNullWeights) {

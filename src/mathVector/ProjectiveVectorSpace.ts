@@ -1,11 +1,12 @@
 import { EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT, EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/ProjectiveVectorSpace";
 import { EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NEGATIVE, EM_SCALE_FACTOR_NEGATIVE_OR_NULL, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
-import { IVector, ProjectiveVector2DTypeReal, ProjectiveVector3DTypeReal } from "./Vector";
-import { ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { IVector, ProjectiveVector2DTypeReal, ProjectiveVector3DTypeReal, VectorSpaceIdentifierManager } from "./Vector";
+import { IdentifiableVectorSpace, ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 
@@ -33,18 +34,33 @@ export interface ProjectiveVectorSpaceStrategy<D extends number> {
 
 
 // Main class using strategy
-export class ProjectiveVectorSpace<D extends number = number> implements VectorSpace<Real, ProjectiveVectorOfDimension<D>> {
+// export class ProjectiveVectorSpace<D extends number = number> implements VectorSpace<Real, ProjectiveVectorOfDimension<D>> {
+export class ProjectiveVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Real, ProjectiveVectorOfDimension<D>> {
+    private readonly _id: string;
+    private readonly _name: string;
+    private readonly _isDefault: boolean;
+    
     private dim: D;
     protected strategy: ProjectiveVectorSpaceStrategy<D>;
     protected _weightManagement: WeightManagement;
     private weightManager: WeightManager;
     
-    constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
+    // constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
+    constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights,
+        name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
         this._weightManagement = weightManagement;
         // Create weight manager
         this.weightManager = new WeightManager(weightManagement);
-      
+        this._isDefault = isDefault;
+        const idManager = VectorSpaceIdentifierManager.getInstance();
+        if (isDefault) {
+            this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.PROJECTIVE, dimension);
+            this._name = name || `Default Projective Vector Space R^${dimension}`;
+        } else {
+            this._id = id || idManager.generateId();
+            this._name = name || `Projective Vector Space R^${dimension} (${this._id})`;
+        }
         switch(this.dim) {
             case MIN_DIMENSION_PROJECTIVEVECTORSPACE:
                 this.strategy = new ProjectiveVectorSpace3DStrategy() as ProjectiveVectorSpaceStrategy<D>;
@@ -56,6 +72,21 @@ export class ProjectiveVectorSpace<D extends number = number> implements VectorS
                 const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
                 throw new RangeError(error.generateMessageString());
         }
+    }
+
+    get id(): string { return this._id; }
+    get name(): string { return this._name; }
+    get isDefault(): boolean { return this._isDefault; }
+    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
+
+    // Identity methods
+    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean {
+        return this._id === other.id;
+    }
+
+    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean {
+        return this.spaceType === other.spaceType && 
+               this.dimension() === other.dimension();
     }
 
     get weightManagement(): WeightManagement {

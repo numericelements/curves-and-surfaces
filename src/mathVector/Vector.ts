@@ -5,9 +5,51 @@ import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { VectorInVectorSpace } from "./VectorInVectorSpace";
-import { COMPLEX, Complex, ComplexVector, ComplexVector1D, COMPLEXVECTOR2D, ComplexVector2D, COMPLEXWEIGHT, ComplexWeight, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, PROJECTIVEVECTOR3D, ProjectiveVector3D, RealVector, RealVector1D, REALVECTOR2D, RealVector2D, REALVECTOR3D, RealVector3D, REALVECTOR4D, RealVector4D, Scalar, Vector, VectorSpace, WEIGHT } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, Complex, ComplexVector, ComplexVector1D, COMPLEXVECTOR2D, ComplexVector2D, COMPLEXWEIGHT, ComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, PROJECTIVEVECTOR3D, ProjectiveVector3D, RealVector, RealVector1D, REALVECTOR2D, RealVector2D, REALVECTOR3D, RealVector3D, REALVECTOR4D, RealVector4D, Scalar, Vector, VectorSpace, WEIGHT } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
 
+/**
+ * Vector Space Identifier Manager - Singleton for generating unique IDs
+ */
+export class VectorSpaceIdentifierManager {
+    private static instance: VectorSpaceIdentifierManager;
+    private nextId: number = 1;
+    private readonly defaultSpaceIds: Map<string, string> = new Map();
+
+    private constructor() {}
+
+    static getInstance(): VectorSpaceIdentifierManager {
+        if (!VectorSpaceIdentifierManager.instance) {
+            VectorSpaceIdentifierManager.instance = new VectorSpaceIdentifierManager();
+        }
+        return VectorSpaceIdentifierManager.instance;
+    }
+
+    /**
+     * Generate a unique identifier for a vector space
+     */
+    generateId(): string {
+        return `vs_${this.nextId++}_${Date.now()}`;
+    }
+
+    /**
+     * Get or create default space identifier for a given type and dimension
+     */
+    getDefaultSpaceId(spaceType: VectorSpaceType, dimension: number): string {
+        const key = `${spaceType}_${dimension}`;
+        if (!this.defaultSpaceIds.has(key)) {
+            this.defaultSpaceIds.set(key, `default_${key}_${this.generateId()}`);
+        }
+        return this.defaultSpaceIds.get(key)!;
+    }
+
+    /**
+     * Check if an ID represents a default space
+     */
+    isDefaultSpace(id: string): boolean {
+        return id.startsWith('default_');
+    }
+}
 
 /**
  * Singleton manager for default vector spaces
@@ -30,6 +72,8 @@ export class DefaultVectorSpaces {
 
     getRealVectorSpace<D extends number>(dimension: D): RealVectorSpace<D> {
         if (!this.realSpaces.has(dimension)) {
+            // Create default space with special marking
+            const defaultSpace = new RealVectorSpace<D>(dimension, `Default Real Vector Space R^${dimension}`, true);
             this.realSpaces.set(dimension, new RealVectorSpace<D>(dimension));
         }
         return this.realSpaces.get(dimension) as RealVectorSpace<D>;
@@ -54,6 +98,25 @@ export class DefaultVectorSpaces {
             this.projectiveComplexSpaces.set(dimension, new ProjectiveComplexVectorSpace(dimension));
         }
         return this.projectiveComplexSpaces.get(dimension) as ProjectiveComplexVectorSpace;
+    }
+
+    /**
+     * Get all default spaces (for debugging/testing)
+     */
+    getAllDefaultSpaces(): IdentifiableVectorSpace<any, any>[] {
+        return [
+            ...Array.from(this.realSpaces.values())
+            // ...Array.from(this.complexSpaces.values()),
+            // ...Array.from(this.projectiveRealSpaces.values()),
+            // ...Array.from(this.projectiveComplexSpaces.values())
+        ];
+    }
+
+    /**
+     * Check if a space is managed by this singleton
+     */
+    isDefaultSpace(space: IdentifiableVectorSpace<any, any>): boolean {
+        return space.isDefault && this.getAllDefaultSpaces().some(s => s.isSameSpace(space));
     }
 }
 
@@ -90,7 +153,8 @@ export interface IVector {
     readonly dimension: number;
     readonly vectorType: string;
     readonly spaceType: VectorSpaceType;
-    readonly vectorSpace: VectorSpace<any, any>; // The vector space this vector belongs to
+    // readonly vectorSpace: VectorSpace<any, any>; // The vector space this vector belongs to
+    readonly vectorSpace: IdentifiableVectorSpace<any, any>;
     
     // Coordinate access
     getCoordinate(index: number): number | Complex;
@@ -266,10 +330,11 @@ export interface IProjectiveComplexVector extends IVector {
 // }
 
 
-export abstract class AbstractVector implements IVector {
-    protected _vectorSpace: VectorSpace<any, any>;
+// export abstract class AbstractVector implements IVector {
+export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any> = IdentifiableVectorSpace<any, any>> implements IVector {
+    protected _vectorSpace: VS;
 
-    constructor(vectorSpace?: VectorSpace<any, any>) {
+    constructor(vectorSpace?: VS) {
         this._vectorSpace = vectorSpace || this.getDefaultVectorSpace();
     }
 
@@ -283,9 +348,9 @@ export abstract class AbstractVector implements IVector {
     abstract clone(): IVector;
     
     // Abstract method to get default vector space - implemented by concrete classes
-    protected abstract getDefaultVectorSpace(): VectorSpace<any, any>;
+    protected abstract getDefaultVectorSpace(): VS;
 
-    get vectorSpace(): VectorSpace<any, any> {
+    get vectorSpace(): VS {
         return this._vectorSpace;
     }
 
@@ -354,12 +419,40 @@ export abstract class AbstractVector implements IVector {
         return `${this.vectorType}(${this.toArray().join(', ')})`;
     }
 
+    // protected validateCompatibility(other: IVector): void {
+    //     if (this.dimension !== other.dimension) {
+    //         throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
+    //     }
+    //     if (this.spaceType !== other.spaceType) {
+    //         throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
+    //     }
+    // }
+
+    // Enhanced validation that checks space identity
     protected validateCompatibility(other: IVector): void {
         if (this.dimension !== other.dimension) {
             throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
         }
         if (this.spaceType !== other.spaceType) {
             throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
+        }
+        // Check if vectors belong to the same vector space instance
+        if (!this._vectorSpace.isSameSpace(other.vectorSpace as IdentifiableVectorSpace<any, any>)) {
+            throw new Error(`Vectors belong to different vector spaces: ${this._vectorSpace.id} vs ${other.vectorSpace.id}`);
+        }
+    }
+
+    // Allow operations between vectors from isomorphic spaces
+    protected validateIsomorphicCompatibility(other: IVector): void {
+        if (this.dimension !== other.dimension) {
+            throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
+        }
+        if (this.spaceType !== other.spaceType) {
+            throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
+        }
+        // Only check isomorphism, not exact space identity
+        if (!this._vectorSpace.isIsomorphicTo(other.vectorSpace as IdentifiableVectorSpace<any, any>)) {
+            throw new Error(`Vector spaces are not isomorphic`);
         }
     }
 
@@ -885,7 +978,7 @@ export class Vector2DTypeReal extends AbstractRealVector {
     get dimension(): number { return 2; }
     get vectorType(): string { return 'Real2D'; }
     
-    protected getDefaultVectorSpace(): RealVectorSpace<2> {
+    getDefaultVectorSpace(): RealVectorSpace<2> {
         return DefaultVectorSpaces.getInstance().getRealVectorSpace(2);
     }
     
