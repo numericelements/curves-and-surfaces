@@ -1,0 +1,95 @@
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { AbstractProjectiveComplexVector } from "./AbstractProjectiveComplexVector";
+import { DefaultVectorSpaces } from "./DefaultVectorSpaces";
+import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
+import { Vector2DTypeReal } from "./Vector2DTypeReal";
+import { COMPLEX, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D } from "./VectorSpaceConstructorInterface";
+import { Weight } from "./Weight";
+
+export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVector {
+    private data: ProjectiveComplexVector;
+    protected _vectorSpace: ProjectiveComplexVectorSpace<2>;
+    
+    constructor(real: number = 0, imaginary: number = 0, realWeight: Weight = new Weight(), imaginaryWeight: Weight = new Weight(), vectorSpace?: ProjectiveComplexVectorSpace<2>) {
+        super();
+        this.data = { 
+            type: PROJECTIVECOMPLEXVECTOR1D, 
+            coordinates: [{ type: COMPLEX, real: real, imaginary: imaginary },
+                        { type: COMPLEXWEIGHT, real: realWeight, imaginary: imaginaryWeight}] 
+        };
+        this._vectorSpace = vectorSpace || resolveDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveComplexVectorSpace<2>;
+    }
+    
+    get dimension(): number { return 2; } // Homogeneous coordinates
+    get vectorType(): string { return 'ProjectiveComplexVector'; }
+    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVECOMPLEX; }
+    
+    get weight(): Weight {
+        return this.data.coordinates[1].real;
+    }
+    
+    get homogeneousCoordinates(): number[] {
+        return [this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.weight.weight];
+    }
+
+    // protected getDefaultVectorSpace(): ProjectiveComplexVectorSpace {
+    //     return DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(this.dimension);
+    // }
+    
+    getCoordinate(index: number): number {
+        if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
+        if (index === 1) return this.weight.weight;
+        return this.data.coordinates[index].real as number;
+    }
+    
+    setCoordinate(index: number, value: number): void {
+        if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
+        if (index === 1) {
+            this.data.coordinates[1].real = new Weight(value);
+        } else {
+            this.data.coordinates[index].real = value;
+        }
+    }
+    
+    get coordinates(): number[] { return this.homogeneousCoordinates; }
+    get raw(): ProjectiveComplexVector { return { ...this.data }; }
+    
+    normalize(): ProjectiveVector1DTypeComplex {
+        const w = this.weight.weight;
+        if (w === 0) return this.clone() as ProjectiveVector1DTypeComplex;
+        
+        return new ProjectiveVector1DTypeComplex(
+            this.data.coordinates[0].real / w,
+            this.data.coordinates[0].imaginary / w,
+            new Weight(1)
+        );
+    }
+
+    // add(other: ProjectiveVector1DTypeComplex): ProjectiveVector1DTypeComplex {
+    //     // this.validateCompatibility(other);
+    //     const result = this.vectorSpace.add(this.raw, other.raw);
+    //     return this.createVectorFromRaw(result);
+    // }
+    
+    toCartesian(): Vector2DTypeReal {
+        const normalized = this.normalize();
+        return new Vector2DTypeReal(
+            normalized.data.coordinates[0].real,
+            normalized.data.coordinates[0].imaginary
+        );
+    }
+    
+    clone(): ProjectiveVector1DTypeComplex {
+        return new ProjectiveVector1DTypeComplex(
+            this.data.coordinates[0].real,
+            this.data.coordinates[0].imaginary,
+            new Weight(this.weight.weight),
+            new Weight(this.weight.weight)
+        );
+    }
+
+    static fromRaw(raw: ProjectiveComplexVector): ProjectiveVector1DTypeComplex {
+        return new ProjectiveVector1DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary);
+    }
+}

@@ -35,7 +35,7 @@ describe('RealVectorSpace', () => {
         // 1D RealVector Space Tests
         describe('1D Vector Space', () => {
             createCommonRealVectorSpaceTests(
-                (weightManagement) => new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE),
+                () => new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE),
                 MIN_DIMENSION_REALVECTORSPACE,
                 'number'
             );
@@ -44,7 +44,7 @@ describe('RealVectorSpace', () => {
         // 2D RealVector Space Tests
         describe('2D Vector Space', () => {
             createCommonRealVectorSpaceTests(
-                (weightManagement) => new RealVectorSpace(2),
+                () => new RealVectorSpace(2),
                 2,
                 REALVECTOR2D
             );
@@ -53,7 +53,7 @@ describe('RealVectorSpace', () => {
         // 3D RealVector Space Tests
         describe('3D Vector Space', () => {
             createCommonRealVectorSpaceTests(
-                (weightManagement) => new RealVectorSpace(3),
+                () => new RealVectorSpace(3),
                 3,
                 REALVECTOR3D
             );
@@ -62,7 +62,7 @@ describe('RealVectorSpace', () => {
         // 4D RealVector Space Tests
         describe('4D Vector Space', () => {
             createCommonRealVectorSpaceTests(
-                (weightManagement) => new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE),
+                () => new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE),
                 MAX_DIMENSION_REALVECTORSPACE,
                 REALVECTOR4D
             );

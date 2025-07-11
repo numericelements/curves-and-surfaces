@@ -3,10 +3,13 @@ import { EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NEGATIVE, EM_SCALE_FACTOR_NEGATIVE_OR_NULL, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
+import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
-import { IVector, ProjectiveVector2DTypeReal, ProjectiveVector3DTypeReal, VectorSpaceIdentifierManager } from "./Vector";
+import { IVector } from "./Vector";
 import { IdentifiableVectorSpace, ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { VectorSpaceIdentifierManager } from "./VectorSpaceIdentifierManager";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 

@@ -51203,6 +51203,316 @@ exports.SymmetricMatrix = SymmetricMatrix;
 
 /***/ }),
 
+/***/ "./src/mathVector/AbstractComplexVector.ts":
+/*!*************************************************!*\
+  !*** ./src/mathVector/AbstractComplexVector.ts ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractComplexVector = void 0;
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const AbstractVector_1 = __webpack_require__(/*! ./AbstractVector */ "./src/mathVector/AbstractVector.ts");
+const DefaultVectorSpaces_1 = __webpack_require__(/*! ./DefaultVectorSpaces */ "./src/mathVector/DefaultVectorSpaces.ts");
+const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
+/**
+ * Abstract base for complex vectors
+ */
+class AbstractComplexVector extends AbstractVector_1.AbstractVector {
+    // constructor(vectorSpace?: ComplexVectorSpace<any>) {
+    //     super();
+    // }
+    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.COMPLEX; }
+    get vectorSpace() { return this._vectorSpace; }
+    getDefaultVectorSpace() {
+        return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getComplexVectorSpace(this.dimension);
+    }
+    add(other) {
+        return super.add(other);
+    }
+    subtract(other) {
+        return super.subtract(other);
+    }
+    scale(scalar) {
+        return super.scale(scalar);
+    }
+    // Complex-specific implementations
+    getReal(index) {
+        const coord = this.getCoordinate(index);
+        return coord.real;
+    }
+    getImaginary(index) {
+        const coord = this.getCoordinate(index);
+        return coord.imaginary;
+    }
+    setReal(index, value) {
+        const coord = this.getCoordinate(index);
+        this.setCoordinate(index, Object.assign(Object.assign({}, coord), { real: value }));
+    }
+    setImaginary(index, value) {
+        const coord = this.getCoordinate(index);
+        this.setCoordinate(index, Object.assign(Object.assign({}, coord), { imaginary: value }));
+    }
+    toArray() {
+        // Flatten complex coordinates to [real1, imag1, real2, imag2, ...]
+        // return this.coordinates.flatMap(c => [c.real, c.imaginary]);
+        return [this.coordinates[0].real, this.coordinates[0].imaginary];
+    }
+    createVectorFromRaw(raw) {
+        return Vector_1.VectorFactory.createComplexVectorFromRaw(raw, this.vectorSpace);
+    }
+}
+exports.AbstractComplexVector = AbstractComplexVector;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/AbstractProjectiveComplexVector.ts":
+/*!***********************************************************!*\
+  !*** ./src/mathVector/AbstractProjectiveComplexVector.ts ***!
+  \***********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractProjectiveComplexVector = void 0;
+const AbstractVector_1 = __webpack_require__(/*! ./AbstractVector */ "./src/mathVector/AbstractVector.ts");
+const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
+/**
+ * Abstract base for projective complex vectors
+ */
+class AbstractProjectiveComplexVector extends AbstractVector_1.AbstractVector {
+    // constructor(vectorSpace?: ProjectiveComplexVectorSpace<any>) {
+    //     super(vectorSpace);
+    // }
+    get vectorSpace() { return this._vectorSpace; }
+    add(other) {
+        return super.add(other);
+    }
+    subtract(other) {
+        return super.subtract(other);
+    }
+    scale(scalar) {
+        return super.scale(scalar);
+    }
+    toArray() {
+        return this.homogeneousCoordinates.map(coord => typeof coord === 'number' ? coord : coord.real);
+    }
+    createVectorFromRaw(raw) {
+        return Vector_1.VectorFactory.createProjectiveComplexVectorFromRaw(raw, this.vectorSpace);
+    }
+}
+exports.AbstractProjectiveComplexVector = AbstractProjectiveComplexVector;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/AbstractProjectiveVector.ts":
+/*!****************************************************!*\
+  !*** ./src/mathVector/AbstractProjectiveVector.ts ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractProjectiveVector = void 0;
+const AbstractVector_1 = __webpack_require__(/*! ./AbstractVector */ "./src/mathVector/AbstractVector.ts");
+const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
+/**
+ * Abstract base for projective vectors
+ */
+class AbstractProjectiveVector extends AbstractVector_1.AbstractVector {
+    // constructor(vectorSpace?: ProjectiveVectorSpace<any>) {
+    //     super();
+    // }
+    get vectorSpace() { return this._vectorSpace; }
+    add(other) {
+        return super.add(other);
+    }
+    subtract(other) {
+        return super.subtract(other);
+    }
+    scale(scalar) {
+        return super.scale(scalar);
+    }
+    toArray() {
+        return this.homogeneousCoordinates.map(coord => typeof coord === 'number' ? coord : coord.real);
+    }
+    createVectorFromRaw(raw) {
+        return Vector_1.VectorFactory.createProjectiveVectorFromRaw(raw, this.vectorSpace);
+    }
+}
+exports.AbstractProjectiveVector = AbstractProjectiveVector;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/AbstractRealVector.ts":
+/*!**********************************************!*\
+  !*** ./src/mathVector/AbstractRealVector.ts ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractRealVector = void 0;
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const AbstractVector_1 = __webpack_require__(/*! ./AbstractVector */ "./src/mathVector/AbstractVector.ts");
+const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
+/**
+ * Abstract base for real vectors
+ */
+class AbstractRealVector extends AbstractVector_1.AbstractVector {
+    // constructor(vectorSpace?: RealVectorSpace<any>) {
+    // super(vectorSpace);
+    // }
+    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.REAL; }
+    get vectorSpace() { return this._vectorSpace; }
+    // Default implementations for coordinate accessors
+    get x() { return this.dimension >= 1 ? this.getCoordinate(0) : undefined; }
+    get y() { return this.dimension >= 2 ? this.getCoordinate(1) : undefined; }
+    get z() { return this.dimension >= 3 ? this.getCoordinate(2) : undefined; }
+    get w() { return this.dimension >= 4 ? this.getCoordinate(3) : undefined; }
+    // Override with more specific types
+    add(other) {
+        return super.add(other);
+    }
+    subtract(other) {
+        return super.subtract(other);
+    }
+    scale(scalar) {
+        return super.scale(scalar);
+    }
+    dot(other) {
+        return super.dot(other);
+    }
+    toArray() {
+        return this.coordinates;
+    }
+    createVectorFromRaw(raw) {
+        return Vector_1.VectorFactory.createRealVectorFromRaw(raw, this.vectorSpace);
+    }
+}
+exports.AbstractRealVector = AbstractRealVector;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/AbstractVector.ts":
+/*!******************************************!*\
+  !*** ./src/mathVector/AbstractVector.ts ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AbstractVector = void 0;
+const VectorInVectorSpace_1 = __webpack_require__(/*! ./VectorInVectorSpace */ "./src/mathVector/VectorInVectorSpace.ts");
+/**
+ * Base abstract class implementing common IVector functionality
+ */
+// export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any> = IdentifiableVectorSpace<any, any>> implements IVector {
+class AbstractVector {
+    constructor() {
+        // this._vectorSpace = vectorSpace || this.getDefaultVectorSpace();
+        // this._vectorSpace = vectorSpace || resolveDefaultVectorSpace(this.spaceType, this.dimension);
+    }
+    // Abstract method to get default vector space - implemented by concrete classes
+    // protected abstract getDefaultVectorSpace(): VS;
+    get vectorSpace() {
+        return this._vectorSpace;
+    }
+    // Vector operations using the vector space
+    add(other) {
+        this.validateCompatibility(other);
+        const result = this._vectorSpace.add(this.raw, other.raw);
+        return this.createVectorFromRaw(result);
+    }
+    subtract(other) {
+        this.validateCompatibility(other);
+        const result = this._vectorSpace.subtract(this.raw, other.raw);
+        return this.createVectorFromRaw(result);
+    }
+    scale(scalar) {
+        const result = this._vectorSpace.scale(scalar, this.raw);
+        return this.createVectorFromRaw(result);
+    }
+    norm() {
+        if ('norm' in this._vectorSpace && typeof this._vectorSpace.norm === 'function') {
+            return this._vectorSpace.norm(this.raw);
+        }
+        throw new Error('Norm operation not available for this vector space');
+    }
+    normalize() {
+        const currentNorm = this.norm();
+        if (currentNorm === 0) {
+            throw new Error('Cannot normalize zero vector');
+        }
+        return this.scale((1 / currentNorm));
+    }
+    dot(other) {
+        this.validateCompatibility(other);
+        if ('dot' in this._vectorSpace && typeof this._vectorSpace.dot === 'function') {
+            return this._vectorSpace.dot(this.raw, other.raw);
+        }
+        throw new Error('Dot product not available for this vector space');
+    }
+    bindTo(space) {
+        return new VectorInVectorSpace_1.VectorInVectorSpace(this, space);
+    }
+    // Common implementations
+    equals(other) {
+        if (this.dimension !== other.dimension || this.vectorType !== other.vectorType) {
+            return false;
+        }
+        for (let i = 0; i < this.dimension; i++) {
+            if (this.getCoordinate(i) !== other.getCoordinate(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    toString() {
+        return `${this.vectorType}(${this.toArray().join(', ')})`;
+    }
+    // Enhanced validation that checks space identity
+    validateCompatibility(other) {
+        if (this.dimension !== other.dimension) {
+            throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
+        }
+        if (this.spaceType !== other.spaceType) {
+            throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
+        }
+        // Check if vectors belong to the same vector space instance
+        if (!this._vectorSpace.isSameSpace(other.vectorSpace)) {
+            throw new Error(`Vectors belong to different vector spaces: ${this._vectorSpace.id} vs ${other.vectorSpace.id}`);
+        }
+    }
+    // Allow operations between vectors from isomorphic spaces
+    validateIsomorphicCompatibility(other) {
+        if (this.dimension !== other.dimension) {
+            throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
+        }
+        if (this.spaceType !== other.spaceType) {
+            throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
+        }
+        // Only check isomorphism, not exact space identity
+        if (!this._vectorSpace.isIsomorphicTo(other.vectorSpace)) {
+            throw new Error(`Vector spaces are not isomorphic`);
+        }
+    }
+}
+exports.AbstractVector = AbstractVector;
+
+
+/***/ }),
+
 /***/ "./src/mathVector/ComplexOperators.ts":
 /*!********************************************!*\
   !*** ./src/mathVector/ComplexOperators.ts ***!
@@ -51364,8 +51674,10 @@ const ComplexVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ComplexVe
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 const ComplexVectorSpace1DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace1DStrategy */ "./src/mathVector/ComplexVectorSpace1DStrategy.ts");
 const ComplexVectorSpace2DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace2DStrategy */ "./src/mathVector/ComplexVectorSpace2DStrategy.ts");
-const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
+const Vector1DTypeComplex_1 = __webpack_require__(/*! ./Vector1DTypeComplex */ "./src/mathVector/Vector1DTypeComplex.ts");
+const Vector2DTypeComplex_1 = __webpack_require__(/*! ./Vector2DTypeComplex */ "./src/mathVector/Vector2DTypeComplex.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ./VectorSpaceIdentifierManager */ "./src/mathVector/VectorSpaceIdentifierManager.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_2 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 // export class ComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ComplexVectorOfDimension<D>> {
@@ -51374,7 +51686,7 @@ class ComplexVectorSpace {
     constructor(dimension, name, isDefault = false, id) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        const idManager = Vector_1.VectorSpaceIdentifierManager.getInstance();
+        const idManager = VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance();
         if (isDefault) {
             this._id = id || idManager.getDefaultSpaceId(BSplineR1toRn_1.VectorSpaceType.COMPLEX, dimension);
             this._name = name || `Default Complex Vector Space R^${dimension}`;
@@ -51536,9 +51848,9 @@ class ComplexVectorSpace {
         // return this.strategy.fromRaw(raw as RealVector1D);
         switch (this.dim) {
             case 1:
-                return Vector_1.Vector1DTypeComplex.fromRaw(raw);
+                return Vector1DTypeComplex_1.Vector1DTypeComplex.fromRaw(raw);
             case 2:
-                return Vector_1.Vector2DTypeComplex.fromRaw(raw);
+                return Vector2DTypeComplex_1.Vector2DTypeComplex.fromRaw(raw);
             default:
                 throw new Error('Unsupported dimension');
         }
@@ -51778,6 +52090,89 @@ exports.ComplexVectorSpace2DStrategy = ComplexVectorSpace2DStrategy;
 
 /***/ }),
 
+/***/ "./src/mathVector/DefaultVectorSpaces.ts":
+/*!***********************************************!*\
+  !*** ./src/mathVector/DefaultVectorSpaces.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DefaultVectorSpaces = void 0;
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const ComplexVectorSpace_1 = __webpack_require__(/*! ./ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
+const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ./ProjectiveComplexVectorSpace */ "./src/mathVector/ProjectiveComplexVectorSpace.ts");
+const ProjectiveVectorSpace_2 = __webpack_require__(/*! ./ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
+const RealVectorSpace_1 = __webpack_require__(/*! ./RealVectorSpace */ "./src/mathVector/RealVectorSpace.ts");
+/**
+ * Singleton manager for default vector spaces
+ */
+class DefaultVectorSpaces {
+    constructor() {
+        this.realSpaces = new Map();
+        this.complexSpaces = new Map();
+        this.projectiveRealSpaces = new Map();
+        this.projectiveComplexSpaces = new Map();
+    }
+    static getInstance() {
+        if (!DefaultVectorSpaces.instance) {
+            DefaultVectorSpaces.instance = new DefaultVectorSpaces();
+        }
+        return DefaultVectorSpaces.instance;
+    }
+    getRealVectorSpace(dimension) {
+        if (!this.realSpaces.has(dimension)) {
+            // Create default space with special marking
+            const defaultSpace = new RealVectorSpace_1.RealVectorSpace(dimension, `Default Real Vector Space R^${dimension}`, true);
+            this.realSpaces.set(dimension, defaultSpace);
+        }
+        return this.realSpaces.get(dimension);
+    }
+    getComplexVectorSpace(dimension) {
+        if (!this.complexSpaces.has(dimension)) {
+            const defaultSpace = new ComplexVectorSpace_1.ComplexVectorSpace(dimension, `Default Complex Vector Space R^${dimension}`, true);
+            this.complexSpaces.set(dimension, defaultSpace);
+        }
+        return this.complexSpaces.get(dimension);
+    }
+    getProjectiveVectorSpace(dimension) {
+        if (!this.projectiveRealSpaces.has(dimension)) {
+            const defaultSpace = new ProjectiveVectorSpace_2.ProjectiveVectorSpace(dimension, ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights, `Default Projective Vector Space R^${dimension}`, true);
+            this.projectiveRealSpaces.set(dimension, defaultSpace);
+        }
+        return this.projectiveRealSpaces.get(dimension);
+    }
+    getProjectiveComplexVectorSpace(dimension) {
+        if (!this.projectiveComplexSpaces.has(dimension)) {
+            const defaultSpace = new ProjectiveComplexVectorSpace_1.ProjectiveComplexVectorSpace(dimension, ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights, `Default Projective Complex Vector Space R^${dimension}`, true);
+            this.projectiveComplexSpaces.set(dimension, defaultSpace);
+        }
+        return this.projectiveComplexSpaces.get(dimension);
+    }
+    /**
+     * Get all default spaces (for debugging/testing)
+     */
+    getAllDefaultSpaces() {
+        return [
+            ...Array.from(this.realSpaces.values()),
+            ...Array.from(this.complexSpaces.values()),
+            ...Array.from(this.projectiveRealSpaces.values()),
+            ...Array.from(this.projectiveComplexSpaces.values())
+        ];
+    }
+    /**
+     * Check if a space is managed by this singleton
+     */
+    isDefaultSpace(space) {
+        return space.isDefault && this.getAllDefaultSpaces().some(s => s.isSameSpace(space));
+    }
+}
+exports.DefaultVectorSpaces = DefaultVectorSpaces;
+
+
+/***/ }),
+
 /***/ "./src/mathVector/ProjectiveComplexVectorSpace.ts":
 /*!********************************************************!*\
   !*** ./src/mathVector/ProjectiveComplexVectorSpace.ts ***!
@@ -51796,8 +52191,9 @@ const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn 
 const ProjectiveComplexVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ProjectiveComplexVectorSpace */ "./src/namedConstants/ProjectiveComplexVectorSpace.ts");
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 const ProjectiveComplexVectorSpace2DStrategy_1 = __webpack_require__(/*! ./ProjectiveComplexVectorSpace2DStrategy */ "./src/mathVector/ProjectiveComplexVectorSpace2DStrategy.ts");
-const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
+const ProjectiveVector1DTypeComplex_1 = __webpack_require__(/*! ./ProjectiveVector1DTypeComplex */ "./src/mathVector/ProjectiveVector1DTypeComplex.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ./VectorSpaceIdentifierManager */ "./src/mathVector/VectorSpaceIdentifierManager.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 const WeightManager_2 = __webpack_require__(/*! ./WeightManager */ "./src/mathVector/WeightManager.ts");
@@ -51809,7 +52205,7 @@ class ProjectiveComplexVectorSpace {
         this._weightManagement = weightManagement;
         this.weightManager = new WeightManager_2.WeightManager(weightManagement);
         this._isDefault = isDefault;
-        const idManager = Vector_1.VectorSpaceIdentifierManager.getInstance();
+        const idManager = VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance();
         if (isDefault) {
             this._id = id || idManager.getDefaultSpaceId(BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX, dimension);
             this._name = name || `Default Projective Complex Vector Space R^${dimension}`;
@@ -52105,7 +52501,7 @@ class ProjectiveComplexVectorSpace {
         return this.createVectorInstance(result);
     }
     createVectorInstance(raw) {
-        return Vector_1.ProjectiveVector1DTypeComplex.fromRaw(raw);
+        return ProjectiveVector1DTypeComplex_1.ProjectiveVector1DTypeComplex.fromRaw(raw);
     }
 }
 exports.ProjectiveComplexVectorSpace = ProjectiveComplexVectorSpace;
@@ -52300,6 +52696,246 @@ exports.ProjectiveComplexVectorSpace2DStrategy = ProjectiveComplexVectorSpace2DS
 
 /***/ }),
 
+/***/ "./src/mathVector/ProjectiveVector1DTypeComplex.ts":
+/*!*********************************************************!*\
+  !*** ./src/mathVector/ProjectiveVector1DTypeComplex.ts ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProjectiveVector1DTypeComplex = void 0;
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const AbstractProjectiveComplexVector_1 = __webpack_require__(/*! ./AbstractProjectiveComplexVector */ "./src/mathVector/AbstractProjectiveComplexVector.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const Vector2DTypeReal_1 = __webpack_require__(/*! ./Vector2DTypeReal */ "./src/mathVector/Vector2DTypeReal.ts");
+const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVector_1.AbstractProjectiveComplexVector {
+    constructor(real = 0, imaginary = 0, realWeight = new Weight_1.Weight(), imaginaryWeight = new Weight_1.Weight(), vectorSpace) {
+        super();
+        this.data = {
+            type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D,
+            coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary },
+                { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT, real: realWeight, imaginary: imaginaryWeight }]
+        };
+        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+    }
+    get dimension() { return 2; } // Homogeneous coordinates
+    get vectorType() { return 'ProjectiveComplexVector'; }
+    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX; }
+    get weight() {
+        return this.data.coordinates[1].real;
+    }
+    get homogeneousCoordinates() {
+        return [this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.weight.weight];
+    }
+    // protected getDefaultVectorSpace(): ProjectiveComplexVectorSpace {
+    //     return DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(this.dimension);
+    // }
+    getCoordinate(index) {
+        if (index < 0 || index >= 1)
+            throw new RangeError('Coordinate index out of bounds');
+        if (index === 1)
+            return this.weight.weight;
+        return this.data.coordinates[index].real;
+    }
+    setCoordinate(index, value) {
+        if (index < 0 || index >= 1)
+            throw new RangeError('Coordinate index out of bounds');
+        if (index === 1) {
+            this.data.coordinates[1].real = new Weight_1.Weight(value);
+        }
+        else {
+            this.data.coordinates[index].real = value;
+        }
+    }
+    get coordinates() { return this.homogeneousCoordinates; }
+    get raw() { return Object.assign({}, this.data); }
+    normalize() {
+        const w = this.weight.weight;
+        if (w === 0)
+            return this.clone();
+        return new ProjectiveVector1DTypeComplex(this.data.coordinates[0].real / w, this.data.coordinates[0].imaginary / w, new Weight_1.Weight(1));
+    }
+    // add(other: ProjectiveVector1DTypeComplex): ProjectiveVector1DTypeComplex {
+    //     // this.validateCompatibility(other);
+    //     const result = this.vectorSpace.add(this.raw, other.raw);
+    //     return this.createVectorFromRaw(result);
+    // }
+    toCartesian() {
+        const normalized = this.normalize();
+        return new Vector2DTypeReal_1.Vector2DTypeReal(normalized.data.coordinates[0].real, normalized.data.coordinates[0].imaginary);
+    }
+    clone() {
+        return new ProjectiveVector1DTypeComplex(this.data.coordinates[0].real, this.data.coordinates[0].imaginary, new Weight_1.Weight(this.weight.weight), new Weight_1.Weight(this.weight.weight));
+    }
+    static fromRaw(raw) {
+        return new ProjectiveVector1DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary);
+    }
+}
+exports.ProjectiveVector1DTypeComplex = ProjectiveVector1DTypeComplex;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/ProjectiveVector2DTypeReal.ts":
+/*!******************************************************!*\
+  !*** ./src/mathVector/ProjectiveVector2DTypeReal.ts ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProjectiveVector2DTypeReal = void 0;
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const AbstractProjectiveVector_1 = __webpack_require__(/*! ./AbstractProjectiveVector */ "./src/mathVector/AbstractProjectiveVector.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const Vector2DTypeReal_1 = __webpack_require__(/*! ./Vector2DTypeReal */ "./src/mathVector/Vector2DTypeReal.ts");
+const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+class ProjectiveVector2DTypeReal extends AbstractProjectiveVector_1.AbstractProjectiveVector {
+    constructor(x = 0, y = 0, weight = new Weight_1.Weight(), vectorSpace) {
+        super();
+        this.data = {
+            type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D,
+            coordinates: [x, y, { type: VectorSpaceConstructorInterface_1.WEIGHT, value: weight }]
+        };
+        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+    }
+    get dimension() { return 3; } // Homogeneous coordinates
+    get vectorType() { return 'ProjectiveReal2D'; }
+    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVE; }
+    // protected getDefaultVectorSpace(): ProjectiveVectorSpace<3> {
+    //     return DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(3);
+    // }
+    get weight() {
+        return this.data.coordinates[2].value;
+    }
+    get homogeneousCoordinates() {
+        return [this.data.coordinates[0], this.data.coordinates[1], this.weight.weight];
+    }
+    getCoordinate(index) {
+        if (index < 0 || index >= 3)
+            throw new RangeError('Coordinate index out of bounds');
+        if (index === 2)
+            return this.weight.weight;
+        return this.data.coordinates[index];
+    }
+    setCoordinate(index, value) {
+        if (index < 0 || index >= 3)
+            throw new RangeError('Coordinate index out of bounds');
+        if (index === 2) {
+            this.data.coordinates[2].value = new Weight_1.Weight(value);
+        }
+        else {
+            this.data.coordinates[index] = value;
+        }
+    }
+    get coordinates() { return this.homogeneousCoordinates; }
+    get raw() { return Object.assign({}, this.data); }
+    normalize() {
+        const w = this.weight.weight;
+        if (w === 0)
+            return this.clone();
+        return new ProjectiveVector2DTypeReal(this.data.coordinates[0] / w, this.data.coordinates[1] / w, new Weight_1.Weight(1));
+    }
+    toCartesian() {
+        const normalized = this.normalize();
+        return new Vector2DTypeReal_1.Vector2DTypeReal(normalized.data.coordinates[0], normalized.data.coordinates[1]);
+    }
+    clone() {
+        return new ProjectiveVector2DTypeReal(this.data.coordinates[0], this.data.coordinates[1], new Weight_1.Weight(this.weight.weight));
+    }
+    static fromRaw(raw) {
+        return new ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].value);
+    }
+}
+exports.ProjectiveVector2DTypeReal = ProjectiveVector2DTypeReal;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/ProjectiveVector3DTypeReal.ts":
+/*!******************************************************!*\
+  !*** ./src/mathVector/ProjectiveVector3DTypeReal.ts ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ProjectiveVector3DTypeReal = void 0;
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const AbstractProjectiveVector_1 = __webpack_require__(/*! ./AbstractProjectiveVector */ "./src/mathVector/AbstractProjectiveVector.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const Vector3DTypeReal_1 = __webpack_require__(/*! ./Vector3DTypeReal */ "./src/mathVector/Vector3DTypeReal.ts");
+const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+class ProjectiveVector3DTypeReal extends AbstractProjectiveVector_1.AbstractProjectiveVector {
+    constructor(x = 0, y = 0, z = 0, weight = new Weight_1.Weight(), vectorSpace) {
+        super();
+        this.data = {
+            type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D,
+            coordinates: [x, y, z, { type: VectorSpaceConstructorInterface_1.WEIGHT, value: weight }]
+        };
+        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+    }
+    get dimension() { return 4; } // Homogeneous coordinates
+    get vectorType() { return 'ProjectiveReal3D'; }
+    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVE; }
+    get weight() {
+        return this.data.coordinates[3].value;
+    }
+    get homogeneousCoordinates() {
+        return [this.data.coordinates[0], this.data.coordinates[1], this.data.coordinates[2], this.weight.weight];
+    }
+    // protected getDefaultVectorSpace(): ProjectiveVectorSpace<4> {
+    //     return DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(4);
+    // }
+    getCoordinate(index) {
+        if (index < 0 || index >= 4)
+            throw new RangeError('Coordinate index out of bounds');
+        if (index === 2)
+            return this.weight.weight;
+        return this.data.coordinates[index];
+    }
+    setCoordinate(index, value) {
+        if (index < 0 || index >= 4)
+            throw new RangeError('Coordinate index out of bounds');
+        if (index === 3) {
+            this.data.coordinates[3].value = new Weight_1.Weight(value);
+        }
+        else {
+            this.data.coordinates[index] = value;
+        }
+    }
+    get coordinates() { return this.homogeneousCoordinates; }
+    get raw() { return Object.assign({}, this.data); }
+    normalize() {
+        const w = this.weight.weight;
+        if (w === 0)
+            return this.clone();
+        return new ProjectiveVector3DTypeReal(this.data.coordinates[0] / w, this.data.coordinates[1] / w, this.data.coordinates[2] / w, new Weight_1.Weight(1));
+    }
+    toCartesian() {
+        const normalized = this.normalize();
+        return new Vector3DTypeReal_1.Vector3DTypeReal(normalized.data.coordinates[0], normalized.data.coordinates[1], normalized.data.coordinates[2]);
+    }
+    clone() {
+        return new ProjectiveVector3DTypeReal(this.data.coordinates[0], this.data.coordinates[1], this.data.coordinates[2], new Weight_1.Weight(this.weight.weight));
+    }
+    static fromRaw(raw) {
+        return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].value);
+    }
+}
+exports.ProjectiveVector3DTypeReal = ProjectiveVector3DTypeReal;
+
+
+/***/ }),
+
 /***/ "./src/mathVector/ProjectiveVectorSpace.ts":
 /*!*************************************************!*\
   !*** ./src/mathVector/ProjectiveVectorSpace.ts ***!
@@ -52315,9 +52951,11 @@ const Weight_1 = __webpack_require__(/*! ../ErrorMessages/Weight */ "./src/Error
 const WeightManager_1 = __webpack_require__(/*! ../ErrorMessages/WeightManager */ "./src/ErrorMessages/WeightManager.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ProjectiveVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const ProjectiveVector2DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector2DTypeReal */ "./src/mathVector/ProjectiveVector2DTypeReal.ts");
+const ProjectiveVector3DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector3DTypeReal */ "./src/mathVector/ProjectiveVector3DTypeReal.ts");
 const ProjectiveVectorSpace3DStrategy_1 = __webpack_require__(/*! ./ProjectiveVectorSpace3DStrategy */ "./src/mathVector/ProjectiveVectorSpace3DStrategy.ts");
 const ProjectiveVectorSpace4DStrategy_1 = __webpack_require__(/*! ./ProjectiveVectorSpace4DStrategy */ "./src/mathVector/ProjectiveVectorSpace4DStrategy.ts");
-const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
+const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ./VectorSpaceIdentifierManager */ "./src/mathVector/VectorSpaceIdentifierManager.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const WeightManager_2 = __webpack_require__(/*! ./WeightManager */ "./src/mathVector/WeightManager.ts");
 // Main class using strategy
@@ -52330,7 +52968,7 @@ class ProjectiveVectorSpace {
         // Create weight manager
         this.weightManager = new WeightManager_2.WeightManager(weightManagement);
         this._isDefault = isDefault;
-        const idManager = Vector_1.VectorSpaceIdentifierManager.getInstance();
+        const idManager = VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance();
         if (isDefault) {
             this._id = id || idManager.getDefaultSpaceId(BSplineR1toRn_1.VectorSpaceType.PROJECTIVE, dimension);
             this._name = name || `Default Projective Vector Space R^${dimension}`;
@@ -52503,9 +53141,9 @@ class ProjectiveVectorSpace {
         // return this.strategy.fromRaw(raw as RealVector1D);
         switch (this.dim) {
             case 3:
-                return Vector_1.ProjectiveVector2DTypeReal.fromRaw(raw);
+                return ProjectiveVector2DTypeReal_1.ProjectiveVector2DTypeReal.fromRaw(raw);
             case 4:
-                return Vector_1.ProjectiveVector3DTypeReal.fromRaw(raw);
+                return ProjectiveVector3DTypeReal_1.ProjectiveVector3DTypeReal.fromRaw(raw);
             default:
                 throw new Error('Unsupported dimension');
         }
@@ -52869,8 +53507,12 @@ const RealVectorSpace1DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace1DS
 const RealVectorSpace2DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace2DStrategy */ "./src/mathVector/RealVectorSpace2DStrategy.ts");
 const RealVectorSpace3DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace3DStrategy */ "./src/mathVector/RealVectorSpace3DStrategy.ts");
 const RealVectorSpace4DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace4DStrategy */ "./src/mathVector/RealVectorSpace4DStrategy.ts");
-const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
+const Vector1DTypeReal_1 = __webpack_require__(/*! ./Vector1DTypeReal */ "./src/mathVector/Vector1DTypeReal.ts");
+const Vector2DTypeReal_1 = __webpack_require__(/*! ./Vector2DTypeReal */ "./src/mathVector/Vector2DTypeReal.ts");
+const Vector3DTypeReal_1 = __webpack_require__(/*! ./Vector3DTypeReal */ "./src/mathVector/Vector3DTypeReal.ts");
+const Vector4DTypeReal_1 = __webpack_require__(/*! ./Vector4DTypeReal */ "./src/mathVector/Vector4DTypeReal.ts");
 const VectorInVectorSpace_1 = __webpack_require__(/*! ./VectorInVectorSpace */ "./src/mathVector/VectorInVectorSpace.ts");
+const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ./VectorSpaceIdentifierManager */ "./src/mathVector/VectorSpaceIdentifierManager.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 // Main class using strategy
@@ -52879,7 +53521,7 @@ class RealVectorSpace {
     constructor(dimension, name, isDefault = false, id) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        const idManager = Vector_1.VectorSpaceIdentifierManager.getInstance();
+        const idManager = VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance();
         if (isDefault) {
             this._id = id || idManager.getDefaultSpaceId(BSplineR1toRn_1.VectorSpaceType.REAL, dimension);
             this._name = name || `Default Real Vector Space R^${dimension}`;
@@ -53096,13 +53738,13 @@ class RealVectorSpace {
         // return this.strategy.fromRaw(raw as RealVector1D);
         switch (this.dim) {
             case 1:
-                return Vector_1.Vector1DTypeReal.fromRaw(raw);
+                return Vector1DTypeReal_1.Vector1DTypeReal.fromRaw(raw);
             case 2:
-                return Vector_1.Vector2DTypeReal.fromRaw(raw);
+                return Vector2DTypeReal_1.Vector2DTypeReal.fromRaw(raw);
             case 3:
-                return Vector_1.Vector3DTypeReal.fromRaw(raw);
+                return Vector3DTypeReal_1.Vector3DTypeReal.fromRaw(raw);
             case 4:
-                return Vector_1.Vector4DTypeReal.fromRaw(raw);
+                return Vector4DTypeReal_1.Vector4DTypeReal.fromRaw(raw);
             default:
                 throw new Error('Unsupported dimension');
         }
@@ -53611,253 +54253,26 @@ exports.RealVectorSpace4DStrategy = RealVectorSpace4DStrategy;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ProjectiveVector1DTypeComplex = exports.ProjectiveVector3DTypeReal = exports.ProjectiveVector2DTypeReal = exports.Vector2DTypeComplex = exports.Vector1DTypeComplex = exports.Vector4DTypeReal = exports.Vector3DTypeReal = exports.Vector2DTypeReal = exports.Vector1DTypeReal = exports.AbstractProjectiveComplexVector = exports.AbstractProjectiveVector = exports.AbstractComplexVector = exports.AbstractRealVector = exports.VectorFactory = exports.AbstractVector = exports.DefaultVectorSpaces = exports.VectorSpaceIdentifierManager = void 0;
-const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
-const ComplexVectorSpace_1 = __webpack_require__(/*! ./ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
-const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ./ProjectiveComplexVectorSpace */ "./src/mathVector/ProjectiveComplexVectorSpace.ts");
-const ProjectiveVectorSpace_1 = __webpack_require__(/*! ./ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
-const RealVectorSpace_1 = __webpack_require__(/*! ./RealVectorSpace */ "./src/mathVector/RealVectorSpace.ts");
-const VectorInVectorSpace_1 = __webpack_require__(/*! ./VectorInVectorSpace */ "./src/mathVector/VectorInVectorSpace.ts");
+exports.VectorFactory = void 0;
+const ProjectiveVector1DTypeComplex_1 = __webpack_require__(/*! ./ProjectiveVector1DTypeComplex */ "./src/mathVector/ProjectiveVector1DTypeComplex.ts");
+const ProjectiveVector2DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector2DTypeReal */ "./src/mathVector/ProjectiveVector2DTypeReal.ts");
+const Vector1DTypeComplex_1 = __webpack_require__(/*! ./Vector1DTypeComplex */ "./src/mathVector/Vector1DTypeComplex.ts");
+const Vector1DTypeReal_1 = __webpack_require__(/*! ./Vector1DTypeReal */ "./src/mathVector/Vector1DTypeReal.ts");
+const Vector2DTypeReal_1 = __webpack_require__(/*! ./Vector2DTypeReal */ "./src/mathVector/Vector2DTypeReal.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
-const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
-/**
- * Vector Space Identifier Manager - Singleton for generating unique IDs
- */
-class VectorSpaceIdentifierManager {
-    constructor() {
-        this.nextId = 1;
-        this.defaultSpaceIds = new Map();
-    }
-    static getInstance() {
-        if (!VectorSpaceIdentifierManager.instance) {
-            VectorSpaceIdentifierManager.instance = new VectorSpaceIdentifierManager();
-        }
-        return VectorSpaceIdentifierManager.instance;
-    }
-    /**
-     * Generate a unique identifier for a vector space
-     */
-    generateId() {
-        return `vs_${this.nextId++}_${Date.now()}`;
-    }
-    /**
-     * Get or create default space identifier for a given type and dimension
-     */
-    getDefaultSpaceId(spaceType, dimension) {
-        const key = `${spaceType}_${dimension}`;
-        if (!this.defaultSpaceIds.has(key)) {
-            this.defaultSpaceIds.set(key, `default_${key}_${this.generateId()}`);
-        }
-        return this.defaultSpaceIds.get(key);
-    }
-    /**
-     * Check if an ID represents a default space
-     */
-    isDefaultSpace(id) {
-        return id.startsWith('default_');
-    }
-}
-exports.VectorSpaceIdentifierManager = VectorSpaceIdentifierManager;
-/**
- * Singleton manager for default vector spaces
- */
-class DefaultVectorSpaces {
-    constructor() {
-        this.realSpaces = new Map();
-        this.complexSpaces = new Map();
-        this.projectiveRealSpaces = new Map();
-        this.projectiveComplexSpaces = new Map();
-    }
-    static getInstance() {
-        if (!DefaultVectorSpaces.instance) {
-            DefaultVectorSpaces.instance = new DefaultVectorSpaces();
-        }
-        return DefaultVectorSpaces.instance;
-    }
-    getRealVectorSpace(dimension) {
-        if (!this.realSpaces.has(dimension)) {
-            // Create default space with special marking
-            const defaultSpace = new RealVectorSpace_1.RealVectorSpace(dimension, `Default Real Vector Space R^${dimension}`, true);
-            this.realSpaces.set(dimension, new RealVectorSpace_1.RealVectorSpace(dimension));
-        }
-        return this.realSpaces.get(dimension);
-    }
-    getComplexVectorSpace(dimension) {
-        if (!this.complexSpaces.has(dimension)) {
-            this.complexSpaces.set(dimension, new ComplexVectorSpace_1.ComplexVectorSpace(dimension));
-        }
-        return this.complexSpaces.get(dimension);
-    }
-    getProjectiveVectorSpace(dimension) {
-        if (!this.projectiveRealSpaces.has(dimension)) {
-            this.projectiveRealSpaces.set(dimension, new ProjectiveVectorSpace_1.ProjectiveVectorSpace(dimension));
-        }
-        return this.projectiveRealSpaces.get(dimension);
-    }
-    getProjectiveComplexVectorSpace(dimension) {
-        if (!this.projectiveComplexSpaces.has(dimension)) {
-            this.projectiveComplexSpaces.set(dimension, new ProjectiveComplexVectorSpace_1.ProjectiveComplexVectorSpace(dimension));
-        }
-        return this.projectiveComplexSpaces.get(dimension);
-    }
-    /**
-     * Get all default spaces (for debugging/testing)
-     */
-    getAllDefaultSpaces() {
-        return [
-            ...Array.from(this.realSpaces.values())
-            // ...Array.from(this.complexSpaces.values()),
-            // ...Array.from(this.projectiveRealSpaces.values()),
-            // ...Array.from(this.projectiveComplexSpaces.values())
-        ];
-    }
-    /**
-     * Check if a space is managed by this singleton
-     */
-    isDefaultSpace(space) {
-        return space.isDefault && this.getAllDefaultSpaces().some(s => s.isSameSpace(space));
-    }
-}
-exports.DefaultVectorSpaces = DefaultVectorSpaces;
-/**
- * Base abstract class implementing common IVector functionality
- */
-// export abstract class AbstractVector implements IVector {
-//     abstract get dimension(): number;
-//     abstract get vectorType(): string;
-//     abstract get spaceType(): VectorSpaceType;
-//     abstract get raw(): Vector;
-//     abstract getCoordinate(index: number): number | Complex;
-//     abstract setCoordinate(index: number, value: number | Complex): void;
-//     abstract get coordinates(): (number | Complex)[];
-//     abstract clone(): IVector;
-//     // Common implementations
-//     equals(other: IVector): boolean {
-//         if (this.dimension !== other.dimension || this.vectorType !== other.vectorType) {
-//             return false;
-//         }
-//         for (let i = 0; i < this.dimension; i++) {
-//             if (this.getCoordinate(i) !== other.getCoordinate(i)) {
-//                 return false;
-//             }
-//         }
-//         return true;
-//     }
-//     abstract toArray(): number[];
-//     toString(): string {
-//         return `${this.vectorType}(${this.toArray().join(', ')})`;
-//     }
-// }
-// export abstract class AbstractVector implements IVector {
-class AbstractVector {
-    constructor(vectorSpace) {
-        this._vectorSpace = vectorSpace || this.getDefaultVectorSpace();
-    }
-    get vectorSpace() {
-        return this._vectorSpace;
-    }
-    // Vector operations using the vector space
-    add(other) {
-        this.validateCompatibility(other);
-        const result = this._vectorSpace.add(this.raw, other.raw);
-        return this.createVectorFromRaw(result);
-    }
-    subtract(other) {
-        this.validateCompatibility(other);
-        const result = this._vectorSpace.subtract(this.raw, other.raw);
-        return this.createVectorFromRaw(result);
-    }
-    scale(scalar) {
-        const result = this._vectorSpace.scale(scalar, this.raw);
-        return this.createVectorFromRaw(result);
-    }
-    norm() {
-        if ('norm' in this._vectorSpace && typeof this._vectorSpace.norm === 'function') {
-            return this._vectorSpace.norm(this.raw);
-        }
-        throw new Error('Norm operation not available for this vector space');
-    }
-    normalize() {
-        const currentNorm = this.norm();
-        if (currentNorm === 0) {
-            throw new Error('Cannot normalize zero vector');
-        }
-        return this.scale(1 / currentNorm);
-    }
-    dot(other) {
-        this.validateCompatibility(other);
-        if ('dot' in this._vectorSpace && typeof this._vectorSpace.dot === 'function') {
-            return this._vectorSpace.dot(this.raw, other.raw);
-        }
-        throw new Error('Dot product not available for this vector space');
-    }
-    bindTo(space) {
-        return new VectorInVectorSpace_1.VectorInVectorSpace(this, space);
-    }
-    // Common implementations
-    equals(other) {
-        if (this.dimension !== other.dimension || this.vectorType !== other.vectorType) {
-            return false;
-        }
-        for (let i = 0; i < this.dimension; i++) {
-            if (this.getCoordinate(i) !== other.getCoordinate(i)) {
-                return false;
-            }
-        }
-        return true;
-    }
-    toString() {
-        return `${this.vectorType}(${this.toArray().join(', ')})`;
-    }
-    // protected validateCompatibility(other: IVector): void {
-    //     if (this.dimension !== other.dimension) {
-    //         throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
-    //     }
-    //     if (this.spaceType !== other.spaceType) {
-    //         throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
-    //     }
-    // }
-    // Enhanced validation that checks space identity
-    validateCompatibility(other) {
-        if (this.dimension !== other.dimension) {
-            throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
-        }
-        if (this.spaceType !== other.spaceType) {
-            throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
-        }
-        // Check if vectors belong to the same vector space instance
-        if (!this._vectorSpace.isSameSpace(other.vectorSpace)) {
-            throw new Error(`Vectors belong to different vector spaces: ${this._vectorSpace.id} vs ${other.vectorSpace.id}`);
-        }
-    }
-    // Allow operations between vectors from isomorphic spaces
-    validateIsomorphicCompatibility(other) {
-        if (this.dimension !== other.dimension) {
-            throw new Error(`Vector dimensions do not match: ${this.dimension} vs ${other.dimension}`);
-        }
-        if (this.spaceType !== other.spaceType) {
-            throw new Error(`Vector space types do not match: ${this.spaceType} vs ${other.spaceType}`);
-        }
-        // Only check isomorphism, not exact space identity
-        if (!this._vectorSpace.isIsomorphicTo(other.vectorSpace)) {
-            throw new Error(`Vector spaces are not isomorphic`);
-        }
-    }
-}
-exports.AbstractVector = AbstractVector;
 /**
  * Enhanced factory that handles vector space assignment
  */
 class VectorFactory {
     static createRealVectorFromRaw(raw, vectorSpace) {
         if (typeof raw === 'number') {
-            return new Vector1DTypeReal(raw, vectorSpace);
+            return new Vector1DTypeReal_1.Vector1DTypeReal(raw, vectorSpace);
         }
         if (typeof raw === 'object' && 'type' in raw) {
             const string = raw.type;
             switch (raw.type) {
                 case VectorSpaceConstructorInterface_1.REALVECTOR2D:
-                    return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], vectorSpace);
+                    return new Vector2DTypeReal_1.Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], vectorSpace);
                 // case REALVECTOR3D:
                 //     return new RealVector3D(
                 //         raw.coordinates[0], 
@@ -53884,7 +54299,7 @@ class VectorFactory {
             const string = raw.type;
             switch (raw.type) {
                 case VectorSpaceConstructorInterface_1.COMPLEX:
-                    return new Vector1DTypeComplex(raw.real, raw.imaginary, vectorSpace);
+                    return new Vector1DTypeComplex_1.Vector1DTypeComplex(raw.real, raw.imaginary, vectorSpace);
                 // case COMPLEXVECTOR2D:
                 //     return new ComplexVector2D(
                 //         raw.coordinates[0], 
@@ -53901,7 +54316,7 @@ class VectorFactory {
         if (typeof raw === 'object' && 'type' in raw) {
             switch (raw.type) {
                 case VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D:
-                    return new ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].value, vectorSpace);
+                    return new ProjectiveVector2DTypeReal_1.ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].value, vectorSpace);
                 // case PROJECTIVEVECTOR3D:
                 //     return new ProjectiveRealVector3D(
                 //         raw.coordinates[0], 
@@ -53920,7 +54335,7 @@ class VectorFactory {
         if (typeof raw === 'object' && 'type' in raw) {
             switch (raw.type) {
                 case VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D:
-                    return new ProjectiveVector1DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary, vectorSpace);
+                    return new ProjectiveVector1DTypeComplex_1.ProjectiveVector1DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary, vectorSpace);
                 default:
                     throw new Error(`Unsupported projective complex vector type: ${raw.type}`);
             }
@@ -53929,237 +54344,78 @@ class VectorFactory {
     }
 }
 exports.VectorFactory = VectorFactory;
-/**
- * Abstract base for real vectors
- */
-// export abstract class AbstractRealVector extends AbstractVector implements IRealVector {
-//     get spaceType(): VectorSpaceType { return VectorSpaceType.REAL; }
-//     abstract get raw(): RealVector;
-//     abstract getCoordinate(index: number): number;
-//     abstract setCoordinate(index: number, value: number): void;
-//     abstract get coordinates(): number[];
-//     abstract clone(): IRealVector;
-//     // Default implementations for coordinate accessors
-//     get x(): number | undefined { return this.dimension >= 1 ? this.getCoordinate(0) : undefined; }
-//     get y(): number | undefined { return this.dimension >= 2 ? this.getCoordinate(1) : undefined; }
-//     get z(): number | undefined { return this.dimension >= 3 ? this.getCoordinate(2) : undefined; }
-//     get w(): number | undefined { return this.dimension >= 4 ? this.getCoordinate(3) : undefined; }
-//     toArray(): number[] {
-//         return this.coordinates;
-//     }
-// }
-class AbstractRealVector extends AbstractVector {
-    constructor(vectorSpace) {
-        super(vectorSpace);
+
+
+/***/ }),
+
+/***/ "./src/mathVector/Vector1DTypeComplex.ts":
+/*!***********************************************!*\
+  !*** ./src/mathVector/Vector1DTypeComplex.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Vector1DTypeComplex = void 0;
+const AbstractComplexVector_1 = __webpack_require__(/*! ./AbstractComplexVector */ "./src/mathVector/AbstractComplexVector.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+class Vector1DTypeComplex extends AbstractComplexVector_1.AbstractComplexVector {
+    constructor(real = 0, imaginary = 0, vectorSpace) {
+        super();
+        this.data = { type: VectorSpaceConstructorInterface_1.COMPLEX, real, imaginary };
+        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
     }
-    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.REAL; }
-    get vectorSpace() { return this._vectorSpace; }
-    getDefaultVectorSpace() {
-        return DefaultVectorSpaces.getInstance().getRealVectorSpace(this.dimension);
+    get dimension() { return 1; }
+    get vectorType() { return 'Complex1D'; }
+    getCoordinate(index) {
+        if (index !== 0)
+            throw new RangeError('1D vector only has coordinate at index 0');
+        return this.data;
     }
-    // Override with more specific types
-    add(other) {
-        return super.add(other);
+    setCoordinate(index, value) {
+        if (index !== 0)
+            throw new RangeError('1D vector only has coordinate at index 0');
+        this.data = value;
     }
-    subtract(other) {
-        return super.subtract(other);
+    get coordinates() { return [this.data]; }
+    get raw() { return this.data; }
+    clone() {
+        return new Vector1DTypeComplex(this.data.real, this.data.imaginary, this.vectorSpace);
     }
-    scale(scalar) {
-        return super.scale(scalar);
-    }
-    dot(other) {
-        return super.dot(other);
-    }
-    // Default implementations for coordinate accessors
-    get x() { return this.dimension >= 1 ? this.getCoordinate(0) : undefined; }
-    get y() { return this.dimension >= 2 ? this.getCoordinate(1) : undefined; }
-    get z() { return this.dimension >= 3 ? this.getCoordinate(2) : undefined; }
-    get w() { return this.dimension >= 4 ? this.getCoordinate(3) : undefined; }
-    toArray() {
-        return this.coordinates;
-    }
-    createVectorFromRaw(raw) {
-        return VectorFactory.createRealVectorFromRaw(raw, this.vectorSpace);
+    static fromRaw(raw, vectorSpace) {
+        return new Vector1DTypeComplex(raw.real, raw.imaginary, vectorSpace);
     }
 }
-exports.AbstractRealVector = AbstractRealVector;
-/**
- * Abstract base for complex vectors
- */
-// export abstract class AbstractComplexVector extends AbstractVector implements IComplexVector {
-//     get spaceType(): VectorSpaceType { return VectorSpaceType.COMPLEX; }
-//     abstract get raw(): ComplexVector;
-//     abstract getCoordinate(index: number): Complex;
-//     abstract setCoordinate(index: number, value: Complex): void;
-//     abstract get coordinates(): Complex[];
-//     abstract clone(): IComplexVector;
-//     // Complex-specific implementations
-//     getReal(index: number): number {
-//         const coord = this.getCoordinate(index);
-//         return coord.real;
-//     }
-//     getImaginary(index: number): number {
-//         const coord = this.getCoordinate(index);
-//         return coord.imaginary;
-//     }
-//     setReal(index: number, value: number): void {
-//         const coord = this.getCoordinate(index);
-//         this.setCoordinate(index, { ...coord, real: value });
-//     }
-//     setImaginary(index: number, value: number): void {
-//         const coord = this.getCoordinate(index);
-//         this.setCoordinate(index, { ...coord, imaginary: value });
-//     }
-//     toArray(): number[] {
-//         // Flatten complex coordinates to [real1, imag1, real2, imag2, ...]
-//         // return this.coordinates.flatMap(c => [c.real, c.imaginary]);
-//         return [this.coordinates[0].real, this.coordinates[0].imaginary]
-//     }
-// }
-class AbstractComplexVector extends AbstractVector {
-    constructor(vectorSpace) {
-        super(vectorSpace);
-    }
-    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.COMPLEX; }
-    get vectorSpace() { return this._vectorSpace; }
-    getDefaultVectorSpace() {
-        return DefaultVectorSpaces.getInstance().getComplexVectorSpace(this.dimension);
-    }
-    add(other) {
-        return super.add(other);
-    }
-    subtract(other) {
-        return super.subtract(other);
-    }
-    scale(scalar) {
-        return super.scale(scalar);
-    }
-    // Complex-specific implementations
-    getReal(index) {
-        const coord = this.getCoordinate(index);
-        return coord.real;
-    }
-    getImaginary(index) {
-        const coord = this.getCoordinate(index);
-        return coord.imaginary;
-    }
-    setReal(index, value) {
-        const coord = this.getCoordinate(index);
-        this.setCoordinate(index, Object.assign(Object.assign({}, coord), { real: value }));
-    }
-    setImaginary(index, value) {
-        const coord = this.getCoordinate(index);
-        this.setCoordinate(index, Object.assign(Object.assign({}, coord), { imaginary: value }));
-    }
-    toArray() {
-        // Flatten complex coordinates to [real1, imag1, real2, imag2, ...]
-        // return this.coordinates.flatMap(c => [c.real, c.imaginary]);
-        return [this.coordinates[0].real, this.coordinates[0].imaginary];
-    }
-    createVectorFromRaw(raw) {
-        return VectorFactory.createComplexVectorFromRaw(raw, this.vectorSpace);
-    }
-}
-exports.AbstractComplexVector = AbstractComplexVector;
-/**
- * Abstract base for projective vectors
- */
-// export abstract class AbstractProjectiveVector extends AbstractVector implements IProjectiveVector {
-//     abstract get weight(): Weight | ComplexWeight;
-//     abstract get homogeneousCoordinates(): (number | Complex)[];
-//     abstract normalize(): IProjectiveVector;
-//     abstract toCartesian(): IRealVector | IComplexVector;
-//     toArray(): number[] {
-//         return this.homogeneousCoordinates.map(coord => 
-//             typeof coord === 'number' ? coord : coord.real
-//         );
-//     }
-// }
-class AbstractProjectiveVector extends AbstractVector {
-    constructor(vectorSpace) {
-        super(vectorSpace);
-    }
-    get vectorSpace() { return this._vectorSpace; }
-    add(other) {
-        return super.add(other);
-    }
-    subtract(other) {
-        return super.subtract(other);
-    }
-    scale(scalar) {
-        return super.scale(scalar);
-    }
-    toArray() {
-        return this.homogeneousCoordinates.map(coord => typeof coord === 'number' ? coord : coord.real);
-    }
-    createVectorFromRaw(raw) {
-        return VectorFactory.createProjectiveVectorFromRaw(raw, this.vectorSpace);
-    }
-}
-exports.AbstractProjectiveVector = AbstractProjectiveVector;
-class AbstractProjectiveComplexVector extends AbstractVector {
-    constructor(vectorSpace) {
-        super(vectorSpace);
-    }
-    get vectorSpace() { return this._vectorSpace; }
-    add(other) {
-        return super.add(other);
-    }
-    subtract(other) {
-        return super.subtract(other);
-    }
-    scale(scalar) {
-        return super.scale(scalar);
-    }
-    toArray() {
-        return this.homogeneousCoordinates.map(coord => typeof coord === 'number' ? coord : coord.real);
-    }
-    createVectorFromRaw(raw) {
-        return VectorFactory.createProjectiveComplexVectorFromRaw(raw, this.vectorSpace);
-    }
-}
-exports.AbstractProjectiveComplexVector = AbstractProjectiveComplexVector;
-/**
- * Concrete Real Vector implementations
- */
-// export class Vector1DTypeReal extends AbstractRealVector {
-//     constructor(private value: number = 0) {
-//         super();
-//     }
-//     get dimension(): number { return 1; }
-//     get vectorType(): string { return 'Real1D'; }
-//     getCoordinate(index: number): number {
-//         if (index !== 0) throw new RangeError('1D vector only has coordinate at index 0');
-//         return this.value;
-//     }
-//     setCoordinate(index: number, value: number): void {
-//         if (index !== 0) throw new RangeError('1D vector only has coordinate at index 0');
-//         this.value = value;
-//     }
-//     get coordinates(): number[] { return [this.value]; }
-//     get raw(): RealVector1D { return this.value; }
-//     clone(): Vector1DTypeReal {
-//         return new Vector1DTypeReal(this.value);
-//     }
-//     // Factory methods
-//     static fromRaw(raw: RealVector1D): Vector1DTypeReal {
-//         return new Vector1DTypeReal(raw);
-//     }
-//     static fromCoordinates(coords: number[]): Vector1DTypeReal {
-//         if (coords.length !== 1) throw new RangeError('1D vector requires exactly 1 coordinate');
-//         return new Vector1DTypeReal(coords[0]);
-//     }
-// }
-class Vector1DTypeReal extends AbstractRealVector {
+exports.Vector1DTypeComplex = Vector1DTypeComplex;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/Vector1DTypeReal.ts":
+/*!********************************************!*\
+  !*** ./src/mathVector/Vector1DTypeReal.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Vector1DTypeReal = void 0;
+const AbstractRealVector_1 = __webpack_require__(/*! ./AbstractRealVector */ "./src/mathVector/AbstractRealVector.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+class Vector1DTypeReal extends AbstractRealVector_1.AbstractRealVector {
     constructor(value = 0, vectorSpace) {
-        super(vectorSpace);
+        super();
         this.value = value;
+        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
     }
     get dimension() { return 1; }
     get vectorType() { return 'Real1D'; }
-    getDefaultVectorSpace() {
-        return DefaultVectorSpaces.getInstance().getRealVectorSpace(1);
-    }
+    // protected getDefaultVectorSpace(): RealVectorSpace<1> {
+    //     return DefaultVectorSpaces.getInstance().getRealVectorSpace(1);
+    // }
     getCoordinate(index) {
         if (index !== 0)
             throw new RangeError('1D vector only has coordinate at index 0');
@@ -54190,196 +54446,28 @@ class Vector1DTypeReal extends AbstractRealVector {
     }
 }
 exports.Vector1DTypeReal = Vector1DTypeReal;
-// export class Vector2DTypeReal extends AbstractRealVector {
-//     private data: RealVector2D;
-//     constructor(x: number = 0, y: number = 0) {
-//         super();
-//         this.data = { type: REALVECTOR2D, coordinates: [x, y] };
-//     }
-//     get dimension(): number { return 2; }
-//     get vectorType(): string { return 'Real2D'; }
-//     getCoordinate(index: number): number {
-//         if (index < 0 || index >= 2) throw new RangeError('Coordinate index out of bounds');
-//         return this.data.coordinates[index];
-//     }
-//     setCoordinate(index: number, value: number): void {
-//         if (index < 0 || index >= 2) throw new RangeError('Coordinate index out of bounds');
-//         this.data.coordinates[index] = value;
-//     }
-//     get coordinates(): number[] { return [...this.data.coordinates]; }
-//     get raw(): RealVector2D { return { ...this.data }; }
-//     clone(): Vector2DTypeReal {
-//         return new Vector2DTypeReal(this.x!, this.y!);
-//     }
-//     static fromRaw(raw: RealVector2D): Vector2DTypeReal {
-//         return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1]);
-//     }
-//     static fromCoordinates(coords: number[]): Vector2DTypeReal {
-//         if (coords.length !== 2) throw new RangeError('2D vector requires exactly 2 coordinates');
-//         return new Vector2DTypeReal(coords[0], coords[1]);
-//     }
-// }
-class Vector2DTypeReal extends AbstractRealVector {
-    constructor(x = 0, y = 0, vectorSpace) {
-        super(vectorSpace);
-        this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [x, y] };
-    }
-    get dimension() { return 2; }
-    get vectorType() { return 'Real2D'; }
-    getDefaultVectorSpace() {
-        return DefaultVectorSpaces.getInstance().getRealVectorSpace(2);
-    }
-    getCoordinate(index) {
-        if (index < 0 || index >= 2)
-            throw new RangeError('Coordinate index out of bounds');
-        return this.data.coordinates[index];
-    }
-    setCoordinate(index, value) {
-        if (index < 0 || index >= 2)
-            throw new RangeError('Coordinate index out of bounds');
-        this.data.coordinates[index] = value;
-    }
-    get coordinates() { return [...this.data.coordinates]; }
-    get raw() { return Object.assign({}, this.data); }
-    clone() {
-        return new Vector2DTypeReal(this.x, this.y, this.vectorSpace);
-    }
-    static fromRaw(raw, vectorSpace) {
-        return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], vectorSpace);
-    }
-    static fromCoordinates(coords, vectorSpace) {
-        if (coords.length !== 2)
-            throw new RangeError('2D vector requires exactly 2 coordinates');
-        return new Vector2DTypeReal(coords[0], coords[1], vectorSpace);
-    }
-    static create(x = 0, y = 0) {
-        return new Vector2DTypeReal(x, y);
-    }
-}
-exports.Vector2DTypeReal = Vector2DTypeReal;
-class Vector3DTypeReal extends AbstractRealVector {
-    constructor(x = 0, y = 0, z = 0) {
-        super();
-        this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [x, y, z] };
-    }
-    get dimension() { return 3; }
-    get vectorType() { return 'Real3D'; }
-    getCoordinate(index) {
-        if (index < 0 || index >= 3)
-            throw new RangeError('Coordinate index out of bounds');
-        return this.data.coordinates[index];
-    }
-    setCoordinate(index, value) {
-        if (index < 0 || index >= 3)
-            throw new RangeError('Coordinate index out of bounds');
-        this.data.coordinates[index] = value;
-    }
-    get coordinates() { return [...this.data.coordinates]; }
-    get raw() { return Object.assign({}, this.data); }
-    clone() {
-        return new Vector3DTypeReal(this.x, this.z);
-    }
-    static fromRaw(raw) {
-        return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2]);
-    }
-    static fromCoordinates(coords) {
-        if (coords.length !== 3)
-            throw new RangeError('3D vector requires exactly 3 coordinates');
-        return new Vector3DTypeReal(coords[0], coords[1], coords[2]);
-    }
-}
-exports.Vector3DTypeReal = Vector3DTypeReal;
-class Vector4DTypeReal extends AbstractRealVector {
-    constructor(x = 0, y = 0, z = 0, t = 0) {
-        super();
-        this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [x, y, z, t] };
-    }
-    get dimension() { return 4; }
-    get vectorType() { return 'Real4D'; }
-    getCoordinate(index) {
-        if (index < 0 || index >= 4)
-            throw new RangeError('Coordinate index out of bounds');
-        return this.data.coordinates[index];
-    }
-    setCoordinate(index, value) {
-        if (index < 0 || index >= 4)
-            throw new RangeError('Coordinate index out of bounds');
-        this.data.coordinates[index] = value;
-    }
-    get coordinates() { return [...this.data.coordinates]; }
-    get raw() { return Object.assign({}, this.data); }
-    clone() {
-        return new Vector4DTypeReal(this.x, this.z);
-    }
-    static fromRaw(raw) {
-        return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3]);
-    }
-    static fromCoordinates(coords) {
-        if (coords.length !== 4)
-            throw new RangeError('4D vector requires exactly 4 coordinates');
-        return new Vector4DTypeReal(coords[0], coords[1], coords[2], coords[3]);
-    }
-}
-exports.Vector4DTypeReal = Vector4DTypeReal;
-/**
- * Complex Vector implementations
- */
-// export class Vector1DTypeComplex extends AbstractComplexVector {
-//     private data: Complex;
-//     constructor(real: number = 0, imaginary: number = 0) {
-//         super();
-//         this.data = { type: COMPLEX, real, imaginary };
-//     }
-//     get dimension(): number { return 1; }
-//     get vectorType(): string { return 'Complex1D'; }
-//     getCoordinate(index: number): Complex {
-//         if (index !== 0) throw new RangeError('1D vector only has coordinate at index 0');
-//         return this.data;
-//     }
-//     setCoordinate(index: number, value: Complex): void {
-//         if (index !== 0) throw new RangeError('1D vector only has coordinate at index 0');
-//         this.data = value;
-//     }
-//     get coordinates(): Complex[] { return [this.data]; }
-//     get raw(): ComplexVector1D { return this.data; }
-//     clone(): Vector1DTypeComplex {
-//         return new Vector1DTypeComplex(this.data.real, this.data.imaginary);
-//     }
-//     static fromRaw(raw: ComplexVector1D): Vector1DTypeComplex {
-//         return new Vector1DTypeComplex(raw.real, raw.imaginary);
-//     }
-// }
-class Vector1DTypeComplex extends AbstractComplexVector {
-    constructor(real = 0, imaginary = 0, vectorSpace) {
-        super(vectorSpace);
-        this.data = { type: VectorSpaceConstructorInterface_1.COMPLEX, real, imaginary };
-    }
-    get dimension() { return 1; }
-    get vectorType() { return 'Complex1D'; }
-    getCoordinate(index) {
-        if (index !== 0)
-            throw new RangeError('1D vector only has coordinate at index 0');
-        return this.data;
-    }
-    setCoordinate(index, value) {
-        if (index !== 0)
-            throw new RangeError('1D vector only has coordinate at index 0');
-        this.data = value;
-    }
-    get coordinates() { return [this.data]; }
-    get raw() { return this.data; }
-    clone() {
-        return new Vector1DTypeComplex(this.data.real, this.data.imaginary, this.vectorSpace);
-    }
-    static fromRaw(raw, vectorSpace) {
-        return new Vector1DTypeComplex(raw.real, raw.imaginary, vectorSpace);
-    }
-}
-exports.Vector1DTypeComplex = Vector1DTypeComplex;
-class Vector2DTypeComplex extends AbstractComplexVector {
-    constructor(real = 0, imaginary = 0, real2 = 0, imaginary2 = 0) {
+
+
+/***/ }),
+
+/***/ "./src/mathVector/Vector2DTypeComplex.ts":
+/*!***********************************************!*\
+  !*** ./src/mathVector/Vector2DTypeComplex.ts ***!
+  \***********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Vector2DTypeComplex = void 0;
+const AbstractComplexVector_1 = __webpack_require__(/*! ./AbstractComplexVector */ "./src/mathVector/AbstractComplexVector.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+class Vector2DTypeComplex extends AbstractComplexVector_1.AbstractComplexVector {
+    constructor(real = 0, imaginary = 0, real2 = 0, imaginary2 = 0, vectorSpace) {
         super();
         this.data = { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary }, { type: VectorSpaceConstructorInterface_1.COMPLEX, real: real2, imaginary: imaginary2 }] };
+        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
     }
     get dimension() { return 2; }
     get vectorType() { return 'Complex2D'; }
@@ -54403,314 +54491,63 @@ class Vector2DTypeComplex extends AbstractComplexVector {
     }
 }
 exports.Vector2DTypeComplex = Vector2DTypeComplex;
-/**
- * Projective Vector implementations
- */
-// export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
-//     private data: ProjectiveVector2D;
-//     constructor(x: number = 0, y: number = 0, weight: Weight = new Weight()) {
-//         super();
-//         this.data = { 
-//             type: PROJECTIVEVECTOR2D, 
-//             coordinates: [x, y, { type: WEIGHT, value: weight }] 
-//         };
-//     }
-//     get dimension(): number { return 3; } // Homogeneous coordinates
-//     get vectorType(): string { return 'ProjectiveReal2D'; }
-//     get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
-//     get weight(): Weight {
-//         return this.data.coordinates[2].value;
-//     }
-//     get homogeneousCoordinates(): number[] {
-//         return [this.data.coordinates[0], this.data.coordinates[1], this.weight.weight];
-//     }
-//     getCoordinate(index: number): number {
-//         if (index < 0 || index >= 3) throw new RangeError('Coordinate index out of bounds');
-//         if (index === 2) return this.weight.weight;
-//         return this.data.coordinates[index] as number;
-//     }
-//     setCoordinate(index: number, value: number): void {
-//         if (index < 0 || index >= 3) throw new RangeError('Coordinate index out of bounds');
-//         if (index === 2) {
-//             this.data.coordinates[2].value = new Weight(value);
-//         } else {
-//             this.data.coordinates[index] = value;
-//         }
-//     }
-//     get coordinates(): number[] { return this.homogeneousCoordinates; }
-//     get raw(): ProjectiveVector2D { return { ...this.data }; }
-//     normalize(): ProjectiveVector2DTypeReal {
-//         const w = this.weight.weight;
-//         if (w === 0) return this.clone() as ProjectiveVector2DTypeReal;
-//         return new ProjectiveVector2DTypeReal(
-//             this.data.coordinates[0] / w,
-//             this.data.coordinates[1] / w,
-//             new Weight(1)
-//         );
-//     }
-//     toCartesian(): Vector2DTypeReal {
-//         const normalized = this.normalize();
-//         return new Vector2DTypeReal(
-//             normalized.data.coordinates[0],
-//             normalized.data.coordinates[1]
-//         );
-//     }
-//     clone(): ProjectiveVector2DTypeReal {
-//         return new ProjectiveVector2DTypeReal(
-//             this.data.coordinates[0],
-//             this.data.coordinates[1],
-//             new Weight(this.weight.weight)
-//         );
-//     }
-//     static fromRaw(raw: ProjectiveVector2D): ProjectiveVector2DTypeReal {
-//         return new ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].value);
-//     }
-// }
-class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
-    constructor(x = 0, y = 0, weight = new Weight_1.Weight(), vectorSpace) {
-        super(vectorSpace);
-        this.data = {
-            type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D,
-            coordinates: [x, y, { type: VectorSpaceConstructorInterface_1.WEIGHT, value: weight }]
-        };
+
+
+/***/ }),
+
+/***/ "./src/mathVector/Vector2DTypeReal.ts":
+/*!********************************************!*\
+  !*** ./src/mathVector/Vector2DTypeReal.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Vector2DTypeReal = void 0;
+const AbstractRealVector_1 = __webpack_require__(/*! ./AbstractRealVector */ "./src/mathVector/AbstractRealVector.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+class Vector2DTypeReal extends AbstractRealVector_1.AbstractRealVector {
+    constructor(x = 0, y = 0, vectorSpace) {
+        super();
+        this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [x, y] };
+        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
     }
-    get dimension() { return 3; } // Homogeneous coordinates
-    get vectorType() { return 'ProjectiveReal2D'; }
-    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVE; }
-    getDefaultVectorSpace() {
-        return DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(3);
-    }
-    get weight() {
-        return this.data.coordinates[2].value;
-    }
-    get homogeneousCoordinates() {
-        return [this.data.coordinates[0], this.data.coordinates[1], this.weight.weight];
-    }
-    getCoordinate(index) {
-        if (index < 0 || index >= 3)
-            throw new RangeError('Coordinate index out of bounds');
-        if (index === 2)
-            return this.weight.weight;
-        return this.data.coordinates[index];
-    }
-    setCoordinate(index, value) {
-        if (index < 0 || index >= 3)
-            throw new RangeError('Coordinate index out of bounds');
-        if (index === 2) {
-            this.data.coordinates[2].value = new Weight_1.Weight(value);
-        }
-        else {
-            this.data.coordinates[index] = value;
-        }
-    }
-    get coordinates() { return this.homogeneousCoordinates; }
+    get dimension() { return 2; }
+    get vectorType() { return 'Real2D'; }
+    get coordinates() { return [...this.data.coordinates]; }
     get raw() { return Object.assign({}, this.data); }
-    normalize() {
-        const w = this.weight.weight;
-        if (w === 0)
-            return this.clone();
-        return new ProjectiveVector2DTypeReal(this.data.coordinates[0] / w, this.data.coordinates[1] / w, new Weight_1.Weight(1));
-    }
-    toCartesian() {
-        const normalized = this.normalize();
-        return new Vector2DTypeReal(normalized.data.coordinates[0], normalized.data.coordinates[1]);
-    }
-    clone() {
-        return new ProjectiveVector2DTypeReal(this.data.coordinates[0], this.data.coordinates[1], new Weight_1.Weight(this.weight.weight));
-    }
-    static fromRaw(raw) {
-        return new ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].value);
-    }
-}
-exports.ProjectiveVector2DTypeReal = ProjectiveVector2DTypeReal;
-// export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
-//     private data: ProjectiveVector3D;
-//     constructor(x: number = 0, y: number = 0,  z: number = 0, weight: Weight = new Weight()) {
-//         super();
-//         this.data = { 
-//             type: PROJECTIVEVECTOR3D, 
-//             coordinates: [x, y, z, { type: WEIGHT, value: weight }] 
-//         };
-//     }
-//     get dimension(): number { return 4; } // Homogeneous coordinates
-//     get vectorType(): string { return 'ProjectiveReal3D'; }
-//     get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
-//     get weight(): Weight {
-//         return this.data.coordinates[3].value;
-//     }
-//     get homogeneousCoordinates(): number[] {
-//         return [this.data.coordinates[0], this.data.coordinates[1], this.data.coordinates[2], this.weight.weight];
-//     }
-//     getCoordinate(index: number): number {
-//         if (index < 0 || index >= 4) throw new RangeError('Coordinate index out of bounds');
-//         if (index === 2) return this.weight.weight;
-//         return this.data.coordinates[index] as number;
-//     }
-//     setCoordinate(index: number, value: number): void {
-//         if (index < 0 || index >= 4) throw new RangeError('Coordinate index out of bounds');
-//         if (index === 3) {
-//             this.data.coordinates[3].value = new Weight(value);
-//         } else {
-//             this.data.coordinates[index] = value;
-//         }
-//     }
-//     get coordinates(): number[] { return this.homogeneousCoordinates; }
-//     get raw(): ProjectiveVector3D { return { ...this.data }; }
-//     normalize(): ProjectiveVector3DTypeReal {
-//         const w = this.weight.weight;
-//         if (w === 0) return this.clone() as ProjectiveVector3DTypeReal;
-//         return new ProjectiveVector3DTypeReal(
-//             this.data.coordinates[0] / w,
-//             this.data.coordinates[1] / w,
-//             this.data.coordinates[2] / w,
-//             new Weight(1)
-//         );
-//     }
-//     toCartesian(): Vector3DTypeReal {
-//         const normalized = this.normalize();
-//         return new Vector3DTypeReal(
-//             normalized.data.coordinates[0],
-//             normalized.data.coordinates[1],
-//             normalized.data.coordinates[2]
-//         );
-//     }
-//     clone(): ProjectiveVector3DTypeReal {
-//         return new ProjectiveVector3DTypeReal(
-//             this.data.coordinates[0],
-//             this.data.coordinates[1],
-//             this.data.coordinates[2],
-//             new Weight(this.weight.weight)
-//         );
-//     }
-//     static fromRaw(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
-//         return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].value);
-//     }
-// }
-class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
-    constructor(x = 0, y = 0, z = 0, weight = new Weight_1.Weight(), vectorSpace) {
-        super(vectorSpace);
-        this.data = {
-            type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D,
-            coordinates: [x, y, z, { type: VectorSpaceConstructorInterface_1.WEIGHT, value: weight }]
-        };
-    }
-    get dimension() { return 4; } // Homogeneous coordinates
-    get vectorType() { return 'ProjectiveReal3D'; }
-    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVE; }
-    get weight() {
-        return this.data.coordinates[3].value;
-    }
-    get homogeneousCoordinates() {
-        return [this.data.coordinates[0], this.data.coordinates[1], this.data.coordinates[2], this.weight.weight];
-    }
-    getDefaultVectorSpace() {
-        return DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(4);
-    }
-    getCoordinate(index) {
-        if (index < 0 || index >= 4)
-            throw new RangeError('Coordinate index out of bounds');
-        if (index === 2)
-            return this.weight.weight;
-        return this.data.coordinates[index];
-    }
-    setCoordinate(index, value) {
-        if (index < 0 || index >= 4)
-            throw new RangeError('Coordinate index out of bounds');
-        if (index === 3) {
-            this.data.coordinates[3].value = new Weight_1.Weight(value);
-        }
-        else {
-            this.data.coordinates[index] = value;
-        }
-    }
-    get coordinates() { return this.homogeneousCoordinates; }
-    get raw() { return Object.assign({}, this.data); }
-    normalize() {
-        const w = this.weight.weight;
-        if (w === 0)
-            return this.clone();
-        return new ProjectiveVector3DTypeReal(this.data.coordinates[0] / w, this.data.coordinates[1] / w, this.data.coordinates[2] / w, new Weight_1.Weight(1));
-    }
-    toCartesian() {
-        const normalized = this.normalize();
-        return new Vector3DTypeReal(normalized.data.coordinates[0], normalized.data.coordinates[1], normalized.data.coordinates[2]);
-    }
-    clone() {
-        return new ProjectiveVector3DTypeReal(this.data.coordinates[0], this.data.coordinates[1], this.data.coordinates[2], new Weight_1.Weight(this.weight.weight));
-    }
-    static fromRaw(raw) {
-        return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].value);
-    }
-}
-exports.ProjectiveVector3DTypeReal = ProjectiveVector3DTypeReal;
-/**
- * Projective Complex Vector implementations
- */
-// export class ProjectiveVector1DTypeComplex extends AbstractProjectiveVector {
-class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVector {
-    // protected vectorSpace: ProjectiveComplexVectorSpace;
-    constructor(real = 0, imaginary = 0, realWeight = new Weight_1.Weight(), imaginaryWeight = new Weight_1.Weight(), vectorSpace) {
-        super(vectorSpace);
-        this.data = {
-            type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D,
-            coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary },
-                { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT, real: realWeight, imaginary: imaginaryWeight }]
-        };
-    }
-    get dimension() { return 2; } // Homogeneous coordinates
-    get vectorType() { return 'ProjectiveComplexVector'; }
-    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX; }
-    get weight() {
-        return this.data.coordinates[1].real;
-    }
-    get homogeneousCoordinates() {
-        return [this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.weight.weight];
-    }
-    getDefaultVectorSpace() {
-        return DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(this.dimension);
-    }
-    getCoordinate(index) {
-        if (index < 0 || index >= 1)
-            throw new RangeError('Coordinate index out of bounds');
-        if (index === 1)
-            return this.weight.weight;
-        return this.data.coordinates[index].real;
-    }
-    setCoordinate(index, value) {
-        if (index < 0 || index >= 1)
-            throw new RangeError('Coordinate index out of bounds');
-        if (index === 1) {
-            this.data.coordinates[1].real = new Weight_1.Weight(value);
-        }
-        else {
-            this.data.coordinates[index].real = value;
-        }
-    }
-    get coordinates() { return this.homogeneousCoordinates; }
-    get raw() { return Object.assign({}, this.data); }
-    normalize() {
-        const w = this.weight.weight;
-        if (w === 0)
-            return this.clone();
-        return new ProjectiveVector1DTypeComplex(this.data.coordinates[0].real / w, this.data.coordinates[0].imaginary / w, new Weight_1.Weight(1));
-    }
-    // add(other: ProjectiveVector1DTypeComplex): ProjectiveVector1DTypeComplex {
-    //     // this.validateCompatibility(other);
-    //     const result = this.vectorSpace.add(this.raw, other.raw);
-    //     return this.createVectorFromRaw(result);
+    // getDefaultVectorSpace(): RealVectorSpace<2> {
+    //     // return DefaultVectorSpaces.getInstance().getRealVectorSpace(2);
+    //     return resolveDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpaceOfDimension<2>;
     // }
-    toCartesian() {
-        const normalized = this.normalize();
-        return new Vector2DTypeReal(normalized.data.coordinates[0].real, normalized.data.coordinates[0].imaginary);
+    getCoordinate(index) {
+        if (index < 0 || index >= 2)
+            throw new RangeError('Coordinate index out of bounds');
+        return this.data.coordinates[index];
+    }
+    setCoordinate(index, value) {
+        if (index < 0 || index >= 2)
+            throw new RangeError('Coordinate index out of bounds');
+        this.data.coordinates[index] = value;
     }
     clone() {
-        return new ProjectiveVector1DTypeComplex(this.data.coordinates[0].real, this.data.coordinates[0].imaginary, new Weight_1.Weight(this.weight.weight), new Weight_1.Weight(this.weight.weight));
+        return new Vector2DTypeReal(this.x, this.y, this.vectorSpace);
     }
-    static fromRaw(raw) {
-        return new ProjectiveVector1DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary);
+    static fromRaw(raw, vectorSpace) {
+        return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], vectorSpace);
+    }
+    static fromCoordinates(coords, vectorSpace) {
+        if (coords.length !== 2)
+            throw new RangeError('2D vector requires exactly 2 coordinates');
+        return new Vector2DTypeReal(coords[0], coords[1], vectorSpace);
+    }
+    static create(x = 0, y = 0) {
+        return new Vector2DTypeReal(x, y);
     }
 }
-exports.ProjectiveVector1DTypeComplex = ProjectiveVector1DTypeComplex;
+exports.Vector2DTypeReal = Vector2DTypeReal;
 
 
 /***/ }),
@@ -54825,6 +54662,106 @@ function scaleY(factor, v) {
     return result;
 }
 exports.scaleY = scaleY;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/Vector3DTypeReal.ts":
+/*!********************************************!*\
+  !*** ./src/mathVector/Vector3DTypeReal.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Vector3DTypeReal = void 0;
+const AbstractRealVector_1 = __webpack_require__(/*! ./AbstractRealVector */ "./src/mathVector/AbstractRealVector.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+class Vector3DTypeReal extends AbstractRealVector_1.AbstractRealVector {
+    constructor(x = 0, y = 0, z = 0, vectorSpace) {
+        super();
+        this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [x, y, z] };
+        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+    }
+    get dimension() { return 3; }
+    get vectorType() { return 'Real3D'; }
+    getCoordinate(index) {
+        if (index < 0 || index >= 3)
+            throw new RangeError('Coordinate index out of bounds');
+        return this.data.coordinates[index];
+    }
+    setCoordinate(index, value) {
+        if (index < 0 || index >= 3)
+            throw new RangeError('Coordinate index out of bounds');
+        this.data.coordinates[index] = value;
+    }
+    get coordinates() { return [...this.data.coordinates]; }
+    get raw() { return Object.assign({}, this.data); }
+    clone() {
+        return new Vector3DTypeReal(this.x, this.z);
+    }
+    static fromRaw(raw) {
+        return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2]);
+    }
+    static fromCoordinates(coords) {
+        if (coords.length !== 3)
+            throw new RangeError('3D vector requires exactly 3 coordinates');
+        return new Vector3DTypeReal(coords[0], coords[1], coords[2]);
+    }
+}
+exports.Vector3DTypeReal = Vector3DTypeReal;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/Vector4DTypeReal.ts":
+/*!********************************************!*\
+  !*** ./src/mathVector/Vector4DTypeReal.ts ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Vector4DTypeReal = void 0;
+const AbstractRealVector_1 = __webpack_require__(/*! ./AbstractRealVector */ "./src/mathVector/AbstractRealVector.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+class Vector4DTypeReal extends AbstractRealVector_1.AbstractRealVector {
+    constructor(x = 0, y = 0, z = 0, t = 0, vectorSpace) {
+        super();
+        this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [x, y, z, t] };
+        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+    }
+    get dimension() { return 4; }
+    get vectorType() { return 'Real4D'; }
+    getCoordinate(index) {
+        if (index < 0 || index >= 4)
+            throw new RangeError('Coordinate index out of bounds');
+        return this.data.coordinates[index];
+    }
+    setCoordinate(index, value) {
+        if (index < 0 || index >= 4)
+            throw new RangeError('Coordinate index out of bounds');
+        this.data.coordinates[index] = value;
+    }
+    get coordinates() { return [...this.data.coordinates]; }
+    get raw() { return Object.assign({}, this.data); }
+    clone() {
+        return new Vector4DTypeReal(this.x, this.z);
+    }
+    static fromRaw(raw) {
+        return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3]);
+    }
+    static fromCoordinates(coords) {
+        if (coords.length !== 4)
+            throw new RangeError('4D vector requires exactly 4 coordinates');
+        return new Vector4DTypeReal(coords[0], coords[1], coords[2], coords[3]);
+    }
+}
+exports.Vector4DTypeReal = Vector4DTypeReal;
 
 
 /***/ }),
@@ -55266,6 +55203,58 @@ exports.VECTOR_TYPE_INFO = {
 
 /***/ }),
 
+/***/ "./src/mathVector/VectorSpaceIdentifierManager.ts":
+/*!********************************************************!*\
+  !*** ./src/mathVector/VectorSpaceIdentifierManager.ts ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.VectorSpaceIdentifierManager = void 0;
+/**
+ * Vector Space Identifier Manager - Singleton for generating unique IDs
+ */
+class VectorSpaceIdentifierManager {
+    constructor() {
+        this.nextId = 1;
+        this.defaultSpaceIds = new Map();
+    }
+    static getInstance() {
+        if (!VectorSpaceIdentifierManager.instance) {
+            VectorSpaceIdentifierManager.instance = new VectorSpaceIdentifierManager();
+        }
+        return VectorSpaceIdentifierManager.instance;
+    }
+    /**
+     * Generate a unique identifier for a vector space
+     */
+    generateId() {
+        return `vs_${this.nextId++}_${Date.now()}`;
+    }
+    /**
+     * Get or create default space identifier for a given type and dimension
+     */
+    getDefaultSpaceId(spaceType, dimension) {
+        const key = `${spaceType}_${dimension}`;
+        if (!this.defaultSpaceIds.has(key)) {
+            this.defaultSpaceIds.set(key, `default_${key}_${this.generateId()}`);
+        }
+        return this.defaultSpaceIds.get(key);
+    }
+    /**
+     * Check if an ID represents a default space
+     */
+    isDefaultSpace(id) {
+        return id.startsWith('default_');
+    }
+}
+exports.VectorSpaceIdentifierManager = VectorSpaceIdentifierManager;
+
+
+/***/ }),
+
 /***/ "./src/mathVector/VectorSpaceUtilities.ts":
 /*!************************************************!*\
   !*** ./src/mathVector/VectorSpaceUtilities.ts ***!
@@ -55687,6 +55676,73 @@ class WeightManager {
     }
 }
 exports.WeightManager = WeightManager;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/internal/DefaultSpaceResolvers.ts":
+/*!**********************************************************!*\
+  !*** ./src/mathVector/internal/DefaultSpaceResolvers.ts ***!
+  \**********************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+/**
+ * Internal module - exported within package but not exposed to consumers
+ * @internal
+ */
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.resolveDefaultVectorSpace = exports.getDefaultProjectiveComplexVectorSpace = exports.getDefaultProjectiveRealVectorSpace = exports.getDefaultComplexVectorSpace = exports.getDefaultRealVectorSpace = void 0;
+const DefaultVectorSpaces_1 = __webpack_require__(/*! ../DefaultVectorSpaces */ "./src/mathVector/DefaultVectorSpaces.ts");
+const BSplineR1toRn_1 = __webpack_require__(/*! ../../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+/**
+ * Get default real vector space for given dimension
+ * @internal
+ */
+function getDefaultRealVectorSpace(dimension) {
+    return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getRealVectorSpace(dimension);
+}
+exports.getDefaultRealVectorSpace = getDefaultRealVectorSpace;
+/**
+ * Get default complex vector space for given dimension
+ * @internal
+ */
+function getDefaultComplexVectorSpace(dimension) {
+    return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension);
+}
+exports.getDefaultComplexVectorSpace = getDefaultComplexVectorSpace;
+/**
+ * Get default projective real vector space for given dimension
+ * @internal
+ */
+function getDefaultProjectiveRealVectorSpace(dimension) {
+    return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(dimension);
+}
+exports.getDefaultProjectiveRealVectorSpace = getDefaultProjectiveRealVectorSpace;
+/**
+ * Get default projective complex vector space for given dimension
+ * @internal
+ */
+function getDefaultProjectiveComplexVectorSpace(dimension) {
+    return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(dimension);
+}
+exports.getDefaultProjectiveComplexVectorSpace = getDefaultProjectiveComplexVectorSpace;
+function resolveDefaultVectorSpace(spaceType, dimension) {
+    switch (spaceType) {
+        case BSplineR1toRn_1.VectorSpaceType.REAL:
+            return getDefaultRealVectorSpace(dimension);
+        case BSplineR1toRn_1.VectorSpaceType.COMPLEX:
+            return getDefaultComplexVectorSpace(dimension);
+        case BSplineR1toRn_1.VectorSpaceType.PROJECTIVE:
+            return getDefaultProjectiveRealVectorSpace(dimension);
+        case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
+            return getDefaultProjectiveComplexVectorSpace(dimension);
+        default:
+            throw new Error(`Unknown vector space type: ${spaceType}`);
+    }
+}
+exports.resolveDefaultVectorSpace = resolveDefaultVectorSpace;
 
 
 /***/ }),

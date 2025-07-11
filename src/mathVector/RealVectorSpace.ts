@@ -5,9 +5,14 @@ import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
 import { RealVectorSpace2DStrategy } from "./RealVectorSpace2DStrategy";
 import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
 import { RealVectorSpace4DStrategy } from "./RealVectorSpace4DStrategy";
-import { IVector, Vector1DTypeReal, Vector2DTypeReal, Vector3DTypeReal, Vector4DTypeReal, VectorSpaceIdentifierManager } from "./Vector";
+import { IVector } from "./Vector";
+import { Vector1DTypeReal } from "./Vector1DTypeReal";
+import { Vector2DTypeReal } from "./Vector2DTypeReal";
+import { Vector3DTypeReal } from "./Vector3DTypeReal";
+import { Vector4DTypeReal } from "./Vector4DTypeReal";
 import { VectorInVectorSpace } from "./VectorInVectorSpace";
 import { Complex, ComplexVector, IdentifiableVectorSpace, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, RealVectorOfDimension, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { VectorSpaceIdentifierManager } from "./VectorSpaceIdentifierManager";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

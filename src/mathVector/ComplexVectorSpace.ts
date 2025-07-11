@@ -5,8 +5,11 @@ import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } fr
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
-import { IVector, Vector1DTypeComplex, Vector2DTypeComplex, VectorSpaceIdentifierManager } from "./Vector";
+import { IVector } from "./Vector";
+import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
+import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
 import { Complex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, ComplexWeight, COMPLEXWEIGHT, IdentifiableVectorSpace, ProjectiveComplexVector, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { VectorSpaceIdentifierManager } from "./VectorSpaceIdentifierManager";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

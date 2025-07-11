@@ -245,6 +245,15 @@ export interface VectorSpace<K extends Scalar, V extends Vector> {
     addVectors(v1: IVector, v2: IVector): IVector;
 }
 
+export interface RealVectorSpaceInterface extends VectorSpace<Real, RealVector> {
+    scale(scalar: Real, v: RealVector): RealVector;
+}
+
+export interface ComplexVectorSpaceInterface extends VectorSpace<Complex | Real, ComplexVector> {
+    scale(scalar: Complex, vector: ComplexVector): ComplexVector;
+    scale(scalar: Real, vector: ComplexVector): ComplexVector;
+}
+
 /**
  * Enhanced Vector Space Interface with Identity
  */
