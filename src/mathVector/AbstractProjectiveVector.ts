@@ -9,10 +9,6 @@ import { Weight } from "./Weight";
  */
 export abstract class AbstractProjectiveVector extends AbstractVector implements IProjectiveVector {
 
-    // constructor(vectorSpace?: ProjectiveVectorSpace<any>) {
-    //     super();
-    // }
-
     get vectorSpace(): ProjectiveVectorSpace<any> { return this._vectorSpace as ProjectiveVectorSpace<any>; }
 
     abstract get weight(): Weight | ComplexWeight;

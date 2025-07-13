@@ -11,10 +11,6 @@ import { Complex, ComplexVector, Vector } from "./VectorSpaceConstructorInterfac
 
 export abstract class AbstractComplexVector extends AbstractVector implements IComplexVector {
 
-    // constructor(vectorSpace?: ComplexVectorSpace<any>) {
-    //     super();
-    // }
-
     get spaceType(): VectorSpaceType { return VectorSpaceType.COMPLEX; }
     get vectorSpace(): ComplexVectorSpace<any> { return this._vectorSpace as ComplexVectorSpace<any>; }
 

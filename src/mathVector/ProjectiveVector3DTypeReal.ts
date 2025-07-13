@@ -1,6 +1,5 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
-import { DefaultVectorSpaces } from "./DefaultVectorSpaces";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
@@ -24,6 +23,8 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
     get dimension(): number { return 4; } // Homogeneous coordinates
     get vectorType(): string { return 'ProjectiveReal3D'; }
     get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
+    get coordinates(): number[] { return this.homogeneousCoordinates; }
+    get raw(): ProjectiveVector3D { return { ...this.data }; }
     
     get weight(): Weight {
         return this.data.coordinates[3].value;
@@ -32,10 +33,6 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
     get homogeneousCoordinates(): number[] {
         return [this.data.coordinates[0], this.data.coordinates[1], this.data.coordinates[2], this.weight.weight];
     }
-
-    // protected getDefaultVectorSpace(): ProjectiveVectorSpace<4> {
-    //     return DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(4);
-    // }
     
     getCoordinate(index: number): number {
         if (index < 0 || index >= 4) throw new RangeError('Coordinate index out of bounds');
@@ -51,9 +48,6 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
             this.data.coordinates[index] = value;
         }
     }
-    
-    get coordinates(): number[] { return this.homogeneousCoordinates; }
-    get raw(): ProjectiveVector3D { return { ...this.data }; }
     
     normalize(): ProjectiveVector3DTypeReal {
         const w = this.weight.weight;

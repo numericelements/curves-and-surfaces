@@ -1,22 +1,15 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { IVector } from "./Vector";
 import { VectorInVectorSpace } from "./VectorInVectorSpace";
 import { Complex, IdentifiableVectorSpace, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
-import { AnyVectorSpace } from "./VectorSpaceTypes";
 
 /**
  * Base abstract class implementing common IVector functionality
  */
-// export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any> = IdentifiableVectorSpace<any, any>> implements IVector {
-export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any> = IdentifiableVectorSpace<any, any>, V extends Vector = Vector, S extends Scalar = Scalar> implements IVector {
-// export abstract class AbstractVector implements IVector {
-    protected abstract _vectorSpace: VS;
 
-    constructor() {
-        // this._vectorSpace = vectorSpace || this.getDefaultVectorSpace();
-        // this._vectorSpace = vectorSpace || resolveDefaultVectorSpace(this.spaceType, this.dimension);
-    }
+export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any> = IdentifiableVectorSpace<any, any>, V extends Vector = Vector, S extends Scalar = Scalar> implements IVector {
+    
+    protected abstract _vectorSpace: VS;
 
     abstract get dimension(): number;
     abstract get vectorType(): string;
@@ -28,8 +21,6 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     abstract setCoordinate(index: number, value: number | Complex): void;
     abstract clone(): IVector;
     
-    // Abstract method to get default vector space - implemented by concrete classes
-    // protected abstract getDefaultVectorSpace(): VS;
 
     get vectorSpace(): VS {
         return this._vectorSpace;

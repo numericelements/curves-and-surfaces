@@ -1,9 +1,7 @@
 import { AbstractRealVector } from "./AbstractRealVector";
-import { DefaultVectorSpaces } from "./DefaultVectorSpaces";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { REALVECTOR2D, RealVector2D } from "./VectorSpaceConstructorInterface";
-import { RealVectorSpaceOfDimension } from "./VectorSpaceTypes";
 
 
 export class Vector2DTypeReal extends AbstractRealVector {
@@ -20,11 +18,6 @@ export class Vector2DTypeReal extends AbstractRealVector {
     get vectorType(): string { return 'Real2D'; }
     get coordinates(): number[] { return [...this.data.coordinates]; }
     get raw(): RealVector2D { return { ...this.data }; }
-    
-    // getDefaultVectorSpace(): RealVectorSpace<2> {
-    //     // return DefaultVectorSpaces.getInstance().getRealVectorSpace(2);
-    //     return resolveDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpaceOfDimension<2>;
-    // }
     
     getCoordinate(index: number): number {
         if (index < 0 || index >= 2) throw new RangeError('Coordinate index out of bounds');

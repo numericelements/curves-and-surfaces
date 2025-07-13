@@ -1,6 +1,5 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractProjectiveComplexVector } from "./AbstractProjectiveComplexVector";
-import { DefaultVectorSpaces } from "./DefaultVectorSpaces";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
@@ -24,6 +23,8 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
     get dimension(): number { return 2; } // Homogeneous coordinates
     get vectorType(): string { return 'ProjectiveComplexVector'; }
     get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVECOMPLEX; }
+    get coordinates(): number[] { return this.homogeneousCoordinates; }
+    get raw(): ProjectiveComplexVector { return { ...this.data }; }
     
     get weight(): Weight {
         return this.data.coordinates[1].real;
@@ -32,10 +33,6 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
     get homogeneousCoordinates(): number[] {
         return [this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.weight.weight];
     }
-
-    // protected getDefaultVectorSpace(): ProjectiveComplexVectorSpace {
-    //     return DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(this.dimension);
-    // }
     
     getCoordinate(index: number): number {
         if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
@@ -51,9 +48,6 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
             this.data.coordinates[index].real = value;
         }
     }
-    
-    get coordinates(): number[] { return this.homogeneousCoordinates; }
-    get raw(): ProjectiveComplexVector { return { ...this.data }; }
     
     normalize(): ProjectiveVector1DTypeComplex {
         const w = this.weight.weight;

@@ -1,6 +1,5 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
-import { DefaultVectorSpaces } from "./DefaultVectorSpaces";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
@@ -23,11 +22,9 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
     get dimension(): number { return 3; } // Homogeneous coordinates
     get vectorType(): string { return 'ProjectiveReal2D'; }
     get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
+    get coordinates(): number[] { return this.homogeneousCoordinates; }
+    get raw(): ProjectiveVector2D { return { ...this.data }; }
 
-    // protected getDefaultVectorSpace(): ProjectiveVectorSpace<3> {
-    //     return DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(3);
-    // }
-    
     get weight(): Weight {
         return this.data.coordinates[2].value;
     }
@@ -50,9 +47,6 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
             this.data.coordinates[index] = value;
         }
     }
-    
-    get coordinates(): number[] { return this.homogeneousCoordinates; }
-    get raw(): ProjectiveVector2D { return { ...this.data }; }
     
     normalize(): ProjectiveVector2DTypeReal {
         const w = this.weight.weight;
