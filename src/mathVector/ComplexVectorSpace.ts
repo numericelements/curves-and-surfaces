@@ -5,11 +5,11 @@ import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } fr
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
+import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { IVector } from "./Vector";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
 import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
-import { Complex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, ComplexWeight, COMPLEXWEIGHT, IdentifiableVectorSpace, ProjectiveComplexVector, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
-import { VectorSpaceIdentifierManager } from "./VectorSpaceIdentifierManager";
+import { Complex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, ComplexWeight, COMPLEXWEIGHT, IdentifiableVectorSpace, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -42,14 +42,9 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
     constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        const idManager = VectorSpaceIdentifierManager.getInstance();
-        if (isDefault) {
-            this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.COMPLEX, dimension);
-            this._name = name || `Default Complex Vector Space R^${dimension}`;
-        } else {
-            this._id = id || idManager.generateId();
-            this._name = name || `Complex Vector Space R^${dimension} (${this._id})`;
-        }
+        const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = vSpaceFeatures.id;
+        this._name = vSpaceFeatures.name;
         switch (this.dim) {
             case MIN_DIMENSION_COMPLEXVECTORSPACE:
                 this.strategy = new ComplexVectorSpace1DStrategy() as unknown as ComplexVectorSpaceStrategy<D>;

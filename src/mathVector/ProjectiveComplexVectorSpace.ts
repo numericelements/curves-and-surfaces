@@ -5,11 +5,12 @@ import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_WEIGHT_SUBTRACTIO
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../namedConstants/ProjectiveComplexVectorSpace";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { ProjectiveComplexVectorSpace2DStrategy } from "./ProjectiveComplexVectorSpace2DStrategy";
 import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
 import { IVector } from "./Vector";
 import { COMPLEX, Complex, ComplexVector1D, COMPLEXWEIGHT, ComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveComplexVectorOfDimension, Real, VectorSpace } from "./VectorSpaceConstructorInterface";
-import { VectorSpaceIdentifierManager } from "./VectorSpaceIdentifierManager";
+import { VectorSpaceIdentifierManager } from "./internal/VectorSpaceIdentifierManager";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
@@ -49,14 +50,9 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         this._weightManagement = weightManagement;
         this.weightManager = new WeightManager(weightManagement);
         this._isDefault = isDefault;
-        const idManager = VectorSpaceIdentifierManager.getInstance();
-        if (isDefault) {
-            this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.PROJECTIVECOMPLEX, dimension);
-            this._name = name || `Default Projective Complex Vector Space R^${dimension}`;
-        } else {
-            this._id = id || idManager.generateId();
-            this._name = name || `Projective Complex Vector Space R^${dimension} (${this._id})`;
-        }
+        const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = vSpaceFeatures.id;
+        this._name = vSpaceFeatures.name;
         switch (this.dim) {
             case MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE:
                 this.strategy = new ProjectiveComplexVectorSpace2DStrategy() as unknown as ProjectiveComplexVectorSpaceStrategy<D>;

@@ -3,7 +3,7 @@
  * @internal
  */
 
-import { DefaultVectorSpaces } from '../DefaultVectorSpaces';
+import { DefaultVectorSpaces } from './DefaultVectorSpaces';
 import { VectorSpaceType } from '../../namedConstants/BSplineR1toRn';
 import type { 
     VectorSpaceForType,

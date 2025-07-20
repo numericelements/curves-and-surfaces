@@ -1,7 +1,6 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
-import { DefaultVectorSpaces } from "./DefaultVectorSpaces";
 import { IComplexVector, VectorFactory } from "./Vector";
 import { Complex, ComplexVector, Vector } from "./VectorSpaceConstructorInterface";
 
@@ -13,10 +12,6 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
 
     get spaceType(): VectorSpaceType { return VectorSpaceType.COMPLEX; }
     get vectorSpace(): ComplexVectorSpace<any> { return this._vectorSpace as ComplexVectorSpace<any>; }
-
-    protected getDefaultVectorSpace(): ComplexVectorSpace<any> {
-        return DefaultVectorSpaces.getInstance().getComplexVectorSpace(this.dimension);
-    }
     
     abstract get raw(): ComplexVector;
     abstract getCoordinate(index: number): Complex;

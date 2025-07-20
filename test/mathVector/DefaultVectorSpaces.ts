@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { DefaultVectorSpaces } from "../../src/mathVector/DefaultVectorSpaces";
+import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../src/namedConstants/RealVectorSpace";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
@@ -136,7 +136,7 @@ describe('Generation of default vector spaces', () => {
         }
     });
 
-    it(`all vector spaces constained into DefaultVectorSpaces are default ones`, () => {
+    it(`all vector spaces contained into DefaultVectorSpaces are default ones`, () => {
         const allVectorSpaces = vectorSpace.getAllDefaultSpaces();
         for (const vSpace of allVectorSpaces) {
             expect(vectorSpace.isDefaultSpace(vSpace)).to.eql(true);

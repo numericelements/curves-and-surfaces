@@ -1,6 +1,7 @@
 import { EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/RealVectorSpace";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../namedConstants/RealVectorSpace";
+import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
 import { RealVectorSpace2DStrategy } from "./RealVectorSpace2DStrategy";
 import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
@@ -12,7 +13,6 @@ import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import { Vector4DTypeReal } from "./Vector4DTypeReal";
 import { VectorInVectorSpace } from "./VectorInVectorSpace";
 import { Complex, ComplexVector, IdentifiableVectorSpace, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, RealVectorOfDimension, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
-import { VectorSpaceIdentifierManager } from "./VectorSpaceIdentifierManager";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -59,7 +59,7 @@ export interface RealVectorSpaceStrategy<D extends number>  {
     fromRealVectorSpaceToComplexVectorSpace(v: RealVector): ComplexVector
 }
 
-  // Main class using strategy
+// Main class using strategy
 // export class RealVectorSpace<D extends number = number> implements VectorSpace<Real, RealVectorOfDimension<D>> {
 export class RealVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Real, RealVectorOfDimension<D>> {
     private readonly _id: string;
@@ -71,14 +71,9 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
     constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        const idManager = VectorSpaceIdentifierManager.getInstance();
-        if (isDefault) {
-            this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.REAL, dimension);
-            this._name = name || `Default Real Vector Space R^${dimension}`;
-        } else {
-            this._id = id || idManager.generateId();
-            this._name = name || `Real Vector Space R^${dimension} (${this._id})`;
-        }
+        const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = vSpaceFeatures.id;
+        this._name = vSpaceFeatures.name;
         switch(this.dim) {
             case MIN_DIMENSION_REALVECTORSPACE:
                 this.strategy = new RealVectorSpace1DStrategy() as unknown as RealVectorSpaceStrategy<D>;

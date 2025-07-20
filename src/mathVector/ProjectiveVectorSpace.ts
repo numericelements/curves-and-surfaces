@@ -3,13 +3,14 @@ import { EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NEGATIVE, EM_SCALE_FACTOR_NEGATIVE_OR_NULL, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
 import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
 import { IVector } from "./Vector";
 import { IdentifiableVectorSpace, ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
-import { VectorSpaceIdentifierManager } from "./VectorSpaceIdentifierManager";
+import { VectorSpaceIdentifierManager } from "./internal/VectorSpaceIdentifierManager";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 
@@ -56,14 +57,17 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         // Create weight manager
         this.weightManager = new WeightManager(weightManagement);
         this._isDefault = isDefault;
-        const idManager = VectorSpaceIdentifierManager.getInstance();
-        if (isDefault) {
-            this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.PROJECTIVE, dimension);
-            this._name = name || `Default Projective Vector Space R^${dimension}`;
-        } else {
-            this._id = id || idManager.generateId();
-            this._name = name || `Projective Vector Space R^${dimension} (${this._id})`;
-        }
+        const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = vSpaceFeatures.id;
+        this._name = vSpaceFeatures.name;
+        // const idManager = VectorSpaceIdentifierManager.getInstance();
+        // if (isDefault) {
+        //     this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.PROJECTIVE, dimension);
+        //     this._name = name || `Default Projective Vector Space R^${dimension}`;
+        // } else {
+        //     this._id = id || idManager.generateId();
+        //     this._name = name || `Projective Vector Space R^${dimension} (${this._id})`;
+        // }
         switch(this.dim) {
             case MIN_DIMENSION_PROJECTIVEVECTORSPACE:
                 this.strategy = new ProjectiveVectorSpace3DStrategy() as ProjectiveVectorSpaceStrategy<D>;

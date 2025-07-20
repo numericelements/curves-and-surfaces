@@ -1,13 +1,13 @@
-import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../namedConstants/ComplexVectorSpace";
-import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME, DEFAULT_REAL_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
-import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../namedConstants/ProjectiveComplexVectorSpace";
-import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../namedConstants/RealVectorSpace";
-import { ComplexVectorSpace } from "./ComplexVectorSpace";
-import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
-import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
-import { RealVectorSpace } from "./RealVectorSpace";
-import { IdentifiableVectorSpace } from "./VectorSpaceConstructorInterface";
+import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../namedConstants/ComplexVectorSpace";
+import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME, DEFAULT_REAL_VECTOR_SPACE_NAME } from "../../namedConstants/DefaultVectorSpaces";
+import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../namedConstants/ProjectiveComplexVectorSpace";
+import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../../namedConstants/ProjectiveVectorSpace";
+import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../namedConstants/RealVectorSpace";
+import { ComplexVectorSpace } from "../ComplexVectorSpace";
+import { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
+import { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
+import { RealVectorSpace } from "../RealVectorSpace";
+import { IdentifiableVectorSpace } from "../VectorSpaceConstructorInterface";
 
 /**
  * Singleton manager for default vector spaces
@@ -86,7 +86,7 @@ export class DefaultVectorSpaces {
     }
 
     /**
-     * Check if a space is managed by this singleton
+     * Check if a vector space is managed by this singleton
      */
     isDefaultSpace(space: IdentifiableVectorSpace<any, any>): boolean {
         return space.isDefault && this.getAllDefaultSpaces().some(s => s.isSameSpace(space));
