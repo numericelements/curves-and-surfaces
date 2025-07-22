@@ -14,6 +14,7 @@ import { VectorSpaceIdentifierManager } from "./internal/VectorSpaceIdentifierMa
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
+import { DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 
 // Strategy interface
 export interface ProjectiveComplexVectorSpaceStrategy<D extends number> {
@@ -50,9 +51,10 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         this._weightManagement = weightManagement;
         this.weightManager = new WeightManager(weightManagement);
         this._isDefault = isDefault;
-        const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
-        this._id = vSpaceFeatures.id;
-        this._name = vSpaceFeatures.name;
+        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = resolveVectorSpace(this, isDefault, id);
+        // this._name = vSpaceFeatures.name;
+        this._name = name || DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         switch (this.dim) {
             case MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE:
                 this.strategy = new ProjectiveComplexVectorSpace2DStrategy() as unknown as ProjectiveComplexVectorSpaceStrategy<D>;

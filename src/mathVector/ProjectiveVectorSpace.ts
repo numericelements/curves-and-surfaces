@@ -13,6 +13,7 @@ import { IdentifiableVectorSpace, ProjectiveComplexVector, ProjectiveVector, Pro
 import { VectorSpaceIdentifierManager } from "./internal/VectorSpaceIdentifierManager";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
+import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 
 /**
  * Implementation of a projective vector space
@@ -57,17 +58,10 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         // Create weight manager
         this.weightManager = new WeightManager(weightManagement);
         this._isDefault = isDefault;
-        const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
-        this._id = vSpaceFeatures.id;
-        this._name = vSpaceFeatures.name;
-        // const idManager = VectorSpaceIdentifierManager.getInstance();
-        // if (isDefault) {
-        //     this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.PROJECTIVE, dimension);
-        //     this._name = name || `Default Projective Vector Space R^${dimension}`;
-        // } else {
-        //     this._id = id || idManager.generateId();
-        //     this._name = name || `Projective Vector Space R^${dimension} (${this._id})`;
-        // }
+        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = resolveVectorSpace(this, isDefault, id);
+        // this._name = vSpaceFeatures.name;
+        this._name = name || DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
         switch(this.dim) {
             case MIN_DIMENSION_PROJECTIVEVECTORSPACE:
                 this.strategy = new ProjectiveVectorSpace3DStrategy() as ProjectiveVectorSpaceStrategy<D>;

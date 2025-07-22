@@ -2,6 +2,7 @@ import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR, EM_COMPLEXVECTOR_DIMENSION_OUT_RANG
 import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../namedConstants/ComplexVectorSpace";
+import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
@@ -42,9 +43,8 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
     constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
-        this._id = vSpaceFeatures.id;
-        this._name = vSpaceFeatures.name;
+        this._id = resolveVectorSpace(this, isDefault, id);
+        this._name = name || DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         switch (this.dim) {
             case MIN_DIMENSION_COMPLEXVECTORSPACE:
                 this.strategy = new ComplexVectorSpace1DStrategy() as unknown as ComplexVectorSpaceStrategy<D>;

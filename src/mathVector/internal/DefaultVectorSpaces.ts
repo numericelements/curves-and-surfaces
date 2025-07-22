@@ -13,7 +13,7 @@ import { IdentifiableVectorSpace } from "../VectorSpaceConstructorInterface";
  * Singleton manager for default vector spaces
  */
 export class DefaultVectorSpaces {
-    private static instance: DefaultVectorSpaces;
+    private static instance: DefaultVectorSpaces | null = null;
     private realSpaces: Map<number, RealVectorSpace<any>> = new Map();
     private complexSpaces: Map<number, ComplexVectorSpace<any>> = new Map();
     private projectiveRealSpaces: Map<number, ProjectiveVectorSpace<any>> = new Map();
@@ -26,6 +26,18 @@ export class DefaultVectorSpaces {
             DefaultVectorSpaces.instance = new DefaultVectorSpaces();
         }
         return DefaultVectorSpaces.instance;
+    }
+
+    /**
+     * Reset the singleton instance for testing purposes only
+    @internal
+    */
+    static reset(): void {
+        DefaultVectorSpaces.instance = null;
+    }
+
+    static hasInstance(): boolean {
+        return DefaultVectorSpaces.instance !== null;
     }
 
     getRealVectorSpace<D extends number>(dimension: D): RealVectorSpace<D> {

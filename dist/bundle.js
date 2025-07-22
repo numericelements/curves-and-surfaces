@@ -51648,6 +51648,7 @@ const ComplexVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/ComplexVec
 const Weight_1 = __webpack_require__(/*! ../ErrorMessages/Weight */ "./src/ErrorMessages/Weight.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ComplexVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ComplexVectorSpace */ "./src/namedConstants/ComplexVectorSpace.ts");
+const DefaultVectorSpaces_1 = __webpack_require__(/*! ../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 const ComplexVectorSpace1DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace1DStrategy */ "./src/mathVector/ComplexVectorSpace1DStrategy.ts");
 const ComplexVectorSpace2DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace2DStrategy */ "./src/mathVector/ComplexVectorSpace2DStrategy.ts");
@@ -51663,9 +51664,8 @@ class ComplexVectorSpace {
     constructor(dimension, name, isDefault = false, id) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        const vSpaceFeatures = (0, VectorSpaceResolvers_1.resolveVectorSpace)(dimension, this, isDefault, id, name);
-        this._id = vSpaceFeatures.id;
-        this._name = vSpaceFeatures.name;
+        this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, isDefault, id);
+        this._name = name || DefaultVectorSpaces_1.DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         switch (this.dim) {
             case ComplexVectorSpace_2.MIN_DIMENSION_COMPLEXVECTORSPACE:
                 this.strategy = new ComplexVectorSpace1DStrategy_1.ComplexVectorSpace1DStrategy();
@@ -52085,6 +52085,7 @@ const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceC
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 const WeightManager_2 = __webpack_require__(/*! ./WeightManager */ "./src/mathVector/WeightManager.ts");
+const DefaultVectorSpaces_1 = __webpack_require__(/*! ../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
 // export class ProjectiveComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ProjectiveComplexVectorOfDimension<D>> {
 class ProjectiveComplexVectorSpace {
     // constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
@@ -52093,9 +52094,10 @@ class ProjectiveComplexVectorSpace {
         this._weightManagement = weightManagement;
         this.weightManager = new WeightManager_2.WeightManager(weightManagement);
         this._isDefault = isDefault;
-        const vSpaceFeatures = (0, VectorSpaceResolvers_1.resolveVectorSpace)(dimension, this, isDefault, id, name);
-        this._id = vSpaceFeatures.id;
-        this._name = vSpaceFeatures.name;
+        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, isDefault, id);
+        // this._name = vSpaceFeatures.name;
+        this._name = name || DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         switch (this.dim) {
             case ProjectiveComplexVectorSpace_2.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE:
                 this.strategy = new ProjectiveComplexVectorSpace2DStrategy_1.ProjectiveComplexVectorSpace2DStrategy();
@@ -52831,6 +52833,7 @@ const ProjectiveVectorSpace3DStrategy_1 = __webpack_require__(/*! ./ProjectiveVe
 const ProjectiveVectorSpace4DStrategy_1 = __webpack_require__(/*! ./ProjectiveVectorSpace4DStrategy */ "./src/mathVector/ProjectiveVectorSpace4DStrategy.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const WeightManager_2 = __webpack_require__(/*! ./WeightManager */ "./src/mathVector/WeightManager.ts");
+const DefaultVectorSpaces_1 = __webpack_require__(/*! ../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
 // Main class using strategy
 // export class ProjectiveVectorSpace<D extends number = number> implements VectorSpace<Real, ProjectiveVectorOfDimension<D>> {
 class ProjectiveVectorSpace {
@@ -52841,17 +52844,10 @@ class ProjectiveVectorSpace {
         // Create weight manager
         this.weightManager = new WeightManager_2.WeightManager(weightManagement);
         this._isDefault = isDefault;
-        const vSpaceFeatures = (0, VectorSpaceResolvers_1.resolveVectorSpace)(dimension, this, isDefault, id, name);
-        this._id = vSpaceFeatures.id;
-        this._name = vSpaceFeatures.name;
-        // const idManager = VectorSpaceIdentifierManager.getInstance();
-        // if (isDefault) {
-        //     this._id = id || idManager.getDefaultSpaceId(VectorSpaceType.PROJECTIVE, dimension);
-        //     this._name = name || `Default Projective Vector Space R^${dimension}`;
-        // } else {
-        //     this._id = id || idManager.generateId();
-        //     this._name = name || `Projective Vector Space R^${dimension} (${this._id})`;
-        // }
+        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, isDefault, id);
+        // this._name = vSpaceFeatures.name;
+        this._name = name || DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
         switch (this.dim) {
             case ProjectiveVectorSpace_2.MIN_DIMENSION_PROJECTIVEVECTORSPACE:
                 this.strategy = new ProjectiveVectorSpace3DStrategy_1.ProjectiveVectorSpace3DStrategy();
@@ -53377,6 +53373,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createRealVectorSpace = exports.RealVectorSpace = void 0;
 const RealVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/RealVectorSpace */ "./src/ErrorMessages/RealVectorSpace.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const DefaultVectorSpaces_1 = __webpack_require__(/*! ../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
 const RealVectorSpace_2 = __webpack_require__(/*! ../namedConstants/RealVectorSpace */ "./src/namedConstants/RealVectorSpace.ts");
 const VectorSpaceResolvers_1 = __webpack_require__(/*! ./internal/VectorSpaceResolvers */ "./src/mathVector/internal/VectorSpaceResolvers.ts");
 const RealVectorSpace1DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace1DStrategy */ "./src/mathVector/RealVectorSpace1DStrategy.ts");
@@ -53396,9 +53393,10 @@ class RealVectorSpace {
     constructor(dimension, name, isDefault = false, id) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        const vSpaceFeatures = (0, VectorSpaceResolvers_1.resolveVectorSpace)(dimension, this, isDefault, id, name);
-        this._id = vSpaceFeatures.id;
-        this._name = vSpaceFeatures.name;
+        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, isDefault, id);
+        // this._name = vSpaceFeatures.name;
+        this._name = name || DefaultVectorSpaces_1.DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString();
         switch (this.dim) {
             case RealVectorSpace_2.MIN_DIMENSION_REALVECTORSPACE:
                 this.strategy = new RealVectorSpace1DStrategy_1.RealVectorSpace1DStrategy();
@@ -55592,6 +55590,16 @@ class DefaultVectorSpaces {
         }
         return DefaultVectorSpaces.instance;
     }
+    /**
+     * Reset the singleton instance for testing purposes only
+    @internal
+    */
+    static reset() {
+        DefaultVectorSpaces.instance = null;
+    }
+    static hasInstance() {
+        return DefaultVectorSpaces.instance !== null;
+    }
     getRealVectorSpace(dimension) {
         if (dimension < RealVectorSpace_1.MIN_DIMENSION_REALVECTORSPACE || dimension > RealVectorSpace_1.MAX_DIMENSION_REALVECTORSPACE) {
             throw new RangeError();
@@ -55652,6 +55660,7 @@ class DefaultVectorSpaces {
     }
 }
 exports.DefaultVectorSpaces = DefaultVectorSpaces;
+DefaultVectorSpaces.instance = null;
 
 
 /***/ }),
@@ -55667,17 +55676,13 @@ exports.DefaultVectorSpaces = DefaultVectorSpaces;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VectorSpaceIdentifierManager = void 0;
 const BSplineR1toRn_1 = __webpack_require__(/*! ../../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
-const ComplexVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/ComplexVectorSpace */ "./src/namedConstants/ComplexVectorSpace.ts");
-const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/ProjectiveComplexVectorSpace */ "./src/namedConstants/ProjectiveComplexVectorSpace.ts");
-const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
-const RealVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/RealVectorSpace */ "./src/namedConstants/RealVectorSpace.ts");
 const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ../../namedConstants/VectorSpaceIdentifierManager */ "./src/namedConstants/VectorSpaceIdentifierManager.ts");
 /**
  * Vector Space Identifier Manager - Singleton for generating unique IDs
  */
 class VectorSpaceIdentifierManager {
     constructor() {
-        this.nextId = 1;
+        this.nextIndex = 1;
         this.realSpaces = new Map();
         this.complexSpaces = new Map();
         this.projectiveRealSpaces = new Map();
@@ -55690,70 +55695,98 @@ class VectorSpaceIdentifierManager {
         return VectorSpaceIdentifierManager.instance;
     }
     /**
+     * Reset the singleton instance for testing purposes only
+    @internal
+    */
+    static reset() {
+        VectorSpaceIdentifierManager.instance = null;
+    }
+    static hasInstance() {
+        return VectorSpaceIdentifierManager.instance !== null;
+    }
+    /**
      * Generate a unique identifier for a vector space
      */
     generateId() {
-        const vsId = this.nextId++;
+        const vsId = this.nextIndex++;
         return VectorSpaceIdentifierManager_1.VECTOR_SPACE + `${vsId}_${Date.now()}`;
     }
-    registerVectorSpace(vectorSpace, vsId) {
+    getVectorSpaceIndex(vectorSpace) {
+        const vsId = vectorSpace.id;
+        if (vsId === undefined)
+            return undefined;
+        const index = parseInt(vsId.split('_')[3], 10);
+        if (isNaN(index) || index < 1 || index >= this.nextIndex) {
+            throw new Error(`Invalid vector space ID: ${vsId}`);
+        }
+        return index;
+    }
+    registerVectorSpace(vectorSpace) {
         switch (vectorSpace.spaceType) {
             case BSplineR1toRn_1.VectorSpaceType.REAL:
-                this.realSpaces.set(vsId, vectorSpace);
+                this.registerRealVectorSpace(vectorSpace);
                 return;
             case BSplineR1toRn_1.VectorSpaceType.COMPLEX:
-                this.complexSpaces.set(vsId, vectorSpace);
+                this.registerComplexVectorSpace(vectorSpace);
                 return;
             case BSplineR1toRn_1.VectorSpaceType.PROJECTIVE:
-                this.projectiveRealSpaces.set(vsId, vectorSpace);
+                this.registerProjectiveRealVectorSpace(vectorSpace);
                 return;
             case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
-                this.projectiveComplexSpaces.set(vsId, vectorSpace);
+                this.registerProjectiveComplexVectorSpace(vectorSpace);
                 return;
         }
     }
-    getRealVectorSpace(dimension, realVS) {
-        if (dimension < RealVectorSpace_1.MIN_DIMENSION_REALVECTORSPACE || dimension > RealVectorSpace_1.MAX_DIMENSION_REALVECTORSPACE) {
-            throw new RangeError();
-        }
-        if (!this.realSpaces.has(this.nextId)) {
+    registerRealVectorSpace(realVS) {
+        const vsIndex = this.getVectorSpaceIndex(realVS);
+        if (vsIndex === undefined || (!this.realSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
             // Create vector space with special marking
-            this.realSpaces.set(this.nextId, realVS);
+            this.realSpaces.set(this.nextIndex, realVS);
+            return true;
         }
-        return this.realSpaces.get(this.nextId);
+        else if (vsIndex < this.nextIndex) {
+            return false;
+        }
+        return false;
     }
-    getComplexVectorSpace(dimension, complexVS) {
-        if (dimension < ComplexVectorSpace_1.MIN_DIMENSION_COMPLEXVECTORSPACE || dimension > ComplexVectorSpace_1.MAX_DIMENSION_COMPLEXVECTORSPACE) {
-            throw new RangeError();
-        }
-        if (!this.complexSpaces.has(this.nextId)) {
+    registerComplexVectorSpace(complexVS) {
+        const vsIndex = this.getVectorSpaceIndex(complexVS);
+        if (vsIndex === undefined || (!this.complexSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
             // Create vector space with special marking
-            this.complexSpaces.set(this.nextId, complexVS);
+            this.complexSpaces.set(this.nextIndex, complexVS);
+            return true;
         }
-        return this.complexSpaces.get(this.nextId);
+        else if (vsIndex < this.nextIndex) {
+            return false;
+        }
+        return false;
     }
-    getProjectiveRealVectorSpace(dimension, projectiveVS) {
-        if (dimension < ProjectiveVectorSpace_1.MIN_DIMENSION_PROJECTIVEVECTORSPACE || dimension > ProjectiveVectorSpace_1.MAX_DIMENSION_PROJECTIVEVECTORSPACE) {
-            throw new RangeError();
-        }
-        if (!this.projectiveRealSpaces.has(this.nextId)) {
+    registerProjectiveRealVectorSpace(projectiveVS) {
+        const vsIndex = this.getVectorSpaceIndex(projectiveVS);
+        if (vsIndex === undefined || (!this.projectiveRealSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
             // Create vector space with special marking
-            this.projectiveRealSpaces.set(this.nextId, projectiveVS);
+            this.projectiveRealSpaces.set(this.nextIndex, projectiveVS);
+            return true;
         }
-        return this.projectiveRealSpaces.get(this.nextId);
+        else if (vsIndex < this.nextIndex) {
+            return false;
+        }
+        return false;
     }
-    getProjectiveComplexVectorSpace(dimension, projectiveComplexVS) {
-        if (dimension < ProjectiveComplexVectorSpace_1.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE || dimension > ProjectiveComplexVectorSpace_1.MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {
-            throw new RangeError();
-        }
-        if (!this.projectiveComplexSpaces.has(this.nextId)) {
+    registerProjectiveComplexVectorSpace(projectiveComplexVS) {
+        const vsIndex = this.getVectorSpaceIndex(projectiveComplexVS);
+        if (vsIndex === undefined || (!this.projectiveComplexSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
             // Create vector space with special marking
-            this.projectiveComplexSpaces.set(this.nextId, projectiveComplexVS);
+            this.projectiveComplexSpaces.set(this.nextIndex, projectiveComplexVS);
+            return true;
         }
-        return this.projectiveComplexSpaces.get(this.nextId);
+        else if (vsIndex < this.nextIndex) {
+            return false;
+        }
+        return false;
     }
     /**
-     * Get or create default space identifier for a given type and dimension
+     * Get or create default vector space identifier for a given type and dimension
      */
     getDefaultSpaceId(spaceType, dimension) {
         const key = `${spaceType}_${dimension}`;
@@ -55774,11 +55807,12 @@ class VectorSpaceIdentifierManager {
     /**
      * Check if a vector space is registered and managed by this singleton
      */
-    isAnExistingVectorSpace(space) {
+    isARegisteredVectorSpace(space) {
         return (!space.isDefault) && this.getAllVectorSpaces().some(s => s.isSameSpace(space));
     }
 }
 exports.VectorSpaceIdentifierManager = VectorSpaceIdentifierManager;
+VectorSpaceIdentifierManager.instance = null;
 
 
 /***/ }),
@@ -55796,105 +55830,61 @@ exports.VectorSpaceIdentifierManager = VectorSpaceIdentifierManager;
  * @internal
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.resolveVectorSpace = exports.getProjectiveComplexVectorSpace = exports.getProjectiveRealVectorSpace = exports.getComplexVectorSpace = exports.getRealVectorSpace = void 0;
-const BSplineR1toRn_1 = __webpack_require__(/*! ../../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+exports.resolveVectorSpace = exports.registerProjectiveComplexVectorSpace = exports.registerProjectiveRealVectorSpace = exports.registerComplexVectorSpace = exports.registerRealVectorSpace = void 0;
 const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ./VectorSpaceIdentifierManager */ "./src/mathVector/internal/VectorSpaceIdentifierManager.ts");
-const DefaultVectorSpaces_1 = __webpack_require__(/*! ../../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
-const VectorSpaceIdentifierManager_2 = __webpack_require__(/*! ../../namedConstants/VectorSpaceIdentifierManager */ "./src/namedConstants/VectorSpaceIdentifierManager.ts");
-const VectorSpaceResolvers_1 = __webpack_require__(/*! ../../namedConstants/VectorSpaceResolvers */ "./src/namedConstants/VectorSpaceResolvers.ts");
 /**
- * Get default real vector space for given dimension
+ * Register a real vector space for given dimension if not already registered
  * @internal
  */
-function getRealVectorSpace(dimension, realVS) {
-    return VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance().getRealVectorSpace(dimension, realVS);
+function registerRealVectorSpace(realVS) {
+    return VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance().registerRealVectorSpace(realVS);
 }
-exports.getRealVectorSpace = getRealVectorSpace;
+exports.registerRealVectorSpace = registerRealVectorSpace;
 /**
- * Get default complex vector space for given dimension
+ * Register a complex vector space for given dimension if not already registered
  * @internal
  */
-function getComplexVectorSpace(dimension, complexVS) {
-    return VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance().getComplexVectorSpace(dimension, complexVS);
+function registerComplexVectorSpace(complexVS) {
+    return VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance().registerComplexVectorSpace(complexVS);
 }
-exports.getComplexVectorSpace = getComplexVectorSpace;
+exports.registerComplexVectorSpace = registerComplexVectorSpace;
 /**
- * Get default projective real vector space for given dimension
+ * Register a projective real vector space for given dimension if not already registered
  * @internal
  */
-function getProjectiveRealVectorSpace(dimension, projectiveVS) {
-    return VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance().getProjectiveRealVectorSpace(dimension, projectiveVS);
+function registerProjectiveRealVectorSpace(projectiveVS) {
+    return VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance().registerProjectiveRealVectorSpace(projectiveVS);
 }
-exports.getProjectiveRealVectorSpace = getProjectiveRealVectorSpace;
+exports.registerProjectiveRealVectorSpace = registerProjectiveRealVectorSpace;
 /**
- * Get default projective complex vector space for given dimension
+ * Register a projective complex vector space for given dimension if not already registered
  * @internal
  */
-function getProjectiveComplexVectorSpace(dimension, projectiveComplexVS) {
-    return VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance().getProjectiveComplexVectorSpace(dimension, projectiveComplexVS);
+function registerProjectiveComplexVectorSpace(projectiveComplexVS) {
+    return VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance().registerProjectiveComplexVectorSpace(projectiveComplexVS);
 }
-exports.getProjectiveComplexVectorSpace = getProjectiveComplexVectorSpace;
-/**
- * Resolve default vector space based on type and dimension
- * @internal
- */
-function resolveVectorSpace(dimension, vectorSpace, isDefault, id, name) {
+exports.registerProjectiveComplexVectorSpace = registerProjectiveComplexVectorSpace;
+function resolveVectorSpace(vectorSpace, isDefault, id) {
     let vsId = "";
     const idManager = VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance();
     if (isDefault) {
         if (id === undefined) {
-            vsId = idManager.getDefaultSpaceId(vectorSpace.spaceType, dimension);
+            vsId = idManager.getDefaultSpaceId(vectorSpace.spaceType, vectorSpace.dimension());
         }
         else {
             vsId = id;
-        }
-        switch (vectorSpace.spaceType) {
-            case BSplineR1toRn_1.VectorSpaceType.REAL:
-                const nameVS = name || DefaultVectorSpaces_1.DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString();
-                return { id: vsId, name: nameVS };
-            case BSplineR1toRn_1.VectorSpaceType.COMPLEX:
-                const nameVS1 = name || DefaultVectorSpaces_1.DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
-                return { id: vsId, name: nameVS1 };
-            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVE:
-                const nameVS2 = name || DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
-                return { id: vsId, name: nameVS2 };
-            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
-                const nameVS3 = name || DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
-                return { id: vsId, name: nameVS3 };
-            default:
-                const error = new Error(`Vector space type ${vectorSpace.spaceType} is not supported`);
-                throw error;
         }
     }
     else {
         if (id === undefined) {
-            vsId = idManager.generateId();
-            const string = vsId.split(VectorSpaceIdentifierManager_2.VECTOR_SPACE);
-            const index = string[string.length - 1].split("_");
-            idManager.registerVectorSpace(vectorSpace, Number(index[0]));
-            vsId = `${vectorSpace.spaceType}_${dimension}_` + vsId;
+            idManager.registerVectorSpace(vectorSpace);
+            vsId = `${vectorSpace.spaceType}_${vectorSpace.dimension()}_` + idManager.generateId();
         }
         else {
             vsId = id;
         }
-        switch (vectorSpace.spaceType) {
-            case BSplineR1toRn_1.VectorSpaceType.REAL:
-                const nameVS = name || VectorSpaceResolvers_1.REAL_VECTOR_SPACE_NAME + dimension.toString();
-                return { id: vsId, name: nameVS };
-            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVE:
-                const nameVS1 = name || VectorSpaceResolvers_1.PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
-                return { id: vsId, name: nameVS1 };
-            case BSplineR1toRn_1.VectorSpaceType.COMPLEX:
-                const nameVS2 = name || VectorSpaceResolvers_1.COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
-                return { id: vsId, name: nameVS2 };
-            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
-                const nameVS3 = name || VectorSpaceResolvers_1.PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
-                return { id: vsId, name: nameVS3 };
-            default:
-                const error = new Error(`Vector space type ${vectorSpace.spaceType} is not supported`);
-                throw error;
-        }
     }
+    return vsId;
 }
 exports.resolveVectorSpace = resolveVectorSpace;
 
@@ -57279,8 +57269,8 @@ exports.DEFAULT_MULTIPLICITY_VALUE = Infinity;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE = exports.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE = void 0;
-exports.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE = 1;
-exports.MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE = 1;
+exports.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE = 2;
+exports.MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE = 2;
 
 
 /***/ }),

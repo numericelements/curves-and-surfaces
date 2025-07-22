@@ -1,5 +1,6 @@
 import { EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/RealVectorSpace";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { DEFAULT_REAL_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../namedConstants/RealVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
@@ -71,9 +72,10 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
     constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
-        this._id = vSpaceFeatures.id;
-        this._name = vSpaceFeatures.name;
+        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
+        this._id = resolveVectorSpace(this, isDefault, id);
+        // this._name = vSpaceFeatures.name;
+        this._name = name || DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString();
         switch(this.dim) {
             case MIN_DIMENSION_REALVECTORSPACE:
                 this.strategy = new RealVectorSpace1DStrategy() as unknown as RealVectorSpaceStrategy<D>;
