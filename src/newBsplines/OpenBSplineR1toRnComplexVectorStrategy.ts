@@ -33,7 +33,7 @@ export class OpenBSplineR1toRnComplexVectorStrategy extends AbstractOPenBSplineR
     euclideanDistances(): number[] {
         const distances: number[] = [];
         for (let i = 0; i < this.openBSplineR1toRn.controlPolygon.length - 1; i += 1) {
-            distances.push(this.vectorSpace.norm(this.vectorSpace.subtract(this.openBSplineR1toRn.controlPolygon.getVector(i + 1) as ComplexVector, this.openBSplineR1toRn.controlPolygon.getVector(i) as ComplexVector)));
+            distances.push(this.vectorSpace.norm(this.vectorSpace.subtractRaw(this.openBSplineR1toRn.controlPolygon.getVector(i + 1) as ComplexVector, this.openBSplineR1toRn.controlPolygon.getVector(i) as ComplexVector)));
         }
         return distances;
     }

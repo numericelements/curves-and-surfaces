@@ -159,77 +159,77 @@ describe('RealVectorSpace', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1 = 0;
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.add(vec1, vec2)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.addRaw(vec1, vec2)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
             const vec3: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 1]};
-            expect(() => realVectorSpace.add(vec1, vec3)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.addRaw(vec1, vec3)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
         });
 
         it('cannot add two RealVectors of different dimensions. Only one vector belongs to the current vector space.', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 0]};
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.add(vec1, vec2)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.addRaw(vec1, vec2)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
         });
     
         it('cannot scale a RealVector of dimension outside the current vector space dimension', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1 = 0;
             const scaleFactor = 2;
-            expect(() => realVectorSpace.scale(scaleFactor, vec1)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.scaleRaw(scaleFactor, vec1)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.scale(scaleFactor, vec2)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.scaleRaw(scaleFactor, vec2)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec3: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 1]};
-            expect(() => realVectorSpace.scale(scaleFactor, vec3)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.scaleRaw(scaleFactor, vec3)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
         });
 
         it('cannot subtract two RealVectors of dimensions outside the current vector space dimension', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1 = 0;
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.subtract(vec1, vec2)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
             const vec3: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 1]};
-            expect(() => realVectorSpace.subtract(vec1, vec3)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.subtractRaw(vec1, vec3)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
         });
 
         it('cannot subtract two RealVectors of different dimensions. Only one vector belongs to the current vector space.', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 0]};
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.subtract(vec1, vec2)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
             const vec3: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 1]};
-            expect(() => realVectorSpace.subtract(vec1, vec3)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.subtractRaw(vec1, vec3)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
             const vec4: RealVector1D = 0;
-            expect(() => realVectorSpace.subtract(vec1, vec4)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.subtractRaw(vec1, vec4)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
         });
 
         it('cannot clone a RealVector of dimension outside the current vector space dimension', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1 = 0;
-            expect(() => realVectorSpace.clone(vec1)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.cloneRaw(vec1)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.clone(vec2)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.cloneRaw(vec2)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec3: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 1]};
-            expect(() => realVectorSpace.clone(vec3)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.cloneRaw(vec3)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
         });
 
         it('cannot get the norm of a RealVector of dimension outside the current vector space dimension', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1 = 0;
-            expect(() => realVectorSpace.norm(vec1)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.normRaw(vec1)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.norm(vec2)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.normRaw(vec2)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec3: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 1]};
-            expect(() => realVectorSpace.norm(vec3)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.normRaw(vec3)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
         });
 
         it('cannot get the normalized vector of a RealVector of dimension outside the current vector space dimension', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1 = 0;
-            expect(() => realVectorSpace.normalize(vec1)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.normalizeRaw(vec1)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.normalize(vec2)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.normalizeRaw(vec2)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec3: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 1]};
-            expect(() => realVectorSpace.normalize(vec3)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.normalizeRaw(vec3)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
         });
 
         it('cannot get the cross product of two RealVectors of dimension ' + MIN_DIMENSION_REALVECTORSPACE, () => {
@@ -238,7 +238,7 @@ describe('RealVectorSpace', () => {
             const vec2 = 0;
             const vec1D = isVector1D(vec1);
             expect(vec1D).to.eql(true);
-            expect(() => realVectorSpace.crossProduct(vec1, vec2)).to.throw(EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1);
+            expect(() => realVectorSpace.crossProductRaw(vec1, vec2)).to.throw(EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1);
         });
 
         it('cannot get the cross product of two RealVectors of dimension outside of RealVectorSpace dimension', () => {
@@ -247,32 +247,32 @@ describe('RealVectorSpace', () => {
             const vec2: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 0]};
             const vec4D = isVector4D(vec1);
             expect(vec4D).to.eql(true);
-            expect(() => realVectorSpace.crossProduct(vec1, vec2)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.crossProductRaw(vec1, vec2)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
             const vec3: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 1]};
             const vec4: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.crossProduct(vec3, vec4)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.crossProductRaw(vec3, vec4)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
             const vec5: RealVector1D = 1;
             const vec6: RealVector1D = 0;
-            expect(() => realVectorSpace.crossProduct(vec5, vec6)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.crossProductRaw(vec5, vec6)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
         });
 
         it('cannot get the cross product of two RealVectors of different dimensions', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 0]};
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 0]};
-            expect(() => realVectorSpace.crossProduct(vec1, vec2)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.crossProductRaw(vec1, vec2)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
             const vec3: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 0]};
             const vec4: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 0]};
-            expect(() => realVectorSpace.crossProduct(vec3, vec4)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.crossProductRaw(vec3, vec4)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
             const vec5: RealVector1D = 1;
             const vec6: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 0]};
-            expect(() => realVectorSpace.crossProduct(vec5, vec6)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.crossProductRaw(vec5, vec6)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
             const vec7: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 0]};
             const vec8: RealVector1D = 1;
-            expect(() => realVectorSpace.crossProduct(vec7, vec8)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.crossProductRaw(vec7, vec8)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
             const vec9: RealVector4D = {type: REALVECTOR4D, coordinates: [1, 0, 0, 0]};
             const vec10: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 0]};
-            expect(() => realVectorSpace.crossProduct(vec9, vec10)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.crossProductRaw(vec9, vec10)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
         });
 
         it('cannot get the dot product of two RealVectors of different dimensions', () => {
@@ -281,10 +281,10 @@ describe('RealVectorSpace', () => {
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 0]};
             const vec3: RealVector4D = {type: REALVECTOR4D, coordinates: [1, 0, 0, 0]};
             const vec4: RealVector1D = 1;
-            expect(() => realVectorSpace.dot(vec1, vec2)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
-            expect(() => realVectorSpace.dot(vec2, vec1)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
-            expect(() => realVectorSpace.dot(vec1, vec3)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
-            expect(() => realVectorSpace.dot(vec1, vec4)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.dotRaw(vec1, vec2)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.dotRaw(vec2, vec1)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.dotRaw(vec1, vec3)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
+            expect(() => realVectorSpace.dotRaw(vec1, vec4)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
         });
 
         it('cannot get the dot product of two RealVectors of dimension outside of RealVectorSpace dimension', () => {
@@ -293,13 +293,13 @@ describe('RealVectorSpace', () => {
             const vec2: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 0]};
             const vec4D = isVector4D(vec1);
             expect(vec4D).to.eql(true);
-            expect(() => realVectorSpace.dot(vec1, vec2)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.dotRaw(vec1, vec2)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
             const vec3: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 1]};
             const vec4: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.dot(vec3, vec4)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.dotRaw(vec3, vec4)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
             const vec5: RealVector1D = 1;
             const vec6: RealVector1D = 0;
-            expect(() => realVectorSpace.dot(vec5, vec6)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.dotRaw(vec5, vec6)).to.throw(EM_REALVECTORS_NOT_IN_VECTORSPACE);
         });
 
         it('can transform a 2D RealVector into a ProjectiveRealVector with default weight', () => {

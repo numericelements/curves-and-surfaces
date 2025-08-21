@@ -27,7 +27,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         return {type: REALVECTOR2D, coordinates: [0, 0]};
     }
 
-    add(a: RealVector, b: RealVector): RealVector2D {
+    addRaw(a: RealVector, b: RealVector): RealVector2D {
         if(isVector2D(a) && isVector2D(b)) {
             return {type: REALVECTOR2D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1]]};
         } else {
@@ -35,7 +35,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    subtract(a: RealVector, b: RealVector): RealVector2D {
+    subtractRaw(a: RealVector, b: RealVector): RealVector2D {
         if(isVector2D(a) && isVector2D(b)) {
             return {type: REALVECTOR2D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1]]};
         } else {
@@ -43,7 +43,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    scale(scalar: Real, v: RealVector): RealVector2D {
+    scaleRaw(scalar: Real, v: RealVector): RealVector2D {
         if(isVector2D(v)) {
             return {type: REALVECTOR2D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1]]};
         } else {
@@ -51,7 +51,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    clone(v: RealVector): RealVector2D {
+    cloneRaw(v: RealVector): RealVector2D {
         if(isVector2D(v)) {
             return {type: REALVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1]]};
         } else {
@@ -59,7 +59,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    norm(v: RealVector): number {
+    normRaw(v: RealVector): number {
         if(isVector2D(v)) {
             let result = 0;
             for(const component of v.coordinates) {
@@ -72,16 +72,16 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    normalize(v: RealVector): RealVector2D {
+    normalizeRaw(v: RealVector): RealVector2D {
         if(isVector2D(v)) {
-            const norm = this.norm(v);
+            const norm = this.normRaw(v);
             return {type: REALVECTOR2D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm]};
         } else {
             throw new RangeError();
         }
     }
 
-    crossProduct(a: RealVector, b: RealVector): number {
+    crossProductRaw(a: RealVector, b: RealVector): number {
         if(isVector2D(a) && isVector2D(b)) {
             return (a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]);
         } else {
@@ -94,7 +94,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    dot(a: RealVector, b: RealVector): number {
+    dotRaw(a: RealVector, b: RealVector): number {
         if(isVector2D(a) && isVector2D(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1];
         } else {

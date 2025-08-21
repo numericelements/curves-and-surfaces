@@ -133,7 +133,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         return this.strategy.defaultVect();
     }
 
-    add(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
+    addRaw(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.add(a, b);
         } catch (error) {
@@ -155,9 +155,9 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    scale(scalar: Complex, vector: ComplexVector): ComplexVectorOfDimension<D>;
-    scale(scalar: number, vector: ComplexVector): ComplexVectorOfDimension<D>;
-    scale(scalar: Complex | number, vector: ComplexVector): ComplexVectorOfDimension<D> {
+    scaleRaw(scalar: Complex, vector: ComplexVector): ComplexVectorOfDimension<D>;
+    scaleRaw(scalar: number, vector: ComplexVector): ComplexVectorOfDimension<D>;
+    scaleRaw(scalar: Complex | number, vector: ComplexVector): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.scale(scalar, vector);
         } catch(error) {
@@ -166,7 +166,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    subtract(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
+    subtractRaw(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.subtract(a, b);
         } catch (error) {
@@ -179,7 +179,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    clone(vector: ComplexVector): ComplexVectorOfDimension<D> {
+    cloneRaw(vector: ComplexVector): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.clone(vector);
         } catch(error) {
@@ -203,7 +203,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
         const rawA = a.raw as ComplexVectorOfDimension<D>;
         const rawB = b.raw as ComplexVectorOfDimension<D>;
-        const result = this.add(rawA, rawB);
+        const result = this.addRaw(rawA, rawB);
         
         return this.createVectorInstance(result);
     }

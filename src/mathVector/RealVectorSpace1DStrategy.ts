@@ -27,7 +27,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         return 0;
     }
 
-    add(a: RealVector, b: RealVector): RealVector1D {
+    addRaw(a: RealVector, b: RealVector): RealVector1D {
         if(isVector1D(a) && isVector1D(b)) {
             return a + b;
         } else {
@@ -35,7 +35,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         }
     }
 
-    scale(scalar: Real, v: RealVector): RealVector1D {
+    scaleRaw(scalar: Real, v: RealVector): RealVector1D {
         if(isVector1D(v)) {
             return scalar * v;
         } else {
@@ -43,7 +43,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         }
     }
 
-    subtract(a: RealVector, b: RealVector): RealVector1D {
+    subtractRaw(a: RealVector, b: RealVector): RealVector1D {
         if(isVector1D(a) && isVector1D(b)) {
             return a - b;
         } else {
@@ -51,7 +51,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         }
     }
 
-    clone(v: RealVector): RealVector1D {
+    cloneRaw(v: RealVector): RealVector1D {
         if(isVector1D(v)) {
             return v;
         } else {
@@ -59,7 +59,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         }
     }
 
-    norm(v: RealVector): number {
+    normRaw(v: RealVector): number {
         if(isVector1D(v)) {
             return Math.abs(v);
         } else {
@@ -67,20 +67,20 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         }
     }
 
-    normalize(v: RealVector): RealVector1D {
+    normalizeRaw(v: RealVector): RealVector1D {
         if(isVector1D(v)) {
-            return v / this.norm(v);
+            return v / this.normRaw(v);
         } else {
             throw new RangeError();
         }
     }
 
-    crossProduct(a: RealVector, b: RealVector): never {
+    crossProductRaw(a: RealVector, b: RealVector): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1);
         throw new RangeError(error.generateMessageString());
     }
 
-    dot(a: RealVector, b: RealVector): number {
+    dotRaw(a: RealVector, b: RealVector): number {
         if(isVector1D(a) && isVector1D(b)) {
             return a * b;
         } else {

@@ -197,7 +197,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         }
     }
 
-    add(a: ProjectiveComplexVector, b: ProjectiveComplexVector): ProjectiveComplexVector {
+    addRaw(a: ProjectiveComplexVector, b: ProjectiveComplexVector): ProjectiveComplexVector {
         if(this.hasSameRealImagineryWeightManagement(a) && this.hasSameRealImagineryWeightManagement(b)) {
             try {
                 return this.strategy.add(a, b, this.weightManager);
@@ -228,9 +228,9 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         }
     }
 
-    scale(scaleFactor: Complex, vector: ProjectiveComplexVector): ProjectiveComplexVector;
-    scale(scaleFactor: number, vector: ProjectiveComplexVector): ProjectiveComplexVector;
-    scale(scaleFactor: Complex | number, vector: ProjectiveComplexVector): ProjectiveComplexVector {
+    scaleRaw(scaleFactor: Complex, vector: ProjectiveComplexVector): ProjectiveComplexVector;
+    scaleRaw(scaleFactor: number, vector: ProjectiveComplexVector): ProjectiveComplexVector;
+    scaleRaw(scaleFactor: Complex | number, vector: ProjectiveComplexVector): ProjectiveComplexVector {
         if(!this.hasSameRealImagineryWeightManagement(vector)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'scale', EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
             throw new RangeError(error.generateMessageString());
@@ -254,7 +254,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         }
     }
 
-    subtract(a: ProjectiveComplexVector, b: ProjectiveComplexVector): ProjectiveComplexVector {
+    subtractRaw(a: ProjectiveComplexVector, b: ProjectiveComplexVector): ProjectiveComplexVector {
         if(this.hasSameRealImagineryWeightManagement(a) && this.hasSameRealImagineryWeightManagement(b)) {
             try {
                 return this.strategy.subtract(a, b, this.weightManager);
@@ -296,7 +296,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         }
     }
 
-    clone(vector: ProjectiveComplexVector): ProjectiveComplexVector {
+    cloneRaw(vector: ProjectiveComplexVector): ProjectiveComplexVector {
         if(this.hasSameRealImagineryWeightManagement(vector)) {
             try {
                 return this.strategy.clone(vector, this.weightManager);
@@ -338,7 +338,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         }
         const rawA = a.raw as ProjectiveComplexVector;
         const rawB = b.raw as ProjectiveComplexVector;
-        const result = this.add(rawA, rawB);
+        const result = this.addRaw(rawA, rawB);
         
         return this.createVectorInstance(result);
     }

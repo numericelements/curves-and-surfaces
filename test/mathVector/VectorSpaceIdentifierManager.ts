@@ -101,4 +101,12 @@ describe('VectorSpaceIdentifierManager. Manager of vector space ids ensuring the
         const dateNow1 = parseInt(decomposedId1[2], 10);
         expect(dateNow1 >= dateNow).to.eql(true); // Check if the third part is strictly increasing
     });
+
+    it(`can get the index of a real vector space if the index is not undefined`, () => {
+        const vectorSpace = VectorSpaceIdentifierManager.getInstance();
+        const realVS = new RealVectorSpace(2);
+        // vectorSpace.registerRealVectorSpace(realVS);
+        const vsIndex = vectorSpace.getVectorSpaceIndex(realVS);
+        expect(vsIndex).to.eql(1); // The first registered vector space should have index 1
+    });
 });

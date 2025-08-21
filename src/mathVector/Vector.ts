@@ -44,9 +44,6 @@ export interface IVector {
     normalize(): IVector;
     dot(other: IVector): number | Complex;
     
-    // Binding to different vector spaces
-    bindTo<K extends Scalar, V extends Vector, VS extends VectorSpace<K, V>>(space: VS): VectorInVectorSpace<K, V, VS>;
-    
     // Conversion utilities
     toArray(): number[];
     toString(): string;

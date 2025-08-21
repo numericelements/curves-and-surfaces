@@ -51358,10 +51358,7 @@ class AbstractRealVector extends AbstractVector_1.AbstractVector {
     get spaceType() { return BSplineR1toRn_1.VectorSpaceType.REAL; }
     get vectorSpace() { return this._vectorSpace; }
     // Default implementations for coordinate accessors
-    get x() { return this.dimension >= 1 ? this.getCoordinate(0) : undefined; }
-    get y() { return this.dimension >= 2 ? this.getCoordinate(1) : undefined; }
-    get z() { return this.dimension >= 3 ? this.getCoordinate(2) : undefined; }
-    get w() { return this.dimension >= 4 ? this.getCoordinate(3) : undefined; }
+    get x() { return this.getCoordinate(0); }
     // Override with more specific types
     add(other) {
         return super.add(other);
@@ -51391,13 +51388,12 @@ exports.AbstractRealVector = AbstractRealVector;
 /*!******************************************!*\
   !*** ./src/mathVector/AbstractVector.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbstractVector = void 0;
-const VectorInVectorSpace_1 = __webpack_require__(/*! ./VectorInVectorSpace */ "./src/mathVector/VectorInVectorSpace.ts");
 /**
  * Base abstract class implementing common IVector functionality
  */
@@ -51408,16 +51404,16 @@ class AbstractVector {
     // Vector operations using the vector space
     add(other) {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.add(this.raw, other.raw);
+        const result = this._vectorSpace.addRaw(this.raw, other.raw);
         return this.createVectorFromRaw(result);
     }
     subtract(other) {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.subtract(this.raw, other.raw);
+        const result = this._vectorSpace.subtractRaw(this.raw, other.raw);
         return this.createVectorFromRaw(result);
     }
     scale(scalar) {
-        const result = this._vectorSpace.scale(scalar, this.raw);
+        const result = this._vectorSpace.scaleRaw(scalar, this.raw);
         return this.createVectorFromRaw(result);
     }
     norm() {
@@ -51439,9 +51435,6 @@ class AbstractVector {
             return this._vectorSpace.dot(this.raw, other.raw);
         }
         throw new Error('Dot product not available for this vector space');
-    }
-    bindTo(space) {
-        return new VectorInVectorSpace_1.VectorInVectorSpace(this, space);
     }
     // Common implementations
     equals(other) {
@@ -51746,7 +51739,7 @@ class ComplexVectorSpace {
     defaultVect() {
         return this.strategy.defaultVect();
     }
-    add(a, b) {
+    addRaw(a, b) {
         try {
             return this.strategy.add(a, b);
         }
@@ -51768,7 +51761,7 @@ class ComplexVectorSpace {
             throw new RangeError(message1.generateMessageString());
         }
     }
-    scale(scalar, vector) {
+    scaleRaw(scalar, vector) {
         try {
             return this.strategy.scale(scalar, vector);
         }
@@ -51777,7 +51770,7 @@ class ComplexVectorSpace {
             throw new RangeError(message.generateMessageString());
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         try {
             return this.strategy.subtract(a, b);
         }
@@ -51790,7 +51783,7 @@ class ComplexVectorSpace {
             throw new RangeError(message2.generateMessageString());
         }
     }
-    clone(vector) {
+    cloneRaw(vector) {
         try {
             return this.strategy.clone(vector);
         }
@@ -51812,7 +51805,7 @@ class ComplexVectorSpace {
         }
         const rawA = a.raw;
         const rawB = b.raw;
-        const result = this.add(rawA, rawB);
+        const result = this.addRaw(rawA, rawB);
         return this.createVectorInstance(result);
     }
     createVectorInstance(raw) {
@@ -52230,7 +52223,7 @@ class ProjectiveComplexVectorSpace {
             return vector;
         }
     }
-    add(a, b) {
+    addRaw(a, b) {
         if (this.hasSameRealImagineryWeightManagement(a) && this.hasSameRealImagineryWeightManagement(b)) {
             try {
                 return this.strategy.add(a, b, this.weightManager);
@@ -52262,7 +52255,7 @@ class ProjectiveComplexVectorSpace {
             throw new RangeError(message1.generateMessageString());
         }
     }
-    scale(scaleFactor, vector) {
+    scaleRaw(scaleFactor, vector) {
         if (!this.hasSameRealImagineryWeightManagement(vector)) {
             const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', ProjectiveComplexVectorSpace_1.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
             throw new RangeError(error.generateMessageString());
@@ -52289,7 +52282,7 @@ class ProjectiveComplexVectorSpace {
             }
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         if (this.hasSameRealImagineryWeightManagement(a) && this.hasSameRealImagineryWeightManagement(b)) {
             try {
                 return this.strategy.subtract(a, b, this.weightManager);
@@ -52336,7 +52329,7 @@ class ProjectiveComplexVectorSpace {
             throw new RangeError(error.generateMessageString());
         }
     }
-    clone(vector) {
+    cloneRaw(vector) {
         if (this.hasSameRealImagineryWeightManagement(vector)) {
             try {
                 return this.strategy.clone(vector, this.weightManager);
@@ -52381,7 +52374,7 @@ class ProjectiveComplexVectorSpace {
         }
         const rawA = a.raw;
         const rawB = b.raw;
-        const result = this.add(rawA, rawB);
+        const result = this.addRaw(rawA, rawB);
         return this.createVectorInstance(result);
     }
     createVectorInstance(raw) {
@@ -52916,7 +52909,7 @@ class ProjectiveVectorSpace {
         const vect = this.strategy.defaultVect(this.weightManager);
         return vect;
     }
-    add(a, b) {
+    addRaw(a, b) {
         try {
             return this.strategy.add(a, b, this.weightManager);
         }
@@ -52929,7 +52922,7 @@ class ProjectiveVectorSpace {
             throw new RangeError(message2.generateMessageString());
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         try {
             return this.strategy.subtract(a, b, this.weightManager);
         }
@@ -52960,7 +52953,7 @@ class ProjectiveVectorSpace {
             throw new RangeError(message1.generateMessageString());
         }
     }
-    scale(scalar, v) {
+    scaleRaw(scalar, v) {
         try {
             return this.strategy.scale(scalar, v, this.weightManager);
         }
@@ -52977,7 +52970,7 @@ class ProjectiveVectorSpace {
             throw new RangeError(message.generateMessageString());
         }
     }
-    clone(v) {
+    cloneRaw(v) {
         try {
             return this.strategy.clone(v, this.weightManager);
         }
@@ -53005,7 +52998,7 @@ class ProjectiveVectorSpace {
         }
         const rawA = a.raw;
         const rawB = b.raw;
-        const result = this.add(rawA, rawB);
+        const result = this.addRaw(rawA, rawB);
         return this.createVectorInstance(result);
     }
     createVectorInstance(raw) {
@@ -53507,9 +53500,9 @@ class RealVectorSpace {
     equals(other) {
         return other instanceof RealVectorSpace && this.isSameSpace(other);
     }
-    add(a, b) {
+    addRaw(a, b) {
         try {
-            return this.strategy.add(a, b);
+            return this.strategy.addRaw(a, b);
         }
         catch (error) {
             if (!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
@@ -53520,9 +53513,9 @@ class RealVectorSpace {
             throw new RangeError(message2.generateMessageString());
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         try {
-            return this.strategy.subtract(a, b);
+            return this.strategy.subtractRaw(a, b);
         }
         catch (error) {
             if (!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
@@ -53533,48 +53526,48 @@ class RealVectorSpace {
             throw new RangeError(message2.generateMessageString());
         }
     }
-    scale(scalar, v) {
+    scaleRaw(scalar, v) {
         try {
-            return this.strategy.scale(scalar, v);
+            return this.strategy.scaleRaw(scalar, v);
         }
         catch (error) {
             const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', RealVectorSpace_1.EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
-    clone(v) {
+    cloneRaw(v) {
         try {
-            return this.strategy.clone(v);
+            return this.strategy.cloneRaw(v);
         }
         catch (error) {
             const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'clone', RealVectorSpace_1.EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
-    norm(v) {
+    normRaw(v) {
         try {
-            return this.strategy.norm(v);
+            return this.strategy.normRaw(v);
         }
         catch (error) {
             const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'norm', RealVectorSpace_1.EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
-    normalize(v) {
+    normalizeRaw(v) {
         try {
-            return this.strategy.normalize(v);
+            return this.strategy.normalizeRaw(v);
         }
         catch (error) {
             const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'normalize', RealVectorSpace_1.EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
-    crossProduct(a, b) {
-        return this.strategy.crossProduct(a, b);
+    crossProductRaw(a, b) {
+        return this.strategy.crossProductRaw(a, b);
     }
-    dot(a, b) {
+    dotRaw(a, b) {
         try {
-            return this.strategy.dot(a, b);
+            return this.strategy.dotRaw(a, b);
         }
         catch (error) {
             if (!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
@@ -53598,7 +53591,7 @@ class RealVectorSpace {
         }
         const rawA = a.raw;
         const rawB = b.raw;
-        const result = this.add(rawA, rawB);
+        const result = this.addRaw(rawA, rawB);
         return this.createVectorInstance(result);
     }
     createVectorInstance(raw) {
@@ -53660,7 +53653,7 @@ class RealVectorSpace1DStrategy {
     defaultVect() {
         return 0;
     }
-    add(a, b) {
+    addRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(a) && (0, VectorSpaceUtilities_1.isVector1D)(b)) {
             return a + b;
         }
@@ -53668,7 +53661,7 @@ class RealVectorSpace1DStrategy {
             throw new RangeError();
         }
     }
-    scale(scalar, v) {
+    scaleRaw(scalar, v) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(v)) {
             return scalar * v;
         }
@@ -53676,7 +53669,7 @@ class RealVectorSpace1DStrategy {
             throw new RangeError();
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(a) && (0, VectorSpaceUtilities_1.isVector1D)(b)) {
             return a - b;
         }
@@ -53684,7 +53677,7 @@ class RealVectorSpace1DStrategy {
             throw new RangeError();
         }
     }
-    clone(v) {
+    cloneRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(v)) {
             return v;
         }
@@ -53692,7 +53685,7 @@ class RealVectorSpace1DStrategy {
             throw new RangeError();
         }
     }
-    norm(v) {
+    normRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(v)) {
             return Math.abs(v);
         }
@@ -53700,19 +53693,19 @@ class RealVectorSpace1DStrategy {
             throw new RangeError();
         }
     }
-    normalize(v) {
+    normalizeRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(v)) {
-            return v / this.norm(v);
+            return v / this.normRaw(v);
         }
         else {
             throw new RangeError();
         }
     }
-    crossProduct(a, b) {
+    crossProductRaw(a, b) {
         const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'crossProduct', RealVectorSpace_1.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1);
         throw new RangeError(error.generateMessageString());
     }
-    dot(a, b) {
+    dotRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(a) && (0, VectorSpaceUtilities_1.isVector1D)(b)) {
             return a * b;
         }
@@ -53767,7 +53760,7 @@ class RealVectorSpace2DStrategy {
     defaultVect() {
         return { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [0, 0] };
     }
-    add(a, b) {
+    addRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(a) && (0, VectorSpaceUtilities_1.isVector2D)(b)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1]] };
         }
@@ -53775,7 +53768,7 @@ class RealVectorSpace2DStrategy {
             throw new RangeError();
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(a) && (0, VectorSpaceUtilities_1.isVector2D)(b)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1]] };
         }
@@ -53783,7 +53776,7 @@ class RealVectorSpace2DStrategy {
             throw new RangeError();
         }
     }
-    scale(scalar, v) {
+    scaleRaw(scalar, v) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(v)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1]] };
         }
@@ -53791,7 +53784,7 @@ class RealVectorSpace2DStrategy {
             throw new RangeError();
         }
     }
-    clone(v) {
+    cloneRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(v)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1]] };
         }
@@ -53799,7 +53792,7 @@ class RealVectorSpace2DStrategy {
             throw new RangeError();
         }
     }
-    norm(v) {
+    normRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(v)) {
             let result = 0;
             for (const component of v.coordinates) {
@@ -53812,16 +53805,16 @@ class RealVectorSpace2DStrategy {
             throw new RangeError();
         }
     }
-    normalize(v) {
+    normalizeRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(v)) {
-            const norm = this.norm(v);
+            const norm = this.normRaw(v);
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm] };
         }
         else {
             throw new RangeError();
         }
     }
-    crossProduct(a, b) {
+    crossProductRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(a) && (0, VectorSpaceUtilities_1.isVector2D)(b)) {
             return (a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]);
         }
@@ -53834,7 +53827,7 @@ class RealVectorSpace2DStrategy {
             throw new RangeError(error.generateMessageString());
         }
     }
-    dot(a, b) {
+    dotRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(a) && (0, VectorSpaceUtilities_1.isVector2D)(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1];
         }
@@ -53902,7 +53895,7 @@ class RealVectorSpace3DStrategy {
     defaultVect() {
         return { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [0, 0, 0] };
     }
-    add(a, b) {
+    addRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(a) && (0, VectorSpaceUtilities_1.isVector3D)(b)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2]] };
         }
@@ -53910,7 +53903,7 @@ class RealVectorSpace3DStrategy {
             throw new RangeError();
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(a) && (0, VectorSpaceUtilities_1.isVector3D)(b)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2]] };
         }
@@ -53918,7 +53911,7 @@ class RealVectorSpace3DStrategy {
             throw new RangeError();
         }
     }
-    scale(scalar, v) {
+    scaleRaw(scalar, v) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(v)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2]] };
         }
@@ -53926,7 +53919,7 @@ class RealVectorSpace3DStrategy {
             throw new RangeError();
         }
     }
-    clone(v) {
+    cloneRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(v)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2]] };
         }
@@ -53934,7 +53927,7 @@ class RealVectorSpace3DStrategy {
             throw new RangeError();
         }
     }
-    norm(v) {
+    normRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(v)) {
             let result = 0;
             for (const component of v.coordinates) {
@@ -53947,16 +53940,16 @@ class RealVectorSpace3DStrategy {
             throw new RangeError();
         }
     }
-    normalize(v) {
+    normalizeRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(v)) {
-            const norm = this.norm(v);
+            const norm = this.normRaw(v);
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm] };
         }
         else {
             throw new RangeError();
         }
     }
-    crossProduct(a, b) {
+    crossProductRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(a) && (0, VectorSpaceUtilities_1.isVector3D)(b)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [a.coordinates[1] * b.coordinates[2] - a.coordinates[2] * b.coordinates[1], a.coordinates[2] * b.coordinates[0] - a.coordinates[0] * b.coordinates[2], a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]] };
         }
@@ -53969,7 +53962,7 @@ class RealVectorSpace3DStrategy {
             throw new RangeError(error.generateMessageString());
         }
     }
-    dot(a, b) {
+    dotRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(a) && (0, VectorSpaceUtilities_1.isVector3D)(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1] + a.coordinates[2] * b.coordinates[2];
         }
@@ -54031,7 +54024,7 @@ class RealVectorSpace4DStrategy {
     defaultVect() {
         return { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [0, 0, 0, 0] };
     }
-    add(a, b) {
+    addRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector4D)(a) && (0, VectorSpaceUtilities_1.isVector4D)(b)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], a.coordinates[3] + b.coordinates[3]] };
         }
@@ -54039,7 +54032,7 @@ class RealVectorSpace4DStrategy {
             throw new RangeError();
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector4D)(a) && (0, VectorSpaceUtilities_1.isVector4D)(b)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2], a.coordinates[3] - b.coordinates[3]] };
         }
@@ -54047,7 +54040,7 @@ class RealVectorSpace4DStrategy {
             throw new RangeError();
         }
     }
-    scale(scalar, v) {
+    scaleRaw(scalar, v) {
         if ((0, VectorSpaceUtilities_1.isVector4D)(v)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2], scalar * v.coordinates[3]] };
         }
@@ -54055,7 +54048,7 @@ class RealVectorSpace4DStrategy {
             throw new RangeError();
         }
     }
-    clone(v) {
+    cloneRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector4D)(v)) {
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], v.coordinates[3]] };
         }
@@ -54063,7 +54056,7 @@ class RealVectorSpace4DStrategy {
             throw new RangeError();
         }
     }
-    norm(v) {
+    normRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector4D)(v)) {
             let result = 0;
             for (const component of v.coordinates) {
@@ -54076,20 +54069,20 @@ class RealVectorSpace4DStrategy {
             throw new RangeError();
         }
     }
-    normalize(v) {
+    normalizeRaw(v) {
         if ((0, VectorSpaceUtilities_1.isVector4D)(v)) {
-            const norm = this.norm(v);
+            const norm = this.normRaw(v);
             return { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm, v.coordinates[3] / norm] };
         }
         else {
             throw new RangeError();
         }
     }
-    crossProduct(a, b) {
+    crossProductRaw(a, b) {
         const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'crossProduct', RealVectorSpace_1.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4);
         throw new RangeError(error.generateMessageString());
     }
-    dot(a, b) {
+    dotRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector4D)(a) && (0, VectorSpaceUtilities_1.isVector4D)(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1] + a.coordinates[2] * b.coordinates[2] + a.coordinates[3] * b.coordinates[3];
         }
@@ -54371,19 +54364,29 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Vector2DTypeReal = void 0;
 const AbstractRealVector_1 = __webpack_require__(/*! ./AbstractRealVector */ "./src/mathVector/AbstractRealVector.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const RealVectorSpace_1 = __webpack_require__(/*! ./RealVectorSpace */ "./src/mathVector/RealVectorSpace.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const SPACE_DIMENSION = 2;
 class Vector2DTypeReal extends AbstractRealVector_1.AbstractRealVector {
-    constructor(x = 0, y = 0, vectorSpace) {
+    constructor(xOrVectorSpace, y, vectorSpace) {
         super();
-        this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [x, y] };
-        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+        if (xOrVectorSpace instanceof RealVectorSpace_1.RealVectorSpace) {
+            this._vectorSpace = xOrVectorSpace;
+            this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [0, 0] };
+        }
+        else {
+            const x = xOrVectorSpace !== null && xOrVectorSpace !== void 0 ? xOrVectorSpace : 0;
+            this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [x, y !== null && y !== void 0 ? y : 0] };
+            this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+        }
     }
-    get dimension() { return 2; }
-    get vectorType() { return 'Real2D'; }
+    get dimension() { return SPACE_DIMENSION; }
+    get vectorType() { return VectorSpaceConstructorInterface_1.REALVECTOR2D; }
     get coordinates() { return [...this.data.coordinates]; }
     get raw() { return Object.assign({}, this.data); }
+    get y() { return this.getCoordinate(SPACE_DIMENSION - 1); }
     getCoordinate(index) {
-        if (index < 0 || index >= 2)
+        if (index < 0 || index >= SPACE_DIMENSION)
             throw new RangeError('Coordinate index out of bounds');
         return this.data.coordinates[index];
     }
@@ -54539,16 +54542,21 @@ exports.Vector3DTypeReal = void 0;
 const AbstractRealVector_1 = __webpack_require__(/*! ./AbstractRealVector */ "./src/mathVector/AbstractRealVector.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const SPACE_DIMENSION = 3;
 class Vector3DTypeReal extends AbstractRealVector_1.AbstractRealVector {
     constructor(x = 0, y = 0, z = 0, vectorSpace) {
         super();
         this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [x, y, z] };
         this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
     }
-    get dimension() { return 3; }
+    get dimension() { return SPACE_DIMENSION; }
     get vectorType() { return 'Real3D'; }
+    get coordinates() { return [...this.data.coordinates]; }
+    get raw() { return Object.assign({}, this.data); }
+    get y() { return this.getCoordinate(1); }
+    get z() { return this.getCoordinate(SPACE_DIMENSION - 1); }
     getCoordinate(index) {
-        if (index < 0 || index >= 3)
+        if (index < 0 || index >= SPACE_DIMENSION)
             throw new RangeError('Coordinate index out of bounds');
         return this.data.coordinates[index];
     }
@@ -54557,10 +54565,8 @@ class Vector3DTypeReal extends AbstractRealVector_1.AbstractRealVector {
             throw new RangeError('Coordinate index out of bounds');
         this.data.coordinates[index] = value;
     }
-    get coordinates() { return [...this.data.coordinates]; }
-    get raw() { return Object.assign({}, this.data); }
     clone() {
-        return new Vector3DTypeReal(this.x, this.z);
+        return new Vector3DTypeReal(this.x, this.y, this.z, this.vectorSpace);
     }
     static fromRaw(raw) {
         return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2]);
@@ -54589,16 +54595,22 @@ exports.Vector4DTypeReal = void 0;
 const AbstractRealVector_1 = __webpack_require__(/*! ./AbstractRealVector */ "./src/mathVector/AbstractRealVector.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const SPACE_DIMENSION = 4;
 class Vector4DTypeReal extends AbstractRealVector_1.AbstractRealVector {
     constructor(x = 0, y = 0, z = 0, t = 0, vectorSpace) {
         super();
         this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [x, y, z, t] };
         this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
     }
-    get dimension() { return 4; }
+    get dimension() { return SPACE_DIMENSION; }
     get vectorType() { return 'Real4D'; }
+    get coordinates() { return [...this.data.coordinates]; }
+    get raw() { return Object.assign({}, this.data); }
+    get y() { return this.getCoordinate(1); }
+    get z() { return this.getCoordinate(2); }
+    get w() { return this.getCoordinate(SPACE_DIMENSION - 1); }
     getCoordinate(index) {
-        if (index < 0 || index >= 4)
+        if (index < 0 || index >= SPACE_DIMENSION)
             throw new RangeError('Coordinate index out of bounds');
         return this.data.coordinates[index];
     }
@@ -54607,10 +54619,8 @@ class Vector4DTypeReal extends AbstractRealVector_1.AbstractRealVector {
             throw new RangeError('Coordinate index out of bounds');
         this.data.coordinates[index] = value;
     }
-    get coordinates() { return [...this.data.coordinates]; }
-    get raw() { return Object.assign({}, this.data); }
     clone() {
-        return new Vector4DTypeReal(this.x, this.z);
+        return new Vector4DTypeReal(this.x, this.y, this.z, this.w);
     }
     static fromRaw(raw) {
         return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3]);
@@ -61647,7 +61657,7 @@ class ControlPolygonComplexProjectiveVectorStrategy {
         this.vectorSpace = new ProjectiveComplexVectorSpace_1.ProjectiveComplexVectorSpace(controlPolygon.spaceDimension);
     }
     moveControlPoint(index, displacement) {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.add(this.controlPolygon.vectorCollection[index], displacement);
+        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addRaw(this.controlPolygon.vectorCollection[index], displacement);
     }
 }
 exports.ControlPolygonComplexProjectiveVectorStrategy = ControlPolygonComplexProjectiveVectorStrategy;
@@ -61672,7 +61682,7 @@ class ControlPolygonComplexVectorStrategy {
         this.vectorSpace = new ComplexVectorSpace_1.ComplexVectorSpace(controlPolygon.spaceDimension);
     }
     moveControlPoint(index, displacement) {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.add(this.controlPolygon.vectorCollection[index], displacement);
+        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addRaw(this.controlPolygon.vectorCollection[index], displacement);
     }
 }
 exports.ControlPolygonComplexVectorStrategy = ControlPolygonComplexVectorStrategy;
@@ -61697,7 +61707,7 @@ class ControlPolygonRealProjectiveVectorStrategy {
         this.vectorSpace = new ProjectiveVectorSpace_1.ProjectiveVectorSpace(controlPolygon.spaceDimension);
     }
     moveControlPoint(index, displacement) {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.add(this.controlPolygon.vectorCollection[index], displacement);
+        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addRaw(this.controlPolygon.vectorCollection[index], displacement);
     }
 }
 exports.ControlPolygonRealProjectiveVectorStrategy = ControlPolygonRealProjectiveVectorStrategy;
@@ -61722,7 +61732,7 @@ class ControlPolygonRealVectorStrategy {
         this.vectorSpace = new RealVectorSpace_1.RealVectorSpace(controlPolygon.spaceDimension);
     }
     moveControlPoint(index, displacement) {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.add(this.controlPolygon.vectorCollection[index], displacement);
+        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addRaw(this.controlPolygon.vectorCollection[index], displacement);
     }
 }
 exports.ControlPolygonRealVectorStrategy = ControlPolygonRealVectorStrategy;
@@ -64061,7 +64071,7 @@ class OpenBSplineR1toRnComplexProjectiveVectorStrategy extends AbstractOPenBSpli
     euclideanDistances() {
         const distances = [];
         for (let i = 0; i < this.openBSplineR1toRn.controlPolygon.length - 1; i += 1) {
-            distances.push(this.vectorSpace.norm(this.vectorSpace.subtract(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
+            distances.push(this.vectorSpace.norm(this.vectorSpace.subtractRaw(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
         }
         return distances;
     }
@@ -64106,7 +64116,7 @@ class OpenBSplineR1toRnComplexVectorStrategy extends AbstractOPenBSplineR1toRnSt
     euclideanDistances() {
         const distances = [];
         for (let i = 0; i < this.openBSplineR1toRn.controlPolygon.length - 1; i += 1) {
-            distances.push(this.vectorSpace.norm(this.vectorSpace.subtract(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
+            distances.push(this.vectorSpace.norm(this.vectorSpace.subtractRaw(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
         }
         return distances;
     }
@@ -64155,7 +64165,7 @@ class OpenBSplineR1toRnRealProjectiveVectorStrategy extends AbstractOPenBSplineR
     euclideanDistances() {
         const distances = [];
         for (let i = 0; i < this.openBSplineR1toRn.controlPolygon.length - 1; i += 1) {
-            distances.push(this.vectorSpace.norm(this.vectorSpace.subtract(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
+            distances.push(this.vectorSpace.norm(this.vectorSpace.subtractRaw(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
         }
         return distances;
     }
@@ -64223,7 +64233,7 @@ class OpenBSplineR1toRnRealVectorStrategy extends AbstractOPenBSplineR1toRnStrat
     euclideanDistances() {
         const distances = [];
         for (let i = 0; i < this.openBSplineR1toRn.controlPolygon.length - 1; i += 1) {
-            distances.push(this.vectorSpace.norm(this.vectorSpace.subtract(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
+            distances.push(this.vectorSpace.normRaw(this.vectorSpace.subtractRaw(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
         }
         return distances;
     }

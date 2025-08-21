@@ -30,7 +30,7 @@ export function createCommonRealVectorSpaceTests(
             const vectorSpace = createRealVectorSpace();
             const vec1 = createTestRealVector(vectorType);
             const vec2 = createTestRealVector(vectorType);
-            const vec3 = vectorSpace.add(vec1, vec2);
+            const vec3 = vectorSpace.addRaw(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(vec3)).to.eql(true);
         });
 
@@ -38,7 +38,7 @@ export function createCommonRealVectorSpaceTests(
             const vectorSpace = createRealVectorSpace();
             const vec1 = createTestRealVector(vectorType);
             const scaleFactor = 2;
-            const vec2 = vectorSpace.scale(scaleFactor, vec1);
+            const vec2 = vectorSpace.scaleRaw(scaleFactor, vec1);
             expect(vectorSpace.isInVectorSpace(vec2)).to.eql(true);
         });
 
@@ -46,14 +46,14 @@ export function createCommonRealVectorSpaceTests(
             const vectorSpace = createRealVectorSpace();
             const vec1 = createTestRealVector(vectorType);
             const vec2 = createTestRealVector(vectorType);
-            const vec3 = vectorSpace.subtract(vec1, vec2);
+            const vec3 = vectorSpace.subtractRaw(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(vec3)).to.eql(true);
         });
 
         it(`can clone a RealVector of dimension ${dimension}`, () => {
             const vectorSpace = createRealVectorSpace();
             const vec1 = createTestRealVector(vectorType);
-            const vec2 = vectorSpace.clone(vec1);
+            const vec2 = vectorSpace.cloneRaw(vec1);
             expect(vectorSpace.isInVectorSpace(vec2)).to.eql(true);
             expect(vec2).to.eql(vec1);
         });
@@ -61,14 +61,14 @@ export function createCommonRealVectorSpaceTests(
         it(`can get the norm of a RealVector of dimension ${dimension}`, () => {
             const vectorSpace = createRealVectorSpace();
             const vec1 = createTestRealVector(vectorType);
-            const norm = vectorSpace.norm(vec1);
+            const norm = vectorSpace.normRaw(vec1);
             expect(typeof norm).to.eql("number");
         });
 
         it(`can get the normalized vector of a RealVector of dimension ${dimension}`, () => {
             const vectorSpace = createRealVectorSpace();
             const vec1 = createTestRealVector(vectorType);
-            const normalized = vectorSpace.normalize(vec1);
+            const normalized = vectorSpace.normalizeRaw(vec1);
             expect(vectorSpace.isInVectorSpace(normalized)).to.eql(true);
         });
 
@@ -76,7 +76,7 @@ export function createCommonRealVectorSpaceTests(
             const vectorSpace = createRealVectorSpace();
             const vec1 = createTestRealVector(vectorType);
             const vec2 = createTestRealVector(vectorType);
-            const scalarProduct = vectorSpace.dot(vec1, vec2);
+            const scalarProduct = vectorSpace.dotRaw(vec1, vec2);
             expect(typeof scalarProduct).to.eql("number");
         });
     });

@@ -26,7 +26,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         return {type: REALVECTOR4D, coordinates: [0, 0, 0, 0]};
     }
 
-    add(a: RealVector, b: RealVector): RealVector4D {
+    addRaw(a: RealVector, b: RealVector): RealVector4D {
         if(isVector4D(a) && isVector4D(b)) {
             return {type: REALVECTOR4D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], a.coordinates[3] + b.coordinates[3]]};
         } else {
@@ -34,7 +34,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         }
     }
 
-    subtract(a: RealVector, b: RealVector): RealVector4D {
+    subtractRaw(a: RealVector, b: RealVector): RealVector4D {
         if(isVector4D(a) && isVector4D(b)) {
             return {type: REALVECTOR4D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2], a.coordinates[3] - b.coordinates[3]]};
         } else {
@@ -42,7 +42,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         }
     }
 
-    scale(scalar: Real, v: RealVector): RealVector4D {
+    scaleRaw(scalar: Real, v: RealVector): RealVector4D {
         if(isVector4D(v)) {
             return {type: REALVECTOR4D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2], scalar * v.coordinates[3]]};
         } else {
@@ -50,7 +50,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         }
     }
 
-    clone(v: RealVector): RealVector4D {
+    cloneRaw(v: RealVector): RealVector4D {
         if(isVector4D(v)) {
             return {type: REALVECTOR4D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], v.coordinates[3]]};
         } else {
@@ -58,7 +58,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         }
     }
 
-    norm(v: RealVector): number {
+    normRaw(v: RealVector): number {
         if(isVector4D(v)) {
             let result = 0;
             for(const component of v.coordinates) {
@@ -71,21 +71,21 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         }
     }
 
-    normalize(v: RealVector): RealVector4D {
+    normalizeRaw(v: RealVector): RealVector4D {
         if(isVector4D(v)) {
-            const norm = this.norm(v);
+            const norm = this.normRaw(v);
             return {type: REALVECTOR4D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm, v.coordinates[3] / norm]};
         } else {
             throw new RangeError();
         }
     }
 
-    crossProduct(a: RealVector, b: RealVector): never {
+    crossProductRaw(a: RealVector, b: RealVector): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4);
         throw new RangeError(error.generateMessageString());
     }
 
-    dot(a: RealVector, b: RealVector): number {
+    dotRaw(a: RealVector, b: RealVector): number {
         if(isVector4D(a) && isVector4D(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1] + a.coordinates[2] * b.coordinates[2] + a.coordinates[3] * b.coordinates[3];
         } else {

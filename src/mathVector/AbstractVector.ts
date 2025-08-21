@@ -1,6 +1,5 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { IVector } from "./Vector";
-import { VectorInVectorSpace } from "./VectorInVectorSpace";
 import { Complex, IdentifiableVectorSpace, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
 
 /**
@@ -29,18 +28,18 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     // Vector operations using the vector space
     add(other: IVector): IVector {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.add(this.raw, other.raw as V);
+        const result = this._vectorSpace.addRaw(this.raw, other.raw as V);
         return this.createVectorFromRaw(result);
     }
 
     subtract(other: IVector): IVector {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.subtract(this.raw, other.raw as V);
+        const result = this._vectorSpace.subtractRaw(this.raw, other.raw as V);
         return this.createVectorFromRaw(result);
     }
 
     scale(scalar: S): IVector {
-        const result = this._vectorSpace.scale(scalar, this.raw);
+        const result = this._vectorSpace.scaleRaw(scalar, this.raw);
         return this.createVectorFromRaw(result);
     }
 
@@ -65,10 +64,6 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
             return (this._vectorSpace as any).dot(this.raw, other.raw);
         }
         throw new Error('Dot product not available for this vector space');
-    }
-
-    bindTo<K extends Scalar, V extends Vector, VS extends VectorSpace<K, V>>(space: VS): VectorInVectorSpace<K, V, VS> {
-        return new VectorInVectorSpace(this, space);
     }
 
     // Common implementations

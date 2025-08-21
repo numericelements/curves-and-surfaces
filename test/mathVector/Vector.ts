@@ -30,7 +30,7 @@ describe('Vector', () => {
         const realVec3 = realVectorSpace.createVector([1, 1])
         expect(realVec2.coordinates).to.eql(realVector2D2.coordinates);
         const realVec4 = realVectorSpace.createVector([1, 2])
-        const realVec5 = realVectorSpace.add(realVec3, realVec4)
+        const realVec5 = realVectorSpace.addRaw(realVec3, realVec4)
         expect(realVec5.coordinates).to.eql([2, 3]);
     });
 });

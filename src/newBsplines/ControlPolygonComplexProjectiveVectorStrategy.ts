@@ -15,6 +15,6 @@ export class ControlPolygonComplexProjectiveVectorStrategy implements ControlPol
 
 
     moveControlPoint(index: number, displacement: ProjectiveComplexVector): void {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.add(this.controlPolygon.vectorCollection[index] as ProjectiveComplexVector, displacement);
+        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addRaw(this.controlPolygon.vectorCollection[index] as ProjectiveComplexVector, displacement);
     }
 }

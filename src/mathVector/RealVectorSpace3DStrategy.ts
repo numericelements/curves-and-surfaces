@@ -27,7 +27,7 @@ export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3> {
         return {type: REALVECTOR3D, coordinates: [0, 0, 0]};
     }
 
-    add(a: RealVector, b: RealVector): RealVector3D {
+    addRaw(a: RealVector, b: RealVector): RealVector3D {
         if(isVector3D(a) && isVector3D(b)) {
             return {type: REALVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2]]};
         } else {
@@ -35,7 +35,7 @@ export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3> {
         }
     }
 
-    subtract(a: RealVector, b: RealVector): RealVector3D {
+    subtractRaw(a: RealVector, b: RealVector): RealVector3D {
         if(isVector3D(a) && isVector3D(b)) {
             return {type: REALVECTOR3D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2]]};
         } else {
@@ -43,7 +43,7 @@ export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3> {
         }
     }
 
-    scale(scalar: Real, v: RealVector): RealVector3D {
+    scaleRaw(scalar: Real, v: RealVector): RealVector3D {
         if(isVector3D(v)) {
             return {type: REALVECTOR3D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2]]};
         } else {
@@ -51,7 +51,7 @@ export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3> {
         }
     }
 
-    clone(v: RealVector): RealVector3D {
+    cloneRaw(v: RealVector): RealVector3D {
         if(isVector3D(v)) {
             return {type: REALVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2]]};
         } else {
@@ -59,7 +59,7 @@ export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3> {
         }
     }
 
-    norm(v: RealVector): number {
+    normRaw(v: RealVector): number {
         if(isVector3D(v)) {
             let result = 0;
             for(const component of v.coordinates) {
@@ -72,16 +72,16 @@ export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3> {
         }
     }
 
-    normalize(v: RealVector): RealVector3D {
+    normalizeRaw(v: RealVector): RealVector3D {
         if(isVector3D(v)) {
-            const norm = this.norm(v);
+            const norm = this.normRaw(v);
             return {type: REALVECTOR3D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm]};
         } else {
             throw new RangeError();
         }
     }
 
-    crossProduct(a: RealVector, b: RealVector): RealVector3D {
+    crossProductRaw(a: RealVector, b: RealVector): RealVector3D {
         if(isVector3D(a) && isVector3D(b)) {
             return {type: REALVECTOR3D, coordinates: [a.coordinates[1] * b.coordinates[2] - a.coordinates[2] * b.coordinates[1], a.coordinates[2] * b.coordinates[0] - a.coordinates[0] * b.coordinates[2], a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]]};
         } else {
@@ -94,7 +94,7 @@ export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3> {
         }
     }
 
-    dot(a: RealVector, b: RealVector): number {
+    dotRaw(a: RealVector, b: RealVector): number {
         if(isVector3D(a) && isVector3D(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1] + a.coordinates[2] * b.coordinates[2];
         } else {

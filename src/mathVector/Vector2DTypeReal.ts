@@ -3,24 +3,35 @@ import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { REALVECTOR2D, RealVector2D } from "./VectorSpaceConstructorInterface";
 
+const SPACE_DIMENSION = 2;
 
 export class Vector2DTypeReal extends AbstractRealVector {
     private data: RealVector2D;
     protected _vectorSpace: RealVectorSpace<2>;
     
-    constructor(x: number = 0, y: number = 0, vectorSpace?: RealVectorSpace<2>) {
+    constructor();
+    constructor(x: number, y: number, vectorSpace?: RealVectorSpace<2>);
+    constructor(vectorSpace: RealVectorSpace<2>);
+    constructor(xOrVectorSpace?: number | RealVectorSpace<2>, y?: number, vectorSpace?: RealVectorSpace<2>){
         super();
-        this.data = { type: REALVECTOR2D, coordinates: [x, y] };
-        this._vectorSpace = vectorSpace || resolveDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<2>;
+        if(xOrVectorSpace instanceof RealVectorSpace) {
+            this._vectorSpace = xOrVectorSpace;
+            this.data = { type: REALVECTOR2D, coordinates: [0, 0] };
+        } else {
+            const x = xOrVectorSpace ?? 0;
+            this.data = { type: REALVECTOR2D, coordinates: [x, y ?? 0] };
+            this._vectorSpace = vectorSpace || resolveDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<2>;
+        }
     }
     
-    get dimension(): number { return 2; }
-    get vectorType(): string { return 'Real2D'; }
+    get dimension(): number { return SPACE_DIMENSION; }
+    get vectorType(): string { return REALVECTOR2D; }
     get coordinates(): number[] { return [...this.data.coordinates]; }
     get raw(): RealVector2D { return { ...this.data }; }
-    
+    get y(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
+
     getCoordinate(index: number): number {
-        if (index < 0 || index >= 2) throw new RangeError('Coordinate index out of bounds');
+        if (index < 0 || index >= SPACE_DIMENSION) throw new RangeError('Coordinate index out of bounds');
         return this.data.coordinates[index];
     }
     

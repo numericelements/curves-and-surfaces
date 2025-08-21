@@ -22,9 +22,9 @@ import { Weight } from "./Weight";
  */
 export interface EnhancedVectorSpace<K extends Scalar, V extends Vector> extends VectorSpace<K, V> {
     // Original methods working with raw vectors
-    add(a: V, b: V): V;
-    subtract(a: V, b: V): V;
-    scale(scalar: K, v: V): V;
+    addRaw(a: V, b: V): V;
+    subtractRaw(a: V, b: V): V;
+    scaleRaw(scalar: K, v: V): V;
     
     // New methods working with IVector instances
     addVectors(a: IVector, b: IVector): IVector;
@@ -48,14 +48,14 @@ export interface RealVectorSpaceStrategy<D extends number>  {
     isInVectorSpace(v: RealVector): v is RealVector;
     createVector(coordinates: Real[]): RealVectorOfDimension<D>;
     defaultVect(): RealVectorOfDimension<D>;
-    add(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
-    scale(scalar: Real, v: RealVector): RealVectorOfDimension<D>;
-    subtract(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
-    clone(v: RealVector): RealVectorOfDimension<D>;
-    norm(v: RealVector): number;
-    normalize(v: RealVector): RealVector;
-    crossProduct(a: RealVector, b: RealVector): RealVector;
-    dot(a: RealVector, b: RealVector): number;
+    addRaw(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
+    scaleRaw(scalar: Real, v: RealVector): RealVectorOfDimension<D>;
+    subtractRaw(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
+    cloneRaw(v: RealVector): RealVectorOfDimension<D>;
+    normRaw(v: RealVector): number;
+    normalizeRaw(v: RealVector): RealVector;
+    crossProductRaw(a: RealVector, b: RealVector): RealVector;
+    dotRaw(a: RealVector, b: RealVector): number;
     fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight): ProjectiveVector;
     fromRealVectorSpaceToComplexVectorSpace(v: RealVector): ComplexVector
 }
@@ -205,9 +205,9 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         return other instanceof RealVectorSpace && this.isSameSpace(other);
     }
     
-    add(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
+    addRaw(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
         try { 
-            return this.strategy.add(a, b);
+            return this.strategy.addRaw(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_REALVECTORS_NOT_IN_VECTORSPACE);
@@ -218,9 +218,9 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         }
     }
 
-    subtract(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
+    subtractRaw(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
         try {
-            return this.strategy.subtract(a, b);
+            return this.strategy.subtractRaw(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_REALVECTORS_NOT_IN_VECTORSPACE);
@@ -231,49 +231,49 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         }
     }
 
-    scale(scalar: Real, v: RealVector): RealVectorOfDimension<D> {
+    scaleRaw(scalar: Real, v: RealVector): RealVectorOfDimension<D> {
         try {
-            return this.strategy.scale(scalar, v);
+            return this.strategy.scaleRaw(scalar, v);
         } catch(error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
 
-    clone(v: RealVector): RealVectorOfDimension<D> {
+    cloneRaw(v: RealVector): RealVectorOfDimension<D> {
         try{
-            return this.strategy.clone(v);
+            return this.strategy.cloneRaw(v);
         } catch (error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_REALVECTOR_NOT_IN_VECTORSPACE)
             throw new RangeError(message.generateMessageString());
         }
     }
 
-    norm(v: RealVector): number {
+    normRaw(v: RealVector): number {
         try {
-            return this.strategy.norm(v);
+            return this.strategy.normRaw(v);
         } catch (error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'norm', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
 
-    normalize(v: RealVector): RealVector {
+    normalizeRaw(v: RealVector): RealVector {
         try {
-            return this.strategy.normalize(v);
+            return this.strategy.normalizeRaw(v);
         } catch(error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'normalize', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
 
-    crossProduct(a: RealVector, b: RealVector): RealVector {
-            return this.strategy.crossProduct(a, b);
+    crossProductRaw(a: RealVector, b: RealVector): RealVector {
+            return this.strategy.crossProductRaw(a, b);
     }
 
-    dot(a: RealVector, b: RealVector): number {
+    dotRaw(a: RealVector, b: RealVector): number {
         try {
-            return this.strategy.dot(a, b);
+            return this.strategy.dotRaw(a, b);
         } catch(error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'dot', EM_REALVECTORS_NOT_IN_VECTORSPACE);
@@ -300,7 +300,7 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         }
         const rawA = a.raw as RealVectorOfDimension<D>;
         const rawB = b.raw as RealVectorOfDimension<D>;
-        const result = this.add(rawA, rawB);
+        const result = this.addRaw(rawA, rawB);
         
         return this.createVectorInstance(result);
     }

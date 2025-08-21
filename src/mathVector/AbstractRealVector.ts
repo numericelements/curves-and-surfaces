@@ -14,10 +14,11 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
     get spaceType(): VectorSpaceType { return VectorSpaceType.REAL; }
     get vectorSpace(): RealVectorSpace<any> { return this._vectorSpace as RealVectorSpace<any>; }
     // Default implementations for coordinate accessors
-    get x(): number | undefined { return this.dimension >= 1 ? this.getCoordinate(0) : undefined; }
-    get y(): number | undefined { return this.dimension >= 2 ? this.getCoordinate(1) : undefined; }
-    get z(): number | undefined { return this.dimension >= 3 ? this.getCoordinate(2) : undefined; }
-    get w(): number | undefined { return this.dimension >= 4 ? this.getCoordinate(3) : undefined; }
+    get x(): number { return this.getCoordinate(0) }
+    // get x(): number | undefined { return this.dimension >= 1 ? this.getCoordinate(0) : undefined; }
+    // get y(): number | undefined { return this.dimension >= 2 ? this.getCoordinate(1) : undefined; }
+    // get z(): number | undefined { return this.dimension >= 3 ? this.getCoordinate(2) : undefined; }
+    // get w(): number | undefined { return this.dimension >= 4 ? this.getCoordinate(3) : undefined; }
 
     abstract get raw(): RealVector;
     abstract get coordinates(): number[];

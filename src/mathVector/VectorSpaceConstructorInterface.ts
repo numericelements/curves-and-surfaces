@@ -228,30 +228,30 @@ export interface VectorSpace<K extends Scalar, V extends Vector> {
     defaultVect(): V;
     
     /** Vector addition (commutative group operation) */
-    add(a: V, b: V): V;
+    addRaw(a: V, b: V): V;
     
     /** Scalar multiplication */
-    scale(scalar: K, v: V): V;
+    scaleRaw(scalar: K, v: V): V;
     
     /** Vector subtraction (derived operation) */
-    subtract(a: V, b: V): V;
+    subtractRaw(a: V, b: V): V;
     
     /** Dimension of the vector space */
     dimension(): number;
 
     /** Duplicate vector */
-    clone(v: V): V;
+    cloneRaw(v: V): V;
 
     addVectors(v1: IVector, v2: IVector): IVector;
 }
 
 export interface RealVectorSpaceInterface extends VectorSpace<Real, RealVector> {
-    scale(scalar: Real, v: RealVector): RealVector;
+    scaleRaw(scalar: Real, v: RealVector): RealVector;
 }
 
 export interface ComplexVectorSpaceInterface extends VectorSpace<Complex | Real, ComplexVector> {
-    scale(scalar: Complex, vector: ComplexVector): ComplexVector;
-    scale(scalar: Real, vector: ComplexVector): ComplexVector;
+    scaleRaw(scalar: Complex, vector: ComplexVector): ComplexVector;
+    scaleRaw(scalar: Real, vector: ComplexVector): ComplexVector;
 }
 
 /**

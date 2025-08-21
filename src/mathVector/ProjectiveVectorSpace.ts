@@ -142,7 +142,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         return vect;
     }
     
-    add(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    addRaw(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try { 
             return this.strategy.add(a, b, this.weightManager);
         } catch (error) {
@@ -155,7 +155,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    subtract(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    subtractRaw(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.subtract(a, b, this.weightManager);
         } catch (error) {
@@ -184,7 +184,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    scale(scalar: Real, v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    scaleRaw(scalar: Real, v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.scale(scalar, v, this.weightManager);
         } catch(error) {
@@ -200,7 +200,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    clone(v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    cloneRaw(v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.clone(v, this.weightManager);
         } catch (error) {
@@ -229,7 +229,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
         const rawA = a.raw as ProjectiveVectorOfDimension<D>;
         const rawB = b.raw as ProjectiveVectorOfDimension<D>;
-        const result = this.add(rawA, rawB);
+        const result = this.addRaw(rawA, rawB);
         
         return this.createVectorInstance(result);
     }
