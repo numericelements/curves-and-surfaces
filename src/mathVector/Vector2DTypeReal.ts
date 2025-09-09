@@ -1,7 +1,9 @@
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { REALVECTOR2D, RealVector2D } from "./VectorSpaceConstructorInterface";
+import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 2;
 
@@ -31,12 +33,18 @@ export class Vector2DTypeReal extends AbstractRealVector {
     get y(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
 
     getCoordinate(index: number): number {
-        if (index < 0 || index >= SPACE_DIMENSION) throw new RangeError('Coordinate index out of bounds');
+        if (index < 0 || index >= SPACE_DIMENSION) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
         return this.data.coordinates[index];
     }
     
     setCoordinate(index: number, value: number): void {
-        if (index < 0 || index >= 2) throw new RangeError('Coordinate index out of bounds');
+        if (index < 0 || index >= SPACE_DIMENSION) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'setCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
         this.data.coordinates[index] = value;
     }
     

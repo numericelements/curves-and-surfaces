@@ -10,8 +10,9 @@ import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
 import { Vector1DTypeReal } from "./Vector1DTypeReal";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
+import { Vector4DTypeReal } from "./Vector4DTypeReal";
 import { VectorInVectorSpace } from "./VectorInVectorSpace";
-import { COMPLEX, Complex, ComplexVector, ComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, RealVector, REALVECTOR2D, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, Complex, ComplexVector, ComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
 
 /**
@@ -38,11 +39,14 @@ export interface IVector {
     add(other: IVector): IVector;
     subtract(other: IVector): IVector;
     scale(scalar: number | Complex): IVector;
+    reverse(): IVector;
     
     // Vector space operations
     norm(): number;
-    normalize(): IVector;
+    normalize(tolerance?: number): IVector;
     dot(other: IVector): number | Complex;
+    isParallel(other: IVector, tolerance?: number): boolean;
+    isOrthogonal(other: IVector, tolerance?: number): boolean;
     
     // Conversion utilities
     toArray(): number[];
@@ -103,6 +107,8 @@ export interface IProjectiveVector extends IVector {
     readonly vectorSpace: ProjectiveVectorSpace<any>;
     readonly weight: Weight | ComplexWeight;
     readonly homogeneousCoordinates: (number | Complex)[];
+    getCoordinate(index: number): number;
+    setCoordinate(index: number, value: number): void;
     
     add(other: IProjectiveVector): IProjectiveVector;
     subtract(other: IProjectiveVector): IProjectiveVector;
@@ -117,6 +123,8 @@ export interface IProjectiveComplexVector extends IVector {
     readonly vectorSpace: ProjectiveComplexVectorSpace<any>;
     readonly weight: Weight | ComplexWeight;
     readonly homogeneousCoordinates: (number | Complex)[];
+    getCoordinate(index: number): Complex;
+    setCoordinate(index: number, value: Complex): void;
     
     add(other: IProjectiveComplexVector): IProjectiveComplexVector;
     subtract(other: IProjectiveComplexVector): IProjectiveComplexVector;
@@ -146,21 +154,21 @@ export class VectorFactory {
                         raw.coordinates[1], 
                         vectorSpace as RealVectorSpace<2>
                     );
-                // case REALVECTOR3D:
-                //     return new RealVector3D(
-                //         raw.coordinates[0], 
-                //         raw.coordinates[1], 
-                //         raw.coordinates[2], 
-                //         vectorSpace as RealVectorSpace<3>
-                //     );
-                // case REALVECTOR4D:
-                //     return new RealVector4D(
-                //         raw.coordinates[0], 
-                //         raw.coordinates[1], 
-                //         raw.coordinates[2], 
-                //         raw.coordinates[3], 
-                //         vectorSpace as RealVectorSpace<4>
-                //     );
+                case REALVECTOR3D:
+                    return new Vector3DTypeReal(
+                        raw.coordinates[0], 
+                        raw.coordinates[1], 
+                        raw.coordinates[2], 
+                        vectorSpace as RealVectorSpace<3>
+                    );
+                case REALVECTOR4D:
+                    return new Vector4DTypeReal(
+                        raw.coordinates[0], 
+                        raw.coordinates[1], 
+                        raw.coordinates[2], 
+                        raw.coordinates[3], 
+                        vectorSpace as RealVectorSpace<4>
+                    );
                 default:
                     throw new Error(`Unsupported real vector type: ${string}`);
             }

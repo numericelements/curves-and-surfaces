@@ -3,7 +3,7 @@ import { AbstractProjectiveComplexVector } from "./AbstractProjectiveComplexVect
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
-import { COMPLEX, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D } from "./VectorSpaceConstructorInterface";
+import { Complex, COMPLEX, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
 
 export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVector {
@@ -26,31 +26,37 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
     get coordinates(): number[] { return this.homogeneousCoordinates; }
     get raw(): ProjectiveComplexVector { return { ...this.data }; }
     
-    get weight(): Weight {
-        return this.data.coordinates[1].real;
+    get weight(): ComplexWeight {
+        return this.data.coordinates[1];
     }
     
     get homogeneousCoordinates(): number[] {
-        return [this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.weight.weight];
+        return [this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.weight.real.weight];
     }
     
-    getCoordinate(index: number): number {
-        if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
-        if (index === 1) return this.weight.weight;
-        return this.data.coordinates[index].real as number;
-    }
-    
-    setCoordinate(index: number, value: number): void {
+    getCoordinate(index: number): Complex {
         if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
         if (index === 1) {
-            this.data.coordinates[1].real = new Weight(value);
+            const real = this.weight.real.weight;
+            const imaginary = this.weight.imaginary.weight;
+            return {type: COMPLEX, real: real, imaginary: imaginary};
+        }
+        return this.data.coordinates[index] as Complex;
+    }
+    
+    setCoordinate(index: number, value: Complex): void {
+        if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
+        if (index === 1) {
+            this.data.coordinates[1].real = new Weight(value.real);
+            this.data.coordinates[1].imaginary = new Weight(value.imaginary);
         } else {
-            this.data.coordinates[index].real = value;
+            this.data.coordinates[index].real = value.real;
+            this.data.coordinates[index].imaginary = value.imaginary;
         }
     }
     
     normalize(): ProjectiveVector1DTypeComplex {
-        const w = this.weight.weight;
+        const w = this.weight.real.weight;
         if (w === 0) return this.clone() as ProjectiveVector1DTypeComplex;
         
         return new ProjectiveVector1DTypeComplex(
@@ -78,8 +84,8 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
         return new ProjectiveVector1DTypeComplex(
             this.data.coordinates[0].real,
             this.data.coordinates[0].imaginary,
-            new Weight(this.weight.weight),
-            new Weight(this.weight.weight)
+            new Weight(this.weight.real.weight),
+            new Weight(this.weight.imaginary.weight),
         );
     }
 
