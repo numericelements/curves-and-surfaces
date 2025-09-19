@@ -1,6 +1,6 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
-import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { getDefaultVectorSpace, resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import { PROJECTIVEVECTOR3D, ProjectiveVector3D, WEIGHT } from "./VectorSpaceConstructorInterface";
@@ -17,7 +17,12 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
             type: PROJECTIVEVECTOR3D, 
             coordinates: [x, y, z, { type: WEIGHT, value: weight }] 
         };
-        this._vectorSpace = vectorSpace || resolveDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveVectorSpace<4>;
+        if(vectorSpace !== undefined) {
+            this._vectorSpace = vectorSpace;
+        } else {
+            this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveVectorSpace<4>;
+        }
+
     }
     
     get dimension(): number { return 4; } // Homogeneous coordinates

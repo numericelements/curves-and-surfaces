@@ -6,10 +6,19 @@ import { COMPLEX, ComplexVector, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIV
 import { isVector1D, isVector2D, isVector3D, isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
 import { Weight } from "../../src/mathVector/Weight";
 import { createCommonRealVectorSpaceTests } from "./RealVectorSpaceTestFactory";
+import { REAL_VECTOR_SPACE_NAME } from "../../src/namedConstants/VectorSpaceResolvers";
+import { DEFAULT_REAL_VECTOR_SPACE_NAME } from "../../src/namedConstants/DefaultVectorSpaces";
+import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 
 describe('RealVectorSpace', () => {
 
     describe('Constructor', () => {
+
+        beforeEach(() => {
+            // Reset the default projective space manager singleton before each test
+            DefaultVectorSpaces.reset();
+        });
+
         it('can generate a valid RealVectorSpace dimension between ' + MIN_DIMENSION_REALVECTORSPACE + ' and ' + MAX_DIMENSION_REALVECTORSPACE, () => {
             expect(() => new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE)).to.not.throw()
             expect(() => new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE)).to.not.throw()
@@ -23,6 +32,18 @@ describe('RealVectorSpace', () => {
         it('can generate a valid RealVectorSpace and get its dimension', () => {
             const realVectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE + 1);
             expect(realVectorSpace.dimension()).to.eql(MIN_DIMENSION_REALVECTORSPACE + 1)
+        });
+
+        it(`can check that a user specific Real vector space has a default name containing ${REAL_VECTOR_SPACE_NAME}`, () => {
+            const vectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE);
+            expect(vectorSpace.isDefault).to.eql(false);
+            expect(vectorSpace.name.includes("Default ")).to.eql(false);
+        });
+
+        it(`can check that a default Real vector space has a default name containing ${DEFAULT_REAL_VECTOR_SPACE_NAME}`, () => {
+            const vectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE, undefined, true);
+            expect(vectorSpace.isDefault).to.eql(true);
+            expect(vectorSpace.name.includes(DEFAULT_REAL_VECTOR_SPACE_NAME)).to.eql(true);
         });
     });
 

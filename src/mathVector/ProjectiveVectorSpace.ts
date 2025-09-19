@@ -4,7 +4,6 @@ import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NEGA
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
 import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
@@ -14,6 +13,9 @@ import { VectorSpaceIdentifierManager } from "./internal/VectorSpaceIdentifierMa
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
+import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
+import { PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
+import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 
 /**
  * Implementation of a projective vector space
@@ -50,18 +52,35 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
     protected _weightManagement: WeightManagement;
     private weightManager: WeightManager;
     
-    // constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
-    constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights,
-        name?: string, isDefault: boolean = false, id?: string) {
+    constructor(dimension: D);
+    constructor(dimension: D, isDefault: boolean);
+    constructor(dimension: D, weightManagement: WeightManagement);
+    constructor(dimension: D, weightManagement?: WeightManagement, isDefault?: boolean);
+    constructor(dimension: D, weightManagement?: WeightManagement, isDefault?: boolean, name?: string);
+    constructor(dimension: D, weightManagement?: WeightManagement, isDefault?: boolean, name?: string, id?: string);
+    constructor(dimension: D, isDefltOrWeightMgmt?: boolean | WeightManagement, isDefault?: boolean, name?: string, id?: string) {
         this.dim = dimension;
-        this._weightManagement = weightManagement;
-        // Create weight manager
-        this.weightManager = new WeightManager(weightManagement);
+        if(typeof isDefltOrWeightMgmt === 'string') {
+            this._weightManagement = isDefltOrWeightMgmt;
+        } else if(typeof isDefltOrWeightMgmt === 'boolean') {
+            isDefault = isDefltOrWeightMgmt;
+            this._weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+        } else {
+            this._weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+        }
+        if(isDefault === undefined) isDefault = false;
+        this.weightManager = new WeightManager(this._weightManagement);
         this._isDefault = isDefault;
-        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
-        this._id = resolveVectorSpace(this, isDefault, id);
-        // this._name = vSpaceFeatures.name;
-        this._name = name || DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
+        if(this._isDefault) {  
+            this._id = resolveDefaultVectorSpace(this);
+        } else {
+            this._id = resolveVectorSpace(this, id);
+        }
+        if(this._isDefault) {
+            this._name = DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
+        } else {
+            this._name = name || PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
+        }
         switch(this.dim) {
             case MIN_DIMENSION_PROJECTIVEVECTORSPACE:
                 this.strategy = new ProjectiveVectorSpace3DStrategy() as ProjectiveVectorSpaceStrategy<D>;

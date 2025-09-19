@@ -15,7 +15,7 @@ import { Vector2DTypeComplex } from './Vector2DTypeComplex';
 
 // Real vectors
 export function realVector1D(x: number = 0, vectorSpace?: RealVectorSpace<1>) {
-    return new Vector1DTypeReal( 1, vectorSpace);
+    return new Vector1DTypeReal( x, vectorSpace);
 }
 
 export function realVector2D(x: number = 0, y: number = 0, vectorSpace?: RealVectorSpace<2>) {

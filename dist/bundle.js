@@ -51837,9 +51837,11 @@ const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn 
 const ComplexVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ComplexVectorSpace */ "./src/namedConstants/ComplexVectorSpace.ts");
 const DefaultVectorSpaces_1 = __webpack_require__(/*! ../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const VectorSpaceResolvers_1 = __webpack_require__(/*! ../namedConstants/VectorSpaceResolvers */ "./src/namedConstants/VectorSpaceResolvers.ts");
 const ComplexVectorSpace1DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace1DStrategy */ "./src/mathVector/ComplexVectorSpace1DStrategy.ts");
 const ComplexVectorSpace2DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace2DStrategy */ "./src/mathVector/ComplexVectorSpace2DStrategy.ts");
-const VectorSpaceResolvers_1 = __webpack_require__(/*! ./internal/VectorSpaceResolvers */ "./src/mathVector/internal/VectorSpaceResolvers.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const VectorSpaceResolvers_2 = __webpack_require__(/*! ./internal/VectorSpaceResolvers */ "./src/mathVector/internal/VectorSpaceResolvers.ts");
 const Vector1DTypeComplex_1 = __webpack_require__(/*! ./Vector1DTypeComplex */ "./src/mathVector/Vector1DTypeComplex.ts");
 const Vector2DTypeComplex_1 = __webpack_require__(/*! ./Vector2DTypeComplex */ "./src/mathVector/Vector2DTypeComplex.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
@@ -51851,8 +51853,18 @@ class ComplexVectorSpace {
     constructor(dimension, name, isDefault = false, id) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, isDefault, id);
-        this._name = name || DefaultVectorSpaces_1.DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
+        if (this._isDefault) {
+            this._id = (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this);
+        }
+        else {
+            this._id = (0, VectorSpaceResolvers_2.resolveVectorSpace)(this, id);
+        }
+        if (this._isDefault) {
+            this._name = DefaultVectorSpaces_1.DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
+        }
+        else {
+            this._name = name || VectorSpaceResolvers_1.COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
+        }
         switch (this.dim) {
             case ComplexVectorSpace_2.MIN_DIMENSION_COMPLEXVECTORSPACE:
                 this.strategy = new ComplexVectorSpace1DStrategy_1.ComplexVectorSpace1DStrategy();
@@ -52273,6 +52285,8 @@ const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */
 const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 const WeightManager_2 = __webpack_require__(/*! ./WeightManager */ "./src/mathVector/WeightManager.ts");
 const DefaultVectorSpaces_1 = __webpack_require__(/*! ../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
+const VectorSpaceResolvers_2 = __webpack_require__(/*! ../namedConstants/VectorSpaceResolvers */ "./src/namedConstants/VectorSpaceResolvers.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
 // export class ProjectiveComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ProjectiveComplexVectorOfDimension<D>> {
 class ProjectiveComplexVectorSpace {
     // constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
@@ -52281,10 +52295,18 @@ class ProjectiveComplexVectorSpace {
         this._weightManagement = weightManagement;
         this.weightManager = new WeightManager_2.WeightManager(weightManagement);
         this._isDefault = isDefault;
-        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
-        this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, isDefault, id);
-        // this._name = vSpaceFeatures.name;
-        this._name = name || DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
+        if (this._isDefault) {
+            this._id = (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this);
+        }
+        else {
+            this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, id);
+        }
+        if (this._isDefault) {
+            this._name = DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
+        }
+        else {
+            this._name = name || VectorSpaceResolvers_2.PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
+        }
         switch (this.dim) {
             case ProjectiveComplexVectorSpace_2.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE:
                 this.strategy = new ProjectiveComplexVectorSpace2DStrategy_1.ProjectiveComplexVectorSpace2DStrategy();
@@ -52791,7 +52813,12 @@ class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVector_1.Ab
             coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary },
                 { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT, real: realWeight, imaginary: imaginaryWeight }]
         };
-        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+        if (vectorSpace !== undefined) {
+            this._vectorSpace = vectorSpace;
+        }
+        else {
+            this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+        }
     }
     get dimension() { return 2; } // Homogeneous coordinates
     get vectorType() { return 'ProjectiveComplexVector'; }
@@ -52864,22 +52891,55 @@ exports.ProjectiveVector1DTypeComplex = ProjectiveVector1DTypeComplex;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProjectiveVector2DTypeReal = void 0;
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const Weight_1 = __webpack_require__(/*! ../namedConstants/Weight */ "./src/namedConstants/Weight.ts");
 const AbstractProjectiveVector_1 = __webpack_require__(/*! ./AbstractProjectiveVector */ "./src/mathVector/AbstractProjectiveVector.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const ProjectiveVectorSpace_2 = __webpack_require__(/*! ./ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
 const Vector2DTypeReal_1 = __webpack_require__(/*! ./Vector2DTypeReal */ "./src/mathVector/Vector2DTypeReal.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
-const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+const Weight_2 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+const SPACE_DIMENSION = 3;
 class ProjectiveVector2DTypeReal extends AbstractProjectiveVector_1.AbstractProjectiveVector {
-    constructor(x = 0, y = 0, weight = new Weight_1.Weight(), vectorSpace) {
+    constructor(xOrVectorSpace, y, weightOrVSpace, vectorSpace) {
         super();
-        this.data = {
-            type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D,
-            coordinates: [x, y, { type: VectorSpaceConstructorInterface_1.WEIGHT, value: weight }]
-        };
-        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+        let strictlyPosWeight = true;
+        if (xOrVectorSpace instanceof ProjectiveVectorSpace_2.ProjectiveVectorSpace) {
+            this._vectorSpace = xOrVectorSpace;
+            if (this._vectorSpace.weightManagement !== ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights)
+                strictlyPosWeight = false;
+            this.data = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D, coordinates: [0, 0, { type: VectorSpaceConstructorInterface_1.WEIGHT, value: new Weight_2.Weight(Weight_1.DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
+            return;
+        }
+        else if (weightOrVSpace instanceof ProjectiveVectorSpace_2.ProjectiveVectorSpace) {
+            this._vectorSpace = weightOrVSpace;
+            if (this._vectorSpace.weightManagement !== ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights)
+                strictlyPosWeight = false;
+            const x = xOrVectorSpace !== null && xOrVectorSpace !== void 0 ? xOrVectorSpace : 0;
+            this.data = {
+                type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D,
+                coordinates: [x, y !== null && y !== void 0 ? y : 0, { type: VectorSpaceConstructorInterface_1.WEIGHT, value: new Weight_2.Weight(Weight_1.DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }]
+            };
+            return;
+        }
+        else {
+            if (vectorSpace !== undefined && vectorSpace.weightManagement !== ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights)
+                strictlyPosWeight = false;
+            const x = xOrVectorSpace !== null && xOrVectorSpace !== void 0 ? xOrVectorSpace : 0;
+            this.data = {
+                type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D,
+                coordinates: [x, y !== null && y !== void 0 ? y : 0, { type: VectorSpaceConstructorInterface_1.WEIGHT, value: weightOrVSpace !== null && weightOrVSpace !== void 0 ? weightOrVSpace : new Weight_2.Weight(Weight_1.DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }]
+            };
+            if (vectorSpace !== undefined) {
+                this._vectorSpace = vectorSpace;
+            }
+            else {
+                this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+            }
+        }
     }
-    get dimension() { return 3; } // Homogeneous coordinates
-    get vectorType() { return 'ProjectiveReal2D'; }
+    get dimension() { return SPACE_DIMENSION; } // Homogeneous coordinates
+    get vectorType() { return VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D; }
     get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVE; }
     get coordinates() { return this.homogeneousCoordinates; }
     get raw() { return Object.assign({}, this.data); }
@@ -52900,7 +52960,7 @@ class ProjectiveVector2DTypeReal extends AbstractProjectiveVector_1.AbstractProj
         if (index < 0 || index >= 3)
             throw new RangeError('Coordinate index out of bounds');
         if (index === 2) {
-            this.data.coordinates[2].value = new Weight_1.Weight(value);
+            this.data.coordinates[2].value = new Weight_2.Weight(value);
         }
         else {
             this.data.coordinates[index] = value;
@@ -52910,14 +52970,14 @@ class ProjectiveVector2DTypeReal extends AbstractProjectiveVector_1.AbstractProj
         const w = this.weight.weight;
         if (w === 0)
             return this.clone();
-        return new ProjectiveVector2DTypeReal(this.data.coordinates[0] / w, this.data.coordinates[1] / w, new Weight_1.Weight(1));
+        return new ProjectiveVector2DTypeReal(this.data.coordinates[0] / w, this.data.coordinates[1] / w, new Weight_2.Weight(1));
     }
     toCartesian() {
         const normalized = this.normalize();
         return new Vector2DTypeReal_1.Vector2DTypeReal(normalized.data.coordinates[0], normalized.data.coordinates[1]);
     }
     clone() {
-        return new ProjectiveVector2DTypeReal(this.data.coordinates[0], this.data.coordinates[1], new Weight_1.Weight(this.weight.weight));
+        return new ProjectiveVector2DTypeReal(this.data.coordinates[0], this.data.coordinates[1], new Weight_2.Weight(this.weight.weight));
     }
     static fromRaw(raw) {
         return new ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].value);
@@ -52951,7 +53011,12 @@ class ProjectiveVector3DTypeReal extends AbstractProjectiveVector_1.AbstractProj
             type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D,
             coordinates: [x, y, z, { type: VectorSpaceConstructorInterface_1.WEIGHT, value: weight }]
         };
-        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+        if (vectorSpace !== undefined) {
+            this._vectorSpace = vectorSpace;
+        }
+        else {
+            this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+        }
     }
     get dimension() { return 4; } // Homogeneous coordinates
     get vectorType() { return 'ProjectiveReal3D'; }
@@ -53019,27 +53084,46 @@ const WeightManager_1 = __webpack_require__(/*! ../ErrorMessages/WeightManager *
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ProjectiveVectorSpace_2 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 const VectorSpaceResolvers_1 = __webpack_require__(/*! ./internal/VectorSpaceResolvers */ "./src/mathVector/internal/VectorSpaceResolvers.ts");
-const ProjectiveVector2DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector2DTypeReal */ "./src/mathVector/ProjectiveVector2DTypeReal.ts");
 const ProjectiveVector3DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector3DTypeReal */ "./src/mathVector/ProjectiveVector3DTypeReal.ts");
 const ProjectiveVectorSpace3DStrategy_1 = __webpack_require__(/*! ./ProjectiveVectorSpace3DStrategy */ "./src/mathVector/ProjectiveVectorSpace3DStrategy.ts");
 const ProjectiveVectorSpace4DStrategy_1 = __webpack_require__(/*! ./ProjectiveVectorSpace4DStrategy */ "./src/mathVector/ProjectiveVectorSpace4DStrategy.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const WeightManager_2 = __webpack_require__(/*! ./WeightManager */ "./src/mathVector/WeightManager.ts");
 const DefaultVectorSpaces_1 = __webpack_require__(/*! ../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
+const ProjectiveVector2DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector2DTypeReal */ "./src/mathVector/ProjectiveVector2DTypeReal.ts");
+const VectorSpaceResolvers_2 = __webpack_require__(/*! ../namedConstants/VectorSpaceResolvers */ "./src/namedConstants/VectorSpaceResolvers.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
 // Main class using strategy
 // export class ProjectiveVectorSpace<D extends number = number> implements VectorSpace<Real, ProjectiveVectorOfDimension<D>> {
 class ProjectiveVectorSpace {
-    // constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
-    constructor(dimension, weightManagement = ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights, name, isDefault = false, id) {
+    constructor(dimension, isDefltOrWeightMgmt, isDefault, name, id) {
         this.dim = dimension;
-        this._weightManagement = weightManagement;
-        // Create weight manager
-        this.weightManager = new WeightManager_2.WeightManager(weightManagement);
+        if (typeof isDefltOrWeightMgmt === 'string') {
+            this._weightManagement = isDefltOrWeightMgmt;
+        }
+        else if (typeof isDefltOrWeightMgmt === 'boolean') {
+            isDefault = isDefltOrWeightMgmt;
+            this._weightManagement = ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights;
+        }
+        else {
+            this._weightManagement = ProjectiveVectorSpace_2.WeightManagement.AllStrictlyPositiveWeights;
+        }
+        if (isDefault === undefined)
+            isDefault = false;
+        this.weightManager = new WeightManager_2.WeightManager(this._weightManagement);
         this._isDefault = isDefault;
-        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
-        this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, isDefault, id);
-        // this._name = vSpaceFeatures.name;
-        this._name = name || DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
+        if (this._isDefault) {
+            this._id = (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this);
+        }
+        else {
+            this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, id);
+        }
+        if (this._isDefault) {
+            this._name = DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
+        }
+        else {
+            this._name = name || VectorSpaceResolvers_2.PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
+        }
         switch (this.dim) {
             case ProjectiveVectorSpace_2.MIN_DIMENSION_PROJECTIVEVECTORSPACE:
                 this.strategy = new ProjectiveVectorSpace3DStrategy_1.ProjectiveVectorSpace3DStrategy();
@@ -53567,7 +53651,9 @@ const RealVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/RealVectorSpa
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const DefaultVectorSpaces_1 = __webpack_require__(/*! ../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
 const RealVectorSpace_2 = __webpack_require__(/*! ../namedConstants/RealVectorSpace */ "./src/namedConstants/RealVectorSpace.ts");
-const VectorSpaceResolvers_1 = __webpack_require__(/*! ./internal/VectorSpaceResolvers */ "./src/mathVector/internal/VectorSpaceResolvers.ts");
+const VectorSpaceResolvers_1 = __webpack_require__(/*! ../namedConstants/VectorSpaceResolvers */ "./src/namedConstants/VectorSpaceResolvers.ts");
+const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+const VectorSpaceResolvers_2 = __webpack_require__(/*! ./internal/VectorSpaceResolvers */ "./src/mathVector/internal/VectorSpaceResolvers.ts");
 const RealVectorSpace1DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace1DStrategy */ "./src/mathVector/RealVectorSpace1DStrategy.ts");
 const RealVectorSpace2DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace2DStrategy */ "./src/mathVector/RealVectorSpace2DStrategy.ts");
 const RealVectorSpace3DStrategy_1 = __webpack_require__(/*! ./RealVectorSpace3DStrategy */ "./src/mathVector/RealVectorSpace3DStrategy.ts");
@@ -53585,10 +53671,18 @@ class RealVectorSpace {
     constructor(dimension, name, isDefault = false, id) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        // const vSpaceFeatures = resolveVectorSpace(dimension, this, isDefault, id, name);
-        this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this, isDefault, id);
-        // this._name = vSpaceFeatures.name;
-        this._name = name || DefaultVectorSpaces_1.DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString();
+        if (this._isDefault) {
+            this._id = (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this);
+        }
+        else {
+            this._id = (0, VectorSpaceResolvers_2.resolveVectorSpace)(this, id);
+        }
+        if (this._isDefault) {
+            this._name = DefaultVectorSpaces_1.DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString();
+        }
+        else {
+            this._name = name || VectorSpaceResolvers_1.REAL_VECTOR_SPACE_NAME + dimension.toString();
+        }
         switch (this.dim) {
             case RealVectorSpace_2.MIN_DIMENSION_REALVECTORSPACE:
                 this.strategy = new RealVectorSpace1DStrategy_1.RealVectorSpace1DStrategy();
@@ -54415,7 +54509,12 @@ class Vector1DTypeComplex extends AbstractComplexVector_1.AbstractComplexVector 
     constructor(real = 0, imaginary = 0, vectorSpace) {
         super();
         this.data = { type: VectorSpaceConstructorInterface_1.COMPLEX, real, imaginary };
-        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+        if (vectorSpace !== undefined) {
+            this._vectorSpace = vectorSpace;
+        }
+        else {
+            this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+        }
     }
     get dimension() { return 1; }
     get vectorType() { return 'Complex1D'; }
@@ -54469,7 +54568,12 @@ class Vector1DTypeReal extends AbstractRealVector_1.AbstractRealVector {
         }
         else {
             this.value = xOrVectorSpace !== null && xOrVectorSpace !== void 0 ? xOrVectorSpace : 0;
-            this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+            if (vectorSpace !== undefined) {
+                this._vectorSpace = vectorSpace;
+            }
+            else {
+                this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+            }
         }
     }
     get dimension() { return SPACE_DIMENSION; }
@@ -54529,7 +54633,12 @@ class Vector2DTypeComplex extends AbstractComplexVector_1.AbstractComplexVector 
     constructor(real = 0, imaginary = 0, real2 = 0, imaginary2 = 0, vectorSpace) {
         super();
         this.data = { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary }, { type: VectorSpaceConstructorInterface_1.COMPLEX, real: real2, imaginary: imaginary2 }] };
-        this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+        if (vectorSpace !== undefined) {
+            this._vectorSpace = vectorSpace;
+        }
+        else {
+            this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+        }
     }
     get dimension() { return 2; }
     get vectorType() { return 'Complex2D'; }
@@ -54584,7 +54693,12 @@ class Vector2DTypeReal extends AbstractRealVector_1.AbstractRealVector {
         else {
             const x = xOrVectorSpace !== null && xOrVectorSpace !== void 0 ? xOrVectorSpace : 0;
             this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR2D, coordinates: [x, y !== null && y !== void 0 ? y : 0] };
-            this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+            if (vectorSpace !== undefined) {
+                this._vectorSpace = vectorSpace;
+            }
+            else {
+                this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+            }
         }
     }
     get dimension() { return SPACE_DIMENSION; }
@@ -54767,7 +54881,12 @@ class Vector3DTypeReal extends AbstractRealVector_1.AbstractRealVector {
         else {
             const x = xOrVectorSpace !== null && xOrVectorSpace !== void 0 ? xOrVectorSpace : 0;
             this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR3D, coordinates: [x, y !== null && y !== void 0 ? y : 0, z !== null && z !== void 0 ? z : 0] };
-            this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+            if (vectorSpace !== undefined) {
+                this._vectorSpace = vectorSpace;
+            }
+            else {
+                this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+            }
         }
     }
     get dimension() { return SPACE_DIMENSION; }
@@ -54834,7 +54953,12 @@ class Vector4DTypeReal extends AbstractRealVector_1.AbstractRealVector {
         else {
             const x = xOrVectorSpace !== null && xOrVectorSpace !== void 0 ? xOrVectorSpace : 0;
             this.data = { type: VectorSpaceConstructorInterface_1.REALVECTOR4D, coordinates: [x, y !== null && y !== void 0 ? y : 0, z !== null && z !== void 0 ? z : 0, t !== null && t !== void 0 ? t : 0] };
-            this._vectorSpace = vectorSpace || (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this.spaceType, this.dimension);
+            if (vectorSpace !== undefined) {
+                this._vectorSpace = vectorSpace;
+            }
+            else {
+                this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+            }
         }
     }
     get dimension() { return SPACE_DIMENSION; }
@@ -55750,9 +55874,10 @@ exports.WeightManager = WeightManager;
  * @internal
  */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.resolveDefaultVectorSpace = exports.getDefaultProjectiveComplexVectorSpace = exports.getDefaultProjectiveRealVectorSpace = exports.getDefaultComplexVectorSpace = exports.getDefaultRealVectorSpace = void 0;
+exports.resolveDefaultVectorSpace = exports.getDefaultVectorSpace = exports.getDefaultProjectiveComplexVectorSpace = exports.getDefaultProjectiveRealVectorSpace = exports.getDefaultComplexVectorSpace = exports.getDefaultRealVectorSpace = void 0;
 const DefaultVectorSpaces_1 = __webpack_require__(/*! ./DefaultVectorSpaces */ "./src/mathVector/internal/DefaultVectorSpaces.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ../../namedConstants/VectorSpaceIdentifierManager */ "./src/namedConstants/VectorSpaceIdentifierManager.ts");
 /**
  * Get default real vector space for given dimension
  * @internal
@@ -55785,7 +55910,7 @@ function getDefaultProjectiveComplexVectorSpace(dimension) {
     return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(dimension);
 }
 exports.getDefaultProjectiveComplexVectorSpace = getDefaultProjectiveComplexVectorSpace;
-function resolveDefaultVectorSpace(spaceType, dimension) {
+function getDefaultVectorSpace(spaceType, dimension) {
     switch (spaceType) {
         case BSplineR1toRn_1.VectorSpaceType.REAL:
             return getDefaultRealVectorSpace(dimension);
@@ -55798,6 +55923,17 @@ function resolveDefaultVectorSpace(spaceType, dimension) {
         default:
             throw new Error(`Unknown vector space type: ${spaceType}`);
     }
+}
+exports.getDefaultVectorSpace = getDefaultVectorSpace;
+function resolveDefaultVectorSpace(vectorSpace) {
+    let defltVsId = "";
+    const defaultSpaces = DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance();
+    if (!defaultSpaces.registerVectorSpace(vectorSpace)) {
+        // Already registered - get the ID
+        throw new Error(`Vector space already registered: ${vectorSpace.id}`);
+    }
+    defltVsId = VectorSpaceIdentifierManager_1.DEFAULT + `${vectorSpace.spaceType}_${vectorSpace.dimension()}_` + defaultSpaces.generateId();
+    return defltVsId;
 }
 exports.resolveDefaultVectorSpace = resolveDefaultVectorSpace;
 
@@ -55814,11 +55950,13 @@ exports.resolveDefaultVectorSpace = resolveDefaultVectorSpace;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DefaultVectorSpaces = void 0;
+const BSplineR1toRn_1 = __webpack_require__(/*! ../../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ComplexVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/ComplexVectorSpace */ "./src/namedConstants/ComplexVectorSpace.ts");
 const DefaultVectorSpaces_1 = __webpack_require__(/*! ../../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
 const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/ProjectiveComplexVectorSpace */ "./src/namedConstants/ProjectiveComplexVectorSpace.ts");
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 const RealVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/RealVectorSpace */ "./src/namedConstants/RealVectorSpace.ts");
+const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ../../namedConstants/VectorSpaceIdentifierManager */ "./src/namedConstants/VectorSpaceIdentifierManager.ts");
 const ComplexVectorSpace_2 = __webpack_require__(/*! ../ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
 const ProjectiveComplexVectorSpace_2 = __webpack_require__(/*! ../ProjectiveComplexVectorSpace */ "./src/mathVector/ProjectiveComplexVectorSpace.ts");
 const ProjectiveVectorSpace_2 = __webpack_require__(/*! ../ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
@@ -55828,6 +55966,7 @@ const RealVectorSpace_2 = __webpack_require__(/*! ../RealVectorSpace */ "./src/m
  */
 class DefaultVectorSpaces {
     constructor() {
+        this.nextIndex = 1;
         this.realSpaces = new Map();
         this.complexSpaces = new Map();
         this.projectiveRealSpaces = new Map();
@@ -55849,6 +55988,111 @@ class DefaultVectorSpaces {
     static hasInstance() {
         return DefaultVectorSpaces.instance !== null;
     }
+    /**
+     * Generate a unique identifier for a default vector space
+     */
+    generateId() {
+        const vsId = this.nextIndex++;
+        return VectorSpaceIdentifierManager_1.VECTOR_SPACE + `${vsId}_${Date.now()}`;
+    }
+    getVectorSpaceIndex(vectorSpace) {
+        const vsId = vectorSpace.id;
+        if (vsId === undefined)
+            return undefined;
+        const index = parseInt(vsId.split('_')[3], 10);
+        if (isNaN(index) || index < 1 || index >= this.nextIndex) {
+            throw new Error(`Invalid vector space ID: ${vsId}`);
+        }
+        return index;
+    }
+    registerVectorSpace(vectorSpace) {
+        let registered = true;
+        switch (vectorSpace.spaceType) {
+            case BSplineR1toRn_1.VectorSpaceType.REAL:
+                if (this.realSpaces.has(vectorSpace.dimension())) {
+                    registered = false;
+                }
+                else {
+                    this.registerRealVectorSpace(vectorSpace);
+                }
+                return registered;
+            case BSplineR1toRn_1.VectorSpaceType.COMPLEX:
+                if (this.complexSpaces.has(vectorSpace.dimension())) {
+                    registered = false;
+                }
+                else {
+                    this.registerComplexVectorSpace(vectorSpace);
+                }
+                return registered;
+            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVE:
+                if (this.projectiveRealSpaces.has(vectorSpace.dimension())) {
+                    registered = false;
+                }
+                else {
+                    this.registerProjectiveRealVectorSpace(vectorSpace);
+                }
+                return registered;
+            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
+                if (this.projectiveComplexSpaces.has(vectorSpace.dimension())) {
+                    registered = false;
+                }
+                else {
+                    this.registerProjectiveComplexVectorSpace(vectorSpace);
+                }
+                return registered;
+            default:
+                throw new Error(`Unknown vector space type: ${vectorSpace.spaceType}`);
+        }
+    }
+    registerRealVectorSpace(realVS) {
+        const vsIndex = this.getVectorSpaceIndex(realVS);
+        if (vsIndex === undefined || (!this.realSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
+            // Create vector space with special marking
+            this.realSpaces.set(realVS.dimension(), realVS);
+            return true;
+        }
+        else if (vsIndex < this.nextIndex) {
+            return false;
+        }
+        return false;
+    }
+    registerComplexVectorSpace(complexVS) {
+        const vsIndex = this.getVectorSpaceIndex(complexVS);
+        if (vsIndex === undefined || (!this.complexSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
+            // Create vector space with special marking
+            this.complexSpaces.set(complexVS.dimension(), complexVS);
+            return true;
+        }
+        else if (vsIndex < this.nextIndex) {
+            return false;
+        }
+        return false;
+    }
+    registerProjectiveRealVectorSpace(projectiveVS) {
+        const vsIndex = this.getVectorSpaceIndex(projectiveVS);
+        // if (vsIndex === undefined || (!this.projectiveRealSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
+        if (vsIndex === undefined || !this.projectiveRealSpaces.has(projectiveVS.dimension())) {
+            // Create vector space with special marking
+            this.projectiveRealSpaces.set(projectiveVS.dimension(), projectiveVS);
+            return true;
+        }
+        else if (vsIndex < this.nextIndex) {
+            return false;
+        }
+        return false;
+    }
+    registerProjectiveComplexVectorSpace(projectiveComplexVS) {
+        const vsIndex = this.getVectorSpaceIndex(projectiveComplexVS);
+        if (vsIndex === undefined || (!this.projectiveComplexSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
+            // Create vector space with special marking
+            this.projectiveComplexSpaces.set(projectiveComplexVS.dimension(), projectiveComplexVS);
+            return true;
+        }
+        else if (vsIndex < this.nextIndex) {
+            return false;
+        }
+        return false;
+    }
     getRealVectorSpace(dimension) {
         if (dimension < RealVectorSpace_1.MIN_DIMENSION_REALVECTORSPACE || dimension > RealVectorSpace_1.MAX_DIMENSION_REALVECTORSPACE) {
             throw new RangeError();
@@ -55856,7 +56100,6 @@ class DefaultVectorSpaces {
         if (!this.realSpaces.has(dimension)) {
             // Create default space with special marking
             const defaultSpace = new RealVectorSpace_2.RealVectorSpace(dimension, DefaultVectorSpaces_1.DEFAULT_REAL_VECTOR_SPACE_NAME + dimension, true);
-            this.realSpaces.set(dimension, defaultSpace);
         }
         return this.realSpaces.get(dimension);
     }
@@ -55866,7 +56109,6 @@ class DefaultVectorSpaces {
         }
         if (!this.complexSpaces.has(dimension)) {
             const defaultSpace = new ComplexVectorSpace_2.ComplexVectorSpace(dimension, DefaultVectorSpaces_1.DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension, true);
-            this.complexSpaces.set(dimension, defaultSpace);
         }
         return this.complexSpaces.get(dimension);
     }
@@ -55875,8 +56117,7 @@ class DefaultVectorSpaces {
             throw new RangeError();
         }
         if (!this.projectiveRealSpaces.has(dimension)) {
-            const defaultSpace = new ProjectiveVectorSpace_2.ProjectiveVectorSpace(dimension, ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights, DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension, true);
-            this.projectiveRealSpaces.set(dimension, defaultSpace);
+            const defaultSpace = new ProjectiveVectorSpace_2.ProjectiveVectorSpace(dimension, ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights, true, DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension);
         }
         return this.projectiveRealSpaces.get(dimension);
     }
@@ -55886,7 +56127,6 @@ class DefaultVectorSpaces {
         }
         if (!this.projectiveComplexSpaces.has(dimension)) {
             const defaultSpace = new ProjectiveComplexVectorSpace_2.ProjectiveComplexVectorSpace(dimension, ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights, DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension, true);
-            this.projectiveComplexSpaces.set(dimension, defaultSpace);
         }
         return this.projectiveComplexSpaces.get(dimension);
     }
@@ -56113,26 +56353,24 @@ function registerProjectiveComplexVectorSpace(projectiveComplexVS) {
     return VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance().registerProjectiveComplexVectorSpace(projectiveComplexVS);
 }
 exports.registerProjectiveComplexVectorSpace = registerProjectiveComplexVectorSpace;
-function resolveVectorSpace(vectorSpace, isDefault, id) {
+function resolveVectorSpace(vectorSpace, id) {
     let vsId = "";
     const idManager = VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance();
-    if (isDefault) {
-        if (id === undefined) {
-            vsId = idManager.getDefaultSpaceId(vectorSpace.spaceType, vectorSpace.dimension());
-        }
-        else {
-            vsId = id;
-        }
+    // if (isDefault) {
+    //     if(id === undefined) {
+    //         vsId = idManager.getDefaultSpaceId(vectorSpace.spaceType, vectorSpace.dimension());
+    //     } else {
+    //         vsId = id;
+    //     }
+    // } else {
+    if (id === undefined) {
+        idManager.registerVectorSpace(vectorSpace);
+        vsId = `${vectorSpace.spaceType}_${vectorSpace.dimension()}_` + idManager.generateId();
     }
     else {
-        if (id === undefined) {
-            idManager.registerVectorSpace(vectorSpace);
-            vsId = `${vectorSpace.spaceType}_${vectorSpace.dimension()}_` + idManager.generateId();
-        }
-        else {
-            vsId = id;
-        }
+        vsId = id;
     }
+    // }
     return vsId;
 }
 exports.resolveVectorSpace = resolveVectorSpace;
@@ -57544,11 +57782,22 @@ var WeightManagement;
      */
     WeightManagement["AllStrictlyPositiveWeights"] = "AllStrictlyPositiveWeights";
     /**
-     * Some vectors in the projective vector space can have null weights, either user-defined or as a result of some computation.
+     * Some vectors in the projective vector space can have null weights.
+     * The user can prescribe a null weight when creating a vector to assign explicitly a non strictly positive weight specifically for the corresponding vector.
+     * Other null weight derive from the results of some computation using the null weight tolerance.
+     * In this case, user-presccribed null weights are considered as a positive weight with strictlyPositive set to false.
+     * Other strictly positive weights are considered as strictly positive weights with strictlyPositive set to true.
+     * As a result of some computations, some vectors can have strictly positive weights (with strictlyPositive set to true)
+     * and other vectors can have null weights (with strictlyPositive set to false).
+     * This weight management option enables the user to precisely control the status of the weights of a set of clearly identified vectors
+     * while others must conform to the strictly positive constraint.
      */
     WeightManagement["SomeNullWeights"] = "SomeNullWeights";
     /**
      * All vectors in the projective vector space must have positive weights.
+     * Some vectors can have a null weight either as the result of some computation using the null weight tolerance
+     * or when the user prescribes a null weight when creating a vector.
+     * In this case, all the weights processed by the weight manager are considered as a positive weight with strictlyPositive set to false.
      */
     WeightManagement["AllPositiveWeights"] = "AllPositiveWeights";
 })(WeightManagement = exports.WeightManagement || (exports.WeightManagement = {}));

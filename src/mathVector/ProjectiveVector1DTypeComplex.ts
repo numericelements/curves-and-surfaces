@@ -1,6 +1,6 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractProjectiveComplexVector } from "./AbstractProjectiveComplexVector";
-import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { getDefaultVectorSpace, resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import { Complex, COMPLEX, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D } from "./VectorSpaceConstructorInterface";
@@ -17,7 +17,11 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
             coordinates: [{ type: COMPLEX, real: real, imaginary: imaginary },
                         { type: COMPLEXWEIGHT, real: realWeight, imaginary: imaginaryWeight}] 
         };
-        this._vectorSpace = vectorSpace || resolveDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveComplexVectorSpace<2>;
+        if(vectorSpace !== undefined) {
+            this._vectorSpace = vectorSpace;
+        } else {
+            this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveComplexVectorSpace<2>;
+        }
     }
     
     get dimension(): number { return 2; } // Homogeneous coordinates

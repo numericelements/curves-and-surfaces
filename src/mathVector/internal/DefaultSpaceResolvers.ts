@@ -13,6 +13,12 @@ import type {
     ProjectiveComplexVectorSpaceOfDimension,
     AnyVectorSpace
 } from '../VectorSpaceTypes';
+import { ComplexVectorSpace } from '../ComplexVectorSpace';
+import { RealVectorSpace } from '../RealVectorSpace';
+import { ProjectiveVectorSpace } from '../ProjectiveVectorSpace';
+import { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
+import { IdentifiableVectorSpace } from '../VectorSpaceConstructorInterface';
+import { DEFAULT } from '../../namedConstants/VectorSpaceIdentifierManager';
 
 /**
  * Get default real vector space for given dimension
@@ -46,16 +52,12 @@ export function getDefaultProjectiveComplexVectorSpace<D extends number>(dimensi
     return DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(dimension) as ProjectiveComplexVectorSpaceOfDimension<D>;
 }
 
-/**
- * Resolve default vector space based on type and dimension
- * @internal
- */
-export function resolveDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.REAL, dimension: D): RealVectorSpaceOfDimension<D>;
-export function resolveDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.COMPLEX, dimension: D): ComplexVectorSpaceOfDimension<D>;
-export function resolveDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.PROJECTIVE, dimension: D): ProjectiveRealVectorSpaceOfDimension<D>;
-export function resolveDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.PROJECTIVECOMPLEX, dimension: D): ProjectiveComplexVectorSpaceOfDimension<D>
-export function resolveDefaultVectorSpace<VS extends VectorSpaceType, D extends number>(spaceType: VS, dimension: D): VectorSpaceForType<VS, D>;
-export function resolveDefaultVectorSpace(spaceType: VectorSpaceType, dimension: number): AnyVectorSpace {
+export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.REAL, dimension: D): RealVectorSpaceOfDimension<D>;
+export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.COMPLEX, dimension: D): ComplexVectorSpaceOfDimension<D>;
+export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.PROJECTIVE, dimension: D): ProjectiveRealVectorSpaceOfDimension<D>;
+export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.PROJECTIVECOMPLEX, dimension: D): ProjectiveComplexVectorSpaceOfDimension<D>
+export function getDefaultVectorSpace<VS extends VectorSpaceType, D extends number>(spaceType: VS, dimension: D): VectorSpaceForType<VS, D>;
+export function getDefaultVectorSpace(spaceType: VectorSpaceType, dimension: number): AnyVectorSpace {
     switch (spaceType) {
         case VectorSpaceType.REAL:
             return getDefaultRealVectorSpace(dimension);
@@ -68,4 +70,24 @@ export function resolveDefaultVectorSpace(spaceType: VectorSpaceType, dimension:
         default:
             throw new Error(`Unknown vector space type: ${spaceType}`);
     }
+}
+
+/**
+ * Resolve default vector space based on type and dimension
+ * @internal
+ */
+
+export function resolveDefaultVectorSpace<D extends number>(vectorSpace: ComplexVectorSpace<D>): string;
+export function resolveDefaultVectorSpace<D extends number>(vectorSpace: RealVectorSpace<D>): string;
+export function resolveDefaultVectorSpace<D extends number>(vectorSpace: ProjectiveVectorSpace<D>): string;
+export function resolveDefaultVectorSpace<D extends number>(vectorSpace: ProjectiveComplexVectorSpace<D>): string;
+export function resolveDefaultVectorSpace(vectorSpace: IdentifiableVectorSpace<any, any>): string {
+    let defltVsId = "";
+    const defaultSpaces = DefaultVectorSpaces.getInstance();
+    if (!defaultSpaces.registerVectorSpace(vectorSpace)) {
+        // Already registered - get the ID
+        throw new Error(`Vector space already registered: ${vectorSpace.id}`);
+    }
+    defltVsId = DEFAULT + `${vectorSpace.spaceType}_${vectorSpace.dimension()}_` + defaultSpaces.generateId();
+    return defltVsId;
 }

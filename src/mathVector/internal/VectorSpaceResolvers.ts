@@ -46,26 +46,26 @@ export function registerProjectiveComplexVectorSpace<D extends number>(projectiv
  * Resolve default vector space based on type and dimension
  * @internal
  */
-export function resolveVectorSpace<D extends number>(vectorSpace: ComplexVectorSpace<D>, isDefault: boolean, id?: string): string;
-export function resolveVectorSpace<D extends number>(vectorSpace: RealVectorSpace<D>, isDefault: boolean, id?: string): string;
-export function resolveVectorSpace<D extends number>(vectorSpace: ProjectiveVectorSpace<D>, isDefault: boolean, id?: string): string;
-export function resolveVectorSpace<D extends number>(vectorSpace: ProjectiveComplexVectorSpace<D>, isDefault: boolean, id?: string): string;
-export function resolveVectorSpace(vectorSpace: IdentifiableVectorSpace<any, any>, isDefault: boolean, id?: string): string {
+export function resolveVectorSpace<D extends number>(vectorSpace: ComplexVectorSpace<D>, id?: string): string;
+export function resolveVectorSpace<D extends number>(vectorSpace: RealVectorSpace<D>, id?: string): string;
+export function resolveVectorSpace<D extends number>(vectorSpace: ProjectiveVectorSpace<D>, id?: string): string;
+export function resolveVectorSpace<D extends number>(vectorSpace: ProjectiveComplexVectorSpace<D>, id?: string): string;
+export function resolveVectorSpace(vectorSpace: IdentifiableVectorSpace<any, any>, id?: string): string {
     let vsId = "";
     const idManager = VectorSpaceIdentifierManager.getInstance();
-    if (isDefault) {
-        if(id === undefined) {
-            vsId = idManager.getDefaultSpaceId(vectorSpace.spaceType, vectorSpace.dimension());
-        } else {
-            vsId = id;
-        }
-    } else {
+    // if (isDefault) {
+    //     if(id === undefined) {
+    //         vsId = idManager.getDefaultSpaceId(vectorSpace.spaceType, vectorSpace.dimension());
+    //     } else {
+    //         vsId = id;
+    //     }
+    // } else {
         if(id === undefined) {
             idManager.registerVectorSpace(vectorSpace);
             vsId = `${vectorSpace.spaceType}_${vectorSpace.dimension()}_` + idManager.generateId();
         } else {
             vsId = id;
         }
-    }
+    // }
     return vsId;
 }

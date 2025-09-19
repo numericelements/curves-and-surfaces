@@ -4,8 +4,10 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../namedConstants/ComplexVectorSpace";
 import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
+import { COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
+import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { IVector } from "./Vector";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
@@ -43,8 +45,16 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
     constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
         this._isDefault = isDefault;
-        this._id = resolveVectorSpace(this, isDefault, id);
-        this._name = name || DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
+        if(this._isDefault) {  
+            this._id = resolveDefaultVectorSpace(this);
+        } else {
+            this._id = resolveVectorSpace(this, id);
+        }
+        if(this._isDefault) {
+            this._name = DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
+        } else {
+            this._name = name || COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
+        }
         switch (this.dim) {
             case MIN_DIMENSION_COMPLEXVECTORSPACE:
                 this.strategy = new ComplexVectorSpace1DStrategy() as unknown as ComplexVectorSpaceStrategy<D>;

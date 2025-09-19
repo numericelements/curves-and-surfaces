@@ -1,6 +1,6 @@
 import { AbstractComplexVector } from "./AbstractComplexVector";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
-import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { getDefaultVectorSpace, resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { COMPLEX, Complex, ComplexVector1D } from "./VectorSpaceConstructorInterface";
 
 export class Vector1DTypeComplex extends AbstractComplexVector {
@@ -10,7 +10,11 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
     constructor(real: number = 0, imaginary: number = 0, vectorSpace?: ComplexVectorSpace<1>) {
         super();
         this.data = { type: COMPLEX, real, imaginary };
-        this._vectorSpace = vectorSpace || resolveDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
+        if(vectorSpace !== undefined) {
+            this._vectorSpace = vectorSpace;
+        } else {
+            this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
+        }
     }
     
     get dimension(): number { return 1; }

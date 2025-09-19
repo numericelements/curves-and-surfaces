@@ -6,10 +6,18 @@ import { Complex, COMPLEX, ComplexVector1D, ComplexVector2D, COMPLEXVECTOR2D, CO
 import { createCommonComplexVectorSpaceTests } from "./ComplexVectorSpaceTestFactory";
 import { Weight } from "../../src/mathVector/Weight";
 import { NULL_WEIGHT_TOLERANCE } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/VectorSpaceResolvers";
+import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/DefaultVectorSpaces";
+import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 
 describe('ComplexVectorSpace', () => {
 
     describe('Constructor', () => {
+
+        beforeEach(() => {
+            // Reset the default projective space manager singleton before each test
+            DefaultVectorSpaces.reset();
+        });
 
         it('can generate a valid ComplexVectorSpace dimension between ' + MIN_DIMENSION_COMPLEXVECTORSPACE + ' and ' + MAX_DIMENSION_COMPLEXVECTORSPACE, () => {
             expect(() => new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE)).to.not.throw()
@@ -25,6 +33,19 @@ describe('ComplexVectorSpace', () => {
             const complexVectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
             expect(complexVectorSpace.dimension()).to.eql(MIN_DIMENSION_COMPLEXVECTORSPACE)
         });
+
+        it(`can check that a user specific Complex vector space has a default name containing ${COMPLEX_VECTOR_SPACE_NAME}`, () => {
+            const vectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
+            expect(vectorSpace.isDefault).to.eql(false);
+            expect(vectorSpace.name.includes("Default ")).to.eql(false);
+        });
+
+        it(`can check that a default Projective vector space has a default name containing ${DEFAULT_COMPLEX_VECTOR_SPACE_NAME}`, () => {
+            const vectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE, undefined, true);
+            expect(vectorSpace.isDefault).to.eql(true);
+            expect(vectorSpace.name.includes(DEFAULT_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true);
+        });
+        
     });
 
     describe('Methods', () => {

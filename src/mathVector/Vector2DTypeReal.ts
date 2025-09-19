@@ -1,6 +1,6 @@
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { AbstractRealVector } from "./AbstractRealVector";
-import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { getDefaultVectorSpace, resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { REALVECTOR2D, RealVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
@@ -22,7 +22,11 @@ export class Vector2DTypeReal extends AbstractRealVector {
         } else {
             const x = xOrVectorSpace ?? 0;
             this.data = { type: REALVECTOR2D, coordinates: [x, y ?? 0] };
-            this._vectorSpace = vectorSpace || resolveDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<2>;
+                        if(vectorSpace !== undefined) {
+                this._vectorSpace = vectorSpace;
+            } else {
+                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<2>;
+            }
         }
     }
     

@@ -7,10 +7,19 @@ import { Complex, COMPLEX, ComplexVector2D, COMPLEXVECTOR2D, ComplexWeight, COMP
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../../src/ErrorMessages/ComplexOperators";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
+import { PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/VectorSpaceResolvers";
+import { DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/DefaultVectorSpaces";
+import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 
 describe('ProjectiveComplexVectorSpace', () => {
     
     describe('Constructor', () => {
+
+        beforeEach(() => {
+            // Reset the default projective space manager singleton before each test
+            DefaultVectorSpaces.reset();
+        });
+
         it('can generate a valid ProjectiveComplexVectorSpace dimension between ' + MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE + ' and ' + MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, () => {
             expect(() => new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)).to.not.throw()
             expect(() => new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)).to.not.throw()
@@ -39,6 +48,18 @@ describe('ProjectiveComplexVectorSpace', () => {
         it('can generate a valid ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.AllPositiveWeights, () => {
             const realVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
             expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+        });
+
+        it(`can check that a user specific Projective Complex vector space has a default name containing ${PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME}`, () => {
+            const vectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(vectorSpace.isDefault).to.eql(false);
+            expect(vectorSpace.name.includes("Default ")).to.eql(false);
+        });
+
+        it(`can check that a default Projective Complex vector space has a default name containing ${DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME}`, () => {
+            const vectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, undefined, undefined, true);
+            expect(vectorSpace.isDefault).to.eql(true);
+            expect(vectorSpace.name.includes(DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true);
         });
     });
 
