@@ -69,15 +69,15 @@ describe('ProjectiveVectorSpace', () => {
             expect(vectorSpace.name).to.eql(usrSpecName);
         });
 
-        it(`can create a user-defined Projective vector space with a user-specified id`, () => {
-            const usrSpecName = undefined;
-            const usrSpecId = "MyId";
-            const vectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, false, usrSpecName, usrSpecId);
-            expect(vectorSpace.isDefault).to.eql(false);
-            expect(vectorSpace.name.includes(DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(false);
-            expect(vectorSpace.name.includes(PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(true);
-            expect(vectorSpace.id).to.eql(usrSpecId);
-        });
+        // it(`can create a user-defined Projective vector space with a user-specified id`, () => {
+        //     const usrSpecName = undefined;
+        //     const usrSpecId = "MyId";
+        //     const vectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, false, usrSpecName, usrSpecId);
+        //     expect(vectorSpace.isDefault).to.eql(false);
+        //     expect(vectorSpace.name.includes(DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(false);
+        //     expect(vectorSpace.name.includes(PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(true);
+        //     expect(vectorSpace.id).to.eql(usrSpecId);
+        // });
 
     });
 

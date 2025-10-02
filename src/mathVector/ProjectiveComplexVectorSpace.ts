@@ -17,6 +17,7 @@ import { WeightManager } from "./WeightManager";
 import { DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 import { PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
 
 // Strategy interface
 export interface ProjectiveComplexVectorSpaceStrategy<D extends number> {
@@ -53,10 +54,12 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         this._weightManagement = weightManagement;
         this.weightManager = new WeightManager(weightManagement);
         this._isDefault = isDefault;
+        this._id = INITIAL_VECTOR_SPACE_ID;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
         } else {
-            this._id = resolveVectorSpace(this, id);
+            // this._id = resolveVectorSpace(this, id);
+            this._id = resolveVectorSpace(this);
         }
         if(this._isDefault) {
             this._name = DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();

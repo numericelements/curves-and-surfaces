@@ -1,22 +1,24 @@
+import { EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE, EM_INVALID_DEFAULT_VECTOR_SPACE_ID_STRUCTURE, EM_INVALID_VECTOR_SPACE_TYPE } from "../../ErrorMessages/DefaultSpaceResolvers";
 import { VectorSpaceType } from "../../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../namedConstants/ComplexVectorSpace";
-import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME, DEFAULT_REAL_VECTOR_SPACE_NAME } from "../../namedConstants/DefaultVectorSpaces";
+import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME, DEFAULT_REAL_VECTOR_SPACE_NAME, DEFAULT_VSPACE_INDEX_INITIAL_VALUE, LOCATION_INDEX_INTO_DEFAULT_VECTOR_SPACE_ID } from "../../namedConstants/DefaultVectorSpaces";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../namedConstants/ProjectiveComplexVectorSpace";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../../namedConstants/ProjectiveVectorSpace";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../namedConstants/RealVectorSpace";
-import { VECTOR_SPACE } from "../../namedConstants/VectorSpaceIdentifierManager";
+import { INITIAL_VECTOR_SPACE_ID, VECTOR_SPACE } from "../../namedConstants/VectorSpaceIdentifierManager";
 import { ComplexVectorSpace } from "../ComplexVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
 import { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
 import { RealVectorSpace } from "../RealVectorSpace";
 import { IdentifiableVectorSpace } from "../VectorSpaceConstructorInterface";
+import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 
 /**
  * Singleton manager for default vector spaces
  */
 export class DefaultVectorSpaces {
     private static instance: DefaultVectorSpaces | null = null;
-    private nextIndex: number = 1;
+    private nextIndex: number = DEFAULT_VSPACE_INDEX_INITIAL_VALUE;
     private realSpaces: Map<number, RealVectorSpace<any>> = new Map();
     private complexSpaces: Map<number, ComplexVectorSpace<any>> = new Map();
     private projectiveRealSpaces: Map<number, ProjectiveVectorSpace<any>> = new Map();
@@ -53,10 +55,16 @@ export class DefaultVectorSpaces {
 
     getVectorSpaceIndex(vectorSpace: IdentifiableVectorSpace<any, any>): number | undefined{
         const vsId = vectorSpace.id;
-        if(vsId === undefined) return undefined;
-        const index = parseInt(vsId.split('_')[3], 10);
-        if (isNaN(index) || index < 1 || index >= this.nextIndex) {
-            throw new Error(`Invalid vector space ID: ${vsId}`);
+        if(vsId === INITIAL_VECTOR_SPACE_ID) return undefined;
+        const decomposedId = vsId.split('_');
+        if(decomposedId.length < LOCATION_INDEX_INTO_DEFAULT_VECTOR_SPACE_ID) {
+            const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getVectorSpaceIndex', EM_INVALID_DEFAULT_VECTOR_SPACE_ID_STRUCTURE);
+            throw new RangeError(errorMessage.generateMessageString());
+        }
+        const index = parseInt(decomposedId[LOCATION_INDEX_INTO_DEFAULT_VECTOR_SPACE_ID], 10);
+        if (isNaN(index) || index < DEFAULT_VSPACE_INDEX_INITIAL_VALUE || index > this.nextIndex) {
+            const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getVectorSpaceIndex', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
+            throw new RangeError(errorMessage.generateMessageString());
         }
         return index;
     }
@@ -93,57 +101,53 @@ export class DefaultVectorSpaces {
                 }
                 return registered;
             default:
-                throw new Error(`Unknown vector space type: ${vectorSpace.spaceType}`);
+                const error = sendRangeErrorMessage(this.constructor.name, 'registerVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
+                throw new RangeError(error.generateMessageString());
         } 
     }
 
     registerRealVectorSpace<D extends number>(realVS: RealVectorSpace<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(realVS);
-        if (vsIndex === undefined || (!this.realSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
-            // Create vector space with special marking
+        let registered = false;
+        if ((vsIndex === undefined || !this.realSpaces.has(realVS.dimension())) && 
+                (realVS.dimension() >= MIN_DIMENSION_REALVECTORSPACE && realVS.dimension() <= MAX_DIMENSION_REALVECTORSPACE)) {
             this.realSpaces.set(realVS.dimension(), realVS);
-            return true;
-        } else if(vsIndex < this.nextIndex) {
-            return false;
+            registered = true;
         }
-        return false;
+        return registered;
     }
 
     registerComplexVectorSpace<D extends number>(complexVS: ComplexVectorSpace<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(complexVS);
-        if (vsIndex === undefined || (!this.complexSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
-            // Create vector space with special marking
+        let registered = false;
+        if ((vsIndex === undefined || !this.complexSpaces.has(complexVS.dimension())) && 
+                (complexVS.dimension() >= MIN_DIMENSION_COMPLEXVECTORSPACE && complexVS.dimension() <= MAX_DIMENSION_COMPLEXVECTORSPACE)) {
             this.complexSpaces.set(complexVS.dimension(), complexVS);
-            return true;
-        } else if(vsIndex < this.nextIndex) {
-            return false;
+            registered = true;
         }
-        return false;
+        return registered;
     }
 
     registerProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveVectorSpace<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(projectiveVS);
-        // if (vsIndex === undefined || (!this.projectiveRealSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
-        if (vsIndex === undefined || !this.projectiveRealSpaces.has(projectiveVS.dimension())) {
-            // Create vector space with special marking
+        let registered = false;
+        if ((vsIndex === undefined || !this.projectiveRealSpaces.has(projectiveVS.dimension())) && 
+                (projectiveVS.dimension() >= MIN_DIMENSION_PROJECTIVEVECTORSPACE && projectiveVS.dimension() <= MAX_DIMENSION_PROJECTIVEVECTORSPACE)) {
             this.projectiveRealSpaces.set(projectiveVS.dimension(), projectiveVS);
-            return true;
-        } else if(vsIndex < this.nextIndex) {
-            return false;
+            registered = true;
         }
-        return false;
+        return registered;
     }
 
     registerProjectiveComplexVectorSpace<D extends number>(projectiveComplexVS: ProjectiveComplexVectorSpace<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(projectiveComplexVS);
-        if (vsIndex === undefined || (!this.projectiveComplexSpaces.has(this.nextIndex) && !(vsIndex < this.nextIndex))) {
-            // Create vector space with special marking
+        let registered = false;
+        if ((vsIndex === undefined || !this.projectiveComplexSpaces.has(projectiveComplexVS.dimension())) && 
+                (projectiveComplexVS.dimension() >= MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE && projectiveComplexVS.dimension() <= MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE))  {
             this.projectiveComplexSpaces.set(projectiveComplexVS.dimension(), projectiveComplexVS);
-            return true;
-        } else if(vsIndex < this.nextIndex) {
-            return false;
+            registered = true;
         }
-        return false;
+        return registered;
     }
 
     getRealVectorSpace<D extends number>(dimension: D): RealVectorSpace<D> {
@@ -151,7 +155,6 @@ export class DefaultVectorSpaces {
             throw new RangeError();
         }
         if (!this.realSpaces.has(dimension)) {
-            // Create default space with special marking
             const defaultSpace = new RealVectorSpace<D>(dimension, DEFAULT_REAL_VECTOR_SPACE_NAME + dimension, true);
         }
         return this.realSpaces.get(dimension) as RealVectorSpace<D>;

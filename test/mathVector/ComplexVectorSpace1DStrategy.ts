@@ -4,6 +4,7 @@ import { Complex, COMPLEX, ComplexVector1D, ComplexWeight, COMPLEXWEIGHT, PROJEC
 import { MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { createTestComplexVector } from "./ComplexVectorSpaceTestFactory";
 import { Weight } from "../../src/mathVector/Weight";
+import { VectorSpaceIdentifierManager } from "../../src/mathVector/internal/VectorSpaceIdentifierManager";
 
 
 describe('ComplexVectorSpace1DStrategy', () => {
@@ -11,6 +12,11 @@ describe('ComplexVectorSpace1DStrategy', () => {
     describe('Methods', () => {
 
         describe(`ComplexVectorSpace1D `, () => {
+
+            beforeEach(() => {
+                // Reset the default vector space manager singleton before each test
+                VectorSpaceIdentifierManager.reset();
+            });
 
             const vectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
 

@@ -2,6 +2,7 @@ import { EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REAL
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { DEFAULT_REAL_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../namedConstants/RealVectorSpace";
+import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
 import { REAL_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
@@ -74,10 +75,12 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
     constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
         this.dim = dimension;
         this._isDefault = isDefault;
+        this._id = INITIAL_VECTOR_SPACE_ID;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
         } else {
-            this._id = resolveVectorSpace(this, id);
+            // this._id = resolveVectorSpace(this, id);
+            this._id = resolveVectorSpace(this);
         }
         if(this._isDefault) {
             this._name = DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString();

@@ -89,6 +89,11 @@ export function sendRangeErrorMessage(constructorName: string, functionName: str
     return error;
 }
 
+export function sendErrorMessage(constructorName: string, functionName: string, message: string): ErrorLog {
+    const error = sendRangeErrorMessage(constructorName, functionName, message);
+    return error;
+}
+
 export function areSameVSpaceAndDimension(v1: Vector, v2: Vector): boolean {
     if (isRealVector(v1) && isRealVector(v2)) {
         if((isVector1D(v1) && isVector1D(v2)) ||

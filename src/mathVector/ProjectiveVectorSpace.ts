@@ -16,6 +16,7 @@ import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultV
 import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
 import { PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
 
 /**
  * Implementation of a projective vector space
@@ -71,10 +72,12 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         if(isDefault === undefined) isDefault = false;
         this.weightManager = new WeightManager(this._weightManagement);
         this._isDefault = isDefault;
+        this._id = INITIAL_VECTOR_SPACE_ID;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
         } else {
-            this._id = resolveVectorSpace(this, id);
+            // this._id = resolveVectorSpace(this, id);
+            this._id = resolveVectorSpace(this);
         }
         if(this._isDefault) {
             this._name = DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();

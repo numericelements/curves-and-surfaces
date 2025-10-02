@@ -19,13 +19,20 @@ import { ProjectiveVectorSpace } from '../ProjectiveVectorSpace';
 import { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
 import { IdentifiableVectorSpace } from '../VectorSpaceConstructorInterface';
 import { DEFAULT } from '../../namedConstants/VectorSpaceIdentifierManager';
+import { sendErrorMessage, sendRangeErrorMessage } from '../VectorSpaceUtilities';
+import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED, EM_INVALID_VECTOR_SPACE_DIMENSION, EM_INVALID_VECTOR_SPACE_TYPE } from '../../ErrorMessages/DefaultSpaceResolvers';
 
 /**
  * Get default real vector space for given dimension
  * @internal
  */
 export function getDefaultRealVectorSpace<D extends number>(dimension: D): RealVectorSpaceOfDimension<D> {
-    return DefaultVectorSpaces.getInstance().getRealVectorSpace(dimension) as RealVectorSpaceOfDimension<D>;
+    try {
+        return DefaultVectorSpaces.getInstance().getRealVectorSpace(dimension) as RealVectorSpaceOfDimension<D>;
+    } catch (error) {
+        const errorMessage = sendRangeErrorMessage('getDefaultRealVectorSpace', 'getDefaultRealVectorSpace', EM_INVALID_VECTOR_SPACE_DIMENSION);
+        throw new RangeError(errorMessage.generateMessageString());
+    }
 }
 
 /**
@@ -33,7 +40,12 @@ export function getDefaultRealVectorSpace<D extends number>(dimension: D): RealV
  * @internal
  */
 export function getDefaultComplexVectorSpace<D extends number>(dimension: D): ComplexVectorSpaceOfDimension<D> {
-    return DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension) as ComplexVectorSpaceOfDimension<D>;
+    try {
+        return DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension) as ComplexVectorSpaceOfDimension<D>;
+    } catch (error) {
+        const errorMessage = sendRangeErrorMessage('getDefaultComplexVectorSpace', 'getDefaultComplexVectorSpace', EM_INVALID_VECTOR_SPACE_DIMENSION);
+        throw new RangeError(errorMessage.generateMessageString());
+    }
 }
 
 /**
@@ -41,7 +53,12 @@ export function getDefaultComplexVectorSpace<D extends number>(dimension: D): Co
  * @internal
  */
 export function getDefaultProjectiveRealVectorSpace<D extends number>(dimension: D): ProjectiveRealVectorSpaceOfDimension<D> {
-    return DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(dimension) as ProjectiveRealVectorSpaceOfDimension<D>;
+    try {
+        return DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(dimension) as ProjectiveRealVectorSpaceOfDimension<D>;
+    } catch (error) {
+        const errorMessage = sendRangeErrorMessage('getDefaultProjectiveRealVectorSpace', 'getDefaultProjectiveRealVectorSpace', EM_INVALID_VECTOR_SPACE_DIMENSION);
+        throw new RangeError(errorMessage.generateMessageString());
+    }
 }
 
 /**
@@ -49,9 +66,18 @@ export function getDefaultProjectiveRealVectorSpace<D extends number>(dimension:
  * @internal
  */
 export function getDefaultProjectiveComplexVectorSpace<D extends number>(dimension: D): ProjectiveComplexVectorSpaceOfDimension<D> {
-    return DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(dimension) as ProjectiveComplexVectorSpaceOfDimension<D>;
+    try {
+        return DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(dimension) as ProjectiveComplexVectorSpaceOfDimension<D>;
+    } catch (error) {
+        const errorMessage = sendRangeErrorMessage('getDefaultProjectiveComplexVectorSpace', 'getDefaultProjectiveComplexVectorSpace', EM_INVALID_VECTOR_SPACE_DIMENSION);
+        throw new RangeError(errorMessage.generateMessageString());
+    }
 }
 
+/**
+ * Get a default vector space based on type and dimension
+ * @internal
+ */
 export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.REAL, dimension: D): RealVectorSpaceOfDimension<D>;
 export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.COMPLEX, dimension: D): ComplexVectorSpaceOfDimension<D>;
 export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.PROJECTIVE, dimension: D): ProjectiveRealVectorSpaceOfDimension<D>;
@@ -68,7 +94,8 @@ export function getDefaultVectorSpace(spaceType: VectorSpaceType, dimension: num
         case VectorSpaceType.PROJECTIVECOMPLEX:
             return getDefaultProjectiveComplexVectorSpace(dimension);
         default:
-            throw new Error(`Unknown vector space type: ${spaceType}`);
+            const error = sendRangeErrorMessage('getDefaultVectorSpace', 'getDefaultVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
+            throw new RangeError(error.generateMessageString());
     }
 }
 
@@ -85,8 +112,10 @@ export function resolveDefaultVectorSpace(vectorSpace: IdentifiableVectorSpace<a
     let defltVsId = "";
     const defaultSpaces = DefaultVectorSpaces.getInstance();
     if (!defaultSpaces.registerVectorSpace(vectorSpace)) {
-        // Already registered - get the ID
-        throw new Error(`Vector space already registered: ${vectorSpace.id}`);
+        // VS already registered
+        const message = EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED + `: type=${vectorSpace.spaceType}, dimension=${vectorSpace.dimension()}`;
+        const error = sendErrorMessage('resolveDefaultVectorSpace', 'resolveDefaultVectorSpace', message);
+        throw new Error(error.generateMessageString());
     }
     defltVsId = DEFAULT + `${vectorSpace.spaceType}_${vectorSpace.dimension()}_` + defaultSpaces.generateId();
     return defltVsId;
