@@ -33,7 +33,7 @@ export interface ComplexVectorSpaceStrategy<D extends number> {
     fromComplexVectorSpaceToProjectiveComplexVectorSpace(v: ComplexVector, weight: ComplexWeight): ProjectiveComplexVector
 }
 
-// export class ComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ComplexVectorOfDimension<D>> {
+
 export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Complex, ComplexVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
@@ -43,7 +43,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
     protected strategy: ComplexVectorSpaceStrategy<D>;
 
     // constructor(dimension: D) {
-    constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
+    constructor(dimension: D, isDefault: boolean = false, name?: string) {
         this.dim = dimension;
         this._isDefault = isDefault;
         this._id = INITIAL_VECTOR_SPACE_ID;
@@ -51,7 +51,6 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
             this._id = resolveDefaultVectorSpace(this);
         } else {
             this._id = resolveVectorSpace(this);
-            // this._id = resolveVectorSpace(this, id);
         }
         if(this._isDefault) {
             this._name = DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
@@ -214,8 +213,8 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
             throw new Error('Vector dimensions or types do not match');
         }
-        const rawA = a.raw as ComplexVectorOfDimension<D>;
-        const rawB = b.raw as ComplexVectorOfDimension<D>;
+        const rawA = a.descriptor as ComplexVectorOfDimension<D>;
+        const rawB = b.descriptor as ComplexVectorOfDimension<D>;
         const result = this.addRaw(rawA, rawB);
         
         return this.createVectorInstance(result);

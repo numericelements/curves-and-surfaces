@@ -8,8 +8,7 @@ import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
 import { IVector } from "./Vector";
-import { IdentifiableVectorSpace, ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector, VectorSpace } from "./VectorSpaceConstructorInterface";
-import { VectorSpaceIdentifierManager } from "./internal/VectorSpaceIdentifierManager";
+import { IdentifiableVectorSpace, ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
@@ -42,7 +41,6 @@ export interface ProjectiveVectorSpaceStrategy<D extends number> {
 
 
 // Main class using strategy
-// export class ProjectiveVectorSpace<D extends number = number> implements VectorSpace<Real, ProjectiveVectorOfDimension<D>> {
 export class ProjectiveVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Real, ProjectiveVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
@@ -58,8 +56,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
     constructor(dimension: D, weightManagement: WeightManagement);
     constructor(dimension: D, weightManagement?: WeightManagement, isDefault?: boolean);
     constructor(dimension: D, weightManagement?: WeightManagement, isDefault?: boolean, name?: string);
-    constructor(dimension: D, weightManagement?: WeightManagement, isDefault?: boolean, name?: string, id?: string);
-    constructor(dimension: D, isDefltOrWeightMgmt?: boolean | WeightManagement, isDefault?: boolean, name?: string, id?: string) {
+    constructor(dimension: D, isDefltOrWeightMgmt?: boolean | WeightManagement, isDefault?: boolean, name?: string) {
         this.dim = dimension;
         if(typeof isDefltOrWeightMgmt === 'string') {
             this._weightManagement = isDefltOrWeightMgmt;
@@ -76,7 +73,6 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
         } else {
-            // this._id = resolveVectorSpace(this, id);
             this._id = resolveVectorSpace(this);
         }
         if(this._isDefault) {
@@ -98,9 +94,16 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
     }
 
     get id(): string { return this._id; }
+
     get name(): string { return this._name; }
+
     get isDefault(): boolean { return this._isDefault; }
+
     get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
+
+    get weightManagement(): WeightManagement {
+        return this._weightManagement;
+    }
 
     // Identity methods
     isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean {
@@ -110,14 +113,6 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
     isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean {
         return this.spaceType === other.spaceType && 
                this.dimension() === other.dimension();
-    }
-
-    get weightManagement(): WeightManagement {
-        return this._weightManagement;
-    }
-
-    set weightManagement(weightManagement: WeightManagement) {
-        this._weightManagement = weightManagement;
     }
 
     getWeight(v: ProjectiveVector): Real {
@@ -249,8 +244,8 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
             throw new Error('Vector dimensions or types do not match');
         }
-        const rawA = a.raw as ProjectiveVectorOfDimension<D>;
-        const rawB = b.raw as ProjectiveVectorOfDimension<D>;
+        const rawA = a.descriptor as ProjectiveVectorOfDimension<D>;
+        const rawB = b.descriptor as ProjectiveVectorOfDimension<D>;
         const result = this.addRaw(rawA, rawB);
         
         return this.createVectorInstance(result);

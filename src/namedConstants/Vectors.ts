@@ -28,3 +28,6 @@ export const EM_ISORTHOGONAL_NOT_APPLICABLE = 'The orthogonality property is not
 
 // Warning message when the norm of a vector is smaller than the tolerance
 export const WM_VECTOR_NORM_TOO_SMALL = 'The norm of the vector is smaller than the tolerance';
+
+// Error message when the weight status of a projective vector is incompatible with the weight management assigned to the vector space
+export const EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE = 'The weight status of the projective vector is incompatible with the weight management assigned to the vector space';

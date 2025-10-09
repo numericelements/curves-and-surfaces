@@ -14,7 +14,7 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
     get vectorSpace(): ProjectiveComplexVectorSpace<any> { return this._vectorSpace as ProjectiveComplexVectorSpace<any>; }
 
     abstract getCoordinate(index: number): Complex;
-    abstract setCoordinate(index: number, value: Complex): void;
+    // abstract setCoordinate(index: number, value: Complex): void;
     abstract get weight(): Weight | ComplexWeight;
     abstract get homogeneousCoordinates(): (number | Complex)[];
     abstract normalize(): IProjectiveComplexVector;

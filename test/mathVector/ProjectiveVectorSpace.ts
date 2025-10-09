@@ -8,17 +8,20 @@ import { createCommonProjectiveVectorSpaceTests } from "./ProjectiveVectorSpaceT
 import { PROJECTIVE_VECTOR_SPACE_NAME } from "../../src/namedConstants/VectorSpaceResolvers";
 import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../../src/namedConstants/DefaultVectorSpaces";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
+import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdentifierManager";
+import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
+import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 
 describe('ProjectiveVectorSpace', () => {
     
+    beforeEach(() => {
+        // Reset the default projective space manager singleton before each test
+        DefaultVectorSpaces.reset();
+    });
+
     describe('Constructor', () => {
 
-        beforeEach(() => {
-            // Reset the default projective space manager singleton before each test
-            DefaultVectorSpaces.reset();
-        });
-
-        it('can generate a valid ProjectiveVectorSpace dimension between ' + MIN_DIMENSION_PROJECTIVEVECTORSPACE + ' and ' + MAX_DIMENSION_PROJECTIVEVECTORSPACE, () => {
+        it('can generate a ProjectiveVectorSpace with dimension between ' + MIN_DIMENSION_PROJECTIVEVECTORSPACE + ' and ' + MAX_DIMENSION_PROJECTIVEVECTORSPACE, () => {
             expect(() => new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE)).to.not.throw()
             expect(() => new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE)).to.not.throw()
         });
@@ -28,30 +31,57 @@ describe('ProjectiveVectorSpace', () => {
             expect(() => new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE + 1)).to.throw(EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE)
         });
 
-        it('can generate a valid ProjectiveVectorSpace and get its dimension', () => {
-            const realVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
-            expect(realVectorSpace.dimension()).to.eql(MIN_DIMENSION_PROJECTIVEVECTORSPACE)
+        it('can generate a user-specific ProjectiveVectorSpace and get its dimension', () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
+            expect(projectiveVectorSpace.dimension()).to.eql(MIN_DIMENSION_PROJECTIVEVECTORSPACE)
         });
 
-        it('can generate a valid ProjectiveVectorSpace with a weight management ' + WeightManagement.AllStrictlyPositiveWeights, () => {
-            const realVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+        it('can generate a user-specific ProjectiveVectorSpace with a weight management ' + WeightManagement.AllStrictlyPositiveWeights, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            const projectiveVectorSpace1 = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights);
+            expect(projectiveVectorSpace1.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
         });
 
-        it('can generate a valid ProjectiveVectorSpace with a weight management ' + WeightManagement.SomeNullWeights, () => {
-            const realVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.SomeNullWeights);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+        it('can generate a user-specific ProjectiveVectorSpace with a weight management ' + WeightManagement.SomeNullWeights, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.SomeNullWeights);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
         });
 
-        it('can generate a valid ProjectiveVectorSpace with a weight management ' + WeightManagement.AllPositiveWeights, () => {
-            const realVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllPositiveWeights);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+        it('can generate a user-specific ProjectiveVectorSpace with a weight management ' + WeightManagement.AllPositiveWeights, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllPositiveWeights);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
         });
 
-        it(`can check that a user specific Projective vector space has a default name containing ${PROJECTIVE_VECTOR_SPACE_NAME}`, () => {
+        it(`can check that a user-specific Projective vector space has a default name containing ${PROJECTIVE_VECTOR_SPACE_NAME}`, () => {
             const vectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             expect(vectorSpace.isDefault).to.eql(false);
-            expect(vectorSpace.name.includes("Default ")).to.eql(false);
+            expect(vectorSpace.name.includes(DEFAULT)).to.eql(false);
+            expect(vectorSpace.name.includes(PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(true);
+        });
+
+        it('can generate a default ProjectiveVectorSpace with a weight management ' + WeightManagement.AllStrictlyPositiveWeights, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, true);
+            expect(projectiveVectorSpace.isDefault).to.eql(true);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+        });
+
+        it('can generate a default ProjectiveVectorSpace with a weight management ' + WeightManagement.AllStrictlyPositiveWeights + ` and an explicit default prescription`, () => {
+            const projectiveVectorSpace1 = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, true);
+            expect(projectiveVectorSpace1.isDefault).to.eql(true);
+            expect(projectiveVectorSpace1.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+        });
+
+        it('can generate a default ProjectiveVectorSpace with a weight management ' + WeightManagement.AllPositiveWeights, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllPositiveWeights, true);
+            expect(projectiveVectorSpace.isDefault).to.eql(true);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+        });
+
+        it('can generate a default ProjectiveVectorSpace with a weight management ' + WeightManagement.SomeNullWeights, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.SomeNullWeights, true);
+            expect(projectiveVectorSpace.isDefault).to.eql(true);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
         });
 
         it(`can check that a default Projective vector space has a default name containing ${DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME}`, () => {
@@ -60,7 +90,7 @@ describe('ProjectiveVectorSpace', () => {
             expect(vectorSpace.name.includes(DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(true);
         });
 
-        it(`can create a user-defined Projective vector space with a user-specified name and id`, () => {
+        it(`can create a user-defined Projective vector space with a user-specified name`, () => {
             const usrSpecName = "My Projective Vector Space";
             const vectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, false, usrSpecName);
             expect(vectorSpace.isDefault).to.eql(false);
@@ -69,50 +99,105 @@ describe('ProjectiveVectorSpace', () => {
             expect(vectorSpace.name).to.eql(usrSpecName);
         });
 
-        // it(`can create a user-defined Projective vector space with a user-specified id`, () => {
-        //     const usrSpecName = undefined;
-        //     const usrSpecId = "MyId";
-        //     const vectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, false, usrSpecName, usrSpecId);
-        //     expect(vectorSpace.isDefault).to.eql(false);
-        //     expect(vectorSpace.name.includes(DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(false);
-        //     expect(vectorSpace.name.includes(PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(true);
-        //     expect(vectorSpace.id).to.eql(usrSpecId);
-        // });
+        it(`cannot create a default Projective vector space with a user-specified name`, () => {
+            const usrSpecName = "My Default Projective Vector Space";
+            const vectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, true, usrSpecName);
+            expect(vectorSpace.isDefault).to.eql(true);
+            expect(vectorSpace.name.includes(DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(true);
+            expect(vectorSpace.name).to.not.eql(usrSpecName);
+        });
+
+        it(`check that two distinct ProjectiveVectorSpace with same dimension and weight management but one being default and the other user-specific are distinct`, () => {
+            const projectiveVectorSpace1 = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, true);
+            const projectiveVectorSpace2 = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, false);
+            expect(projectiveVectorSpace1.dimension()).to.eql(projectiveVectorSpace2.dimension());
+            expect(projectiveVectorSpace1.weightManagement).to.eql(projectiveVectorSpace2.weightManagement);
+            expect(projectiveVectorSpace1.isDefault).to.not.eql(projectiveVectorSpace2.isDefault);
+            expect(projectiveVectorSpace1.id).to.not.eql(projectiveVectorSpace2.id);
+            expect(projectiveVectorSpace1).to.not.eql(projectiveVectorSpace2);
+        });
+
+        it('cannot generate more than one default ProjectiveVectorSpace of a given dimension whatever the weight managment type', () => {
+            for(let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
+                const vectorSpace = new ProjectiveVectorSpace(i, true);
+                expect(vectorSpace.dimension()).to.eql(i);
+                expect(vectorSpace.isDefault).to.eql(true);
+                expect(() => new ProjectiveVectorSpace(i, true)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
+                expect(() => new ProjectiveVectorSpace(i, WeightManagement.SomeNullWeights, true)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
+                expect(() => new ProjectiveVectorSpace(i, WeightManagement.AllPositiveWeights, true)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
+            }
+        });
 
     });
 
     describe('Accesssors', () => {
+
+        it(`can get the identifier of a user-defined ProjectiveVectorSpace`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
+            expect(projectiveVectorSpace.id.includes(VECTOR_SPACE)).to.eql(true)
+        });
+
+        it(`can get the identifier of a default ProjectiveVectorSpace`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1, true);
+            expect(projectiveVectorSpace.id.includes(DEFAULT)).to.eql(true)
+        });
+
+        it(`can get the default name of a user-defined ProjectiveVectorSpace`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
+            expect(projectiveVectorSpace.name.includes(PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(true)
+        });
+
+        it(`can get the default name of a default ProjectiveVectorSpace`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1, true);
+            expect(projectiveVectorSpace.name.includes(DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME)).to.eql(true)
+        });
+
+        it(`can get the status of a user-defined ProjectiveVectorSpace as not being default`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
+            expect(projectiveVectorSpace.isDefault).to.eql(false)
+        });
+
+        it(`can get the status of a default ProjectiveVectorSpace as being default`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1, true);
+            expect(projectiveVectorSpace.isDefault).to.eql(true)
+        });
+
+        it(`can get the vector space type of a user-defined ProjectiveVectorSpace`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
+            expect(projectiveVectorSpace.spaceType).to.eql(VectorSpaceType.PROJECTIVE)
+        });
+
+        it(`can get the vector space type of a default ProjectiveVectorSpace`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1, true);
+            expect(projectiveVectorSpace.spaceType).to.eql(VectorSpaceType.PROJECTIVE)
+        });
+
         it('can get the weight management type of a ProjectiveVectorSpace', () => {
-            const realVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
         });
 
-        it('can set the weight management type of a ProjectiveVectorSpace to ' + WeightManagement.AllPositiveWeights, () => {
-            const realVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
-            realVectorSpace.weightManagement = WeightManagement.AllPositiveWeights;
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights)
+        it('can get the weight management type of a ProjectiveVectorSpace as ' + WeightManagement.AllPositiveWeights, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1, WeightManagement.AllPositiveWeights);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights)
         });
 
-        it('can set the weight management type of a ProjectiveVectorSpace to ' + WeightManagement.SomeNullWeights, () => {
-            const realVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
-            realVectorSpace.weightManagement = WeightManagement.SomeNullWeights;
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights)
+        it('can get the weight management type of a ProjectiveVectorSpace as ' + WeightManagement.SomeNullWeights, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1, WeightManagement.SomeNullWeights);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights)
         });
 
-        it('can set the weight management type of a ProjectiveVectorSpace to ' + WeightManagement.AllStrictlyPositiveWeights, () => {
-            const realVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1, WeightManagement.SomeNullWeights);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights)
-            realVectorSpace.weightManagement = WeightManagement.AllStrictlyPositiveWeights;
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
+        it('can get the weight management type of a ProjectiveVectorSpace as ' + WeightManagement.AllStrictlyPositiveWeights, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1, WeightManagement.AllStrictlyPositiveWeights);
+            expect(projectiveVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
         });
     });
 
 
     describe('Methods', () => {
         it('can get the dimension of a ProjectiveVectorSpace', () => {
-            const realVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
-            expect(realVectorSpace.dimension()).to.eql(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1)
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1);
+            expect(projectiveVectorSpace.dimension()).to.eql(MAX_DIMENSION_PROJECTIVEVECTORSPACE - 1)
         });
 
 

@@ -33,7 +33,7 @@ export class Vector3DTypeReal extends AbstractRealVector {
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR3D; }
     get coordinates(): number[] { return [...this.data.coordinates]; }
-    get raw(): RealVector3D { return { ...this.data }; }
+    get descriptor(): RealVector3D { return { ...this.data }; }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
     
@@ -45,13 +45,13 @@ export class Vector3DTypeReal extends AbstractRealVector {
         return this.data.coordinates[index];
     }
     
-    setCoordinate(index: number, value: number): void {
-        if (index < 0 || index >= SPACE_DIMENSION) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'setCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
-            throw new RangeError(error.generateMessageString());
-        }
-        this.data.coordinates[index] = value;
-    }
+    // setCoordinate(index: number, value: number): void {
+    //     if (index < 0 || index >= SPACE_DIMENSION) {
+    //         const error = sendRangeErrorMessage(this.constructor.name, 'setCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+    //         throw new RangeError(error.generateMessageString());
+    //     }
+    //     this.data.coordinates[index] = value;
+    // }
 
     
     clone(): Vector3DTypeReal {

@@ -3,22 +3,25 @@ import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOM
 import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../../src/ErrorMessages/ProjectiveComplexVectorSpace";
-import { Complex, COMPLEX, ComplexVector2D, COMPLEXVECTOR2D, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, ProjectiveComplexVector1D, PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D, WEIGHT, Weight_Interface } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { Complex, COMPLEX, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, ProjectiveComplexVector1D, PROJECTIVECOMPLEXVECTOR1D, WEIGHT, Weight_Interface } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../../src/ErrorMessages/ComplexOperators";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 import { PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/VectorSpaceResolvers";
 import { DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/DefaultVectorSpaces";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
+import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdentifierManager";
+import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
+import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 
 describe('ProjectiveComplexVectorSpace', () => {
-    
-    describe('Constructor', () => {
+   
+    beforeEach(() => {
+        // Reset the default projective space manager singleton before each test
+        DefaultVectorSpaces.reset();
+    });
 
-        beforeEach(() => {
-            // Reset the default projective space manager singleton before each test
-            DefaultVectorSpaces.reset();
-        });
+    describe('Constructor', () => {
 
         it('can generate a valid ProjectiveComplexVectorSpace dimension between ' + MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE + ' and ' + MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, () => {
             expect(() => new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)).to.not.throw()
@@ -30,70 +33,176 @@ describe('ProjectiveComplexVectorSpace', () => {
             expect(() => new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE + 1)).to.throw(EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE)
         });
 
-        it('can generate a valid ProjectiveComplexVectorSpace and get its dimension', () => {
-            const realVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
-            expect(realVectorSpace.dimension()).to.eql(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)
+        it('can generate a user-specific ProjectiveComplexVectorSpace and get its dimension', () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(projectiveComplexVectorSpace.dimension()).to.eql(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)
         });
 
-        it('can generate a valid ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.AllStrictlyPositiveWeights, () => {
-            const realVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+        it('can generate a user-specific ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.AllStrictlyPositiveWeights, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            const projectiveComplexVectorSpace1 = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights);
+            expect(projectiveComplexVectorSpace1.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
         });
 
-        it('can generate a valid ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.SomeNullWeights, () => {
-            const realVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.SomeNullWeights);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+        it('can generate a user-specific ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.SomeNullWeights, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.SomeNullWeights);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
         });
 
-        it('can generate a valid ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.AllPositiveWeights, () => {
-            const realVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+        it('can generate a user-specific ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.AllPositiveWeights, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
         });
 
-        it(`can check that a user specific Projective Complex vector space has a default name containing ${PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME}`, () => {
+        it(`can check that a user specific ProjectiveComplexVectorSpace has a default name containing ${PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME}`, () => {
             const vectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             expect(vectorSpace.isDefault).to.eql(false);
-            expect(vectorSpace.name.includes("Default ")).to.eql(false);
+            expect(vectorSpace.name.includes(DEFAULT)).to.eql(false);
+            expect(vectorSpace.name.includes(PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true);
         });
 
-        it(`can check that a default Projective Complex vector space has a default name containing ${DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME}`, () => {
-            const vectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, undefined, undefined, true);
+        it('can generate a default ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.AllStrictlyPositiveWeights, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, true);
+            expect(projectiveComplexVectorSpace.isDefault).to.eql(true);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+        });
+
+        it('can generate a default ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.AllStrictlyPositiveWeights + ` and an explicit default prescription`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, true);
+            expect(projectiveComplexVectorSpace.isDefault).to.eql(true);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+        });
+
+        it('can generate a default ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.AllPositiveWeights, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights, true);
+            expect(projectiveComplexVectorSpace.isDefault).to.eql(true);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+        });
+
+        it('can generate a default ProjectiveComplexVectorSpace with a weight management ' + WeightManagement.SomeNullWeights, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.SomeNullWeights, true);
+            expect(projectiveComplexVectorSpace.isDefault).to.eql(true);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+        });
+
+        it(`can check that a default ProjectiveComplexVectorSpace has a default name containing ${DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME}`, () => {
+            const vectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, true);
             expect(vectorSpace.isDefault).to.eql(true);
             expect(vectorSpace.name.includes(DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true);
+        });
+
+        it(`can create a user-defined ProjectiveComplexVectorSpace with a user-specified name`, () => {
+            const usrSpecName = "My Complex Projective Vector Space";
+            const vectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, false, usrSpecName);
+            expect(vectorSpace.isDefault).to.eql(false);
+            expect(vectorSpace.name.includes(DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME)).to.eql(false);
+            expect(vectorSpace.name.includes(PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME)).to.eql(false);
+            expect(vectorSpace.name).to.eql(usrSpecName);
+        });
+
+        it(`cannot create a default ProjectiveComplexVectorSpace with a user-specified name`, () => {
+            const usrSpecName = "My Default Complex Projective Vector Space";
+            const vectorSpace = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, true, usrSpecName);
+            expect(vectorSpace.isDefault).to.eql(true);
+            expect(vectorSpace.name.includes(DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true);
+            expect(vectorSpace.name).to.not.eql(usrSpecName);
+        });
+
+        it(`check that two distinct ProjectiveComplexVectorSpace with same dimension and weight management but one being default and the other user-specific are distinct`, () => {
+            const projectiveComplexVectorSpace1 = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, true);
+            const projectiveComplexVectorSpace2 = new ProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights, false);
+            expect(projectiveComplexVectorSpace1.dimension()).to.eql(projectiveComplexVectorSpace2.dimension());
+            expect(projectiveComplexVectorSpace1.weightManagement).to.eql(projectiveComplexVectorSpace2.weightManagement);
+            expect(projectiveComplexVectorSpace1.isDefault).to.not.eql(projectiveComplexVectorSpace2.isDefault);
+            expect(projectiveComplexVectorSpace1.id).to.not.eql(projectiveComplexVectorSpace2.id);
+            expect(projectiveComplexVectorSpace1).to.not.eql(projectiveComplexVectorSpace2);
+        });
+
+        it('cannot generate more than one default ProjectiveComplexVectorSpace of a given dimension whatever the weight managment type', () => {
+            for(let i = MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i++) {
+                const vectorSpace = new ProjectiveComplexVectorSpace(i, true);
+                expect(vectorSpace.dimension()).to.eql(i);
+                expect(vectorSpace.isDefault).to.eql(true);
+                expect(() => new ProjectiveComplexVectorSpace(i, true)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
+                expect(() => new ProjectiveComplexVectorSpace(i, WeightManagement.SomeNullWeights, true)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
+                expect(() => new ProjectiveComplexVectorSpace(i, WeightManagement.AllPositiveWeights, true)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
+            }
         });
     });
 
     describe('Accesssors', () => {
+
+        it(`can get the identifier of a user-defined ProjectiveComplexVectorSpace`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(projectiveComplexVectorSpace.id.includes(VECTOR_SPACE)).to.eql(true)
+        });
+
+        it(`can get the identifier of a default ProjectiveComplexVectorSpace`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, true);
+            expect(projectiveComplexVectorSpace.id.includes(DEFAULT)).to.eql(true)
+        });
+
+        it(`can get the default name of a user-defined ProjectiveComplexVectorSpace`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(projectiveComplexVectorSpace.name.includes(PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true)
+        });
+
+        it(`can get the default name of a default ProjectiveComplexVectorSpace`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, true);
+            expect(projectiveComplexVectorSpace.name.includes(DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true)
+        });
+
+        it(`can get the status of a user-defined ProjectiveComplexVectorSpace as not being default`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(projectiveComplexVectorSpace.isDefault).to.eql(false)
+        });
+
+        it(`can get the status of a default ProjectiveComplexVectorSpace as being default`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, true);
+            expect(projectiveComplexVectorSpace.isDefault).to.eql(true)
+        });
+
+        it(`can get the vector space type of a user-defined ProjectiveComplexVectorSpace`, () => {
+            const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(projectiveVectorSpace.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX)
+        });
+
+        it(`can get the vector space type of a default ProjectiveComplexVectorSpace`, () => {
+            const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, true);
+            expect(projectiveVectorSpace.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX)
+        });
+
         it('can get the weight management type of a ProjectiveComplexVectorSpace', () => {
-            const realVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
         });
 
         it('can set the weight management type of a ProjectiveComplexVectorSpace to ' + WeightManagement.AllPositiveWeights, () => {
-            const realVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
-            realVectorSpace.weightManagement = WeightManagement.AllPositiveWeights;
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights)
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
+            projectiveComplexVectorSpace.weightManagement = WeightManagement.AllPositiveWeights;
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights)
         });
 
         it('can set the weight management type of a ProjectiveComplexVectorSpace to ' + WeightManagement.SomeNullWeights, () => {
-            const realVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
-            realVectorSpace.weightManagement = WeightManagement.SomeNullWeights;
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights)
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            projectiveComplexVectorSpace.weightManagement = WeightManagement.SomeNullWeights;
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights)
         });
 
         it('can set the weight management type of a ProjectiveComplexVectorSpace to ' + WeightManagement.AllStrictlyPositiveWeights, () => {
-            const realVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.SomeNullWeights);
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights)
-            realVectorSpace.weightManagement = WeightManagement.AllStrictlyPositiveWeights;
-            expect(realVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.SomeNullWeights);
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights)
+            projectiveComplexVectorSpace.weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
         });
     });
 
     describe('Methods', () => {
         it('can get the dimension of a ProjectiveComplexVectorSpace', () => {
-            const realVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
-            expect(realVectorSpace.dimension()).to.eql(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            expect(projectiveComplexVectorSpace.dimension()).to.eql(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)
         });
 
         it(`cannot check that two vectors share the same weight management status if one of the vectors has not the same weight management for its real and imaginary weights`, () => {

@@ -20,9 +20,16 @@ export function createCommonRealVectorTests(
     describe('Common RealVector Space Tests', () => {
 
         describe('Accessors', () => {
-            it(`can get the dimension of the space where a vector is defined`, () => {
+            it(`can get the space dimension of a vector when the vector is into a user-specified vector space`, () => {
                 const vSpace = new RealVectorSpace(dimension);
                 const realVector = createTestRealVector(dimension, vSpace);
+                expect(realVector.vectorSpace.isDefault).to.eql(false);
+                expect(realVector.dimension).to.eql(dimension);
+            });
+
+            it(`can get the space dimension of a vector when the vector is into a default vector space`, () => {
+                const realVector = createTestRealVector(dimension);
+                expect(realVector.vectorSpace.isDefault).to.eql(true);
                 expect(realVector.dimension).to.eql(dimension);
             });
 
@@ -41,16 +48,16 @@ export function createCommonRealVectorTests(
                 }
             });
 
-            it(`can get the datastructure of a vector as vector coordinates`, () => {
+            it(`can get the descriptor of a vector as vector coordinates`, () => {
                 const vSpace = new RealVectorSpace(dimension);
                 const coordinates = [1, 3, 5, 7];
                 const realVector = createTestRealVector(dimension, vSpace, coordinates);
                 expect(realVector.dimension).to.eql(dimension);
-                if(typeof realVector.raw === 'number') {
-                    expect(realVector.raw).to.eql(coordinates[0]);
+                if(typeof realVector.descriptor === 'number') {
+                    expect(realVector.descriptor).to.eql(coordinates[0]);
                 } else {
                     for (let i = 0; i < dimension; i++) {
-                        expect(realVector.raw.coordinates).to.eql(realVector.coordinates);
+                        expect(realVector.descriptor.coordinates[i]).to.eql(realVector.coordinates[i]);
                     }
                 }
             });
@@ -89,41 +96,32 @@ export function createCommonRealVectorTests(
                 expect(() => realVector.getCoordinate(dimension)).to.throw(EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             });
 
-            it(`can set a coordinate of a vector `, () => {
-                const coordinates = [0, 0, 0, 0];
-                const newCoordinates = [-1, 1, 3, 5];
-                const vSpace = new RealVectorSpace(dimension);
-                const realVector = createTestRealVector(dimension, vSpace, coordinates);
-                expect(realVector.dimension).to.eql(dimension);
-                expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
-                expect(realVector.vectorSpace.isDefault).to.eql(false);
-                for (let i = 0; i < dimension; i++) {
-                    realVector.setCoordinate(i, newCoordinates[i]);
-                }
-                expect(realVector.coordinates).to.eql(newCoordinates.slice(0, dimension));
-            });
+            //unit tests removed to keep vectors as immutable entities
+            // it(`can set a coordinate of a vector `, () => {
+            //     const coordinates = [0, 0, 0, 0];
+            //     const newCoordinates = [-1, 1, 3, 5];
+            //     const vSpace = new RealVectorSpace(dimension);
+            //     const realVector = createTestRealVector(dimension, vSpace, coordinates);
+            //     expect(realVector.dimension).to.eql(dimension);
+            //     expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
+            //     expect(realVector.vectorSpace.isDefault).to.eql(false);
+            //     for (let i = 0; i < dimension; i++) {
+            //         realVector.setCoordinate(i, newCoordinates[i]);
+            //     }
+            //     expect(realVector.coordinates).to.eql(newCoordinates.slice(0, dimension));
+            // });
+            //
+            // it(`cannot set a coordinate of a vector when the coordinate index is negative`, () => {
+            //     const coordinates = [1, 3, 5, 7];
+            //     const vSpace = new RealVectorSpace(dimension);
+            //     const realVector = createTestRealVector(dimension, vSpace, coordinates);
+            //     expect(realVector.dimension).to.eql(dimension);
+            //     expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
+            //     expect(realVector.vectorSpace.isDefault).to.eql(false);
+            //     expect(() => realVector.setCoordinate(-1, coordinates[0])).to.throw(EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+            // });
 
-            it(`cannot set a coordinate of a vector when the coordinate index is negative`, () => {
-                const coordinates = [1, 3, 5, 7];
-                const vSpace = new RealVectorSpace(dimension);
-                const realVector = createTestRealVector(dimension, vSpace, coordinates);
-                expect(realVector.dimension).to.eql(dimension);
-                expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
-                expect(realVector.vectorSpace.isDefault).to.eql(false);
-                expect(() => realVector.setCoordinate(-1, coordinates[0])).to.throw(EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
-            });
-
-            it(`cannot get a coordinate of a vector when the coordinate index is equal or larger than the vector space dimension`, () => {
-                const coordinates = [1, 3, 5, 7];
-                const vSpace = new RealVectorSpace(dimension);
-                const realVector = createTestRealVector(dimension, vSpace, coordinates);
-                expect(realVector.dimension).to.eql(dimension);
-                expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
-                expect(realVector.vectorSpace.isDefault).to.eql(false);
-                expect(() => realVector.setCoordinate(dimension, coordinates[1])).to.throw(EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
-            });
-
-            it(`can clone a vector `, () => {
+            it(`can clone a vector living into a user-specified vector space`, () => {
                 const coordinates = [1, 3, 5, 7];
                 const vSpace = new RealVectorSpace(dimension);
                 const realVector = createTestRealVector(dimension, vSpace, coordinates);
@@ -131,10 +129,22 @@ export function createCommonRealVectorTests(
                 expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
                 expect(realVector.vectorSpace.isDefault).to.eql(false);
                 const newRealVector = realVector.clone();
+                expect(newRealVector.dimension).to.eql(dimension);
+                expect(newRealVector.spaceType).to.eql(VectorSpaceType.REAL);
+                expect(newRealVector.vectorSpace.isDefault).to.eql(false);
                 expect(newRealVector.coordinates).to.eql(coordinates.slice(0, dimension));
-                for (let i = 0; i < dimension; i++) {
-                    realVector.setCoordinate(i, 0);
-                }
+            });
+
+            it(`can clone a vector living into a default vector space`, () => {
+                const coordinates = [1, 3, 5, 7];
+                const realVector = createTestRealVector(dimension, undefined, coordinates);
+                expect(realVector.dimension).to.eql(dimension);
+                expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
+                expect(realVector.vectorSpace.isDefault).to.eql(true);
+                const newRealVector = realVector.clone();
+                expect(newRealVector.dimension).to.eql(dimension);
+                expect(newRealVector.spaceType).to.eql(VectorSpaceType.REAL);
+                expect(newRealVector.vectorSpace.isDefault).to.eql(true);
                 expect(newRealVector.coordinates).to.eql(coordinates.slice(0, dimension));
             });
 
@@ -144,10 +154,8 @@ export function createCommonRealVectorTests(
                 expect(realVector1.dimension).to.eql(dimension);
                 expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
                 expect(realVector1.vectorSpace.isDefault).to.eql(true);
-                const realVector2 = createTestRealVector(dimension);
-                for (let i = 0; i < dimension; i++) {
-                    realVector2.setCoordinate(i, coordinates[i]);
-                }
+                const vectorSpace = realVector1.vectorSpace;
+                const realVector2 = createTestRealVector(dimension, vectorSpace, coordinates);
                 const result = realVector1.add(realVector2);
                 for (let i = 0; i < dimension; i++) {
                     expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
@@ -158,7 +166,7 @@ export function createCommonRealVectorTests(
                 expect(result.vectorSpace.isDefault).to.eql(true);
             });
 
-            it(`can add a vector with another real vector in the same vector space`, () => {
+            it(`can add a vector with another real vector in the same user-defined vector space`, () => {
                 const coordinates = [1, 3, 5, 7];
                 const vSpace = new RealVectorSpace(dimension);
                 const realVector1 = createTestRealVector(dimension, vSpace, coordinates);

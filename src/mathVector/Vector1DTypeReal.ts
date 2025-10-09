@@ -1,6 +1,6 @@
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { AbstractRealVector } from "./AbstractRealVector";
-import { getDefaultVectorSpace, resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { REALVECTOR1D, RealVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
@@ -33,7 +33,7 @@ export class Vector1DTypeReal extends AbstractRealVector {
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR1D; }
     get coordinates(): number[] { return [this.value]; }
-    get raw(): RealVector1D { return this.value; }
+    get descriptor(): RealVector1D { return this.value; }
     
     getCoordinate(index: number): number {
         if (index !== 0) {
@@ -43,13 +43,13 @@ export class Vector1DTypeReal extends AbstractRealVector {
         return this.value;
     }
     
-    setCoordinate(index: number, value: number): void {
-        if (index !== 0) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'setCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
-            throw new RangeError(error.generateMessageString());
-        }
-        this.value = value;
-    }
+    // setCoordinate(index: number, value: number): void {
+    //     if (index !== 0) {
+    //         const error = sendRangeErrorMessage(this.constructor.name, 'setCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+    //         throw new RangeError(error.generateMessageString());
+    //     }
+    //     this.value = value;
+    // }
 
     
     clone(): Vector1DTypeReal {

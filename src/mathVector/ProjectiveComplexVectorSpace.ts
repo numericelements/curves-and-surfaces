@@ -36,7 +36,6 @@ export interface ProjectiveComplexVectorSpaceStrategy<D extends number> {
 }
 
 
-// export class ProjectiveComplexVectorSpace<D extends number = number> implements VectorSpace<Complex, ProjectiveComplexVectorOfDimension<D>> {
 export class ProjectiveComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Complex, ProjectiveComplexVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
@@ -47,18 +46,29 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
     protected _weightManagement: WeightManagement;
     private weightManager: WeightManager;
 
-    // constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights) {
-    constructor(dimension: D, weightManagement: WeightManagement = WeightManagement.AllStrictlyPositiveWeights,
-        name?: string, isDefault: boolean = false, id?: string) {
+    constructor(dimension: D);
+    constructor(dimension: D, isDefault: boolean);
+    constructor(dimension: D, weightManagement: WeightManagement);
+    constructor(dimension: D, weightManagement?: WeightManagement, isDefault?: boolean);
+    constructor(dimension: D, weightManagement?: WeightManagement, isDefault?: boolean, name?: string);
+    constructor(dimension: D, isDefltOrWeightMgmt?: boolean | WeightManagement, isDefault?: boolean, name?: string) {
         this.dim = dimension;
-        this._weightManagement = weightManagement;
-        this.weightManager = new WeightManager(weightManagement);
+        if(typeof isDefltOrWeightMgmt === 'string') {
+            this._weightManagement = isDefltOrWeightMgmt;
+        } else if(typeof isDefltOrWeightMgmt === 'boolean') {
+            isDefault = isDefltOrWeightMgmt;
+            this._weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+        } else {
+            this._weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+        }
+        // this._weightManagement = weightManagement;
+        if(isDefault === undefined) isDefault = false;
+        this.weightManager = new WeightManager(this._weightManagement);
         this._isDefault = isDefault;
         this._id = INITIAL_VECTOR_SPACE_ID;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
         } else {
-            // this._id = resolveVectorSpace(this, id);
             this._id = resolveVectorSpace(this);
         }
         if(this._isDefault) {
@@ -347,8 +357,8 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
             throw new Error('Vector dimensions or types do not match');
         }
-        const rawA = a.raw as ProjectiveComplexVector;
-        const rawB = b.raw as ProjectiveComplexVector;
+        const rawA = a.descriptor as ProjectiveComplexVector;
+        const rawB = b.descriptor as ProjectiveComplexVector;
         const result = this.addRaw(rawA, rawB);
         
         return this.createVectorInstance(result);

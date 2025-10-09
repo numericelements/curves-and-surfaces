@@ -10,6 +10,8 @@ import { Vector4DTypeReal } from "../../src/mathVector/Vector4DTypeReal";
 
 describe('Vector 4D in real vector space: generation and operators in this vector space', () => {
     const dimension = 4;
+    let defaultVectorSpaceID = '';
+    let userSpecificVSID = '';
 
     describe('Constructor', () => {
         it(`can generate a default real vector into the default 4D vector space`, () => {
@@ -23,6 +25,7 @@ describe('Vector 4D in real vector space: generation and operators in this vecto
             expect(realVector.vectorType).to.eql(REALVECTOR4D);
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(true);
+            defaultVectorSpaceID = realVector.vectorSpace.id;
         });
 
         it(`can generate an arbitrary real vector into the default 4D vector space`, () => {
@@ -36,6 +39,7 @@ describe('Vector 4D in real vector space: generation and operators in this vecto
             expect(realVector.vectorType).to.eql(REALVECTOR4D);
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(true);
+            expect(realVector.vectorSpace.id).to.eql(defaultVectorSpaceID);
         });
 
         it(`can generate a default real vector into a 4D vector space`, () => {
@@ -51,10 +55,13 @@ describe('Vector 4D in real vector space: generation and operators in this vecto
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(false);
             expect(realVector.vectorSpace).to.eql(vSpace);
+            userSpecificVSID = realVector.vectorSpace.id;
         });
 
         it(`can generate an arbitrary real vector into a 4D vector space`, () => {
             const vSpace = new RealVectorSpace(dimension);
+            expect(vSpace.id).to.not.eql(userSpecificVSID);
+            expect(vSpace.id).to.not.eql(defaultVectorSpaceID);
             const realVector = new Vector4DTypeReal(1, -2, 3, -6, vSpace);
             expect(realVector.coordinates).to.eql([1, -2, 3, -6]);
             expect(realVector.dimension).to.eql(dimension);
@@ -83,18 +90,18 @@ describe('Vector 4D in real vector space: generation and operators in this vecto
             expect(realVector.x).to.eql(1);
             expect(realVector.y).to.eql(2);
             expect(realVector.z).to.eql(-3);
-            expect(realVector.w).to.eql(5);
+            expect(realVector.t).to.eql(5);
             expect(realVector.dimension).to.eql(dimension);
             expect(realVector.vectorType).to.eql(REALVECTOR4D);
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(false);
         });
 
-        it(`can get the datastructure of a vector as vector type`, () => {
+        it(`can get the descriptor of a vector as vector type`, () => {
             const vSpace = new RealVectorSpace(dimension);
             const realVector = new Vector4DTypeReal(1, 3, -1, 5, vSpace);
             expect(realVector.dimension).to.eql(dimension);
-            expect(realVector.raw.type).to.eql(REALVECTOR4D);
+            expect(realVector.descriptor.type).to.eql(REALVECTOR4D);
         });
     });
 

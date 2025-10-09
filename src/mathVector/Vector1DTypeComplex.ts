@@ -31,7 +31,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
     }
     
     get coordinates(): Complex[] { return [this.data]; }
-    get raw(): ComplexVector1D { return this.data; }
+    get descriptor(): ComplexVector1D { return this.data; }
     
     clone(): Vector1DTypeComplex {
         return new Vector1DTypeComplex(this.data.real, this.data.imaginary, this.vectorSpace);

@@ -64,7 +64,6 @@ export interface RealVectorSpaceStrategy<D extends number>  {
 }
 
 // Main class using strategy
-// export class RealVectorSpace<D extends number = number> implements VectorSpace<Real, RealVectorOfDimension<D>> {
 export class RealVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Real, RealVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
@@ -72,14 +71,13 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
     protected readonly dim: D;
     protected strategy: RealVectorSpaceStrategy<D>;
     
-    constructor(dimension: D, name?: string, isDefault: boolean = false, id?: string) {
+    constructor(dimension: D, isDefault: boolean = false, name?: string) {
         this.dim = dimension;
         this._isDefault = isDefault;
         this._id = INITIAL_VECTOR_SPACE_ID;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
         } else {
-            // this._id = resolveVectorSpace(this, id);
             this._id = resolveVectorSpace(this);
         }
         if(this._isDefault) {
@@ -309,8 +307,8 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
             throw new Error('Vector dimensions or types do not match');
         }
-        const rawA = a.raw as RealVectorOfDimension<D>;
-        const rawB = b.raw as RealVectorOfDimension<D>;
+        const rawA = a.descriptor as RealVectorOfDimension<D>;
+        const rawB = b.descriptor as RealVectorOfDimension<D>;
         const result = this.addRaw(rawA, rawB);
         
         return this.createVectorInstance(result);

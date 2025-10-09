@@ -15,9 +15,9 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     get spaceType(): VectorSpaceType { return VectorSpaceType.COMPLEX; }
     get vectorSpace(): ComplexVectorSpace<any> { return this._vectorSpace as ComplexVectorSpace<any>; }
     
-    abstract get raw(): ComplexVector;
+    abstract get descriptor(): ComplexVector;
     abstract getCoordinate(index: number): Complex;
-    abstract setCoordinate(index: number, value: Complex): void;
+    // abstract setCoordinate(index: number, value: Complex): void;
     abstract get coordinates(): Complex[];
     abstract clone(): IComplexVector;
     
@@ -48,15 +48,15 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         return coord.imaginary;
     }
     
-    setReal(index: number, value: number): void {
-        const coord = this.getCoordinate(index);
-        this.setCoordinate(index, { ...coord, real: value });
-    }
+    // setReal(index: number, value: number): void {
+    //     const coord = this.getCoordinate(index);
+    //     this.setCoordinate(index, { ...coord, real: value });
+    // }
     
-    setImaginary(index: number, value: number): void {
-        const coord = this.getCoordinate(index);
-        this.setCoordinate(index, { ...coord, imaginary: value });
-    }
+    // setImaginary(index: number, value: number): void {
+    //     const coord = this.getCoordinate(index);
+    //     this.setCoordinate(index, { ...coord, imaginary: value });
+    // }
     
     toArray(): number[] {
         // Flatten complex coordinates to [real1, imag1, real2, imag2, ...]

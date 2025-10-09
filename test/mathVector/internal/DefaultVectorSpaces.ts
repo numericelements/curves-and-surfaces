@@ -44,9 +44,9 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
     it(`no instance of default vector space is initially available`, () => {
         expect(DefaultVectorSpaces.hasInstance()).to.eql(false);
         const vectorSpace = DefaultVectorSpaces.getInstance();
-        const realVS = new RealVectorSpace(2, undefined, true);
+        const realVS = new RealVectorSpace(2, true);
         expect(vectorSpace.isDefaultSpace(realVS)).to.eql(true);
-        const defaultVSId = new RealVectorSpace(1, undefined, true);
+        const defaultVSId = new RealVectorSpace(1, true);
         expect(vectorSpace.isDefaultSpace(defaultVSId)).to.eql(true);
     });
 
@@ -59,7 +59,7 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
 
     it(`cannot register an instance of a default real vector space that is already registered`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
-        const realVS = new RealVectorSpace(2, undefined, true);
+        const realVS = new RealVectorSpace(2, true);
         expect(vectorSpace.isDefaultSpace(realVS)).to.eql(true);
         const hasbeenRegistered = vectorSpace.registerRealVectorSpace(realVS);
         expect(hasbeenRegistered).to.eql(false);
@@ -67,7 +67,7 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
 
     it(`cannot register an instance of a default complex vector space that is already registered`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
-        const complexVS = new ComplexVectorSpace(1, undefined, true);
+        const complexVS = new ComplexVectorSpace(1, true);
         expect(vectorSpace.isDefaultSpace(complexVS)).to.eql(true);
         const hasbeenRegistered = vectorSpace.registerComplexVectorSpace(complexVS);
         expect(hasbeenRegistered).to.eql(false);
@@ -83,7 +83,7 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
 
     it(`cannot register an instance of a default projective complex vector space that is already registered`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
-        const projectiveComplexVS = new ProjectiveComplexVectorSpace(2, undefined, undefined, true);
+        const projectiveComplexVS = new ProjectiveComplexVectorSpace(2, true);
         expect(vectorSpace.getVectorSpaceIndex(projectiveComplexVS)).to.eql(DEFAULT_VSPACE_INDEX_INITIAL_VALUE);
         expect(vectorSpace.isDefaultSpace(projectiveComplexVS)).to.eql(true);
         const hasbeenRegistered = vectorSpace.registerProjectiveComplexVectorSpace(projectiveComplexVS);

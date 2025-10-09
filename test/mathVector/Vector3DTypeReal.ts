@@ -9,6 +9,8 @@ import { EM_REALVECTORS_DIFFERENT_DIM } from "../../src/ErrorMessages/RealVector
 
 describe('Vector 3D in real vector space: generation and operators in this vector space', () => {
     const dimension = 3;
+    let defaultVectorSpaceID = '';
+    let userSpecificVSID = '';
 
     describe('Constructor', () => {
         it(`can generate a default real vector into the default 3D vector space`, () => {
@@ -21,6 +23,7 @@ describe('Vector 3D in real vector space: generation and operators in this vecto
             expect(realVector.vectorType).to.eql(REALVECTOR3D);
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(true);
+            defaultVectorSpaceID = realVector.vectorSpace.id;
         });
 
         it(`can generate an arbitrary real vector into the default 3D vector space`, () => {
@@ -33,6 +36,7 @@ describe('Vector 3D in real vector space: generation and operators in this vecto
             expect(realVector.vectorType).to.eql(REALVECTOR3D);
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(true);
+            expect(realVector.vectorSpace.id).to.eql(defaultVectorSpaceID);
         });
 
         it(`can generate a default real vector into a 3D vector space`, () => {
@@ -47,10 +51,13 @@ describe('Vector 3D in real vector space: generation and operators in this vecto
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(false);
             expect(realVector.vectorSpace).to.eql(vSpace);
+            userSpecificVSID = realVector.vectorSpace.id;
         });
 
         it(`can generate an arbitrary real vector into a 3D vector space`, () => {
             const vSpace = new RealVectorSpace(dimension);
+            expect(vSpace.id).to.not.eql(userSpecificVSID);
+            expect(vSpace.id).to.not.eql(defaultVectorSpaceID);
             const realVector = new Vector3DTypeReal(1, -2, 4, vSpace);
             expect(realVector.coordinates).to.eql([1, -2, 4]);
             expect(realVector.dimension).to.eql(dimension);
@@ -84,11 +91,11 @@ describe('Vector 3D in real vector space: generation and operators in this vecto
             expect(realVector.vectorSpace.isDefault).to.eql(false);
         });
 
-        it(`can get the datastructure of a vector as vector type`, () => {
+        it(`can get the descriptor of a vector as vector type`, () => {
             const vSpace = new RealVectorSpace(dimension);
             const realVector = new Vector3DTypeReal(1, 3, 5, vSpace);
             expect(realVector.dimension).to.eql(dimension);
-            expect(realVector.raw.type).to.eql(REALVECTOR3D);
+            expect(realVector.descriptor.type).to.eql(REALVECTOR3D);
         });
     });
 

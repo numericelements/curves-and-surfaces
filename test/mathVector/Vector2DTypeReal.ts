@@ -10,6 +10,8 @@ import { EM_REALVECTORS_DIFFERENT_DIM } from "../../src/ErrorMessages/RealVector
 
 describe('Vector 2D in real vector space: generation and operators in this vector space', () => {
     const dimension = 2;
+    let defaultVectorSpaceID = '';
+    let userSpecificVSID = '';
 
     describe('Constructor', () => {
         it(`can generate a default real vector into the default 2D vector space`, () => {
@@ -21,6 +23,7 @@ describe('Vector 2D in real vector space: generation and operators in this vecto
             expect(realVector.vectorType).to.eql(REALVECTOR2D);
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(true);
+            defaultVectorSpaceID = realVector.vectorSpace.id;
         });
 
         it(`can generate an arbitrary real vector into the default 2D vector space`, () => {
@@ -32,6 +35,7 @@ describe('Vector 2D in real vector space: generation and operators in this vecto
             expect(realVector.vectorType).to.eql(REALVECTOR2D);
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(true);
+            expect(realVector.vectorSpace.id).to.eql(defaultVectorSpaceID);
         });
 
         it(`can generate a default real vector into a 2D vector space`, () => {
@@ -45,10 +49,13 @@ describe('Vector 2D in real vector space: generation and operators in this vecto
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(false);
             expect(realVector.vectorSpace).to.eql(vSpace);
+            userSpecificVSID = realVector.vectorSpace.id;
         });
 
         it(`can generate an arbitrary real vector into a 2D vector space`, () => {
             const vSpace = new RealVectorSpace(dimension);
+            expect(vSpace.id).to.not.eql(userSpecificVSID);
+            expect(vSpace.id).to.not.eql(defaultVectorSpaceID);
             const realVector = new Vector2DTypeReal(1, -2, vSpace);
             expect(realVector.coordinates).to.eql([1, -2]);
             expect(realVector.dimension).to.eql(dimension);
@@ -81,11 +88,11 @@ describe('Vector 2D in real vector space: generation and operators in this vecto
             expect(realVector.vectorSpace.isDefault).to.eql(false);
         });
 
-        it(`can get the datastructure of a vector as vector type`, () => {
+        it(`can get the descriptor of a vector as vector type`, () => {
             const vSpace = new RealVectorSpace(dimension);
             const realVector = new Vector2DTypeReal(1, 3, vSpace);
             expect(realVector.dimension).to.eql(dimension);
-            expect(realVector.raw.type).to.eql(REALVECTOR2D);
+            expect(realVector.descriptor.type).to.eql(REALVECTOR2D);
         });
     });
 
@@ -115,7 +122,7 @@ describe('Vector 2D in real vector space: generation and operators in this vecto
             expect(() => realVector1.subtract(realVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
         });
 
-        it(`can get the vector data structure as a string`, () => {
+        it(`can get the vector descriptor as a string`, () => {
             const coordinates = [1, 3];
             const vSpace1 = new RealVectorSpace(dimension);
             const realVector1 = new Vector2DTypeReal(coordinates[0], coordinates[1], vSpace1);

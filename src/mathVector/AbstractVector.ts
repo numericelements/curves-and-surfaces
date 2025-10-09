@@ -16,11 +16,11 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     abstract get dimension(): number;
     abstract get vectorType(): string;
     abstract get spaceType(): VectorSpaceType;
-    abstract get raw(): V;
+    abstract get descriptor(): V;
     abstract get coordinates(): (number | Complex)[];
 
     abstract getCoordinate(index: number): number | Complex;
-    abstract setCoordinate(index: number, value: number | Complex): void;
+    // abstract setCoordinate(index: number, value: number | Complex): void;
     abstract clone(): IVector;
     
 
@@ -31,30 +31,30 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     // Vector operations using the vector space
     add(other: IVector): IVector {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.addRaw(this.raw, other.raw as V);
+        const result = this._vectorSpace.addRaw(this.descriptor, other.descriptor as V);
         return this.createVectorFromRaw(result);
     }
 
     subtract(other: IVector): IVector {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.subtractRaw(this.raw, other.raw as V);
+        const result = this._vectorSpace.subtractRaw(this.descriptor, other.descriptor as V);
         return this.createVectorFromRaw(result);
     }
 
     scale(scalar: S): IVector {
-        const result = this._vectorSpace.scaleRaw(scalar, this.raw);
+        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
         return this.createVectorFromRaw(result);
     }
 
     reverse(): IVector {
-        const result = this._vectorSpace.scaleRaw(-1, this.raw);
+        const result = this._vectorSpace.scaleRaw(-1, this.descriptor);
         return this.createVectorFromRaw(result);
     }
 
     norm(tolerance?: number): number {
         if(tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
         if ('normRaw' in this._vectorSpace && typeof this._vectorSpace.normRaw === 'function') {
-            const norm = (this._vectorSpace as any).normRaw(this.raw);
+            const norm = (this._vectorSpace as any).normRaw(this.descriptor);
             if(norm < tolerance) {
                 const warning = new WarningLog(this.constructor.name, "norm", WM_VECTOR_NORM_TOO_SMALL);
                 warning.logMessage();
@@ -78,7 +78,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     dot(other: IVector): number | Complex {
         this.validateCompatibility(other);
         if ('dotRaw' in this._vectorSpace && typeof this._vectorSpace.dotRaw === 'function') {
-            return (this._vectorSpace as any).dotRaw(this.raw, other.raw);
+            return (this._vectorSpace as any).dotRaw(this.descriptor, other.descriptor);
         }
         throw new Error('Dot product not available for this vector space');
     }

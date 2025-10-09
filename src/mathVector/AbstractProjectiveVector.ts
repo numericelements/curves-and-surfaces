@@ -1,3 +1,4 @@
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
@@ -11,13 +12,21 @@ import { Weight } from "./Weight";
  */
 export abstract class AbstractProjectiveVector extends AbstractVector implements IProjectiveVector {
 
+    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
     get vectorSpace(): ProjectiveVectorSpace<any> { return this._vectorSpace as ProjectiveVectorSpace<any>; }
 
+    // Default implementations for coordinate accessors
+    get x(): number { return this.getCoordinate(0) };
+    get y(): number { return this.getCoordinate(1) };
+    get w(): number { return this.getCoordinate(this.dimension - 1) };
+
+    abstract get descriptor(): ProjectiveVector;
     abstract get weight(): Weight | ComplexWeight;
     abstract get homogeneousCoordinates(): (number | Complex)[];
     abstract getCoordinate(index: number): number;
-    abstract setCoordinate(index: number, value: number): void;
+    // abstract setCoordinate(index: number, value: number): void;
     abstract normalize(): IProjectiveVector;
+    abstract clone(): IProjectiveVector;
     abstract toCartesian(): IRealVector | IComplexVector;
     
     add(other: IProjectiveVector): IProjectiveVector {

@@ -155,7 +155,7 @@ export class DefaultVectorSpaces {
             throw new RangeError();
         }
         if (!this.realSpaces.has(dimension)) {
-            const defaultSpace = new RealVectorSpace<D>(dimension, DEFAULT_REAL_VECTOR_SPACE_NAME + dimension, true);
+            const defaultSpace = new RealVectorSpace<D>(dimension, true, DEFAULT_REAL_VECTOR_SPACE_NAME + dimension);
         }
         return this.realSpaces.get(dimension) as RealVectorSpace<D>;
     }
@@ -165,7 +165,7 @@ export class DefaultVectorSpaces {
             throw new RangeError();
         }
         if (!this.complexSpaces.has(dimension)) {
-            const defaultSpace = new ComplexVectorSpace<D>(dimension, DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension, true);
+            const defaultSpace = new ComplexVectorSpace<D>(dimension, true, DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension);
         }
         return this.complexSpaces.get(dimension) as ComplexVectorSpace<D>;
     }
@@ -185,7 +185,7 @@ export class DefaultVectorSpaces {
             throw new RangeError();
         }
         if (!this.projectiveComplexSpaces.has(dimension)) {
-            const defaultSpace = new ProjectiveComplexVectorSpace<D>(dimension, WeightManagement.AllStrictlyPositiveWeights, DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension, true);
+            const defaultSpace = new ProjectiveComplexVectorSpace<D>(dimension, WeightManagement.AllStrictlyPositiveWeights, true, DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension);
         }
         return this.projectiveComplexSpaces.get(dimension) as ProjectiveComplexVectorSpace<D>;
     }

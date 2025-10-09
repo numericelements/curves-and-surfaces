@@ -28,7 +28,7 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
     get vectorType(): string { return 'ProjectiveComplexVector'; }
     get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVECOMPLEX; }
     get coordinates(): number[] { return this.homogeneousCoordinates; }
-    get raw(): ProjectiveComplexVector { return { ...this.data }; }
+    get descriptor(): ProjectiveComplexVector { return { ...this.data }; }
     
     get weight(): ComplexWeight {
         return this.data.coordinates[1];
@@ -48,16 +48,16 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
         return this.data.coordinates[index] as Complex;
     }
     
-    setCoordinate(index: number, value: Complex): void {
-        if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
-        if (index === 1) {
-            this.data.coordinates[1].real = new Weight(value.real);
-            this.data.coordinates[1].imaginary = new Weight(value.imaginary);
-        } else {
-            this.data.coordinates[index].real = value.real;
-            this.data.coordinates[index].imaginary = value.imaginary;
-        }
-    }
+    // setCoordinate(index: number, value: Complex): void {
+    //     if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
+    //     if (index === 1) {
+    //         this.data.coordinates[1].real = new Weight(value.real);
+    //         this.data.coordinates[1].imaginary = new Weight(value.imaginary);
+    //     } else {
+    //         this.data.coordinates[index].real = value.real;
+    //         this.data.coordinates[index].imaginary = value.imaginary;
+    //     }
+    // }
     
     normalize(): ProjectiveVector1DTypeComplex {
         const w = this.weight.real.weight;

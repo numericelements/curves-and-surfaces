@@ -9,17 +9,20 @@ import { NULL_WEIGHT_TOLERANCE } from "../../src/namedConstants/ProjectiveVector
 import { COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/VectorSpaceResolvers";
 import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/DefaultVectorSpaces";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
+import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdentifierManager";
+import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
+import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 
 describe('ComplexVectorSpace', () => {
 
+    beforeEach(() => {
+        // Reset the default projective space manager singleton before each test
+        DefaultVectorSpaces.reset();
+    });
+
     describe('Constructor', () => {
 
-        beforeEach(() => {
-            // Reset the default projective space manager singleton before each test
-            DefaultVectorSpaces.reset();
-        });
-
-        it('can generate a valid ComplexVectorSpace dimension between ' + MIN_DIMENSION_COMPLEXVECTORSPACE + ' and ' + MAX_DIMENSION_COMPLEXVECTORSPACE, () => {
+        it('can generate a ComplexVectorSpace dimension between ' + MIN_DIMENSION_COMPLEXVECTORSPACE + ' and ' + MAX_DIMENSION_COMPLEXVECTORSPACE, () => {
             expect(() => new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE)).to.not.throw()
             expect(() => new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE)).to.not.throw()
         });
@@ -29,7 +32,7 @@ describe('ComplexVectorSpace', () => {
             expect(() => new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE + 1)).to.throw(EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE)
         });
 
-        it('can generate a valid ComplexVectorSpace and get its dimension', () => {
+        it('can generate a ComplexVectorSpace and get its dimension', () => {
             const complexVectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
             expect(complexVectorSpace.dimension()).to.eql(MIN_DIMENSION_COMPLEXVECTORSPACE)
         });
@@ -37,15 +40,84 @@ describe('ComplexVectorSpace', () => {
         it(`can check that a user specific Complex vector space has a default name containing ${COMPLEX_VECTOR_SPACE_NAME}`, () => {
             const vectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
             expect(vectorSpace.isDefault).to.eql(false);
-            expect(vectorSpace.name.includes("Default ")).to.eql(false);
+            expect(vectorSpace.name.includes(DEFAULT)).to.eql(false);
         });
 
-        it(`can check that a default Projective vector space has a default name containing ${DEFAULT_COMPLEX_VECTOR_SPACE_NAME}`, () => {
-            const vectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE, undefined, true);
+        it(`can check that a default Complex vector space has a default name containing ${DEFAULT_COMPLEX_VECTOR_SPACE_NAME}`, () => {
+            const vectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE, true);
             expect(vectorSpace.isDefault).to.eql(true);
             expect(vectorSpace.name.includes(DEFAULT_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true);
         });
+
+        it('can generate a ComplexVectorSpace specifying its dimension only. The resulting vector space is a user-specific vector space', () => {
+            for(let i = MIN_DIMENSION_COMPLEXVECTORSPACE; i <= MAX_DIMENSION_COMPLEXVECTORSPACE; i++) {
+                const complexVectorSpace = new ComplexVectorSpace(i);
+                expect(complexVectorSpace.dimension()).to.eql(i);
+                expect(complexVectorSpace.isDefault).to.eql(false);
+                expect(complexVectorSpace.name.includes(COMPLEX_VECTOR_SPACE_NAME)).to.eql(true);
+            }
+        });
         
+        it('can generate a default ComplexVectorSpace for any valid space dimension', () => {
+            for(let i = MIN_DIMENSION_COMPLEXVECTORSPACE; i <= MAX_DIMENSION_COMPLEXVECTORSPACE; i++) {
+                const complexVectorSpace = new ComplexVectorSpace(i, true);
+                expect(complexVectorSpace.dimension()).to.eql(i);
+                expect(complexVectorSpace.isDefault).to.eql(true);
+                expect(complexVectorSpace.name.includes(DEFAULT_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true);
+            }
+        });
+
+        it('cannot generate more than one default ComplexVectorSpace of a given dimension', () => {
+            for(let i = MIN_DIMENSION_COMPLEXVECTORSPACE; i <= MAX_DIMENSION_COMPLEXVECTORSPACE; i++) {
+                const complexVectorSpace = new ComplexVectorSpace(i, true);
+                expect(complexVectorSpace.dimension()).to.eql(i);
+                expect(complexVectorSpace.isDefault).to.eql(true);
+                expect(() => new ComplexVectorSpace(i, true)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
+            }
+        });
+    });
+
+    describe('Accesssors', () => {
+    
+        it(`can get the identifier of a user-defined ComplexVectorSpace`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
+            expect(complexVectorSpace.id.includes(VECTOR_SPACE)).to.eql(true)
+        });
+
+        it(`can get the identifier of a default ComplexVectorSpace`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE, true);
+            expect(complexVectorSpace.id.includes(DEFAULT)).to.eql(true)
+        });
+
+        it(`can get the default name of a user-defined ComplexVectorSpace`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
+            expect(complexVectorSpace.name.includes(COMPLEX_VECTOR_SPACE_NAME)).to.eql(true)
+        });
+
+        it(`can get the default name of a default ComplexVectorSpace`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE, true);
+            expect(complexVectorSpace.name.includes(DEFAULT_COMPLEX_VECTOR_SPACE_NAME)).to.eql(true)
+        });
+
+        it(`can get the status of a user-defined ComplexVectorSpace as not being default`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
+            expect(complexVectorSpace.isDefault).to.eql(false)
+        });
+
+        it(`can get the status of a default ComplexVectorSpace as being default`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE, true);
+            expect(complexVectorSpace.isDefault).to.eql(true)
+        });
+
+        it(`can get the vector space type of a user-defined ComplexVectorSpace`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
+            expect(complexVectorSpace.spaceType).to.eql(VectorSpaceType.COMPLEX);
+        });
+
+        it(`can get the vector space type of a default ComplexVectorSpace`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE, true);
+            expect(complexVectorSpace.spaceType).to.eql(VectorSpaceType.COMPLEX);
+        });
     });
 
     describe('Methods', () => {
@@ -55,8 +127,8 @@ describe('ComplexVectorSpace', () => {
         });
 
 
-        // 2D CmplexVector Space Tests
-        describe('2D Vector Space', () => {
+        // 1D CmplexVector Space Tests
+        describe('1D Complex Vector Space', () => {
             createCommonComplexVectorSpaceTests(
                 () => new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE),
                 MIN_DIMENSION_COMPLEXVECTORSPACE,
@@ -65,8 +137,8 @@ describe('ComplexVectorSpace', () => {
             
         });
         
-        // 4D CmplexVector Space Tests
-        describe('4D Vector Space', () => {
+        // 2D CmplexVector Space Tests
+        describe('2D Complex Vector Space', () => {
             createCommonComplexVectorSpaceTests(
                 () => new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE),
                 MAX_DIMENSION_COMPLEXVECTORSPACE,
