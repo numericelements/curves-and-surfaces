@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { createVectorCollection1D, VectorCollection1D } from "../../src/mathVector/VectorCollection1D";
 import { INVALID_VS_DIMENSION, VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { COMPLEX, COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR1D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, UNDEFINED_VECTORTYPE, WEIGHT, Weight_Interface } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { COMPLEX, COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR1D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, UNDEFINED_VECTORTYPE, WEIGHT, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
@@ -168,8 +168,8 @@ describe('VectorCollection1D', () => {
                 expect(vec2D.coordinates[1]).to.eql(0);
                 const weight = vec2D.coordinates[2];
                 expect(weight.type).to.eql(WEIGHT);
-                expect(weight.value.weight).to.eql(1);
-                expect(weight.value.strictlyPositive).to.eql(true);
+                expect(weight.weight.value).to.eql(1);
+                expect(weight.weight.strictlyPositive).to.eql(true);
                 const vectorCollection = new VectorCollection1D([vec2D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(3);
@@ -187,8 +187,8 @@ describe('VectorCollection1D', () => {
                 expect(vec3D.coordinates[2]).to.eql(-1);
                 const weight = vec3D.coordinates[3]
                 expect(weight.type).to.eql(WEIGHT);
-                expect(weight.value.weight).to.eql(1.5);
-                expect(weight.value.strictlyPositive).to.eql(true);
+                expect(weight.weight.value).to.eql(1.5);
+                expect(weight.weight.strictlyPositive).to.eql(true);
                 const vectorCollection = new VectorCollection1D([vec3D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(4);

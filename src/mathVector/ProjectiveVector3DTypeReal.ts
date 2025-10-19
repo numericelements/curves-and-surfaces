@@ -19,7 +19,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
         super();
         this.data = { 
             type: PROJECTIVEVECTOR3D, 
-            coordinates: [x, y, z, { type: WEIGHT, value: weight }] 
+            coordinates: [x, y, z, { type: WEIGHT, weight: weight }] 
         };
         if(vectorSpace !== undefined) {
             this._vectorSpace = vectorSpace;
@@ -40,11 +40,11 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
     get descriptor(): ProjectiveVector3D { return { ...this.data }; }
     
     get weight(): Weight {
-        return this.data.coordinates[3].value;
+        return this.data.coordinates[3].weight;
     }
     
     get homogeneousCoordinates(): number[] {
-        return [this.data.coordinates[0], this.data.coordinates[1], this.data.coordinates[2], this.weight.weight];
+        return [this.data.coordinates[0], this.data.coordinates[1], this.data.coordinates[2], this.weight.value];
     }
     
     getCoordinate(index: number): number {
@@ -52,7 +52,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        if (index === SPACE_DIMENSION - 1) return this.data.coordinates[3].value.weight;
+        if (index === SPACE_DIMENSION - 1) return this.data.coordinates[3].weight.value;
         return this.data.coordinates[index] as number;
     }
     
@@ -66,7 +66,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
     // }
     
     normalize(): ProjectiveVector3DTypeReal {
-        const w = this.weight.weight;
+        const w = this.weight.value;
         if (w === 0) return this.clone() as ProjectiveVector3DTypeReal;
         
         return new ProjectiveVector3DTypeReal(
@@ -94,12 +94,12 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
             this.data.coordinates[0],
             this.data.coordinates[1],
             this.data.coordinates[2],
-            new Weight(this.weight.weight, strictlyPosWeight),
+            new Weight(this.weight.value, strictlyPosWeight),
             this._vectorSpace
         );
     }
 
     static fromRaw(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
-        return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].value);
+        return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].weight);
     }
 }

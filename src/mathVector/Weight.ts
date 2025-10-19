@@ -5,39 +5,42 @@ import { WEIGHT } from "./VectorSpaceConstructorInterface";
 
 export class Weight {
 
-    private readonly type: typeof WEIGHT;
+    private readonly _type: typeof WEIGHT;
     private readonly _strictlyPositive: boolean;
-    protected _weight: number;
+    protected _value: number;
 
     constructor(weight?: number, strictlyPositive: boolean = true) {
-        this.type = WEIGHT;
+        this._type = WEIGHT;
         this._strictlyPositive = strictlyPositive;
         if(weight !== undefined && this._strictlyPositive) {
             this.assessmentInputWeightValueStrictlyPositive(weight);
-            this._weight = weight;
+            this._value = weight;
         } else if(weight !== undefined && !this._strictlyPositive) {
             this.assessmentInputWeightValue(weight);
-            this._weight = weight;
+            this._value = weight;
         } else {
-            this._weight = DEFAULT_WEIGHT_VALUE;
+            this._value = DEFAULT_WEIGHT_VALUE;
         }
     }
 
-    get weight(): number {
-        return this._weight;
+    get value(): number {
+        return this._value;
     }
 
     get strictlyPositive(): boolean {
         return this._strictlyPositive;
     }
 
-    set weight(weight: number) {
-        if(this.strictlyPositive) {
-            this.assessmentInputWeightValueStrictlyPositive(weight);
-        } else {
-            this.assessmentInputWeightValue(weight);
-        }
-        this._weight = weight;
+    get type(): typeof WEIGHT {
+        return this._type;
+    }
+
+    clone(): Weight {
+        return new Weight(this._value, this._strictlyPositive);
+    }
+
+    toString(): string {
+        return `${WEIGHT}(value: ${this._value}, strictlyPositive: ${this._strictlyPositive})`;
     }
 
     protected assessmentInputWeightValueStrictlyPositive(weight: number) {

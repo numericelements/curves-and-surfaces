@@ -62,8 +62,8 @@ export class ComplexOperators {
      * Adds two complex weights
      */
     static addWeights(a: ComplexWeight, b: ComplexWeight): ComplexWeight {
-        const realRes = a.real.weight + b.real.weight;
-        const imaginaryRes = a.imaginary.weight + b.imaginary.weight;
+        const realRes = a.real.value + b.real.value;
+        const imaginaryRes = a.imaginary.value + b.imaginary.value;
         if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && Math.abs(imaginaryRes) >= NULL_WEIGHT_TOLERANCE) {
             return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(imaginaryRes)};
         } else if(Math.abs(realRes) >= NULL_WEIGHT_TOLERANCE && Math.abs(imaginaryRes) < NULL_WEIGHT_TOLERANCE) {
@@ -78,8 +78,8 @@ export class ComplexOperators {
      * Subtracts two complex numbers
      */
     static subtractWeights(a: ComplexWeight, b: ComplexWeight): ComplexWeight {
-        const realRes = a.real.weight - b.real.weight;
-        const imaginaryRes = a.imaginary.weight - b.imaginary.weight;
+        const realRes = a.real.value - b.real.value;
+        const imaginaryRes = a.imaginary.value - b.imaginary.value;
         if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && imaginaryRes >= NULL_WEIGHT_TOLERANCE) {
             return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(imaginaryRes)};
         } else if(realRes >= NULL_WEIGHT_TOLERANCE && Math.abs(imaginaryRes) < NULL_WEIGHT_TOLERANCE) {
@@ -103,8 +103,8 @@ export class ComplexOperators {
      * Multiplies a complex weight by a complex number
      */
     static multiplyWeight(a: Complex, b: ComplexWeight): ComplexWeight {
-        const realRes = a.real * b.real.weight - a.imaginary * b.imaginary.weight;
-        const imaginaryRes = a.real * b.imaginary.weight + a.imaginary * b.real.weight;
+        const realRes = a.real * b.real.value - a.imaginary * b.imaginary.value;
+        const imaginaryRes = a.real * b.imaginary.value + a.imaginary * b.real.value;
         if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && imaginaryRes >= NULL_WEIGHT_TOLERANCE) {
             return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(imaginaryRes)};
         } else if(realRes >= NULL_WEIGHT_TOLERANCE && Math.abs(imaginaryRes) < NULL_WEIGHT_TOLERANCE) {
@@ -129,6 +129,6 @@ export class ComplexOperators {
     }
 
     static cloneWeight(a: ComplexWeight): ComplexWeight {
-        return {type: COMPLEXWEIGHT, real: new Weight(a.real.weight), imaginary: new Weight(a.imaginary.weight)};
+        return {type: COMPLEXWEIGHT, real: new Weight(a.real.value), imaginary: new Weight(a.imaginary.value)};
     }
 }

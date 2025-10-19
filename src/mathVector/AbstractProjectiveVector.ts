@@ -21,7 +21,7 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
     get w(): number { return this.getCoordinate(this.dimension - 1) };
 
     abstract get descriptor(): ProjectiveVector;
-    abstract get weight(): Weight | ComplexWeight;
+    abstract get weight(): Weight;
     abstract get homogeneousCoordinates(): (number | Complex)[];
     abstract getCoordinate(index: number): number;
     // abstract setCoordinate(index: number, value: number): void;

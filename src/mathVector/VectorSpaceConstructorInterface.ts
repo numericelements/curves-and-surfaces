@@ -34,9 +34,9 @@ export interface Complex {
     imaginary: number;
 }
 
-export interface Weight_Interface {
+export interface IWeight {
     readonly type: typeof WEIGHT;
-    value: Weight;
+    weight: Weight;
 }
 
 export interface ComplexWeight {
@@ -79,7 +79,7 @@ export interface RealVector2D {
 
 export interface ProjectiveVector2D {
     readonly type: typeof PROJECTIVEVECTOR2D;
-    coordinates: [Real, Real, Weight_Interface];
+    coordinates: [Real, Real, IWeight];
 }
 
 export type Vector3D = RealVector3D | ProjectiveVector2D;
@@ -91,7 +91,7 @@ export interface RealVector3D {
 
 export interface ProjectiveVector3D {
     readonly type: typeof PROJECTIVEVECTOR3D;
-    coordinates: [Real, Real, Real, Weight_Interface];
+    coordinates: [Real, Real, Real, IWeight];
 }
 
 export interface RealVector4D {

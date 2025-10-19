@@ -401,7 +401,7 @@ describe('RealVectorSpace', () => {
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 2]};
             const vec2: ProjectiveVector = realVectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1);
             expect(vec2.type).to.eql(PROJECTIVEVECTOR2D);
-            expect(vec2.coordinates).to.eql([1, 2, {type: WEIGHT, value: new Weight(1)}]);
+            expect(vec2.coordinates).to.eql([1, 2, {type: WEIGHT, weight: new Weight(1)}]);
         });
 
         it('can transform a 3D RealVector into a ProjectiveRealVector with default weight', () => {
@@ -409,7 +409,7 @@ describe('RealVectorSpace', () => {
             const vec1: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 2, 3]};
             const vec2: ProjectiveVector = realVectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1);
             expect(vec2.type).to.eql(PROJECTIVEVECTOR3D);
-            expect(vec2.coordinates).to.eql([1, 2, 3, {type: WEIGHT, value: new Weight(1)}]);
+            expect(vec2.coordinates).to.eql([1, 2, 3, {type: WEIGHT, weight: new Weight(1)}]);
         });
 
         it('can transform a 3D RealVector into a ProjectiveRealVector with custom weight', () => {
@@ -421,7 +421,7 @@ describe('RealVectorSpace', () => {
             const weight = new Weight(3);
             const vec2: ProjectiveVector = realVectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight);
             expect(vec2.type).to.eql(PROJECTIVEVECTOR3D);
-            expect(vec2.coordinates).to.eql([x * weight.weight, y * weight.weight, z * weight.weight, {type: WEIGHT, value: weight}]);
+            expect(vec2.coordinates).to.eql([x * weight.value, y * weight.value, z * weight.value, {type: WEIGHT, weight: weight}]);
         });
 
         it('cannot transform a 1D RealVector into a ProjectiveRealVector', () => {

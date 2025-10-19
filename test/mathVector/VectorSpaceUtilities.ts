@@ -43,7 +43,7 @@ describe('isVector1D', () => {
         const res1 = isVector1D(vec1)
         expect(res1).to.eql(false)
 
-        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isVector1D(vec3)
         expect(res3).to.eql(false)
     });
@@ -53,7 +53,7 @@ describe('isVector1D', () => {
         const res1 = isVector1D(vec1)
         expect(res1).to.eql(false)
 
-        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isVector1D(vec3)
         expect(res3).to.eql(false)
     });
@@ -95,7 +95,7 @@ describe('isVector2D', () => {
         const res1 = isVector2D(vec1)
         expect(res1).to.eql(false)
 
-        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isVector2D(vec3)
         expect(res3).to.eql(false)
     });
@@ -105,7 +105,7 @@ describe('isVector2D', () => {
         const res1 = isVector2D(vec1)
         expect(res1).to.eql(false)
 
-        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isVector2D(vec3)
         expect(res3).to.eql(false)
     });
@@ -118,7 +118,7 @@ describe('isVector3D', () => {
         const res3 = isVector3D(vec3)
         expect(res3).to.eql(true)
 
-        const vec1: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec1: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res1 = isVector3D(vec1)
         expect(res1).to.eql(true)
     });
@@ -156,7 +156,7 @@ describe('isVector3D', () => {
         const res1 = isVector3D(vec1)
         expect(res1).to.eql(false)
 
-        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isVector3D(vec3)
         expect(res3).to.eql(false)
     });
@@ -169,7 +169,7 @@ describe('isVector4D', () => {
         const res3 = isVector4D(vec3)
         expect(res3).to.eql(true)
 
-        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res1 = isVector4D(vec1)
         expect(res1).to.eql(true)
     });
@@ -207,7 +207,7 @@ describe('isVector4D', () => {
         const res1 = isVector4D(vec1)
         expect(res1).to.eql(false)
 
-        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isVector4D(vec3)
         expect(res3).to.eql(false)
     });
@@ -244,11 +244,11 @@ describe('isRealVector', () => {
     });
 
     it('checks that a Vector describing a ProjectiveVector is not of type RealVector', () => {
-        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isRealVector(vec3)
         expect(res3).to.eql(false)
 
-        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res1 = isRealVector(vec1)
         expect(res1).to.eql(false)
     });
@@ -291,11 +291,11 @@ describe('isComplexVector', () => {
     });
 
     it('checks that a Vector describing a ProjectiveVector is not of type ComplexVector', () => {
-        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isComplexVector(vec3)
         expect(res3).to.eql(false)
 
-        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res1 = isComplexVector(vec1)
         expect(res1).to.eql(false)
     });
@@ -311,11 +311,11 @@ describe('isComplexVector', () => {
 describe('isProjectiveVector', () => {
 
     it('checks that a ProjectiveVector is effectively of type ' + PROJECTIVEVECTOR2D + ' or ' + PROJECTIVEVECTOR3D, () => {
-        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isProjectiveVector(vec3)
         expect(res3).to.eql(true)
 
-        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res1 = isProjectiveVector(vec1)
         expect(res1).to.eql(true)
     });
@@ -393,11 +393,11 @@ describe('isProjectiveComplexVector', () => {
     });
 
     it('checks that a Vector describing a ProjectiveVector is not of type ProjectiveComplexVector', () => {
-        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res3 = isProjectiveComplexVector(vec3)
         expect(res3).to.eql(false)
 
-        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec1: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res1 = isProjectiveComplexVector(vec1)
         expect(res1).to.eql(false)
     });
@@ -467,7 +467,7 @@ describe('areSameVSpaceAndDimension', () => {
         const vec1: Vector1D = 0;
 
         const vec2: Vector1D = {type: COMPLEX, real: 0, imaginary: 0};
-        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const vec4: Vector2D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 0}, {type: COMPLEXWEIGHT, real: new Weight(1), imaginary: new Weight(1)}]};
 
         const res1 = areSameVSpaceAndDimension(vec1, vec2)
@@ -499,20 +499,20 @@ describe('areSameVSpaceAndDimension', () => {
     });
 
     it('case of ProjectiveVectors of same dimesions ' + MIN_DIMENSION_PROJECTIVEVECTORSPACE + ' through ' + MAX_DIMENSION_PROJECTIVEVECTORSPACE, () => {
-        const vec1: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
-        const vec2: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [1, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec1: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
+        const vec2: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [1, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res = areSameVSpaceAndDimension(vec1, vec2);
         expect(res).to.eql(true)
 
-        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
-        const vec4: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
+        const vec4: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
         const res1 = areSameVSpaceAndDimension(vec3, vec4);
         expect(res1).to.eql(true)
     });
 
     it('case of ProjectiveVectors of different dimesions ranging from ' + MIN_DIMENSION_PROJECTIVEVECTORSPACE + ' through ' + MAX_DIMENSION_PROJECTIVEVECTORSPACE, () => {
-        const vec1: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, value: new Weight(1)}]};
-        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: new Weight(1)}]};
+        const vec1: Vector3D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(1)}]};
+        const vec3: Vector4D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: new Weight(1)}]};
 
         const res1 = areSameVSpaceAndDimension(vec1, vec3)
         expect(res1).to.eql(false)

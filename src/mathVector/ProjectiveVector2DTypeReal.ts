@@ -27,7 +27,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
         if(xOrVectorSpace instanceof ProjectiveVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
             if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
-            this.data = { type: PROJECTIVEVECTOR2D, coordinates: [0, 0, { type: WEIGHT, value: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
+            this.data = { type: PROJECTIVEVECTOR2D, coordinates: [0, 0, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
             return;
         } else if (weightOrVSpace instanceof ProjectiveVectorSpace) {
             this._vectorSpace = weightOrVSpace;
@@ -35,7 +35,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
             const x = xOrVectorSpace ?? 0;
             this.data = { 
                 type: PROJECTIVEVECTOR2D, 
-                coordinates: [x, y ?? 0, { type: WEIGHT, value: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
+                coordinates: [x, y ?? 0, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
             };
             return;
         } else {
@@ -62,7 +62,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
             }
             this.data = { 
                 type: PROJECTIVEVECTOR2D, 
-                coordinates: [x, y ?? 0, { type: WEIGHT, value: weightOrVSpace ?? new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
+                coordinates: [x, y ?? 0, { type: WEIGHT, weight: weightOrVSpace ?? new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
             };
             if(vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
@@ -83,11 +83,11 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
     get descriptor(): ProjectiveVector2D { return { ...this.data }; }
 
     get weight(): Weight {
-        return this.data.coordinates[2].value;
+        return this.data.coordinates[2].weight;
     }
     
     get homogeneousCoordinates(): number[] {
-        return [this.data.coordinates[0], this.data.coordinates[1], this.weight.weight];
+        return [this.data.coordinates[0], this.data.coordinates[1], this.weight.value];
     }
     
     getCoordinate(index: number): number {
@@ -95,7 +95,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        if (index === SPACE_DIMENSION - 1) return this.data.coordinates[2].value.weight;
+        if (index === SPACE_DIMENSION - 1) return this.data.coordinates[2].weight.value;
         return this.data.coordinates[index] as number;
     }
     
@@ -109,7 +109,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
     // }
     
     normalize(): ProjectiveVector2DTypeReal {
-        const w = this.weight.weight;
+        const w = this.weight.value;
         if (w === 0) return this.clone() as ProjectiveVector2DTypeReal;
         
         return new ProjectiveVector2DTypeReal(
@@ -134,12 +134,12 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
         return new ProjectiveVector2DTypeReal(
             this.data.coordinates[0],
             this.data.coordinates[1],
-            new Weight(this.weight.weight, strictlyPosWeight),
+            new Weight(this.weight.value, strictlyPosWeight),
             this._vectorSpace
         );
     }
 
     static fromRaw(raw: ProjectiveVector2D): ProjectiveVector2DTypeReal {
-        return new ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].value);
+        return new ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].weight);
     }
 }

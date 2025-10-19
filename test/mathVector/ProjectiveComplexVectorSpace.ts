@@ -3,7 +3,7 @@ import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOM
 import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../../src/ErrorMessages/ProjectiveComplexVectorSpace";
-import { Complex, COMPLEX, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, ProjectiveComplexVector1D, PROJECTIVECOMPLEXVECTOR1D, WEIGHT, Weight_Interface } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { Complex, COMPLEX, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, ProjectiveComplexVector1D, PROJECTIVECOMPLEXVECTOR1D, WEIGHT, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../../src/ErrorMessages/ComplexOperators";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
@@ -617,7 +617,7 @@ describe('ProjectiveComplexVectorSpace', () => {
             expect(res.coordinates[0].imaginary).to.eql(5);
             expect(res.coordinates[1].type).to.eql(COMPLEXWEIGHT);
             expect(res.coordinates[1].real).to.eql(new Weight(0, false));
-            expect(res.coordinates[1].imaginary.weight).to.be.closeTo(7.5, TOLERANCE_FLOAT);
+            expect(res.coordinates[1].imaginary.value).to.be.closeTo(7.5, TOLERANCE_FLOAT);
             expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(false);
         });
 

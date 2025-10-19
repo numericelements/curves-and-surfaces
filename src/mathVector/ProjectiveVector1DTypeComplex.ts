@@ -35,14 +35,14 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
     }
     
     get homogeneousCoordinates(): number[] {
-        return [this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.weight.real.weight];
+        return [this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.weight.real.value];
     }
     
     getCoordinate(index: number): Complex {
         if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
         if (index === 1) {
-            const real = this.weight.real.weight;
-            const imaginary = this.weight.imaginary.weight;
+            const real = this.weight.real.value;
+            const imaginary = this.weight.imaginary.value;
             return {type: COMPLEX, real: real, imaginary: imaginary};
         }
         return this.data.coordinates[index] as Complex;
@@ -60,7 +60,7 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
     // }
     
     normalize(): ProjectiveVector1DTypeComplex {
-        const w = this.weight.real.weight;
+        const w = this.weight.real.value;
         if (w === 0) return this.clone() as ProjectiveVector1DTypeComplex;
         
         return new ProjectiveVector1DTypeComplex(
@@ -88,8 +88,8 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
         return new ProjectiveVector1DTypeComplex(
             this.data.coordinates[0].real,
             this.data.coordinates[0].imaginary,
-            new Weight(this.weight.real.weight),
-            new Weight(this.weight.imaginary.weight),
+            new Weight(this.weight.real.value),
+            new Weight(this.weight.imaginary.value),
         );
     }
 

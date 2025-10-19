@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Complex, COMPLEX, ComplexWeight, COMPLEXWEIGHT, WEIGHT, Weight_Interface } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { Complex, COMPLEX, ComplexWeight, COMPLEXWEIGHT, WEIGHT, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
 import { ComplexOperators } from "../../src/mathVector/ComplexOperators";
 import { NULL_WEIGHT_TOLERANCE } from "../../src/namedConstants/ProjectiveVectorSpace";
@@ -61,9 +61,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(4)};
         const result = ComplexOperators.addWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(3.5);
+        expect(result.real.value).to.eql(3.5);
         expect(result.real.strictlyPositive).to.eql(true);
-        expect(result.imaginary.weight).to.eql(7);
+        expect(result.imaginary.value).to.eql(7);
         expect(result.imaginary.strictlyPositive).to.eql(true);
     });
 
@@ -72,9 +72,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(4)};
         const result = ComplexOperators.addWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(7);
+        expect(result.imaginary.value).to.eql(7);
         expect(result.imaginary.strictlyPositive).to.eql(true);
     });
 
@@ -83,9 +83,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(1e-11), imaginary: new Weight(4)};
         const result = ComplexOperators.addWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(7);
+        expect(result.imaginary.value).to.eql(7);
         expect(result.imaginary.strictlyPositive).to.eql(true);
     });
 
@@ -94,9 +94,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(0, false)};
         const result = ComplexOperators.addWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(3.5);
+        expect(result.real.value).to.eql(3.5);
         expect(result.real.strictlyPositive).to.eql(true);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -105,9 +105,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(1e-11)};
         const result = ComplexOperators.addWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(3.5);
+        expect(result.real.value).to.eql(3.5);
         expect(result.real.strictlyPositive).to.eql(true);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -116,9 +116,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
         const result = ComplexOperators.addWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -127,9 +127,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(1e-11), imaginary: new Weight(1e-11)};
         const result = ComplexOperators.addWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -138,9 +138,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(3)};
         const result = ComplexOperators.subtractWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0.5);
+        expect(result.real.value).to.eql(0.5);
         expect(result.real.strictlyPositive).to.eql(true);
-        expect(result.imaginary.weight).to.eql(1);
+        expect(result.imaginary.value).to.eql(1);
         expect(result.imaginary.strictlyPositive).to.eql(true);
     });
 
@@ -149,9 +149,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(3)};
         const result = ComplexOperators.subtractWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(1);
+        expect(result.imaginary.value).to.eql(1);
         expect(result.imaginary.strictlyPositive).to.eql(true);
     });
 
@@ -160,9 +160,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(4)};
         const result = ComplexOperators.subtractWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0.5);
+        expect(result.real.value).to.eql(0.5);
         expect(result.real.strictlyPositive).to.eql(true);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -171,9 +171,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(4)};
         const result = ComplexOperators.subtractWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -182,9 +182,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(3)};
         const result = ComplexOperators.subtractWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(1);
+        expect(result.imaginary.value).to.eql(1);
         expect(result.imaginary.strictlyPositive).to.eql(true);
     });
 
@@ -193,9 +193,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(1e-11)};
         const result = ComplexOperators.subtractWeights(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -224,15 +224,15 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(real), imaginary: new Weight(imaginary)};
         const result = ComplexOperators.multiplyWeight(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(3);
+        expect(result.real.value).to.eql(3);
         expect(result.real.strictlyPositive).to.eql(true);
-        expect(result.imaginary.weight).to.eql(16.5);
+        expect(result.imaginary.value).to.eql(16.5);
         expect(result.imaginary.strictlyPositive).to.eql(true);
 
         const c3 = ComplexOperators.createComplex(real, imaginary);
         const c4 = ComplexOperators.multiply(c1, c3);
-        expect(c4.real).to.eql(result.real.weight);
-        expect(c4.imaginary).to.eql(result.imaginary.weight);
+        expect(c4.real).to.eql(result.real.value);
+        expect(c4.imaginary).to.eql(result.imaginary.value);
     });
 
     it('can multiply a complex weight by a complex number producing a positive real part and a strictly positive imaginary parts', () => {
@@ -242,9 +242,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(real), imaginary: new Weight(imaginary)};
         const result = ComplexOperators.multiplyWeight(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(11.25);
+        expect(result.imaginary.value).to.eql(11.25);
         expect(result.imaginary.strictlyPositive).to.eql(true);
     });
 
@@ -255,9 +255,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(real), imaginary: new Weight(imaginary)};
         const result = ComplexOperators.multiplyWeight(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(11.25);
+        expect(result.real.value).to.eql(11.25);
         expect(result.real.strictlyPositive).to.eql(true);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -268,9 +268,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(real), imaginary: new Weight(imaginary)};
         const result = ComplexOperators.multiplyWeight(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -281,9 +281,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(real), imaginary: new Weight(imaginary)};
         const result = ComplexOperators.multiplyWeight(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.be.closeTo(3, TOLERANCE_FLOAT);
+        expect(result.imaginary.value).to.be.closeTo(3, TOLERANCE_FLOAT);
         expect(result.imaginary.strictlyPositive).to.eql(true);
     });
 
@@ -294,9 +294,9 @@ describe('ComplexOperators', () => {
         const c2: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(real), imaginary: new Weight(imaginary)};
         const result = ComplexOperators.multiplyWeight(c1, c2);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(0);
+        expect(result.real.value).to.eql(0);
         expect(result.real.strictlyPositive).to.eql(false);
-        expect(result.imaginary.weight).to.eql(0);
+        expect(result.imaginary.value).to.eql(0);
         expect(result.imaginary.strictlyPositive).to.eql(false);
     });
 
@@ -334,13 +334,13 @@ describe('ComplexOperators', () => {
         let c1: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(2)};
         const result = ComplexOperators.cloneWeight(c1);
         expect(result.type).to.eql(COMPLEXWEIGHT);
-        expect(result.real.weight).to.eql(1.5);
+        expect(result.real.value).to.eql(1.5);
         expect(result.real.strictlyPositive).to.eql(true);
-        expect(result.imaginary.weight).to.eql(2);
+        expect(result.imaginary.value).to.eql(2);
         expect(result.imaginary.strictlyPositive).to.eql(true);
         c1.real = new Weight(3);
         c1.imaginary = new Weight(4);
-        expect(result.real.weight).to.eql(1.5);
-        expect(result.imaginary.weight).to.eql(2);
+        expect(result.real.value).to.eql(1.5);
+        expect(result.imaginary.value).to.eql(2);
     });
 });

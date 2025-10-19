@@ -1,6 +1,6 @@
 import { EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT, EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/ProjectiveVectorSpace";
 import { EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
-import { EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NEGATIVE, EM_SCALE_FACTOR_NEGATIVE_OR_NULL, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
+import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
@@ -180,8 +180,8 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(message1.generateMessageString());
             } else if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && this.isInVectorSpace(a) && this.isInVectorSpace(b)
-                && error instanceof RangeError && error.message.includes(EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS)) {
-                const message3 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_NULL_WEIGHT_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
+                && error instanceof RangeError && error.message.includes(EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS)) {
+                const message3 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
                 throw new RangeError(message3.generateMessageString());
             } else if(error instanceof RangeError && error.message.includes(EM_WEIGHT_SUBTRACTION_ERROR)) {
                 const message4 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
@@ -205,11 +205,11 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         try {
             return this.strategy.scale(scalar, v, this.weightManager);
         } catch(error) {
-            if(error instanceof RangeError && error.message.includes(EM_SCALE_FACTOR_NEGATIVE_OR_NULL)) {
-                const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_SCALE_FACTOR_NEGATIVE_OR_NULL);
+            if(error instanceof RangeError && error.message.includes(EM_SCALE_FACTOR_STRICTLY_NEGATIVE)) {
+                const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
                 throw new RangeError(message.generateMessageString());
-            } else if(error instanceof RangeError && error.message.includes(EM_SCALE_FACTOR_NEGATIVE)) {
-                const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_SCALE_FACTOR_NEGATIVE);
+            } else if(error instanceof RangeError && error.message.includes(EM_SCALE_FACTOR_NULL)) {
+                const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_SCALE_FACTOR_NULL);
                 throw new RangeError(message.generateMessageString());
             }
             const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);

@@ -157,7 +157,7 @@ describe('RealVectorSpace2DStrategy', () => {
             const weight = new Weight(3);
             const vec2: ProjectiveVector = vectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight);
             expect(vec2.type).to.eql(PROJECTIVEVECTOR2D);
-            expect(vec2.coordinates).to.eql([1 * weight.weight, 2 * weight.weight, {type: WEIGHT, value: weight}]);
+            expect(vec2.coordinates).to.eql([1 * weight.value, 2 * weight.value, {type: WEIGHT, weight: weight}]);
         });
 
         it('can transform a 2D RealVector into a ProjectiveRealVector with custom positive weight', () => {
@@ -165,8 +165,8 @@ describe('RealVectorSpace2DStrategy', () => {
             const weight = new Weight(3, false);
             const vec2: ProjectiveVector = vectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight);
             expect(vec2.type).to.eql(PROJECTIVEVECTOR2D);
-            expect(vec2.coordinates).to.eql([1 * weight.weight, 2 * weight.weight, {type: WEIGHT, value: weight}]);
-            expect(vec2.coordinates[2].value.strictlyPositive).to.eql(false);
+            expect(vec2.coordinates).to.eql([1 * weight.value, 2 * weight.value, {type: WEIGHT, weight: weight}]);
+            expect(vec2.coordinates[2].weight.strictlyPositive).to.eql(false);
         });
 
         it('can transform a 2D RealVector into a ProjectiveRealVector with null weight', () => {
@@ -174,7 +174,7 @@ describe('RealVectorSpace2DStrategy', () => {
             const weight = new Weight(0, false);
             const vec2: ProjectiveVector = vectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight);
             expect(vec2.type).to.eql(PROJECTIVEVECTOR2D);
-            expect(vec2.coordinates).to.eql([1, 2, {type: WEIGHT, value: weight}]);
+            expect(vec2.coordinates).to.eql([1, 2, {type: WEIGHT, weight: weight}]);
         });
 
         it('cannot transform a RealVector out of the current vector space into a ProjectiveRealVector with custom weight', () => {

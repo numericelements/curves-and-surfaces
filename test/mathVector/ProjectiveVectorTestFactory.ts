@@ -8,15 +8,17 @@ import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpac
 import { Weight } from "../../src/mathVector/Weight";
 import { ProjectiveVector3DTypeReal } from "../../src/mathVector/ProjectiveVector3DTypeReal";
 import { ProjectiveVector2DTypeReal } from "../../src/mathVector/ProjectiveVector2DTypeReal";
-import { Weight_Interface } from "../../src/mathVector/VectorSpaceConstructorInterface";
-import { WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
+import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS } from "../../src/ErrorMessages/WeightManager";
+import { EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
 
 
 const defaultCoordinates = [1, 2, 3];
 const defaultWeight = new Weight(DEFAULT_WEIGHT_VALUE);
-const defaultPOsitiveWeight = new Weight(DEFAULT_WEIGHT_VALUE, false);
+const defaultPositiveWeight = new Weight(DEFAULT_WEIGHT_VALUE, false);
 
 export function createCommonProjectiveVectorTests(
     dimension: number
@@ -67,8 +69,8 @@ export function createCommonProjectiveVectorTests(
                 for (let i = 0; i < dimension - 1; i++) {
                     expect(projRealVector.descriptor.coordinates[i]).to.eql(coordinates[i]);
                 }
-                const weight = projRealVector.descriptor.coordinates[projRealVector.descriptor.coordinates.length - 1] as Weight_Interface;
-                expect(weight.value).to.eql(new Weight(coordinates[dimension - 1]));
+                const weight = projRealVector.descriptor.coordinates[projRealVector.descriptor.coordinates.length - 1] as IWeight;
+                expect(weight.weight).to.eql(new Weight(coordinates[dimension - 1]));
             });
 
             it(`can get the homogeneous coordinates of a vector as an array of numbers`, () => {
@@ -205,7 +207,7 @@ export function createCommonProjectiveVectorTests(
                 for (let i = 0; i < dimension - 1; i++) {
                     expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
                 }
-                expect(result.getCoordinate(dimension - 1)).to.eql(coordinates[dimension - 1] + defaultWeight.weight);
+                expect(result.getCoordinate(dimension - 1)).to.eql(coordinates[dimension - 1] + defaultWeight.value);
                 expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
                 expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
                 expect(result.dimension).to.eql(dimension);
@@ -226,7 +228,7 @@ export function createCommonProjectiveVectorTests(
                 for (let i = 0; i < dimension - 1; i++) {
                     expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
                 }
-                expect(result.getCoordinate(dimension - 1)).to.eql(coordinates[dimension - 1] + defaultWeight.weight);
+                expect(result.getCoordinate(dimension - 1)).to.eql(coordinates[dimension - 1] + defaultWeight.value);
                 expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
                 expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
                 expect(result.dimension).to.eql(dimension);
@@ -249,7 +251,7 @@ export function createCommonProjectiveVectorTests(
                 for (let i = 0; i < dimension - 1; i++) {
                     expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
                 }
-                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.weight);
+                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.value);
                 expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
                 expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
                 expect(result.dimension).to.eql(dimension);
@@ -272,7 +274,7 @@ export function createCommonProjectiveVectorTests(
                 for (let i = 0; i < dimension - 1; i++) {
                     expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
                 }
-                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.weight);
+                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.value);
                 expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
                 expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
                 expect(result.dimension).to.eql(dimension);
@@ -284,7 +286,7 @@ export function createCommonProjectiveVectorTests(
             it(`can add a vector with another projective vector in the same default vector space with ${WeightManagement.AllPositiveWeights}`, () => {
                 const coordinates = [1, -3, 5, 7];
                 const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
-                const projRealVector1 = createTestProjectiveVector(dimension, vSpace);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, undefined, defaultPositiveWeight);
                 expect(projRealVector1.dimension).to.eql(dimension);
                 expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
                 expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
@@ -296,13 +298,275 @@ export function createCommonProjectiveVectorTests(
                 for (let i = 0; i < dimension - 1; i++) {
                     expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
                 }
-                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.weight);
+                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.value);
                 expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
                 expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
                 expect(result.dimension).to.eql(dimension);
                 expect(result.vectorSpace.isDefault).to.eql(true);
-                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
                 expect(result.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE, false));
+            });
+
+            it(`can add a vector with another projective vector with weight smaller than ${NULL_WEIGHT_TOLERANCE} in the same default vector space with ${WeightManagement.AllStrictlyPositiveWeights} without influence of NULL_WEIGHT_TOLERANCE`, () => {
+                const coordinates = [-1, 3, 5, 7];
+                const smallWeight = new Weight(NULL_WEIGHT_TOLERANCE / 2);
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights, true);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace);
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(projRealVector1.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE));
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates, smallWeight);
+                expect(projRealVector2.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                const result = projRealVector1.add(projRealVector2);
+                for (let i = 0; i < dimension - 1; i++) {
+                    expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
+                }
+                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.value + NULL_WEIGHT_TOLERANCE / 2);
+                expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
+                expect(result.vectorSpace.isDefault).to.eql(true);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(result.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE + NULL_WEIGHT_TOLERANCE / 2));
+            });
+
+            it(`can add a vector with another projective vector with weight smaller than ${NULL_WEIGHT_TOLERANCE} in the same default vector space with ${WeightManagement.AllPositiveWeights} without influence of NULL_WEIGHT_TOLERANCE`, () => {
+                const coordinates = [1, -3, 5, 7];
+                const smallWeight = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace);
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(projRealVector1.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE, false));
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates, smallWeight);
+                expect(projRealVector2.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                const result = projRealVector1.add(projRealVector2);
+                for (let i = 0; i < dimension - 1; i++) {
+                    expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
+                }
+                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.value + NULL_WEIGHT_TOLERANCE / 2);
+                expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
+                expect(result.vectorSpace.isDefault).to.eql(true);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(result.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE + NULL_WEIGHT_TOLERANCE / 2, false));
+            });
+
+            it(`can add vectors with different weight statuses under ${WeightManagement.AllPositiveWeights} weight management and get a resulting vector with weight status strictly positive: false`, () => {
+                const coordinates = [1, -3, 5, 7];
+                const smallWeight = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, undefined, defaultPositiveWeight);
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(projRealVector1.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE, false));
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates, smallWeight);
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                const result = projRealVector1.add(projRealVector2);
+                for (let i = 0; i < dimension - 1; i++) {
+                    expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
+                }
+                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.value + NULL_WEIGHT_TOLERANCE / 2);
+                expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
+                expect(result.vectorSpace.isDefault).to.eql(true);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(result.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE + NULL_WEIGHT_TOLERANCE / 2, false));
+            });
+
+            it(`cannot add a vector with another vector of same dimension but belonging to another vector space`, () => {
+                const coordinates = [1, 3, 5, 7];
+                const projRealVector1 = createTestProjectiveVector(dimension, undefined, coordinates);
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                const vSpace = new ProjectiveVectorSpace(dimension);
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, defaultCoordinates);
+                expect(projRealVector2.dimension).to.eql(projRealVector1.dimension);
+                expect(() => projRealVector1.add(projRealVector2)).to.throw(EM_VECTORS_NOT_IN_SAME_VECTORSPACE);
+            });
+
+            it(`can subtract a vector from another projective vector of same dimension in the same default vector space with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const projRealVector1 = createTestProjectiveVector(dimension, undefined, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                const coordinates2 = [1, 3, 5, 7];
+                const projRealVector2 = createTestProjectiveVector(dimension, undefined, coordinates2, new Weight(coordinates2[dimension - 1]));
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                const result = projRealVector1.subtract(projRealVector2);
+                const resultCoordinates = coordinates.map((c, i) => c - coordinates2[i]);
+                expect(result.coordinates).to.eql(resultCoordinates.slice(0, dimension));
+                expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(result.vectorSpace.isDefault).to.eql(true);
+                expect(result.weight).to.eql(new Weight(coordinates[dimension - 1] - coordinates2[dimension - 1]));
+            });
+
+            it(`can subtract a vector from another projective vector of same dimension belonging to the same user-defined vector space with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                const coordinates2 = [1, 3, 5, 7];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2, new Weight(coordinates2[dimension - 1]));
+                const result = projRealVector1.subtract(projRealVector2);
+                const resultCoordinates = coordinates.map((c, i) => c - coordinates2[i]);
+                expect(result.coordinates).to.eql(resultCoordinates.slice(0, dimension));
+                expect(result.vectorSpace).to.eql(vSpace);
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(result.vectorSpace.isDefault).to.eql(false);
+                expect(result.weight).to.eql(new Weight(coordinates[dimension - 1] - coordinates2[dimension - 1]));
+            });
+
+            it(`can subtract a vector from another projective vector of same dimension in the same default vector space with weight management ${WeightManagement.AllPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                const coordinates2 = [1, 3, 5, 7];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2, new Weight(coordinates2[dimension - 1], false));
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                const result = projRealVector1.subtract(projRealVector2);
+                const resultCoordinates = coordinates.map((c, i) => c - coordinates2[i]);
+                expect(result.coordinates).to.eql(resultCoordinates.slice(0, dimension));
+                expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(result.vectorSpace.isDefault).to.eql(true);
+                expect(result.weight).to.eql(new Weight(coordinates[dimension - 1] - coordinates2[dimension - 1], false));
+            });
+
+            it(`can subtract a vector from another projective vector with weight management ${WeightManagement.AllStrictlyPositiveWeights} resulting into an arbitrary small positive weight`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                const coordinates2 = [1, 3, coordinates[2] - NULL_WEIGHT_TOLERANCE, coordinates[3] - NULL_WEIGHT_TOLERANCE];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2, new Weight(coordinates2[dimension - 1]));
+                const result = projRealVector1.subtract(projRealVector2);
+                const resultCoordinates = coordinates.map((c, i) => c - coordinates2[i]);
+                expect(result.coordinates).to.eql(resultCoordinates.slice(0, dimension));
+                expect(result.vectorSpace).to.eql(vSpace);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(result.vectorSpace.isDefault).to.eql(false);
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.weight.value).to.be.closeTo(new Weight(coordinates[dimension - 1] - coordinates2[dimension - 1]).value, TOLERANCE_FLOAT);
+            });
+
+            it(`cannot subtract a vector from another projective vector with weight management ${WeightManagement.AllStrictlyPositiveWeights} resulting into a negative weight difference even smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                const coordinates2 = [1, 3, coordinates[2] + NULL_WEIGHT_TOLERANCE / 2, coordinates[3] + NULL_WEIGHT_TOLERANCE / 2];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2, new Weight(coordinates2[dimension - 1]));
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(() => projRealVector1.subtract(projRealVector2)).to.throw(EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS)
+            });
+
+            it(`can subtract a vector from another projective vector with weight management ${WeightManagement.AllPositiveWeights} resulting into a negative weight difference smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                const coordinates2 = [1, 3, coordinates[2] + NULL_WEIGHT_TOLERANCE / 2, coordinates[3] + NULL_WEIGHT_TOLERANCE / 2];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2, new Weight(coordinates2[dimension - 1], false));
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                const result = projRealVector1.subtract(projRealVector2);
+                const resultCoordinates = coordinates.map((c, i) => c - coordinates2[i]);
+                for (let i = 0; i < dimension - 1; i++) {
+                    expect(result.getCoordinate(i)).to.eql(resultCoordinates[i]);
+                }
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(result.vectorSpace.isDefault).to.eql(false);
+                expect(result.weight.value).to.eql(0);
+            });
+
+            it(`cannot subtract a vector from another projective vector with weight management ${WeightManagement.AllPositiveWeights} resulting into a negative weight difference larger than ${NULL_WEIGHT_TOLERANCE}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                const coordinates2 = [1, 3, coordinates[2] + NULL_WEIGHT_TOLERANCE * COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, coordinates[3] + NULL_WEIGHT_TOLERANCE * COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2, new Weight(coordinates2[dimension - 1], false));
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(() => projRealVector1.subtract(projRealVector2)).to.throw(EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT)
+            });
+
+            it(`can subtract a vector from another projective vector with weight management ${WeightManagement.SomeNullWeights} when each vector has a different weight status. The resulting weight status being false when the resulting weight is strictly positive and smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                const coordinates2 = [1, 3, coordinates[2] - NULL_WEIGHT_TOLERANCE / 2, coordinates[3] - NULL_WEIGHT_TOLERANCE / 2];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2, new Weight(coordinates2[dimension - 1]));
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                const result = projRealVector1.subtract(projRealVector2);
+                const resultCoordinates = coordinates.map((c, i) => c - coordinates2[i]);
+                for (let i = 0; i < dimension - 1; i++) {
+                    expect(result.getCoordinate(i)).to.eql(resultCoordinates[i]);
+                }
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                expect(result.vectorSpace.isDefault).to.eql(false);
+                expect(result.weight.value).to.greaterThan(0);
+                expect(result.weight.value).to.lessThan(NULL_WEIGHT_TOLERANCE);
+                expect(result.weight.strictlyPositive).to.eql(false);
+            });
+
+            it(`can subtract a vector from another projective vector with weight management ${WeightManagement.SomeNullWeights} resulting into a negative weight difference smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                const coordinates2 = [1, 3, coordinates[2] + NULL_WEIGHT_TOLERANCE / 2, coordinates[3] + NULL_WEIGHT_TOLERANCE / 2];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2, new Weight(coordinates2[dimension - 1]));
+                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                const result = projRealVector1.subtract(projRealVector2);
+                const resultCoordinates = coordinates.map((c, i) => c - coordinates2[i]);
+                for (let i = 0; i < dimension - 1; i++) {
+                    expect(result.getCoordinate(i)).to.eql(resultCoordinates[i]);
+                }
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                expect(result.vectorSpace.isDefault).to.eql(false);
+                expect(result.weight.value).to.eql(0);
+                expect(result.weight.strictlyPositive).to.eql(false);
             });
         });
     });
@@ -317,7 +581,7 @@ export function createTestProjectiveVector(
             if(vectorSpace !== undefined && vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
             return new ProjectiveVector2DTypeReal(coordinates ? coordinates[0] : defaultCoordinates[0],
                                         coordinates ? coordinates[1] : defaultCoordinates[1],
-                                        weight ? weight : defaultPOsitiveWeight, vectorSpace ? vectorSpace as ProjectiveVectorSpace<3>: undefined);
+                                        weight ? weight : defaultPositiveWeight, vectorSpace ? vectorSpace as ProjectiveVectorSpace<3>: undefined);
             }
             return new ProjectiveVector2DTypeReal(coordinates ? coordinates[0] : defaultCoordinates[0],
                                         coordinates ? coordinates[1] : defaultCoordinates[1],
@@ -327,7 +591,7 @@ export function createTestProjectiveVector(
             return new ProjectiveVector3DTypeReal(coordinates ? coordinates[0] : defaultCoordinates[0],
                                         coordinates ? coordinates[1] : defaultCoordinates[1],
                                         coordinates ? coordinates[2] : defaultCoordinates[2],
-                                        weight ? weight : defaultPOsitiveWeight, vectorSpace ? vectorSpace as ProjectiveVectorSpace<4>: undefined);
+                                        weight ? weight : defaultPositiveWeight, vectorSpace ? vectorSpace as ProjectiveVectorSpace<4>: undefined);
             }
             return new ProjectiveVector3DTypeReal(coordinates ? coordinates[0] : defaultCoordinates[0],
                                         coordinates ? coordinates[1] : defaultCoordinates[1],

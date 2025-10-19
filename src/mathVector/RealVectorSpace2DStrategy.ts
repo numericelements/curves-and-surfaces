@@ -104,10 +104,10 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
 
     fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight = new Weight()): ProjectiveVector2D {
         if(isVector2D(v)) {
-            if(weight.weight === 0) {
-                return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, value: weight}]};
+            if(weight.value === 0) {
+                return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, weight: weight}]};
             }
-            return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0] * weight.weight, v.coordinates[1] * weight.weight, {type: WEIGHT, value: weight}]};
+            return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0] * weight.value, v.coordinates[1] * weight.value, {type: WEIGHT, weight: weight}]};
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveVectorSpace', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(error.generateMessageString());

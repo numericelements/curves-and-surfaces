@@ -2,7 +2,7 @@ import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORS
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { ProjectiveVectorSpaceStrategy } from "./ProjectiveVectorSpace";
-import { ProjectiveVector, PROJECTIVEVECTOR3D, ProjectiveVector3D, Real, RealVector, REALVECTOR3D, WEIGHT, Weight_Interface } from "./VectorSpaceConstructorInterface";
+import { ProjectiveVector, PROJECTIVEVECTOR3D, ProjectiveVector3D, Real, RealVector, REALVECTOR3D, WEIGHT, IWeight } from "./VectorSpaceConstructorInterface";
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
@@ -12,7 +12,7 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
 
     getWeight(v: ProjectiveVector3D): Real {
         if(this.isInVectorSpace(v)) {
-            return v.coordinates[3].value.weight;
+            return v.coordinates[3].weight.value;
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'getWeight', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(error.generateMessageString());
@@ -21,8 +21,8 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
 
     shareSameWeightManagement(v1: ProjectiveVector3D, v2: ProjectiveVector3D, weightManager: WeightManager): boolean {
         if(this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {
-            const weight1 = v1.coordinates[3].value;
-            const weight2 = v2.coordinates[3].value;
+            const weight1 = v1.coordinates[3].weight;
+            const weight2 = v2.coordinates[3].weight;
             return weightManager.isSameWeightManagement(weight1, weight2);
         } else {
             if(!this.isInVectorSpace(v1) && !this.isInVectorSpace(v2)) {
@@ -46,23 +46,23 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
 
     createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVector3D {
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[3] === 0)) {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, value: weightManager.setWeightStatus(new Weight(coordinates[3], false))}]};
+            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, weight: weightManager.setWeight(new Weight(coordinates[3], false))}]};
             return vector;
         } else {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, value: weightManager.setWeightStatus(new Weight(coordinates[3]))}]};
+            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, weight: weightManager.setWeight(new Weight(coordinates[3]))}]};
             return vector;
         }
     }
 
     defaultVect(weightManager: WeightManager): ProjectiveVector3D {
-        let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, value: weightManager.setWeightStatus(new Weight(DEFAULT_WEIGHT_VALUE))}]};
+        let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: weightManager.setWeight(new Weight(DEFAULT_WEIGHT_VALUE))}]};
         return vector;
     }
 
     add(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(a) && isVector4D(b)) {
-            const sumWeights = weightManager.addWeights(a.coordinates[3].value, b.coordinates[3].value);
-            return {type: PROJECTIVEVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], {type: WEIGHT, value: sumWeights}]};
+            const sumWeights = weightManager.addWeights(a.coordinates[3].weight, b.coordinates[3].weight);
+            return {type: PROJECTIVEVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], {type: WEIGHT, weight: sumWeights}]};
         } else {
             throw new RangeError();
         }
@@ -71,8 +71,8 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
     subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(a) && isVector4D(b)) {
             try {
-                const diffWeights = weightManager.subtractWeights(a.coordinates[3].value, b.coordinates[3].value);
-                return {type: PROJECTIVEVECTOR3D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2], {type: WEIGHT, value: diffWeights}]};
+                const diffWeights = weightManager.subtractWeights(a.coordinates[3].weight, b.coordinates[3].weight);
+                return {type: PROJECTIVEVECTOR3D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2], {type: WEIGHT, weight: diffWeights}]};
             } catch(error) {
                 throw error;
             }
@@ -87,8 +87,8 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
             for(let i = 0; i < v.coordinates.length - 2; i++) {
                 let component = 0;
                 if(v.coordinates[i] instanceof Weight) {
-                    const weight = v.coordinates[i] as Weight_Interface;
-                    component = weight.value.weight;
+                    const weight = v.coordinates[i] as IWeight;
+                    component = weight.weight.value;
                 } else {
                     component = v.coordinates[i] as number;
                 }
@@ -104,8 +104,8 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
     scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(v)) {
             try{
-                const scaledWeight = weightManager.scaleWeight(v.coordinates[3].value, scalar);
-                return {type: PROJECTIVEVECTOR3D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2], {type: WEIGHT, value: scaledWeight}]};
+                const scaledWeight = weightManager.scaleWeight(v.coordinates[3].weight, scalar);
+                return {type: PROJECTIVEVECTOR3D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2], {type: WEIGHT, weight: scaledWeight}]};
             } catch(error) {
                 throw error;
             }
@@ -116,8 +116,8 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
 
     clone(v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(v)) {
-            const cloneWeight = weightManager.cloneWeight(v.coordinates[3].value);
-            return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, value: cloneWeight}]};
+            const cloneWeight = weightManager.cloneWeight(v.coordinates[3].weight);
+            return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, weight: cloneWeight}]};
         } else {
             throw new RangeError();
         }
@@ -126,7 +126,7 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
     fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector {
         if(isVector4D(v)) {
             const result: number[] = [];
-            const weight = v.coordinates[3].value.weight;
+            const weight = v.coordinates[3].weight.value;
             if(weight === 0) {
                 return {type: REALVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2]]};
             } else {

@@ -2,26 +2,27 @@ import { expect } from "chai";
 import { Weight } from "../../src/mathVector/Weight";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../../src/ErrorMessages/Weight";
+import { WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
 
 describe('Weight', () => {
 
     describe('Constructor', () => {
         it('can generate a Weight object without a weight value', () => {
             const weight = new Weight();
-            expect(weight.weight).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
         });
 
         it('can generate a Weight object with a weight value that must be strictly positive', () => {
             const value = 1;
             const weight = new Weight(value);
-            expect(weight.weight).to.eql(value);
+            expect(weight.value).to.eql(value);
         });
 
         it('can generate a Weight object with a weight value that can be null', () => {
             const value = 0;
             const strictlyPositive = false;
             const weight = new Weight(value, strictlyPositive);
-            expect(weight.weight).to.eql(value);
+            expect(weight.value).to.eql(value);
         });
 
         it('cannot generate a Weight object with a negative weight value while the weight should be strictly positive', () => {
@@ -47,56 +48,38 @@ describe('Weight', () => {
             const value = 1;
             const strictlyPositive = true;
             const weight = new Weight(value, strictlyPositive);
-            expect(weight.weight).to.eql(value);
+            expect(weight.value).to.eql(value);
         });
 
         it('can get the weight value while the weight should be positive', () => {
             const value = 1;
             const strictlyPositive = false;
             const weight = new Weight(value, strictlyPositive);
-            expect(weight.weight).to.eql(value);
+            expect(weight.value).to.eql(value);
         });
 
-        it('can set the weight value while the weight should be strictly positive', () => {
-            const value = 1;
-            const strictlyPositive = true;
-            const weight = new Weight(value, strictlyPositive);
-            const newValue = 2;
-            weight.weight = newValue;
-            expect(weight.weight).to.eql(newValue);
+        it(`can get the type of the weight`, () => {
+            const value = 5;
+            const weight = new Weight(value);
+            expect(weight.type).to.eql(WEIGHT);
         });
 
-        it('can set the weight value while the weight should be positive', () => {
-            const value = 1;
-            const strictlyPositive = false;
-            const weight = new Weight(value, strictlyPositive);
-            const newValue = 0;
-            weight.weight = newValue;
-            expect(weight.weight).to.eql(newValue);
+        it(`can clone weight`, () => {
+            const value = 10;
+            let weight = new Weight(value);
+            const newWeight = weight.clone();
+            expect(newWeight.value).to.eql(weight.value)
+            expect(newWeight.strictlyPositive).to.eql(weight.strictlyPositive)
+            weight = new Weight(DEFAULT_WEIGHT_VALUE, false);
+            expect(newWeight.value).to.not.eql(weight.value);
+            expect(newWeight.strictlyPositive).to.not.eql(weight.strictlyPositive);
         });
 
-        it('cannot set the weight value to a negative value while the weight must be strictly positive', () => {
-            const value = 1;
-            const strictlyPositive = true;
-            const weight = new Weight(value, strictlyPositive);
-            const newValue = -1;
-            expect(() => weight.weight = newValue).to.throw(EM_WEIGHT_VALUE_STRICTLY_POSITIVE);
-        });
-
-        it('cannot set the weight value to a negative value while the weight should be positive', () => {
-            const value = 1;
-            const strictlyPositive = false;
-            const weight = new Weight(value, strictlyPositive);
-            const newValue = -1;
-            expect(() => weight.weight = newValue).to.throw(EM_WEIGHT_VALUE_POSITIVE);
-        });
-
-        it('cannot set the weight value to a null value while the weight must be strictly positive', () => {
-            const value = 1;
-            const strictlyPositive = true;
-            const weight = new Weight(value, strictlyPositive);
-            const newValue = 0;
-            expect(() => weight.weight = newValue).to.throw(EM_WEIGHT_VALUE_STRICTLY_POSITIVE);
+        it(`can get the weight descriptor as a string`, () => {
+            const value = 10;
+            const weight = new Weight(value);
+            const string = weight.toString();
+            expect(string).to.eql(WEIGHT + `(value: ${weight.value}, strictlyPositive: ${weight.strictlyPositive})`);
         });
 
         it('can get the weight positivity status while the weight must be strictly positive', () => {

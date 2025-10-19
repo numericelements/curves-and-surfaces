@@ -37,18 +37,18 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
     createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveComplexVector1D {
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
             let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: coordinates[0], imaginary: coordinates[1]}, {type: COMPLEXWEIGHT,
-                real: weightManager.setWeightStatus(new Weight(coordinates[2], false)), imaginary: weightManager.setWeightStatus(new Weight(coordinates[3], false))}]};
+                real: weightManager.setWeight(new Weight(coordinates[2], false)), imaginary: weightManager.setWeight(new Weight(coordinates[3], false))}]};
             return vector;
         } else {
             let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: coordinates[0], imaginary: coordinates[1]}, {type: COMPLEXWEIGHT, 
-                real: weightManager.setWeightStatus(new Weight(coordinates[2])), imaginary: weightManager.setWeightStatus(new Weight(coordinates[3]))}]};
+                real: weightManager.setWeight(new Weight(coordinates[2])), imaginary: weightManager.setWeight(new Weight(coordinates[3]))}]};
             return vector;
         }
     }
 
     defaultVect(weightManager: WeightManager): ProjectiveComplexVector1D {
         let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 1}, {type: COMPLEXWEIGHT, 
-            real: weightManager.setWeightStatus(new Weight(DEFAULT_WEIGHT_VALUE)), imaginary: weightManager.setWeightStatus(new Weight(DEFAULT_WEIGHT_VALUE))}]};
+            real: weightManager.setWeight(new Weight(DEFAULT_WEIGHT_VALUE)), imaginary: weightManager.setWeight(new Weight(DEFAULT_WEIGHT_VALUE))}]};
         return vector;
     }
 
@@ -61,9 +61,9 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
         } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
             const complexWeight = ComplexOperators.addWeights(a.coordinates[1], b.coordinates[1]);
             if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
-                complexWeight.real = new Weight(complexWeight.real.weight, false);
+                complexWeight.real = new Weight(complexWeight.real.value, false);
             } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
-                complexWeight.imaginary = new Weight(complexWeight.imaginary.weight, false);
+                complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
             }
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
                 ComplexOperators.add(a.coordinates[0], b.coordinates[0]),
@@ -78,7 +78,7 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
         if(isVector1D(v)) {
             let result = 0;
             result = Math.sqrt(v.coordinates[0].real * v.coordinates[0].real + v.coordinates[0].imaginary * v.coordinates[0].imaginary);
-            result+= v.coordinates[1].real.weight * v.coordinates[1].real.weight + v.coordinates[1].imaginary.weight * v.coordinates[1].imaginary.weight; 
+            result+= v.coordinates[1].real.value * v.coordinates[1].real.value + v.coordinates[1].imaginary.value * v.coordinates[1].imaginary.value; 
             result = Math.sqrt(result);
             return result;
         } else {
@@ -89,11 +89,11 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
     scale(scaleFactor: Complex | number, vector: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
         if (typeof scaleFactor === 'number') {
             if(vector.coordinates[1].real.strictlyPositive) {
-                const scaledWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.weight * scaleFactor), imaginary: new Weight(vector.coordinates[1].imaginary.weight * scaleFactor)};
+                const scaledWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.value * scaleFactor), imaginary: new Weight(vector.coordinates[1].imaginary.value * scaleFactor)};
                 return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [ {type: COMPLEX, real: vector.coordinates[0].real * scaleFactor, imaginary: vector.coordinates[0].imaginary * scaleFactor},
                     scaledWeight]};
             } else if (weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
-                const scaledWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.weight * scaleFactor, false), imaginary: new Weight(vector.coordinates[1].imaginary.weight * scaleFactor, false)};
+                const scaledWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.value * scaleFactor, false), imaginary: new Weight(vector.coordinates[1].imaginary.value * scaleFactor, false)};
                 return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [ {type: COMPLEX, real: vector.coordinates[0].real * scaleFactor, imaginary: vector.coordinates[0].imaginary * scaleFactor},
                     scaledWeight]};
             } else {
@@ -102,7 +102,7 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
         } else {
             const scaledWeight = ComplexOperators.multiplyWeight(scaleFactor, vector.coordinates[1]);
             if(weightManager.weightManagement === WeightManagement.AllPositiveWeights && (!scaledWeight.real.strictlyPositive && scaledWeight.imaginary.strictlyPositive)) {
-                scaledWeight.imaginary = new Weight(scaledWeight.imaginary.weight, false);
+                scaledWeight.imaginary = new Weight(scaledWeight.imaginary.value, false);
             } else if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
                 if(!scaledWeight.real.strictlyPositive || !scaledWeight.imaginary.strictlyPositive) {
                     throw new RangeError();
@@ -122,9 +122,9 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
         } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
             const complexWeight = ComplexOperators.subtractWeights(a.coordinates[1], b.coordinates[1]);
             if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
-                complexWeight.real = new Weight(complexWeight.real.weight, false);
+                complexWeight.real = new Weight(complexWeight.real.value, false);
             } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
-                complexWeight.imaginary = new Weight(complexWeight.imaginary.weight, false);
+                complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
             }
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
                 ComplexOperators.subtract(a.coordinates[0], b.coordinates[0]),
@@ -145,17 +145,17 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
     fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector: ProjectiveComplexVector, weightManager: WeightManager): ComplexVector1D {
         let real = 0;
         let imaginary = 0;
-        if(vector.coordinates[1].real.weight === 0 && weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
+        if(vector.coordinates[1].real.value === 0 && weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
             real = vector.coordinates[0].real;
-        } else if (vector.coordinates[1].real.weight > 0 ) {
-            real = vector.coordinates[0].real / vector.coordinates[1].real.weight;
+        } else if (vector.coordinates[1].real.value > 0 ) {
+            real = vector.coordinates[0].real / vector.coordinates[1].real.value;
         } else {
             throw new RangeError();
         }
-        if(vector.coordinates[1].imaginary.weight === 0 && weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
+        if(vector.coordinates[1].imaginary.value === 0 && weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
             imaginary = vector.coordinates[0].imaginary;
-        } else if (vector.coordinates[1].imaginary.weight > 0 ) {
-            imaginary = vector.coordinates[0].imaginary / vector.coordinates[1].imaginary.weight;
+        } else if (vector.coordinates[1].imaginary.value > 0 ) {
+            imaginary = vector.coordinates[0].imaginary / vector.coordinates[1].imaginary.value;
         } else {
             throw new RangeError();
         }

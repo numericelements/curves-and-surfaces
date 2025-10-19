@@ -4,7 +4,7 @@ import { COMPLEX, COMPLEXWEIGHT, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector2D, 
 import { createTestProjectiveVector } from "./ProjectiveVectorSpaceTestFactory";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
-import { EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
+import { EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
 
 describe('ProjectiveVectorSpace3DStrategy', () => {
     
@@ -65,8 +65,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.coordinates[0].real).to.eql(vec1.coordinates[0]);
                 expect(result.coordinates[0].imaginary).to.eql(vec1.coordinates[1]);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-                expect(result.coordinates[1].real).to.eql(vec1.coordinates[2].value);
-                expect(result.coordinates[1].imaginary).to.eql(vec1.coordinates[2].value);
+                expect(result.coordinates[1].real).to.eql(vec1.coordinates[2].weight);
+                expect(result.coordinates[1].imaginary).to.eql(vec1.coordinates[2].weight);
             });
 
             it(`can create a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and weight`, () => {
@@ -75,8 +75,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
                 expect(result.coordinates[2].type).to.eql(WEIGHT);
-                expect(result.coordinates[2].value.weight).to.eql(3);
-                expect(result.coordinates[2].value.strictlyPositive).to.eql(true);
+                expect(result.coordinates[2].weight.value).to.eql(3);
+                expect(result.coordinates[2].weight.strictlyPositive).to.eql(true);
             });
 
             it(`cannot creeate a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and negative weight`, () => {
@@ -172,8 +172,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.coordinates[0].real).to.eql(vec1.coordinates[0]);
                 expect(result.coordinates[0].imaginary).to.eql(vec1.coordinates[1]);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-                expect(result.coordinates[1].real).to.eql(vec1.coordinates[2].value);
-                expect(result.coordinates[1].imaginary).to.eql(vec1.coordinates[2].value);
+                expect(result.coordinates[1].real).to.eql(vec1.coordinates[2].weight);
+                expect(result.coordinates[1].imaginary).to.eql(vec1.coordinates[2].weight);
             });
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with null weight into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D}`, () => {
@@ -195,8 +195,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
                 expect(result.coordinates[2].type).to.eql(WEIGHT);
-                expect(result.coordinates[2].value.weight).to.eql(3);
-                expect(result.coordinates[2].value.strictlyPositive).to.eql(false);
+                expect(result.coordinates[2].weight.value).to.eql(3);
+                expect(result.coordinates[2].weight.strictlyPositive).to.eql(false);
             });
 
             it(`cannot creeate a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and negative weight`, () => {
@@ -209,8 +209,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
                 expect(result.coordinates[2].type).to.eql(WEIGHT);
-                expect(result.coordinates[2].value.weight).to.eql(0);
-                expect(result.coordinates[2].value.strictlyPositive).to.eql(false);
+                expect(result.coordinates[2].weight.value).to.eql(0);
+                expect(result.coordinates[2].weight.strictlyPositive).to.eql(false);
             });
 
         });
@@ -261,9 +261,11 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const scale = 0;
                 const result = vectorSpace.scaleRaw(scale, vec1);
-                // Check coordinates
-                expect(result.coordinates[0]).to.eql(0);
-                expect(result.coordinates[1]).to.eql(0);
+                for(let i = 0; i < result.coordinates.length - 1; i++) {
+                    expect(result.coordinates[i]).to.eql(0);
+                }
+                expect(result.coordinates[2].weight.value).to.eql(0);
+                expect(result.coordinates[2].weight.strictlyPositive).to.eql(false);
             });
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with strictly positive weight into the Real vector space ${REALVECTOR2D}`, () => {
@@ -299,8 +301,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.coordinates[0].real).to.eql(vec1.coordinates[0]);
                 expect(result.coordinates[0].imaginary).to.eql(vec1.coordinates[1]);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-                expect(result.coordinates[1].real).to.eql(vec1.coordinates[2].value);
-                expect(result.coordinates[1].imaginary).to.eql(vec1.coordinates[2].value);
+                expect(result.coordinates[1].real).to.eql(vec1.coordinates[2].weight);
+                expect(result.coordinates[1].imaginary).to.eql(vec1.coordinates[2].weight);
             });
 
             it(`can generate the image of ${PROJECTIVEVECTOR2D} vector with null weight into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D}`, () => {
@@ -322,22 +324,22 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
                 expect(result.coordinates[2].type).to.eql(WEIGHT);
-                expect(result.coordinates[2].value.weight).to.eql(3);
-                expect(result.coordinates[2].value.strictlyPositive).to.eql(true);
+                expect(result.coordinates[2].weight.value).to.eql(3);
+                expect(result.coordinates[2].weight.strictlyPositive).to.eql(true);
             });
 
-            it(`cannot creeate a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and negative weight`, () => {
+            it(`cannot create a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and negative weight`, () => {
                 expect(() => vectorSpace.createVector([1, 2, -3])).to.throw(EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
             });
 
-            it(`can creeate a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and null weight`, () => {
+            it(`can create a ${PROJECTIVEVECTOR2D} vector with user-defined coordinates and null weight`, () => {
                 const result = vectorSpace.createVector([1, 2, 0]);
                 expect(result.type).to.eql(PROJECTIVEVECTOR2D);
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(2);
                 expect(result.coordinates[2].type).to.eql(WEIGHT);
-                expect(result.coordinates[2].value.weight).to.eql(0);
-                expect(result.coordinates[2].value.strictlyPositive).to.eql(false);
+                expect(result.coordinates[2].weight.value).to.eql(0);
+                expect(result.coordinates[2].weight.strictlyPositive).to.eql(false);
             });
         });
     });

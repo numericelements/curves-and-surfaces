@@ -106,7 +106,7 @@ export interface IComplexVector extends IVector {
 
 export interface IProjectiveVector extends IVector {
     readonly vectorSpace: ProjectiveVectorSpace<any>;
-    readonly weight: Weight | ComplexWeight;
+    readonly weight: Weight;
     readonly descriptor: ProjectiveVector;
     readonly coordinates: (number | Complex)[];
     readonly homogeneousCoordinates: (number | Complex)[];
@@ -212,7 +212,7 @@ export class VectorFactory {
                     return new ProjectiveVector2DTypeReal(
                         raw.coordinates[0], 
                         raw.coordinates[1], 
-                        raw.coordinates[2].value, 
+                        raw.coordinates[2].weight, 
                         vectorSpace as ProjectiveVectorSpace<3>
                     );
                 case PROJECTIVEVECTOR3D:
@@ -220,7 +220,7 @@ export class VectorFactory {
                         raw.coordinates[0], 
                         raw.coordinates[1], 
                         raw.coordinates[2], 
-                        raw.coordinates[3].value, 
+                        raw.coordinates[3].weight, 
                         vectorSpace as ProjectiveVectorSpace<4>
                     );
                 default:

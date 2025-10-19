@@ -5,7 +5,7 @@ import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM
 import { Weight } from "../../src/mathVector/Weight";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
-import { WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { ProjectiveVector2DTypeReal } from "../../src/mathVector/ProjectiveVector2DTypeReal";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
@@ -26,9 +26,9 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.dimension).to.eql(dimension);
             expect(projRealVector.getCoordinate(0)).to.eql(0);
             expect(projRealVector.getCoordinate(1)).to.eql(0);
-            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().weight);
+            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
             expect(projRealVector.weight.strictlyPositive).to.eql(true);
-            expect(projRealVector.weight.weight).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projRealVector.vectorSpace.isDefault).to.eql(true);
@@ -41,9 +41,9 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.dimension).to.eql(dimension);
             expect(projRealVector.getCoordinate(0)).to.eql(-1);
             expect(projRealVector.getCoordinate(1)).to.eql(2);
-            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().weight);
+            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
             expect(projRealVector.weight.strictlyPositive).to.eql(true);
-            expect(projRealVector.weight.weight).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projRealVector.vectorSpace.isDefault).to.eql(true);
@@ -57,9 +57,9 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.dimension).to.eql(dimension);
             expect(projRealVector.getCoordinate(0)).to.eql(-1);
             expect(projRealVector.getCoordinate(1)).to.eql(2);
-            expect(projRealVector.getCoordinate(2)).to.eql(weight.weight);
+            expect(projRealVector.getCoordinate(2)).to.eql(weight.value);
             expect(projRealVector.weight.strictlyPositive).to.eql(true);
-            expect(projRealVector.weight.weight).to.eql(weight.weight);
+            expect(projRealVector.weight.value).to.eql(weight.value);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projRealVector.vectorSpace.isDefault).to.eql(true);
@@ -73,9 +73,9 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.dimension).to.eql(dimension);
             expect(projRealVector.getCoordinate(0)).to.eql(0);
             expect(projRealVector.getCoordinate(1)).to.eql(0);
-            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().weight);
+            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
             expect(projRealVector.weight.strictlyPositive).to.eql(true);
-            expect(projRealVector.weight.weight).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projRealVector.vectorSpace.isDefault).to.eql(false);
@@ -90,9 +90,9 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.dimension).to.eql(dimension);
             expect(projRealVector.getCoordinate(0)).to.eql(1);
             expect(projRealVector.getCoordinate(1)).to.eql(-2);
-            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().weight);
+            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
             expect(projRealVector.weight.strictlyPositive).to.eql(true);
-            expect(projRealVector.weight.weight).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projRealVector.vectorSpace.isDefault).to.eql(false);
@@ -104,13 +104,13 @@ describe('Projective vector 2D in real vector space: generation and operators in
             const vSpace = new ProjectiveVectorSpace(dimension);
             const projRealVector = new ProjectiveVector2DTypeReal(1, -2, weight, vSpace);
             expect(projRealVector.coordinates.length).to.eql(dimension);
-            expect(projRealVector.coordinates).to.eql([1, -2, weight.weight]);
+            expect(projRealVector.coordinates).to.eql([1, -2, weight.value]);
             expect(projRealVector.dimension).to.eql(dimension);
             expect(projRealVector.getCoordinate(0)).to.eql(1);
             expect(projRealVector.getCoordinate(1)).to.eql(-2);
-            expect(projRealVector.getCoordinate(2)).to.eql(weight.weight);
+            expect(projRealVector.getCoordinate(2)).to.eql(weight.value);
             expect(projRealVector.weight.strictlyPositive).to.eql(true);
-            expect(projRealVector.weight.weight).to.eql(weight.weight);
+            expect(projRealVector.weight.value).to.eql(weight.value);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projRealVector.vectorSpace.isDefault).to.eql(false);
@@ -130,7 +130,7 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.getCoordinate(1)).to.eql(0);
             expect(projRealVector.getCoordinate(2)).to.eql(1);
             expect(projRealVector.weight.strictlyPositive).to.eql(false);
-            expect(projRealVector.weight.weight).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
         });
@@ -148,7 +148,7 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.getCoordinate(1)).to.eql(2);
             expect(projRealVector.getCoordinate(2)).to.eql(0);
             expect(projRealVector.weight.strictlyPositive).to.eql(false);
-            expect(projRealVector.weight.weight).to.eql(0);
+            expect(projRealVector.weight.value).to.eql(0);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
         });
@@ -167,7 +167,7 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.getCoordinate(1)).to.eql(2);
             expect(projRealVector.getCoordinate(2)).to.eql(0);
             expect(projRealVector.weight.strictlyPositive).to.eql(false);
-            expect(projRealVector.weight.weight).to.eql(0);
+            expect(projRealVector.weight.value).to.eql(0);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             // vector with strictly positive weight
@@ -182,7 +182,7 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector2.getCoordinate(1)).to.eql(-2);
             expect(projRealVector2.getCoordinate(2)).to.eql(2);
             expect(projRealVector2.weight.strictlyPositive).to.eql(false);
-            expect(projRealVector2.weight.weight).to.eql(2);
+            expect(projRealVector2.weight.value).to.eql(2);
         });
 
         it(`cannot change the status of the weight manager attached to a default 3D projective real vector space`, () => {
@@ -198,7 +198,7 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.getCoordinate(1)).to.eql(0);
             expect(projRealVector.getCoordinate(2)).to.eql(1);
             expect(projRealVector.weight.strictlyPositive).to.eql(true);
-            expect(projRealVector.weight.weight).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(() => new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights, true)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
@@ -245,6 +245,65 @@ describe('Projective vector 2D in real vector space: generation and operators in
             const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
             expect(vSpace.isDefault).to.eql(false);
             expect(() =>  new ProjectiveVector2DTypeReal(1, 2, new Weight(3, true), vSpace)).to.throw(EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
+        });
+
+        it(`can generate a vector with weight management ${WeightManagement.AllStrictlyPositiveWeights} and a weight value smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
+            const smallWeight = new Weight(NULL_WEIGHT_TOLERANCE / 2);
+            const projRealVector = new ProjectiveVector2DTypeReal(1, 2, smallWeight);
+            expect(projRealVector.vectorSpace.isDefault).to.eql(true);
+            let weightMgmt = projRealVector.vectorSpace.weightManagement;
+            expect(weightMgmt).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            expect(projRealVector.coordinates.length).to.eql(dimension);
+            expect(projRealVector.coordinates).to.eql([1, 2, NULL_WEIGHT_TOLERANCE / 2]);
+            expect(projRealVector.dimension).to.eql(dimension);
+            expect(projRealVector.getCoordinate(0)).to.eql(1);
+            expect(projRealVector.getCoordinate(1)).to.eql(2);
+            expect(projRealVector.getCoordinate(2)).to.eql(NULL_WEIGHT_TOLERANCE / 2);
+            expect(projRealVector.weight.strictlyPositive).to.eql(true);
+            expect(projRealVector.weight).to.eql(smallWeight);
+        });
+
+        it(`can generate a vector with weight management ${WeightManagement.AllPositiveWeights} and an input weight value smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
+            const smallWeight = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+            const vectorSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+            const projRealVector = new ProjectiveVector2DTypeReal(1, 2, smallWeight, vectorSpace);
+            expect(projRealVector.vectorSpace.isDefault).to.eql(true);
+            let weightMgmt = projRealVector.vectorSpace.weightManagement;
+            expect(weightMgmt).to.eql(WeightManagement.AllPositiveWeights);
+            expect(projRealVector.coordinates.length).to.eql(dimension);
+            expect(projRealVector.coordinates).to.eql([1, 2, NULL_WEIGHT_TOLERANCE / 2]);
+            expect(projRealVector.dimension).to.eql(dimension);
+            expect(projRealVector.getCoordinate(0)).to.eql(1);
+            expect(projRealVector.getCoordinate(1)).to.eql(2);
+            expect(projRealVector.getCoordinate(2)).to.eql(NULL_WEIGHT_TOLERANCE / 2);
+            expect(projRealVector.weight.strictlyPositive).to.eql(false);
+            expect(projRealVector.weight).to.eql(smallWeight);
+        });
+
+        it(`can generate a vector with weight management ${WeightManagement.SomeNullWeights} and an input weight value smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
+            const smallWeight = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+            const vectorSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights, true);
+            const projRealVector = new ProjectiveVector2DTypeReal(1, 2, smallWeight, vectorSpace);
+            expect(projRealVector.vectorSpace.isDefault).to.eql(true);
+            let weightMgmt = projRealVector.vectorSpace.weightManagement;
+            expect(weightMgmt).to.eql(WeightManagement.SomeNullWeights);
+            expect(projRealVector.coordinates.length).to.eql(dimension);
+            expect(projRealVector.coordinates).to.eql([1, 2, NULL_WEIGHT_TOLERANCE / 2]);
+            expect(projRealVector.dimension).to.eql(dimension);
+            expect(projRealVector.getCoordinate(0)).to.eql(1);
+            expect(projRealVector.getCoordinate(1)).to.eql(2);
+            expect(projRealVector.getCoordinate(2)).to.eql(NULL_WEIGHT_TOLERANCE / 2);
+            expect(projRealVector.weight.strictlyPositive).to.eql(false);
+            expect(projRealVector.weight).to.eql(smallWeight);
+
+            const smallWeight1 = new Weight(NULL_WEIGHT_TOLERANCE / 2, true);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(1, 2, smallWeight1, vectorSpace);
+            expect(projRealVector1.coordinates).to.eql([1, 2, NULL_WEIGHT_TOLERANCE / 2]);
+            expect(projRealVector1.getCoordinate(0)).to.eql(1);
+            expect(projRealVector1.getCoordinate(1)).to.eql(2);
+            expect(projRealVector1.getCoordinate(2)).to.eql(NULL_WEIGHT_TOLERANCE / 2);
+            expect(projRealVector1.weight.strictlyPositive).to.eql(true);
+            expect(projRealVector1.weight).to.eql(smallWeight1);
         });
     });
 

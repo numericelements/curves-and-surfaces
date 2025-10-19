@@ -213,7 +213,7 @@ export function createCommonRealVectorTests(
                 expect(result.vectorSpace.isDefault).to.eql(true);
             });
 
-            it(`can subtract a vector from another real vector of same dimensio belonging to the same vector space`, () => {
+            it(`can subtract a vector from another real vector of same dimension belonging to the same vector space`, () => {
                 const coordinates = [1, 3, 5, 7];
                 const vSpace = new RealVectorSpace(dimension);
                 const realVector1 = createTestRealVector(dimension, vSpace, coordinates);
