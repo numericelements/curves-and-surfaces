@@ -47,16 +47,16 @@ export class ProjectiveVectorSpace3DStrategy implements ProjectiveVectorSpaceStr
 
     createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVector2D {
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], {type: WEIGHT, weight: weightManager.setWeight(new Weight(coordinates[2], false))}]};
+            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[2])}]};
             return vector;
         } else {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], {type: WEIGHT, weight: weightManager.setWeight(new Weight(coordinates[2]))}]};
+            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[2])}]};
             return vector;
         }
     }
 
     defaultVect(weightManager: WeightManager): ProjectiveVector2D {
-        let vector: ProjectiveVector = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: weightManager.setWeight(new Weight(DEFAULT_WEIGHT_VALUE))}]};
+        let vector: ProjectiveVector = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE)}]};
         return vector;
     }
 
@@ -115,10 +115,10 @@ export class ProjectiveVectorSpace3DStrategy implements ProjectiveVectorSpaceStr
         }
     }
 
-    clone(v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector2D {
+    clone(v: ProjectiveVector): ProjectiveVector2D {
         if(isVector3D(v)) {
-            const cloneWeight = weightManager.cloneWeight(v.coordinates[2].weight);
-            return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, weight: cloneWeight}]};
+            const clonedWeight = v.coordinates[2].weight.clone();
+            return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, weight: clonedWeight}]};
         } else {
             throw new RangeError();
         }

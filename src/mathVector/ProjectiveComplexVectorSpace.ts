@@ -209,11 +209,11 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         }
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
             let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [complex1, {type: COMPLEXWEIGHT,
-                real: weightManager.setWeight(new Weight(coordinates[1][0], false)), imaginary: weightManager.setWeight(new Weight(coordinates[1][1], false))}]};
+                real: weightManager.createWeightFromValueOnly(coordinates[1][0]), imaginary: weightManager.createWeightFromValueOnly(coordinates[1][1])}]};
             return vector;
         } else {
             let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [complex1, {type: COMPLEXWEIGHT, 
-                real: weightManager.setWeight(new Weight(coordinates[1][0])), imaginary: weightManager.setWeight(new Weight(coordinates[1][1]))}]};
+                real: weightManager.createWeightFromValueOnly(coordinates[1][0]), imaginary: weightManager.createWeightFromValueOnly(coordinates[1][1])}]};
             return vector;
         }
     }

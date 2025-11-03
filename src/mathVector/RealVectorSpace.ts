@@ -99,8 +99,8 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
                 this.strategy = new RealVectorSpace4DStrategy() as unknown as RealVectorSpaceStrategy<D>;
                 break;
             default:
-            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
-            throw new RangeError(error.generateMessageString());
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
+                throw new RangeError(error.generateMessageString());
         }
     }
 

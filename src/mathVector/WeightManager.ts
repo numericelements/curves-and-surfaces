@@ -1,15 +1,41 @@
-import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT, EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
-import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE, WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE } from "../WarningMessages/WeightManager";
+import { EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT } from "../ErrorMessages/WeightManager";
+import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { Real } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
+import { WeightManagerPositiveWeightStrategy } from "./WeightManagerPositiveWeightStrategy";
+import { WeightManagerSomeNullWeightStrategy } from "./WeightManagerSomeNullWeightStrategy";
+import { WeightManagerStrictPositiveWeightStrategy } from "./WeightManagerStrictPositiveWeightStrategy";
+
+export interface WeightManagerStrategy {
+    addWeights(weightV1: Weight, weightV2: Weight): Weight;
+    subtractWeights(weightV1: Weight, weightV2: Weight): Weight;
+    scaleWeight(weight: Weight, scalar: Real): Weight;
+    createWeightFromValueOnly(value: number): Weight;
+    forcesNullWeight(weight: Weight): Weight;
+    setWeightStatusToNullWeightStatus(weight: Weight): Weight
+}
 
 export class WeightManager {
-    protected _weightManagement: WeightManagement
+    protected _weightManagement: WeightManagement;
+    protected strategy: WeightManagerStrategy;
 
     constructor(weightManagement: WeightManagement) {
         this._weightManagement = weightManagement;
+        switch (this._weightManagement) {
+            case WeightManagement.AllPositiveWeights:
+                this.strategy = new WeightManagerPositiveWeightStrategy();
+                break;
+            case WeightManagement.AllStrictlyPositiveWeights:
+                this.strategy = new WeightManagerStrictPositiveWeightStrategy();
+                break;
+            case WeightManagement.SomeNullWeights:
+                this.strategy = new WeightManagerSomeNullWeightStrategy();
+                break;
+            default:
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
+                throw new RangeError(error.generateMessageString());
+        }
     }
     
     get weightManagement(): WeightManagement {
@@ -20,156 +46,52 @@ export class WeightManager {
         return new WeightManager(this._weightManagement);
     }
 
-    setWeight(weight: Weight): Weight {
-        let newWeight = weight.clone();
-        if (this._weightManagement === WeightManagement.AllPositiveWeights) {
-            newWeight = new Weight(weight.value, false);
-        } else if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
-            if(!weight.strictlyPositive) {
-                const error = sendRangeErrorMessage(this.constructor.name, 'setWeightStatus', EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
-                throw new RangeError(error.generateMessageString());
-            }
-        } else if(this._weightManagement === WeightManagement.SomeNullWeights) {
-        // if(this._weightManagement === WeightManagement.SomeNullWeights) {
-        //     if(weight.value < NULL_WEIGHT_TOLERANCE && weight.strictlyPositive) {
-        //         newWeight = new Weight(weight.value, false);
-        //     } else if(weight.value >= NULL_WEIGHT_TOLERANCE && !weight.strictlyPositive) {
-        //         newWeight = new Weight(weight.value, true);
-        //     }
-        }
-        return newWeight;
+    createWeightFromValueOnly(value: number): Weight {
+        return this.strategy.createWeightFromValueOnly(value);
     }
 
-    toggleWeightStatus(weight: Weight): Weight {
-        let newWeight = weight.clone();
-        if(this._weightManagement === WeightManagement.SomeNullWeights) {
-            if(weight.value < NULL_WEIGHT_TOLERANCE && weight.strictlyPositive) {
-                newWeight = new Weight(weight.value, false);
-            } else if(weight.value >= NULL_WEIGHT_TOLERANCE && !weight.strictlyPositive) {
-                newWeight = new Weight(weight.value, true);
-            }
+    setWeightStatusToNullWeightStatus(weight: Weight): Weight {
+        try {
+            return this.strategy.setWeightStatusToNullWeightStatus(weight);
+        } catch (error) {
+            throw error;
         }
-        return newWeight;
     }
 
     forcesNullWeight(weight: Weight): Weight {
-        let newWeight = weight.clone();
-        if(this._weightManagement === WeightManagement.AllPositiveWeights || this._weightManagement === WeightManagement.SomeNullWeights) {
-            if(weight.value < NULL_WEIGHT_TOLERANCE) newWeight = new Weight(0, false);
+        try {
+            return this.strategy.forcesNullWeight(weight);
+        } catch (error) {
+            throw error;
         }
-        return newWeight;
     }
 
     addWeights(weightV1: Weight, weightV2: Weight): Weight {
-        if(this._weightManagement === WeightManagement.AllPositiveWeights && (weightV1.strictlyPositive === true || weightV2.strictlyPositive === true)) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'addWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
-            throw new RangeError(error.generateMessageString());
-        } else if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && (weightV1.strictlyPositive === false || weightV2.strictlyPositive === false)) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'addWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
-            throw new RangeError(error.generateMessageString());
+        try {
+            return this.strategy.addWeights(weightV1, weightV2);
+        } catch (error) {
+            throw error;
         }
-        const sumWeights = weightV1.value + weightV2.value;
-        let newWeight = new Weight();
-        if(Math.abs(sumWeights) >= NULL_WEIGHT_TOLERANCE) {
-            if(this._weightManagement === WeightManagement.AllPositiveWeights) {
-                newWeight = new Weight(sumWeights, false);
-            } else if(this._weightManagement === WeightManagement.SomeNullWeights) {
-                if(!weightV1.strictlyPositive && !weightV2.strictlyPositive) {
-                    newWeight = new Weight(sumWeights, false);
-                } else {
-                    newWeight = new Weight(sumWeights);
-                }
-            } else {
-                newWeight = new Weight(sumWeights);
-            }
-        } else {
-            if (this._weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
-                sendRangeErrorMessage(this.constructor.name, 'addWeights', WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE);
-                newWeight = new Weight(sumWeights);
-            } else if (this._weightManagement === WeightManagement.AllPositiveWeights) {
-                sendRangeErrorMessage(this.constructor.name, 'addWeights', WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE);
-                newWeight = new Weight(sumWeights, false);
-            } else if (this._weightManagement === WeightManagement.SomeNullWeights) {
-                if(weightV1.strictlyPositive && weightV2.strictlyPositive) {
-                    newWeight = new Weight(sumWeights);
-                } else {
-                    newWeight = new Weight(sumWeights, false);
-                }
-            }
-        }
-        return newWeight;
     }
 
     subtractWeights(weightV1: Weight, weightV2: Weight): Weight {
-        if(this._weightManagement === WeightManagement.AllPositiveWeights && (weightV1.strictlyPositive === true || weightV2.strictlyPositive === true)) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'subtractWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
-            throw new RangeError(error.generateMessageString());
-        } else if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && (weightV1.strictlyPositive === false || weightV2.strictlyPositive === false)) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'subtractWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
-            throw new RangeError(error.generateMessageString());
+        try {
+            return this.strategy.subtractWeights(weightV1, weightV2);
+        } catch (error) {
+            throw error;
         }
-        const diffWeights = weightV1.value - weightV2.value;
-        if(diffWeights < 0 && Math.abs(diffWeights) > NULL_WEIGHT_TOLERANCE) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'subtractWeights', EM_WEIGHT_SUBTRACTION_ERROR);
-            throw new RangeError(error.generateMessageString());
-        }
-        let newWeight = new Weight();
-        if (this._weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
-            if(diffWeights <= 0 && Math.abs(diffWeights) < NULL_WEIGHT_TOLERANCE) {
-                const error = sendRangeErrorMessage(this.constructor.name, 'subtractWeights', EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
-                throw new RangeError(error.generateMessageString());
-            } else if(Math.abs(diffWeights) < NULL_WEIGHT_TOLERANCE) {
-                sendRangeErrorMessage(this.constructor.name, 'subtractWeights', WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE);
-                newWeight = new Weight(diffWeights);
-            } else {
-                newWeight = new Weight(diffWeights);
-            }
-        } else if (this._weightManagement === WeightManagement.AllPositiveWeights) {
-            if(diffWeights < 0 && Math.abs(diffWeights) < NULL_WEIGHT_TOLERANCE) {
-                newWeight = new Weight(0, false);
-            } else if(Math.abs(diffWeights) < NULL_WEIGHT_TOLERANCE) {
-                sendRangeErrorMessage(this.constructor.name, 'subtractWeights', WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE);
-                newWeight = new Weight(diffWeights, false);
-            } else {
-                newWeight = new Weight(diffWeights, false);
-            }
-        } else if (this._weightManagement === WeightManagement.SomeNullWeights) {
-            if(diffWeights < 0 && Math.abs(diffWeights) < NULL_WEIGHT_TOLERANCE) {
-                newWeight = new Weight(0, false);
-            } else if(Math.abs(diffWeights) < NULL_WEIGHT_TOLERANCE) {
-                newWeight = new Weight(diffWeights, false);
-            } else {
-                newWeight = new Weight(diffWeights);
-            }
-        }
-        return newWeight;
     }
 
     scaleWeight(weight: Weight, scalar: Real): Weight {
         if(scalar < 0) {
             const error = sendRangeErrorMessage(this.constructor.name, 'scaleWeight', EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
             throw new RangeError(error.generateMessageString());
-        } else if(scalar === 0 && this._weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'scaleWeight', EM_SCALE_FACTOR_NULL);
-            throw new RangeError(error.generateMessageString());
         }
-        let newWeight = new Weight();
-        if(this._weightManagement === WeightManagement.AllPositiveWeights) {
-            newWeight = new Weight(weight.value * scalar, false);
-        } else if(this._weightManagement === WeightManagement.SomeNullWeights) {
-            if(weight.strictlyPositive && scalar > 0) {
-                newWeight = new Weight(weight.value * scalar);
-            } else {
-                newWeight = new Weight(weight.value * scalar, false);
-            }
-        } else {
-            newWeight = new Weight(weight.value * scalar);
+        try {
+            return this.strategy.scaleWeight(weight, scalar);
+        } catch (error) {
+            throw error;
         }
-        return newWeight;
-    }
-
-    cloneWeight(weight: Weight): Weight {
-        return new Weight(weight.value, weight.strictlyPositive);
     }
 
     isSameWeightManagement(weightV1: Weight, weightV2: Weight): boolean {

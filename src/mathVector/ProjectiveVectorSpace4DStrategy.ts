@@ -46,16 +46,16 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
 
     createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVector3D {
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[3] === 0)) {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, weight: weightManager.setWeight(new Weight(coordinates[3], false))}]};
+            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[3])}]};
             return vector;
         } else {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, weight: weightManager.setWeight(new Weight(coordinates[3]))}]};
+            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[3])}]};
             return vector;
         }
     }
 
     defaultVect(weightManager: WeightManager): ProjectiveVector3D {
-        let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: weightManager.setWeight(new Weight(DEFAULT_WEIGHT_VALUE))}]};
+        let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE)}]};
         return vector;
     }
 
@@ -114,9 +114,9 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
         }
     }
 
-    clone(v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
+    clone(v: ProjectiveVector): ProjectiveVector3D {
         if(isVector4D(v)) {
-            const cloneWeight = weightManager.cloneWeight(v.coordinates[3].weight);
+            const cloneWeight = v.coordinates[3].weight.clone();
             return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, weight: cloneWeight}]};
         } else {
             throw new RangeError();

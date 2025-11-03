@@ -2,10 +2,11 @@ import { expect } from "chai";
 import { WeightManager } from "../../src/mathVector/WeightManager";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
-import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT, EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_WEIGHT_SUBTRACTION_ERROR } from "../../src/ErrorMessages/WeightManager";
+import { EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_TOGGLE_STATUS_INCOMPATIBLE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT, EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_WEIGHT_SUBTRACTION_ERROR } from "../../src/ErrorMessages/WeightManager";
 import { WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE, WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE } from "../../src/WarningMessages/WeightManager";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
+import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../../src/ErrorMessages/Weight";
 
 describe('WeightManager', () => {
 
@@ -30,36 +31,50 @@ describe('WeightManager', () => {
 
     describe('Methods', () => {
 
-        describe('setWeightStatus', () => {
-            const weight = new Weight(10);
-            const weight1 = new Weight(10, false);
-            it('can set the Weight status of a weight with management category ' + WeightManagement.AllPositiveWeights, () => {
+        describe('createWeightFromValueOnly', () => {
+            const value = 10;
+            it('can set a weight with management category ' + WeightManagement.AllPositiveWeights, () => {
                 const weightManagement = WeightManagement.AllPositiveWeights;
                 const weightManager = new WeightManager(weightManagement);
-                expect(weight.strictlyPositive).to.eql(true)
-                const newWeight = weightManager.setWeight(weight);
-                expect(newWeight.strictlyPositive).to.eql(false)
-
-                expect(weight1.strictlyPositive).to.eql(false)
-                const newWeight1 = weightManager.setWeight(weight1);
-                expect(newWeight1.strictlyPositive).to.eql(false)
+                const newWeight = weightManager.createWeightFromValueOnly(value);
+                expect(newWeight.strictlyPositive).to.eql(false);
+                const newWeight1 = weightManager.createWeightFromValueOnly(0);
+                expect(newWeight1.strictlyPositive).to.eql(false);
             });
 
-            it('can set the Weight status of a weight with management category ' + WeightManagement.AllStrictlyPositiveWeights, () => {
+            it('cannot set a weight with a negative value with management category ' + WeightManagement.AllPositiveWeights, () => {
+                const weightManagement = WeightManagement.AllPositiveWeights;
+                const weightManager = new WeightManager(weightManagement);
+                expect(() => weightManager.createWeightFromValueOnly(-1)).to.throw(EM_WEIGHT_VALUE_POSITIVE);
+            });
+
+            it('can set a weight with management category ' + WeightManagement.AllStrictlyPositiveWeights, () => {
                 const weightManagement1 = WeightManagement.AllStrictlyPositiveWeights;
                 const weightManager1 = new WeightManager(weightManagement1);
-                const newWeight2 = weightManager1.setWeight(weight);
+                const newWeight2 = weightManager1.createWeightFromValueOnly(value);
                 expect(newWeight2.strictlyPositive).to.eql(true)
-                expect(() => weightManager1.setWeight(weight1)).to.throw(EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
             });
 
-            it('can set the Weight status of a weight with management category ' + WeightManagement.SomeNullWeights, () => {
+            it('cannot set a weight with a null or negative value with management category ' + WeightManagement.AllStrictlyPositiveWeights, () => {
+                const weightManagement1 = WeightManagement.AllStrictlyPositiveWeights;
+                const weightManager1 = new WeightManager(weightManagement1);
+                expect(() => weightManager1.createWeightFromValueOnly(0)).to.throw(EM_WEIGHT_VALUE_STRICTLY_POSITIVE);
+                expect(() => weightManager1.createWeightFromValueOnly(-1)).to.throw(EM_WEIGHT_VALUE_STRICTLY_POSITIVE)
+            });
+
+            it('can set a weight with management category ' + WeightManagement.SomeNullWeights, () => {
                 const weightManagement2 = WeightManagement.SomeNullWeights;
                 const weightManager2 = new WeightManager(weightManagement2);
-                const newWeight3 = weightManager2.setWeight(weight);
+                const newWeight3 = weightManager2.createWeightFromValueOnly(value);
                 expect(newWeight3.strictlyPositive).to.eql(true)
-                const newWeight5 = weightManager2.setWeight(weight1);
+                const newWeight5 = weightManager2.createWeightFromValueOnly(0);
                 expect(newWeight5.strictlyPositive).to.eql(false);
+            });
+
+            it('cannot set a weight with a negative value with management category ' + WeightManagement.SomeNullWeights, () => {
+                const weightManagement2 = WeightManagement.SomeNullWeights;
+                const weightManager2 = new WeightManager(weightManagement2);
+                expect(() => weightManager2.createWeightFromValueOnly(-1)).to.throw(EM_WEIGHT_VALUE_POSITIVE)
             });
         });
 
@@ -715,6 +730,59 @@ describe('WeightManager', () => {
             expect(weightManager.isSameWeightManagement(weight, weight1)).to.eql(true)
             weight1 = new Weight(0, false);
             expect(weightManager.isSameWeightManagement(weight, weight1)).to.eql(true)
+        });
+
+        it('can force a weight to null for a weight under weight management ' +  WeightManagement.AllPositiveWeights, () => {
+            const weight = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+            const weightManagement = WeightManagement.AllPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(weightManager.forcesNullWeight(weight)).to.eql(new Weight(0, false))
+        });
+
+        it('cannot force a weight to null for a weight under weight management ' +  WeightManagement.AllPositiveWeights + ' if the strictlyPositive weight status is true', () => {
+            const weight = new Weight(NULL_WEIGHT_TOLERANCE / 2, true);
+            const weightManagement = WeightManagement.AllPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(() => weightManager.forcesNullWeight(weight)).to.throw(EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
+        });
+
+        it('can force a weight to null for a weight under weight management ' +  WeightManagement.SomeNullWeights, () => {
+            const weight = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+            const weightManagement = WeightManagement.SomeNullWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(weightManager.forcesNullWeight(weight)).to.eql(new Weight(0, false))
+            const weight1 = new Weight(NULL_WEIGHT_TOLERANCE / 2, true);
+            expect(weightManager.forcesNullWeight(weight1)).to.eql(new Weight(0, false))
+        });
+
+        it('cannot force a weight to null for a weight under weight management ' +  WeightManagement.AllStrictlyPositiveWeights, () => {
+            const weight = new Weight(NULL_WEIGHT_TOLERANCE / 2, true);
+            const weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(() => weightManager.forcesNullWeight(weight)).to.throw(EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
+        });
+
+        it('can set the weight status to null weight status under weight management ' +  WeightManagement.SomeNullWeights, () => {
+            const weight = new Weight(NULL_WEIGHT_TOLERANCE / 2, true);
+            const weightManagement = WeightManagement.SomeNullWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(weightManager.setWeightStatusToNullWeightStatus(weight).strictlyPositive).to.eql(false)
+            const weight1 = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+            expect(weightManager.setWeightStatusToNullWeightStatus(weight1).strictlyPositive).to.eql(false)
+        });
+
+        it('cannot set the weight status to null weight status under weight management ' +  WeightManagement.AllStrictlyPositiveWeights, () => {
+            const weight = new Weight(NULL_WEIGHT_TOLERANCE / 2, true);
+            const weightManagement = WeightManagement.AllStrictlyPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(() => weightManager.setWeightStatusToNullWeightStatus(weight)).to.throw(EM_TOGGLE_STATUS_INCOMPATIBLE)
+        });
+
+        it('cannot set the weight status to null weight status under weight management ' +  WeightManagement.AllPositiveWeights, () => {
+            const weight = new Weight(NULL_WEIGHT_TOLERANCE / 2, true);
+            const weightManagement = WeightManagement.AllPositiveWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(() => weightManager.setWeightStatusToNullWeightStatus(weight)).to.throw(EM_TOGGLE_STATUS_INCOMPATIBLE)
         });
 
     });

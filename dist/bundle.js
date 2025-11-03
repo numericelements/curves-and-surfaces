@@ -38744,7 +38744,7 @@ exports.EM_WEIGHT_VALUE_POSITIVE = 'A weight value cannot be negative. Cannot pr
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EM_SCALE_FACTOR_NULL = exports.EM_SCALE_FACTOR_STRICTLY_NEGATIVE = exports.EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS = exports.EM_WEIGHT_SUBTRACTION_ERROR = exports.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT = exports.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT = void 0;
+exports.EM_TOGGLE_STATUS_INCOMPATIBLE = exports.EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT = exports.EM_SCALE_FACTOR_NULL = exports.EM_SCALE_FACTOR_STRICTLY_NEGATIVE = exports.EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS = exports.EM_WEIGHT_SUBTRACTION_ERROR = exports.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT = exports.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT = void 0;
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
 exports.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT = "Weight status is incompatible because it is assigned the possibility to be positive whereas the weight manager is set to strictly positive weight management.";
 exports.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT = "The weight status is incompatible because it is assigned the possibility to be strictly positive whereas the weight manager is set to positive weight management.";
@@ -38752,6 +38752,8 @@ exports.EM_WEIGHT_SUBTRACTION_ERROR = "Weight subtraction produces a negative we
 exports.EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS = `Subtracting strictly positive weights produced a null weight or negative weight within the tolerance ${ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE}. Cannot proceed.`;
 exports.EM_SCALE_FACTOR_STRICTLY_NEGATIVE = "Scale factor is strictly negative while weights must stay positive. Cannot proceed.";
 exports.EM_SCALE_FACTOR_NULL = "Scale factor is null and produces a null weight, while weights must be strictly positive. Cannot proceed.";
+exports.EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT = "Forcing a null weight is incompatible with strictly positive weight management. Cannot proceed.";
+exports.EM_TOGGLE_STATUS_INCOMPATIBLE = "Changing the weight status is incompatible with the weight management. Cannot proceed.";
 
 
 /***/ }),
@@ -52511,12 +52513,12 @@ class ProjectiveComplexVectorSpace {
         }
         if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights || (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
             let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [complex1, { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT,
-                        real: weightManager.setWeight(new Weight_1.Weight(coordinates[1][0], false)), imaginary: weightManager.setWeight(new Weight_1.Weight(coordinates[1][1], false)) }] };
+                        real: weightManager.createWeightFromValueOnly(coordinates[1][0]), imaginary: weightManager.createWeightFromValueOnly(coordinates[1][1]) }] };
             return vector;
         }
         else {
             let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [complex1, { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT,
-                        real: weightManager.setWeight(new Weight_1.Weight(coordinates[1][0])), imaginary: weightManager.setWeight(new Weight_1.Weight(coordinates[1][1])) }] };
+                        real: weightManager.createWeightFromValueOnly(coordinates[1][0]), imaginary: weightManager.createWeightFromValueOnly(coordinates[1][1]) }] };
             return vector;
         }
     }
@@ -52727,18 +52729,18 @@ class ProjectiveComplexVectorSpace2DStrategy {
     createVector(coordinates, weightManager) {
         if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights || (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
             let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: coordinates[0], imaginary: coordinates[1] }, { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT,
-                        real: weightManager.setWeight(new Weight_2.Weight(coordinates[2], false)), imaginary: weightManager.setWeight(new Weight_2.Weight(coordinates[3], false)) }] };
+                        real: weightManager.createWeightFromValueOnly(coordinates[2]), imaginary: weightManager.createWeightFromValueOnly(coordinates[3]) }] };
             return vector;
         }
         else {
             let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: coordinates[0], imaginary: coordinates[1] }, { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT,
-                        real: weightManager.setWeight(new Weight_2.Weight(coordinates[2])), imaginary: weightManager.setWeight(new Weight_2.Weight(coordinates[3])) }] };
+                        real: weightManager.createWeightFromValueOnly(coordinates[2]), imaginary: weightManager.createWeightFromValueOnly(coordinates[3]) }] };
             return vector;
         }
     }
     defaultVect(weightManager) {
         let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVECOMPLEXVECTOR1D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: 0, imaginary: 1 }, { type: VectorSpaceConstructorInterface_1.COMPLEXWEIGHT,
-                    real: weightManager.setWeight(new Weight_2.Weight(Weight_1.DEFAULT_WEIGHT_VALUE)), imaginary: weightManager.setWeight(new Weight_2.Weight(Weight_1.DEFAULT_WEIGHT_VALUE)) }] };
+                    real: weightManager.createWeightFromValueOnly(Weight_1.DEFAULT_WEIGHT_VALUE), imaginary: weightManager.createWeightFromValueOnly(Weight_1.DEFAULT_WEIGHT_VALUE) }] };
         return vector;
     }
     add(a, b, weightManager) {
@@ -53367,7 +53369,7 @@ class ProjectiveVectorSpace {
     }
     cloneRaw(v) {
         try {
-            return this.strategy.clone(v, this.weightManager);
+            return this.strategy.clone(v);
         }
         catch (error) {
             const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'clone', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
@@ -53467,16 +53469,16 @@ class ProjectiveVectorSpace3DStrategy {
     }
     createVector(coordinates, weightManager) {
         if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights || (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
-            let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.setWeight(new Weight_2.Weight(coordinates[2], false)) }] };
+            let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[2]) }] };
             return vector;
         }
         else {
-            let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.setWeight(new Weight_2.Weight(coordinates[2])) }] };
+            let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[2]) }] };
             return vector;
         }
     }
     defaultVect(weightManager) {
-        let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D, coordinates: [0, 0, { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.setWeight(new Weight_2.Weight(Weight_1.DEFAULT_WEIGHT_VALUE)) }] };
+        let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D, coordinates: [0, 0, { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.createWeightFromValueOnly(Weight_1.DEFAULT_WEIGHT_VALUE) }] };
         return vector;
     }
     add(a, b, weightManager) {
@@ -53537,10 +53539,10 @@ class ProjectiveVectorSpace3DStrategy {
             throw new RangeError();
         }
     }
-    clone(v, weightManager) {
+    clone(v) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(v)) {
-            const cloneWeight = weightManager.cloneWeight(v.coordinates[2].weight);
-            return { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: cloneWeight }] };
+            const clonedWeight = v.coordinates[2].weight.clone();
+            return { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: clonedWeight }] };
         }
         else {
             throw new RangeError();
@@ -53642,16 +53644,16 @@ class ProjectiveVectorSpace4DStrategy {
     }
     createVector(coordinates, weightManager) {
         if (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.AllPositiveWeights || (weightManager.weightManagement === ProjectiveVectorSpace_2.WeightManagement.SomeNullWeights && coordinates[3] === 0)) {
-            let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.setWeight(new Weight_2.Weight(coordinates[3], false)) }] };
+            let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[3]) }] };
             return vector;
         }
         else {
-            let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.setWeight(new Weight_2.Weight(coordinates[3])) }] };
+            let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[3]) }] };
             return vector;
         }
     }
     defaultVect(weightManager) {
-        let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.setWeight(new Weight_2.Weight(Weight_1.DEFAULT_WEIGHT_VALUE)) }] };
+        let vector = { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: weightManager.createWeightFromValueOnly(Weight_1.DEFAULT_WEIGHT_VALUE) }] };
         return vector;
     }
     add(a, b, weightManager) {
@@ -53712,9 +53714,9 @@ class ProjectiveVectorSpace4DStrategy {
             throw new RangeError();
         }
     }
-    clone(v, weightManager) {
+    clone(v) {
         if ((0, VectorSpaceUtilities_1.isVector4D)(v)) {
-            const cloneWeight = weightManager.cloneWeight(v.coordinates[3].weight);
+            const cloneWeight = v.coordinates[3].weight.clone();
             return { type: VectorSpaceConstructorInterface_1.PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], { type: VectorSpaceConstructorInterface_1.WEIGHT, weight: cloneWeight }] };
         }
         else {
@@ -55846,12 +55848,27 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WeightManager = void 0;
 const WeightManager_1 = __webpack_require__(/*! ../ErrorMessages/WeightManager */ "./src/ErrorMessages/WeightManager.ts");
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
-const WeightManager_2 = __webpack_require__(/*! ../WarningMessages/WeightManager */ "./src/WarningMessages/WeightManager.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
-const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+const WeightManagerPositiveWeightStrategy_1 = __webpack_require__(/*! ./WeightManagerPositiveWeightStrategy */ "./src/mathVector/WeightManagerPositiveWeightStrategy.ts");
+const WeightManagerSomeNullWeightStrategy_1 = __webpack_require__(/*! ./WeightManagerSomeNullWeightStrategy */ "./src/mathVector/WeightManagerSomeNullWeightStrategy.ts");
+const WeightManagerStrictPositiveWeightStrategy_1 = __webpack_require__(/*! ./WeightManagerStrictPositiveWeightStrategy */ "./src/mathVector/WeightManagerStrictPositiveWeightStrategy.ts");
 class WeightManager {
     constructor(weightManagement) {
         this._weightManagement = weightManagement;
+        switch (this._weightManagement) {
+            case ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights:
+                this.strategy = new WeightManagerPositiveWeightStrategy_1.WeightManagerPositiveWeightStrategy();
+                break;
+            case ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights:
+                this.strategy = new WeightManagerStrictPositiveWeightStrategy_1.WeightManagerStrictPositiveWeightStrategy();
+                break;
+            case ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights:
+                this.strategy = new WeightManagerSomeNullWeightStrategy_1.WeightManagerSomeNullWeightStrategy();
+                break;
+            default:
+                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
+                throw new RangeError(error.generateMessageString());
+        }
     }
     get weightManagement() {
         return this._weightManagement;
@@ -55859,178 +55876,52 @@ class WeightManager {
     clone() {
         return new WeightManager(this._weightManagement);
     }
-    setWeight(weight) {
-        let newWeight = weight.clone();
-        if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
-            newWeight = new Weight_1.Weight(weight.value, false);
-        }
-        else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
-            if (!weight.strictlyPositive) {
-                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'setWeightStatus', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
-                throw new RangeError(error.generateMessageString());
-            }
-        }
-        else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights) {
-            // if(this._weightManagement === WeightManagement.SomeNullWeights) {
-            //     if(weight.value < NULL_WEIGHT_TOLERANCE && weight.strictlyPositive) {
-            //         newWeight = new Weight(weight.value, false);
-            //     } else if(weight.value >= NULL_WEIGHT_TOLERANCE && !weight.strictlyPositive) {
-            //         newWeight = new Weight(weight.value, true);
-            //     }
-        }
-        return newWeight;
+    createWeightFromValueOnly(value) {
+        return this.strategy.createWeightFromValueOnly(value);
     }
     toggleWeightStatus(weight) {
-        let newWeight = weight.clone();
-        if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights) {
-            if (weight.value < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE && weight.strictlyPositive) {
-                newWeight = new Weight_1.Weight(weight.value, false);
-            }
-            else if (weight.value >= ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE && !weight.strictlyPositive) {
-                newWeight = new Weight_1.Weight(weight.value, true);
-            }
+        try {
+            return this.strategy.setWeightStatusToNullWeightStatus(weight);
         }
-        return newWeight;
+        catch (error) {
+            throw error;
+        }
     }
-    forcesNullWeight(weight) {
-        let newWeight = weight.clone();
-        if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights || this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights) {
-            if (weight.value < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE)
-                newWeight = new Weight_1.Weight(0, false);
+    setWeightStatusToNullWeightStatus(weight) {
+        try {
+            return this.strategy.forcesNullWeight(weight);
         }
-        return newWeight;
+        catch (error) {
+            throw error;
+        }
     }
     addWeights(weightV1, weightV2) {
-        if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights && (weightV1.strictlyPositive === true || weightV2.strictlyPositive === true)) {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
-            throw new RangeError(error.generateMessageString());
+        try {
+            return this.strategy.addWeights(weightV1, weightV2);
         }
-        else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights && (weightV1.strictlyPositive === false || weightV2.strictlyPositive === false)) {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
-            throw new RangeError(error.generateMessageString());
+        catch (error) {
+            throw error;
         }
-        const sumWeights = weightV1.value + weightV2.value;
-        let newWeight = new Weight_1.Weight();
-        if (Math.abs(sumWeights) >= ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-            if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
-                newWeight = new Weight_1.Weight(sumWeights, false);
-            }
-            else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights) {
-                if (!weightV1.strictlyPositive && !weightV2.strictlyPositive) {
-                    newWeight = new Weight_1.Weight(sumWeights, false);
-                }
-                else {
-                    newWeight = new Weight_1.Weight(sumWeights);
-                }
-            }
-            else {
-                newWeight = new Weight_1.Weight(sumWeights);
-            }
-        }
-        else {
-            if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
-                (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_2.WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE);
-                newWeight = new Weight_1.Weight(sumWeights);
-            }
-            else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
-                (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_2.WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE);
-                newWeight = new Weight_1.Weight(sumWeights, false);
-            }
-            else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights) {
-                if (weightV1.strictlyPositive && weightV2.strictlyPositive) {
-                    newWeight = new Weight_1.Weight(sumWeights);
-                }
-                else {
-                    newWeight = new Weight_1.Weight(sumWeights, false);
-                }
-            }
-        }
-        return newWeight;
     }
     subtractWeights(weightV1, weightV2) {
-        if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights && (weightV1.strictlyPositive === true || weightV2.strictlyPositive === true)) {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
-            throw new RangeError(error.generateMessageString());
+        try {
+            return this.strategy.subtractWeights(weightV1, weightV2);
         }
-        else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights && (weightV1.strictlyPositive === false || weightV2.strictlyPositive === false)) {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
-            throw new RangeError(error.generateMessageString());
+        catch (error) {
+            throw error;
         }
-        const diffWeights = weightV1.value - weightV2.value;
-        if (diffWeights < 0 && Math.abs(diffWeights) > ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_WEIGHT_SUBTRACTION_ERROR);
-            throw new RangeError(error.generateMessageString());
-        }
-        let newWeight = new Weight_1.Weight();
-        if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
-            if (diffWeights <= 0 && Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
-                throw new RangeError(error.generateMessageString());
-            }
-            else if (Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-                (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_2.WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE);
-                newWeight = new Weight_1.Weight(diffWeights);
-            }
-            else {
-                newWeight = new Weight_1.Weight(diffWeights);
-            }
-        }
-        else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
-            if (diffWeights < 0 && Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-                newWeight = new Weight_1.Weight(0, false);
-            }
-            else if (Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-                (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_2.WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE);
-                newWeight = new Weight_1.Weight(diffWeights, false);
-            }
-            else {
-                newWeight = new Weight_1.Weight(diffWeights, false);
-            }
-        }
-        else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights) {
-            if (diffWeights < 0 && Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-                newWeight = new Weight_1.Weight(0, false);
-            }
-            else if (Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-                newWeight = new Weight_1.Weight(diffWeights, false);
-            }
-            else {
-                newWeight = new Weight_1.Weight(diffWeights);
-            }
-        }
-        return newWeight;
     }
     scaleWeight(weight, scalar) {
         if (scalar < 0) {
-            // if(scalar <= 0 && this._weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
             const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scaleWeight', WeightManager_1.EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
             throw new RangeError(error.generateMessageString());
         }
-        else if (scalar === 0 && this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
-            //     return new Weight(0, false);
-            // } else if(weight.value * scalar < 0) {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scaleWeight', WeightManager_1.EM_SCALE_FACTOR_NULL);
-            throw new RangeError(error.generateMessageString());
+        try {
+            return this.strategy.scaleWeight(weight, scalar);
         }
-        let newWeight = new Weight_1.Weight();
-        if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights) {
-            newWeight = new Weight_1.Weight(weight.value * scalar, false);
+        catch (error) {
+            throw error;
         }
-        else if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights) {
-            if (weight.strictlyPositive && scalar > 0) {
-                newWeight = new Weight_1.Weight(weight.value * scalar);
-            }
-            else {
-                newWeight = new Weight_1.Weight(weight.value * scalar, false);
-            }
-        }
-        else {
-            newWeight = new Weight_1.Weight(weight.value * scalar);
-        }
-        return newWeight;
-    }
-    cloneWeight(weight) {
-        return new Weight_1.Weight(weight.value, weight.strictlyPositive);
     }
     isSameWeightManagement(weightV1, weightV2) {
         if (this._weightManagement !== ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights) {
@@ -56047,6 +55938,262 @@ class WeightManager {
     }
 }
 exports.WeightManager = WeightManager;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/WeightManagerPositiveWeightStrategy.ts":
+/*!***************************************************************!*\
+  !*** ./src/mathVector/WeightManagerPositiveWeightStrategy.ts ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WeightManagerPositiveWeightStrategy = void 0;
+const WeightManager_1 = __webpack_require__(/*! ../ErrorMessages/WeightManager */ "./src/ErrorMessages/WeightManager.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const WeightManager_2 = __webpack_require__(/*! ../WarningMessages/WeightManager */ "./src/WarningMessages/WeightManager.ts");
+const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
+const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+class WeightManagerPositiveWeightStrategy {
+    addWeights(weightV1, weightV2) {
+        if (weightV1.strictlyPositive === true || weightV2.strictlyPositive === true) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
+            throw new RangeError(error.generateMessageString());
+        }
+        const sumWeights = weightV1.value + weightV2.value;
+        let newWeight = new Weight_1.Weight();
+        if (Math.abs(sumWeights) >= ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            newWeight = new Weight_1.Weight(sumWeights, false);
+        }
+        else {
+            (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_2.WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE);
+            newWeight = new Weight_1.Weight(sumWeights, false);
+        }
+        return newWeight;
+    }
+    subtractWeights(weightV1, weightV2) {
+        if (weightV1.strictlyPositive === true || weightV2.strictlyPositive === true) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
+            throw new RangeError(error.generateMessageString());
+        }
+        const diffWeights = weightV1.value - weightV2.value;
+        if (diffWeights < 0 && Math.abs(diffWeights) > ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_WEIGHT_SUBTRACTION_ERROR);
+            throw new RangeError(error.generateMessageString());
+        }
+        let newWeight = new Weight_1.Weight();
+        if (diffWeights < 0 && Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            newWeight = new Weight_1.Weight(0, false);
+        }
+        else if (Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_2.WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE);
+            newWeight = new Weight_1.Weight(diffWeights, false);
+        }
+        else {
+            newWeight = new Weight_1.Weight(diffWeights, false);
+        }
+        return newWeight;
+    }
+    scaleWeight(weight, scalar) {
+        const newWeight = new Weight_1.Weight(weight.value * scalar, false);
+        return newWeight;
+    }
+    createWeightFromValueOnly(value) {
+        return new Weight_1.Weight(value, false);
+    }
+    forcesNullWeight(weight) {
+        if (weight.strictlyPositive === true) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'forcesNullWeight', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
+            throw new RangeError(error.generateMessageString());
+        }
+        let newWeight = weight.clone();
+        if (weight.value < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE)
+            newWeight = new Weight_1.Weight(0, false);
+        return newWeight;
+    }
+    setWeightStatusToNullWeightStatus(weight) {
+        const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'toggleWeightStatus', WeightManager_1.EM_TOGGLE_STATUS_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
+    }
+}
+exports.WeightManagerPositiveWeightStrategy = WeightManagerPositiveWeightStrategy;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/WeightManagerSomeNullWeightStrategy.ts":
+/*!***************************************************************!*\
+  !*** ./src/mathVector/WeightManagerSomeNullWeightStrategy.ts ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WeightManagerSomeNullWeightStrategy = void 0;
+const WeightManager_1 = __webpack_require__(/*! ../ErrorMessages/WeightManager */ "./src/ErrorMessages/WeightManager.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
+const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+class WeightManagerSomeNullWeightStrategy {
+    addWeights(weightV1, weightV2) {
+        const sumWeights = weightV1.value + weightV2.value;
+        let newWeight = new Weight_1.Weight();
+        if (Math.abs(sumWeights) >= ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            if (!weightV1.strictlyPositive && !weightV2.strictlyPositive) {
+                newWeight = new Weight_1.Weight(sumWeights, false);
+            }
+            else {
+                newWeight = new Weight_1.Weight(sumWeights);
+            }
+        }
+        else {
+            if (weightV1.strictlyPositive && weightV2.strictlyPositive) {
+                newWeight = new Weight_1.Weight(sumWeights);
+            }
+            else {
+                newWeight = new Weight_1.Weight(sumWeights, false);
+            }
+        }
+        return newWeight;
+    }
+    subtractWeights(weightV1, weightV2) {
+        const diffWeights = weightV1.value - weightV2.value;
+        if (diffWeights < 0 && Math.abs(diffWeights) > ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_WEIGHT_SUBTRACTION_ERROR);
+            throw new RangeError(error.generateMessageString());
+        }
+        let newWeight = new Weight_1.Weight();
+        if (diffWeights < 0 && Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            newWeight = new Weight_1.Weight(0, false);
+        }
+        else if (Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            newWeight = new Weight_1.Weight(diffWeights, false);
+        }
+        else {
+            newWeight = new Weight_1.Weight(diffWeights);
+        }
+        return newWeight;
+    }
+    scaleWeight(weight, scalar) {
+        let newWeight = new Weight_1.Weight();
+        if (weight.strictlyPositive && scalar > 0) {
+            newWeight = new Weight_1.Weight(weight.value * scalar);
+        }
+        else {
+            newWeight = new Weight_1.Weight(weight.value * scalar, false);
+        }
+        return newWeight;
+    }
+    createWeightFromValueOnly(value) {
+        if (value < 0) {
+            return new Weight_1.Weight(value, false);
+        }
+        else if (value === 0) {
+            return new Weight_1.Weight(0, false);
+        }
+        else {
+            return new Weight_1.Weight(value);
+        }
+    }
+    forcesNullWeight(weight) {
+        let newWeight = weight.clone();
+        if (weight.value < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE)
+            newWeight = new Weight_1.Weight(0, false);
+        return newWeight;
+    }
+    setWeightStatusToNullWeightStatus(weight) {
+        let newWeight = weight.clone();
+        if (weight.value < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE && weight.strictlyPositive)
+            newWeight = new Weight_1.Weight(weight.value, false);
+        return newWeight;
+    }
+}
+exports.WeightManagerSomeNullWeightStrategy = WeightManagerSomeNullWeightStrategy;
+
+
+/***/ }),
+
+/***/ "./src/mathVector/WeightManagerStrictPositiveWeightStrategy.ts":
+/*!*********************************************************************!*\
+  !*** ./src/mathVector/WeightManagerStrictPositiveWeightStrategy.ts ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.WeightManagerStrictPositiveWeightStrategy = void 0;
+const WeightManager_1 = __webpack_require__(/*! ../ErrorMessages/WeightManager */ "./src/ErrorMessages/WeightManager.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const WeightManager_2 = __webpack_require__(/*! ../WarningMessages/WeightManager */ "./src/WarningMessages/WeightManager.ts");
+const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
+const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+class WeightManagerStrictPositiveWeightStrategy {
+    addWeights(weightV1, weightV2) {
+        if (weightV1.strictlyPositive === false || weightV2.strictlyPositive === false) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
+            throw new RangeError(error.generateMessageString());
+        }
+        const sumWeights = weightV1.value + weightV2.value;
+        let newWeight = new Weight_1.Weight();
+        if (Math.abs(sumWeights) >= ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            newWeight = new Weight_1.Weight(sumWeights);
+        }
+        else {
+            (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'addWeights', WeightManager_2.WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE);
+            newWeight = new Weight_1.Weight(sumWeights);
+        }
+        return newWeight;
+    }
+    subtractWeights(weightV1, weightV2) {
+        if (weightV1.strictlyPositive === false || weightV2.strictlyPositive === false) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
+            throw new RangeError(error.generateMessageString());
+        }
+        const diffWeights = weightV1.value - weightV2.value;
+        if (diffWeights < 0 && Math.abs(diffWeights) > ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_WEIGHT_SUBTRACTION_ERROR);
+            throw new RangeError(error.generateMessageString());
+        }
+        let newWeight = new Weight_1.Weight();
+        if (diffWeights <= 0 && Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_1.EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
+            throw new RangeError(error.generateMessageString());
+        }
+        else if (Math.abs(diffWeights) < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
+            (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'subtractWeights', WeightManager_2.WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE);
+            newWeight = new Weight_1.Weight(diffWeights);
+        }
+        else {
+            newWeight = new Weight_1.Weight(diffWeights);
+        }
+        return newWeight;
+    }
+    scaleWeight(weight, scalar) {
+        if (scalar === 0) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scaleWeight', WeightManager_1.EM_SCALE_FACTOR_NULL);
+            throw new RangeError(error.generateMessageString());
+        }
+        const newWeight = new Weight_1.Weight(weight.value * scalar);
+        return newWeight;
+    }
+    createWeightFromValueOnly(value) {
+        return new Weight_1.Weight(value);
+    }
+    forcesNullWeight(weight) {
+        const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'forcesNullWeight', WeightManager_1.EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT);
+        throw new RangeError(error.generateMessageString());
+    }
+    setWeightStatusToNullWeightStatus(weight) {
+        const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'toggleWeightStatus', WeightManager_1.EM_TOGGLE_STATUS_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
+    }
+}
+exports.WeightManagerStrictPositiveWeightStrategy = WeightManagerStrictPositiveWeightStrategy;
 
 
 /***/ }),

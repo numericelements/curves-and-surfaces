@@ -37,18 +37,18 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
     createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveComplexVector1D {
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
             let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: coordinates[0], imaginary: coordinates[1]}, {type: COMPLEXWEIGHT,
-                real: weightManager.setWeight(new Weight(coordinates[2], false)), imaginary: weightManager.setWeight(new Weight(coordinates[3], false))}]};
+                real: weightManager.createWeightFromValueOnly(coordinates[2]), imaginary: weightManager.createWeightFromValueOnly(coordinates[3])}]};
             return vector;
         } else {
             let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: coordinates[0], imaginary: coordinates[1]}, {type: COMPLEXWEIGHT, 
-                real: weightManager.setWeight(new Weight(coordinates[2])), imaginary: weightManager.setWeight(new Weight(coordinates[3]))}]};
+                real: weightManager.createWeightFromValueOnly(coordinates[2]), imaginary: weightManager.createWeightFromValueOnly(coordinates[3])}]};
             return vector;
         }
     }
 
     defaultVect(weightManager: WeightManager): ProjectiveComplexVector1D {
         let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 1}, {type: COMPLEXWEIGHT, 
-            real: weightManager.setWeight(new Weight(DEFAULT_WEIGHT_VALUE)), imaginary: weightManager.setWeight(new Weight(DEFAULT_WEIGHT_VALUE))}]};
+            real: weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE), imaginary: weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE)}]};
         return vector;
     }
 

@@ -34,7 +34,7 @@ export interface ProjectiveVectorSpaceStrategy<D extends number> {
     scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
     subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
     norm(a: ProjectiveVector): Real;
-    clone(v: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
+    clone(v: ProjectiveVector): ProjectiveVectorOfDimension<D>;
     fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector;
     fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector): ProjectiveComplexVector
 }
@@ -219,7 +219,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
 
     cloneRaw(v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
-            return this.strategy.clone(v, this.weightManager);
+            return this.strategy.clone(v);
         } catch (error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
             throw new RangeError(message.generateMessageString());
