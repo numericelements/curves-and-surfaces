@@ -1,9 +1,11 @@
+import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM } from "../ErrorMessages/ProjectiveVectorSpace";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { IComplexVector, IProjectiveVector, IRealVector, VectorFactory } from "./Vector";
-import { Complex, ComplexWeight, ProjectiveVector, Vector } from "./VectorSpaceConstructorInterface";
+import { Complex, ProjectiveVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -28,6 +30,31 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
     abstract normalize(): IProjectiveVector;
     abstract clone(): IProjectiveVector;
     abstract toCartesian(): IRealVector | IComplexVector;
+
+    checkValidityWeightStatus(weightOrVSpace: Weight, vectorSpace: ProjectiveVectorSpace<any>): boolean {
+        let strictlyPosWeight = true;
+        if(vectorSpace !== undefined && vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
+            if(weightOrVSpace !== undefined && weightOrVSpace.strictlyPositive) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
+                throw new RangeError(error.generateMessageString());
+            }
+            strictlyPosWeight = false;
+        }
+        if(vectorSpace !== undefined) {
+            // When the vector space is explicitly defined and its weight management restricted to stricly positive, the weight must be effectively strictly positive
+            if(vectorSpace.weightManagement === WeightManagement.AllStrictlyPositiveWeights && weightOrVSpace !== undefined && !weightOrVSpace.strictlyPositive) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
+                throw new RangeError(error.generateMessageString());
+            }
+        } else if(weightOrVSpace !== undefined && !weightOrVSpace.strictlyPositive) {
+            // When the vector space is not explicitly defined and
+            // the weight is explicitly defined as not strictly positive, the weight must be effectively strictly positive 
+            // since the weight management is: AllStrictlyPositiveWeights
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+        return strictlyPosWeight;
+    }
     
     add(other: IProjectiveVector): IProjectiveVector {
         return super.add(other) as IProjectiveVector;
@@ -41,8 +68,8 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
         return super.scale(scalar) as IProjectiveVector;
     }
 
-    reverse(): IProjectiveVector {
-        return super.reverse() as IProjectiveVector;
+    revert(): IProjectiveVector {
+        return super.revert() as IProjectiveVector;
     }
 
     toArray(): number[] {
@@ -52,8 +79,12 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
     }
 
     equals(other: IProjectiveVector, tolerance?: number): boolean {
-        if (this.dimension !== other.dimension || this.vectorType !== other.vectorType || this._vectorSpace !== other.vectorSpace) {
-            return false;
+        if (this.dimension !== other.dimension) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
+            throw new RangeError(error.generateMessageString());
+        } else if(this._vectorSpace !== other.vectorSpace) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_VECTORS_DIFFERENT_VECTOR_SPACES);
+            throw new RangeError(error.generateMessageString());
         }
         if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
         for (let i = 0; i < this.dimension; i++) {

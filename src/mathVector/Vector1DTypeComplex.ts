@@ -3,6 +3,9 @@ import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace, resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { COMPLEX, Complex, ComplexVector1D } from "./VectorSpaceConstructorInterface";
 
+
+const SPACE_DIMENSION = 2;
+
 export class Vector1DTypeComplex extends AbstractComplexVector {
     private data: Complex;
     protected _vectorSpace: ComplexVectorSpace<1>;

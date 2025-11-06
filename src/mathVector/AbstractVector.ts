@@ -46,7 +46,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
         return this.createVectorFromRaw(result);
     }
 
-    reverse(): IVector {
+    revert(): IVector {
         const result = this._vectorSpace.scaleRaw(-1, this.descriptor);
         return this.createVectorFromRaw(result);
     }

@@ -30,7 +30,7 @@ export function createCommonProjectiveVectorTests(
         DefaultVectorSpaces.reset();
     });
 
-    describe('Common ProjectiveVector Space Tests', () => {
+    describe('Common ProjectiveVector Tests', () => {
 
         describe('Accessors', () => {
             it(`can get the space dimension of a vector when it lies into a user-defined vector space`, () => {
@@ -81,6 +81,40 @@ export function createCommonProjectiveVectorTests(
                 for (let i = 0; i < dimension; i++) {
                     expect(projRealVector.homogeneousCoordinates[i]).to.eql(coordinates[i]);
                 }
+            });
+
+            it(`can get the weight of a vector as a Weight in a default vector space with weight management ` + WeightManagement.AllStrictlyPositiveWeights, () => {
+                const coordinates = [-1, 0, 1, 2];
+                const weight = new Weight(coordinates[dimension - 1]);
+                const projRealVector = createTestProjectiveVector(dimension, undefined, coordinates, weight);
+                expect(projRealVector.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(projRealVector.weight).to.eql(weight);
+            });
+
+            it(`can get the weight of a vector as a Weight in a default vector space with weight management ` + WeightManagement.AllPositiveWeights, () => {
+                const coordinates = [-1, 0, 1, 2];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+                const weight = new Weight(coordinates[dimension - 1], false);
+                const projRealVector = createTestProjectiveVector(dimension, vSpace, coordinates, weight);
+                expect(projRealVector.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(projRealVector.weight).to.eql(weight);
+            });
+
+            it(`can get the weight of a vector as a Weight in a default vector space with weight management ` + WeightManagement.SomeNullWeights, () => {
+                const coordinates = [-1, 0, 1, 2];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights, true);
+                const weight = new Weight(0, false);
+                const projRealVector = createTestProjectiveVector(dimension, vSpace, coordinates, weight);
+                expect(projRealVector.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                expect(projRealVector.weight).to.eql(weight);
+                const weight1 = new Weight(coordinates[dimension - 1], true);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, weight1);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                expect(projRealVector1.weight).to.eql(weight1);
             });
         });
 

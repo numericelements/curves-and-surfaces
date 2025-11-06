@@ -1,6 +1,6 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
@@ -39,27 +39,8 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
             };
             return;
         } else {
-            if(vectorSpace !== undefined && vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
-                if(weightOrVSpace !== undefined && weightOrVSpace.strictlyPositive) {
-                    const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
-                    throw new RangeError(error.generateMessageString());
-                }
-                strictlyPosWeight = false;
-            }
+            strictlyPosWeight = this.checkValidityWeightStatus(weightOrVSpace as Weight, vectorSpace as ProjectiveVectorSpace<3>);
             const x = xOrVectorSpace ?? 0;
-            if(vectorSpace !== undefined) {
-                // When the vector space is explicitly defined and its weight management restricted to stricly positive, the weight must be effectively strictly positive
-                if(vectorSpace.weightManagement === WeightManagement.AllStrictlyPositiveWeights && weightOrVSpace !== undefined && !weightOrVSpace.strictlyPositive) {
-                    const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
-                    throw new RangeError(error.generateMessageString());
-                }
-            } else if(weightOrVSpace !== undefined && !weightOrVSpace.strictlyPositive) {
-                // When the vector space is not explicitly defined and
-                // the weight is explicitly defined as not strictly positive, the weight must be effectively strictly positive 
-                // since the weight management is: AllStrictlyPositiveWeights
-                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
-                throw new RangeError(error.generateMessageString());
-            }
             this.data = { 
                 type: PROJECTIVEVECTOR2D, 
                 coordinates: [x, y ?? 0, { type: WEIGHT, weight: weightOrVSpace ?? new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
@@ -115,7 +96,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
         return new ProjectiveVector2DTypeReal(
             this.data.coordinates[0] / w,
             this.data.coordinates[1] / w,
-            new Weight(1)
+            new Weight(DEFAULT_WEIGHT_VALUE)
         );
     }
     

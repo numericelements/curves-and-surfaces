@@ -17,7 +17,7 @@ const defaultCoordinates = [1, 2, 3, 4];
 export function createCommonRealVectorTests(
     dimension: number
 ) {
-    describe('Common RealVector Space Tests', () => {
+    describe('Common RealVector Tests', () => {
 
         describe('Accessors', () => {
             it(`can get the space dimension of a vector when the vector is into a user-specified vector space`, () => {
@@ -578,7 +578,7 @@ export function createCommonRealVectorTests(
                 expect(realVector1.dimension).to.eql(dimension);
                 expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
                 expect(realVector1.vectorSpace.isDefault).to.eql(false);
-                const reversed = realVector1.reverse();
+                const reversed = realVector1.revert();
                 const resultCoordinates = coordinates.map((c) => - c);
                 expect(reversed.coordinates).to.eql(resultCoordinates.slice(0, dimension));
                 expect(reversed.dimension).to.eql(dimension);

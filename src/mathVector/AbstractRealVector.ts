@@ -43,8 +43,8 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
         return super.dot(other) as number;
     }
 
-    reverse(): IRealVector {
-        return super.reverse() as IRealVector;
+    revert(): IRealVector {
+        return super.revert() as IRealVector;
     }
 
     toArray(): number[] {

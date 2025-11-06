@@ -33,8 +33,8 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         return super.scale(scalar) as IComplexVector;
     }
 
-    reverse(): IComplexVector {
-        return super.reverse() as IComplexVector;   
+    revert(): IComplexVector {
+        return super.revert() as IComplexVector;   
     }
 
     // Complex-specific implementations

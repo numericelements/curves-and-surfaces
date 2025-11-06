@@ -32,8 +32,8 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
         return super.scale(scalar) as IProjectiveComplexVector;
     }
 
-    reverse(): IProjectiveComplexVector {
-        return super.reverse() as IProjectiveComplexVector;
+    revert(): IProjectiveComplexVector {
+        return super.revert() as IProjectiveComplexVector;
     }
 
     toArray(): number[] {

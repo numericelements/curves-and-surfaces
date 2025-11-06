@@ -40,7 +40,7 @@ export interface IVector {
     add(other: IVector): IVector;
     subtract(other: IVector): IVector;
     scale(scalar: number | Complex): IVector;
-    reverse(): IVector;
+    revert(): IVector;
     
     // Vector space operations
     norm(): number;
