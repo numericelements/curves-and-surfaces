@@ -1,0 +1,1 @@
+export const EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT = 'The real and imaginary weights do not have the same positivity (both strictly posititve or both positive). Cannot proceed.';

@@ -1,6 +1,7 @@
 import { EM_TOGGLE_STATUS_INCOMPATIBLE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE } from "../WarningMessages/WeightManager";
+import { ComplexWeight } from "./ComplexWeight";
 import { Real } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -67,5 +68,23 @@ export class WeightManagerPositiveWeightStrategy {
     setWeightStatusToNullWeightStatus(weight: Weight): Weight {
         const error = sendRangeErrorMessage(this.constructor.name, 'toggleWeightStatus', EM_TOGGLE_STATUS_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
+    }
+
+    addComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
+        if(weightV1.real.strictlyPositive || weightV2.real.strictlyPositive) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'addComplexWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
+            throw new RangeError(error.generateMessageString());
+        }
+        const newWeight = new ComplexWeight(new Weight(this.addWeights(weightV1.real, weightV2.real).value, false), new Weight(this.addWeights(weightV1.imaginary, weightV2.imaginary).value, false));
+        return newWeight;
+    }
+
+    subtractComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
+        if(weightV1.real.strictlyPositive || weightV2.real.strictlyPositive) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'subtractComplexWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
+            throw new RangeError(error.generateMessageString());
+        }
+        const newWeight = new ComplexWeight(new Weight(this.subtractWeights(weightV1.real, weightV2.real).value, false), new Weight(this.subtractWeights(weightV1.imaginary, weightV2.imaginary).value, false));
+        return newWeight;
     }
 }

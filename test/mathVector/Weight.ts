@@ -10,12 +10,14 @@ describe('Weight', () => {
         it('can generate a Weight object without a weight value', () => {
             const weight = new Weight();
             expect(weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(weight.strictlyPositive).to.eql(true);
         });
 
         it('can generate a Weight object with a weight value that must be strictly positive', () => {
             const value = 1;
             const weight = new Weight(value);
             expect(weight.value).to.eql(value);
+            expect(weight.strictlyPositive).to.eql(true);
         });
 
         it('can generate a Weight object with a weight value that can be null', () => {
@@ -23,6 +25,7 @@ describe('Weight', () => {
             const strictlyPositive = false;
             const weight = new Weight(value, strictlyPositive);
             expect(weight.value).to.eql(value);
+            expect(weight.strictlyPositive).to.eql(false);
         });
 
         it('cannot generate a Weight object with a negative weight value while the weight should be strictly positive', () => {

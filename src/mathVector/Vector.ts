@@ -13,7 +13,7 @@ import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import { Vector4DTypeReal } from "./Vector4DTypeReal";
 import { VectorInVectorSpace } from "./VectorInVectorSpace";
-import { COMPLEX, Complex, ComplexVector, ComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, IComplex, ComplexVector, IComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
 
 /**
@@ -27,9 +27,9 @@ export interface IVector {
     readonly vectorSpace: IdentifiableVectorSpace<any, any>; // The vector space this vector belongs to
     
     // Coordinate access
-    getCoordinate(index: number): number | Complex;
+    getCoordinate(index: number): number | IComplex;
     // setCoordinate(index: number, value: number | Complex): void;
-    readonly coordinates: (number | Complex)[];
+    readonly coordinates: (number | IComplex)[];
     
     // Raw data access for interoperability
     readonly descriptor: Vector;
@@ -39,13 +39,13 @@ export interface IVector {
     equals(other: IVector): boolean;
     add(other: IVector): IVector;
     subtract(other: IVector): IVector;
-    scale(scalar: number | Complex): IVector;
+    scale(scalar: number | IComplex): IVector;
     revert(): IVector;
     
     // Vector space operations
     norm(): number;
     normalize(tolerance?: number): IVector;
-    dot(other: IVector): number | Complex;
+    dot(other: IVector): number | IComplex;
     isParallel(other: IVector, tolerance?: number): boolean;
     isOrthogonal(other: IVector, tolerance?: number): boolean;
     
@@ -84,9 +84,10 @@ export interface IRealVector extends IVector {
 
 export interface IComplexVector extends IVector {
     readonly vectorSpace: ComplexVectorSpace<any>;
-    getCoordinate(index: number): Complex;
+    getCoordinate(index: number): IComplex;
     // setCoordinate(index: number, value: Complex): void;
-    readonly coordinates: Complex[];
+    // readonly coordinates: Complex[];
+    readonly coordinates: number[];
     readonly descriptor: ComplexVector;
 
     add(other: IComplexVector): IComplexVector;
@@ -108,8 +109,8 @@ export interface IProjectiveVector extends IVector {
     readonly vectorSpace: ProjectiveVectorSpace<any>;
     readonly weight: Weight;
     readonly descriptor: ProjectiveVector;
-    readonly coordinates: (number | Complex)[];
-    readonly homogeneousCoordinates: (number | Complex)[];
+    readonly coordinates: (number | IComplex)[];
+    readonly homogeneousCoordinates: (number | IComplex)[];
     getCoordinate(index: number): number;
     // setCoordinate(index: number, value: number): void;
     
@@ -125,9 +126,9 @@ export interface IProjectiveVector extends IVector {
 
 export interface IProjectiveComplexVector extends IVector {
     readonly vectorSpace: ProjectiveComplexVectorSpace<any>;
-    readonly weight: Weight | ComplexWeight;
-    readonly homogeneousCoordinates: (number | Complex)[];
-    getCoordinate(index: number): Complex;
+    readonly weight: Weight | IComplexWeight;
+    readonly homogeneousCoordinates: (number | IComplex)[];
+    getCoordinate(index: number): IComplex;
     // setCoordinate(index: number, value: Complex): void;
     
     add(other: IProjectiveComplexVector): IProjectiveComplexVector;

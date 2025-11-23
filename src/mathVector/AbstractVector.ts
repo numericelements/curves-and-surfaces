@@ -2,7 +2,7 @@ import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { EM_NORM_TOO_SMALL, EM_VECTOR_NOT_APPLICABLE_TO_NORM, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { IVector } from "./Vector";
-import { Complex, IdentifiableVectorSpace, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { IComplex, IdentifiableVectorSpace, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 /**
@@ -17,9 +17,9 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     abstract get vectorType(): string;
     abstract get spaceType(): VectorSpaceType;
     abstract get descriptor(): V;
-    abstract get coordinates(): (number | Complex)[];
+    abstract get coordinates(): (number | IComplex)[];
 
-    abstract getCoordinate(index: number): number | Complex;
+    abstract getCoordinate(index: number): number | IComplex;
     // abstract setCoordinate(index: number, value: number | Complex): void;
     abstract clone(): IVector;
     
@@ -75,7 +75,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
         return this.scale((1 / currentNorm) as S);
     }
 
-    dot(other: IVector): number | Complex {
+    dot(other: IVector): number | IComplex {
         this.validateCompatibility(other);
         if ('dotRaw' in this._vectorSpace && typeof this._vectorSpace.dotRaw === 'function') {
             return (this._vectorSpace as any).dotRaw(this.descriptor, other.descriptor);

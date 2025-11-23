@@ -1,5 +1,6 @@
 import { EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
+import { ComplexWeight } from "./ComplexWeight";
 import { Real } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -72,6 +73,34 @@ export class WeightManagerSomeNullWeightStrategy {
         let newWeight = weight.clone();
         if(weight.value < NULL_WEIGHT_TOLERANCE && weight.strictlyPositive)
             newWeight = new Weight(weight.value, false);
+        return newWeight;
+    }
+
+    addComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
+        let newWeightR = this.addWeights(weightV1.real, weightV2.real);
+        let newWeightI = this.addWeights(weightV1.imaginary, weightV2.imaginary);
+        if(!newWeightR.strictlyPositive || !newWeightI.strictlyPositive) {
+            newWeightR = new Weight(newWeightR.value, false);
+            newWeightI = new Weight(newWeightI.value, false);
+        }
+        let newWeight = new ComplexWeight(newWeightR, newWeightI);
+        if(!weightV1.real.strictlyPositive && !weightV2.real.strictlyPositive) {
+            newWeight = new ComplexWeight(new Weight(this.addWeights(weightV1.real, weightV2.real).value, false), new Weight(this.addWeights(weightV1.imaginary, weightV2.imaginary).value, false));
+        }
+        return newWeight;
+    }
+
+    subtractComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
+        let newWeightR = this.subtractWeights(weightV1.real, weightV2.real);
+        let newWeightI = this.subtractWeights(weightV1.imaginary, weightV2.imaginary);
+        if(!newWeightR.strictlyPositive || !newWeightI.strictlyPositive) {
+            newWeightR = new Weight(newWeightR.value, false);
+            newWeightI = new Weight(newWeightI.value, false);
+        }
+        let newWeight = new ComplexWeight(newWeightR, newWeightI);
+        if(!weightV1.real.strictlyPositive && !weightV2.real.strictlyPositive) {
+            newWeight = new ComplexWeight(new Weight(this.addWeights(weightV1.real, weightV2.real).value, false), new Weight(this.addWeights(weightV1.imaginary, weightV2.imaginary).value, false));
+        }
         return newWeight;
     }
 }

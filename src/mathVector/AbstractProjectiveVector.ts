@@ -5,7 +5,7 @@ import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM
 import { AbstractVector } from "./AbstractVector";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { IComplexVector, IProjectiveVector, IRealVector, VectorFactory } from "./Vector";
-import { Complex, ProjectiveVector, Vector } from "./VectorSpaceConstructorInterface";
+import { IComplex, ProjectiveVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -24,7 +24,7 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
 
     abstract get descriptor(): ProjectiveVector;
     abstract get weight(): Weight;
-    abstract get homogeneousCoordinates(): (number | Complex)[];
+    abstract get homogeneousCoordinates(): (number | IComplex)[];
     abstract getCoordinate(index: number): number;
     // abstract setCoordinate(index: number, value: number): void;
     abstract normalize(): IProjectiveVector;

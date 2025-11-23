@@ -1,7 +1,7 @@
 import type { RealVectorSpace } from './RealVectorSpace';
 import type { ComplexVectorSpace } from './ComplexVectorSpace';
 import { VectorSpaceType } from '../namedConstants/BSplineR1toRn';
-import { Complex } from './VectorSpaceConstructorInterface';
+import { IComplex } from './VectorSpaceConstructorInterface';
 import { Vector1DTypeReal } from './Vector1DTypeReal';
 import { Vector2DTypeReal } from './Vector2DTypeReal';
 import { Vector3DTypeReal } from './Vector3DTypeReal';
@@ -31,11 +31,11 @@ export function realVector4D(x: number = 0, y: number = 0, z: number = 0, w: num
 }
 
 // Complex vectors
-export function complexVector1D(z: Complex, vectorSpace?: ComplexVectorSpace<1>) {
+export function complexVector1D(z: IComplex, vectorSpace?: ComplexVectorSpace<1>) {
     return new Vector1DTypeComplex(z.real, z.imaginary, vectorSpace);
 }
 
-export function complexVector2D(z1: Complex, z2: Complex, vectorSpace?: ComplexVectorSpace<2>) {
+export function complexVector2D(z1: IComplex, z2: IComplex, vectorSpace?: ComplexVectorSpace<2>) {
     return new Vector2DTypeComplex(z1.real, z1.imaginary, z2.real, z2.imaginary, vectorSpace);
 }
 
@@ -43,7 +43,7 @@ export function complexVector2D(z1: Complex, z2: Complex, vectorSpace?: ComplexV
 export function createVector<VS extends VectorSpaceType, D extends number>(
     spaceType: VS,
     dimension: D,
-    coordinates?: (number | Complex)[],
+    coordinates?: (number | IComplex)[],
     vectorSpace?: any
 ) {
     const x = 0;

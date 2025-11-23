@@ -1,7 +1,7 @@
 import { EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
-import { ComplexOperators } from "./ComplexOperators";
+import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import { ComplexVectorSpaceStrategy } from "./ComplexVectorSpace";
-import { COMPLEX, Complex, ComplexVector, ComplexVector2D, COMPLEXVECTOR2D, COMPLEXWEIGHT, ComplexWeight } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, IComplex, ComplexVector, ComplexVector2D, COMPLEXVECTOR2D, COMPLEXWEIGHT, IComplexWeight } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -21,21 +21,21 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
     }
 
     createVector(coordinates: number[][]): ComplexVector2D {
-        const complex1: Complex = {type: COMPLEX, real: coordinates[0][0], imaginary: coordinates[0][1]};
-        const complex2: Complex = {type: COMPLEX, real: coordinates[1][0], imaginary: coordinates[1][1]};
+        const complex1: IComplex = {type: COMPLEX, real: coordinates[0][0], imaginary: coordinates[0][1]};
+        const complex2: IComplex = {type: COMPLEX, real: coordinates[1][0], imaginary: coordinates[1][1]};
         return {type: COMPLEXVECTOR2D, coordinates: [complex1, complex2]};
     }
 
     defaultVect(): ComplexVector2D {
-        const nullComplex: Complex = {type: COMPLEX, real: 0, imaginary: 0};
+        const nullComplex: IComplex = {type: COMPLEX, real: 0, imaginary: 0};
         return {type: COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex]};
     }
 
     add(a: ComplexVector, b: ComplexVector): ComplexVector2D {
         if (isVector2D(a) && isVector2D(b)) {
             return {type: COMPLEXVECTOR2D, coordinates: [
-                ComplexOperators.add(a.coordinates[0], b.coordinates[0]),
-                ComplexOperators.add(a.coordinates[1], b.coordinates[1])
+                addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
+                addComplexUsingDescriptors(a.coordinates[1], b.coordinates[1])
             ]};
         } else {
             throw new RangeError();
@@ -51,9 +51,9 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    scale(scaleFactor: Complex, vector: ComplexVector): ComplexVector2D;
+    scale(scaleFactor: IComplex, vector: ComplexVector): ComplexVector2D;
     scale(scaleFactor: number, vector: ComplexVector): ComplexVector2D;
-    scale(scaleFactor: Complex | number, vector: ComplexVector): ComplexVector2D {
+    scale(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector2D {
         if (typeof scaleFactor === 'number') {
             if(isVector2D(vector)) {
                 const result = vector.coordinates.map((val) => ({type: COMPLEX, real: val.real * scaleFactor, imaginary: val.imaginary * scaleFactor}));
@@ -66,7 +66,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
             }
         } else {
             if(isVector2D(vector)) {
-                const result = vector.coordinates.map((val) => ComplexOperators.multiply(scaleFactor, val));
+                const result = vector.coordinates.map((val) => multiplyComplexUsingDescriptors(scaleFactor, val));
                 return {type: vector.type, coordinates: [
                     {type: COMPLEX, real: result[0].real, imaginary: result[0].imaginary},
                     {type: COMPLEX, real: result[1].real, imaginary: result[1].imaginary}
@@ -80,8 +80,8 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
     subtract(a: ComplexVector, b: ComplexVector): ComplexVector2D {
         if(isVector2D(a) && isVector2D(b)) {
             return {type: COMPLEXVECTOR2D, coordinates: [
-                ComplexOperators.subtract(a.coordinates[0], b.coordinates[0]),
-                ComplexOperators.subtract(a.coordinates[1], b.coordinates[1])
+                subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
+                subtractComplexUsingDescriptors(a.coordinates[1], b.coordinates[1])
             ]};
         } else {
             throw new RangeError();
@@ -104,7 +104,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         throw new RangeError(error.generateMessageString());
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): never {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'fromComplexVectorSpaceToProjectiveComplexVectorSpace', EM_TRANSFORMATION_NOT_AVAILABLE);
         throw new RangeError(error.generateMessageString());
     }

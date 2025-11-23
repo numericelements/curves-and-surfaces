@@ -43,7 +43,7 @@ export class Weight {
         return `${WEIGHT}(value: ${this._value}, strictlyPositive: ${this._strictlyPositive})`;
     }
 
-    protected assessmentInputWeightValueStrictlyPositive(weight: number) {
+    protected assessmentInputWeightValueStrictlyPositive(weight: number): void {
         if (weight <= 0) {
             const error = new ErrorLog(this.constructor.name, "constructor");
             error.addMessage(EM_WEIGHT_VALUE_STRICTLY_POSITIVE);
@@ -51,7 +51,7 @@ export class Weight {
             throw new RangeError(error.generateMessageString());
         }
     }
-    protected assessmentInputWeightValue(weight: number) {
+    protected assessmentInputWeightValue(weight: number): void {
         if (weight < 0) {
             const error = new ErrorLog(this.constructor.name, "constructor");
             error.addMessage(EM_WEIGHT_VALUE_POSITIVE);

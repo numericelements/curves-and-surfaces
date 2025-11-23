@@ -16,7 +16,7 @@ import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import { Vector4DTypeReal } from "./Vector4DTypeReal";
 import { VectorInVectorSpace } from "./VectorInVectorSpace";
-import { Complex, ComplexVector, IdentifiableVectorSpace, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, RealVectorOfDimension, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector, IdentifiableVectorSpace, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, RealVectorOfDimension, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -36,7 +36,7 @@ export interface EnhancedVectorSpace<K extends Scalar, V extends Vector> extends
     
     // Factory method for creating vector instances
     createVectorInstance(raw: V): IVector;
-    createVectorFromCoordinates(coords: (number | Complex)[]): IVector;
+    createVectorFromCoordinates(coords: (number | IComplex)[]): IVector;
 }
 
 

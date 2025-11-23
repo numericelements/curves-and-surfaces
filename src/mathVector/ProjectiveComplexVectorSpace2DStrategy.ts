@@ -1,8 +1,8 @@
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
-import { ComplexOperators } from "./ComplexOperators";
+import { addComplexUsingDescriptors, addComplexWeightsUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors, subtractComplexWeightsUsingDescriptors } from "./ComplexNumberFactory";
 import { ProjectiveComplexVectorSpaceStrategy } from "./ProjectiveComplexVectorSpace";
-import { Complex, COMPLEX, ComplexVector1D, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveComplexVector1D, Real, } from "./VectorSpaceConstructorInterface";
+import { IComplex, COMPLEX, ComplexVector1D, IComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveComplexVector1D, Real, } from "./VectorSpaceConstructorInterface";
 import { isVector1D, isVector2D } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
@@ -10,7 +10,7 @@ import { WeightManager } from "./WeightManager";
 export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplexVectorSpaceStrategy<1> {
     // Implementation for 2D vectors
 
-    getWeight(v: ProjectiveComplexVector1D): ComplexWeight {
+    getWeight(v: ProjectiveComplexVector1D): IComplexWeight {
         return v.coordinates[1];
     }
 
@@ -18,7 +18,7 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
         if(this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {
             const weight1 = v1.coordinates[1].real;
             const weight2 = v2.coordinates[1].real;
-            return weightManager.isSameWeightManagement(weight1, weight2);
+            return weightManager.haveSameWeightManagement(weight1, weight2);
         } else {
             throw new RangeError();
         }
@@ -55,18 +55,18 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
     add(a: ProjectiveComplexVector, b: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector1D {
         if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-                ComplexOperators.add(a.coordinates[0], b.coordinates[0]),
-                ComplexOperators.addWeights(a.coordinates[1], b.coordinates[1])]
+                addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
+                addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1])]
             };
         } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
-            const complexWeight = ComplexOperators.addWeights(a.coordinates[1], b.coordinates[1]);
+            const complexWeight = addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
             if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
                 complexWeight.real = new Weight(complexWeight.real.value, false);
             } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
                 complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
             }
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-                ComplexOperators.add(a.coordinates[0], b.coordinates[0]),
+                addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
                 complexWeight]
             };
         } else {
@@ -86,21 +86,21 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
         }
     }
 
-    scale(scaleFactor: Complex | number, vector: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
+    scale(scaleFactor: IComplex | number, vector: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
         if (typeof scaleFactor === 'number') {
             if(vector.coordinates[1].real.strictlyPositive) {
-                const scaledWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.value * scaleFactor), imaginary: new Weight(vector.coordinates[1].imaginary.value * scaleFactor)};
+                const scaledWeight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.value * scaleFactor), imaginary: new Weight(vector.coordinates[1].imaginary.value * scaleFactor)};
                 return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [ {type: COMPLEX, real: vector.coordinates[0].real * scaleFactor, imaginary: vector.coordinates[0].imaginary * scaleFactor},
                     scaledWeight]};
             } else if (weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
-                const scaledWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.value * scaleFactor, false), imaginary: new Weight(vector.coordinates[1].imaginary.value * scaleFactor, false)};
+                const scaledWeight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.value * scaleFactor, false), imaginary: new Weight(vector.coordinates[1].imaginary.value * scaleFactor, false)};
                 return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [ {type: COMPLEX, real: vector.coordinates[0].real * scaleFactor, imaginary: vector.coordinates[0].imaginary * scaleFactor},
                     scaledWeight]};
             } else {
                 throw new RangeError();
             }
         } else {
-            const scaledWeight = ComplexOperators.multiplyWeight(scaleFactor, vector.coordinates[1]);
+            const scaledWeight = multiplyComplexWeightsUsingDescriptors(scaleFactor, vector.coordinates[1]);
             if(weightManager.weightManagement === WeightManagement.AllPositiveWeights && (!scaledWeight.real.strictlyPositive && scaledWeight.imaginary.strictlyPositive)) {
                 scaledWeight.imaginary = new Weight(scaledWeight.imaginary.value, false);
             } else if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
@@ -108,7 +108,7 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
                     throw new RangeError();
                 }
             }
-            return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [ {type: COMPLEX, real: ComplexOperators.multiply(vector.coordinates[0], scaleFactor).real, imaginary: ComplexOperators.multiply(vector.coordinates[0], scaleFactor).imaginary},
+            return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [ {type: COMPLEX, real: multiplyComplexUsingDescriptors(vector.coordinates[0], scaleFactor).real, imaginary: multiplyComplexUsingDescriptors(vector.coordinates[0], scaleFactor).imaginary},
             scaledWeight]};
         }
     }
@@ -116,18 +116,18 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
     subtract(a: ProjectiveComplexVector, b: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
         if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-                ComplexOperators.subtract(a.coordinates[0], b.coordinates[0]),
-                ComplexOperators.subtractWeights(a.coordinates[1], b.coordinates[1])]
+                subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
+                subtractComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1])]
             };
         } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
-            const complexWeight = ComplexOperators.subtractWeights(a.coordinates[1], b.coordinates[1]);
+            const complexWeight = subtractComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
             if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
                 complexWeight.real = new Weight(complexWeight.real.value, false);
             } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
                 complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
             }
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-                ComplexOperators.subtract(a.coordinates[0], b.coordinates[0]),
+                subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
                 complexWeight]
             };
         } else {

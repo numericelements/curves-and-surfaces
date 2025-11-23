@@ -1,7 +1,7 @@
 import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../ErrorMessages/ComplexVectorSpace";
-import { ComplexOperators } from "./ComplexOperators";
+import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import { ComplexVectorSpaceStrategy } from "./ComplexVectorSpace";
-import { COMPLEX, Complex, ComplexVector, ComplexVector1D, COMPLEXWEIGHT, ComplexWeight, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, RealVector, REALVECTOR2D } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, IComplex, ComplexVector, ComplexVector1D, COMPLEXWEIGHT, IComplexWeight, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, RealVector, REALVECTOR2D } from "./VectorSpaceConstructorInterface";
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -14,24 +14,24 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         return false;
     }
 
-    isInVectorSpace(v: ComplexVector): v is Complex {
+    isInVectorSpace(v: ComplexVector): v is IComplex {
         if(isVector1D(v)) return true;
         return false;
     }
 
     createVector(coordinates: number[][]): ComplexVector1D {
-        let vector: Complex = {type: COMPLEX, real: coordinates[0][0], imaginary: coordinates[0][1]};
+        let vector: IComplex = {type: COMPLEX, real: coordinates[0][0], imaginary: coordinates[0][1]};
         return vector;
     }
 
     defaultVect(): ComplexVector1D {
-        const nullComplex: Complex = {type: COMPLEX, real: 0, imaginary: 0};
+        const nullComplex: IComplex = {type: COMPLEX, real: 0, imaginary: 0};
         return nullComplex;
     }
 
     add(a: ComplexVector, b: ComplexVector): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
-            return ComplexOperators.add(a as Complex, b as Complex);
+            return addComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
             throw new RangeError();
         }
@@ -46,9 +46,9 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
     }
 
     // Overloaded scale method
-    scale(scaleFactor: Complex, vector: ComplexVector): ComplexVector1D;
+    scale(scaleFactor: IComplex, vector: ComplexVector): ComplexVector1D;
     scale(scaleFactor: number, vector: ComplexVector): ComplexVector1D;
-    scale(scaleFactor: Complex | number, vector: ComplexVector): ComplexVector1D {
+    scale(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector1D {
         if (typeof scaleFactor === 'number') {
             if(isVector1D(vector)) {
                 return {type: COMPLEX, real: scaleFactor * vector.real, imaginary: scaleFactor * vector.imaginary};
@@ -58,8 +58,8 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         } else {
             if(isVector1D(vector)) {
                 return {type: COMPLEX,
-                    real: ComplexOperators.multiply(scaleFactor, vector).real,
-                    imaginary: ComplexOperators.multiply(scaleFactor, vector).imaginary}
+                    real: multiplyComplexUsingDescriptors(scaleFactor, vector).real,
+                    imaginary: multiplyComplexUsingDescriptors(scaleFactor, vector).imaginary}
             } else {
                 throw new RangeError();
             }
@@ -68,7 +68,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
 
     subtract(a: ComplexVector, b: ComplexVector): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
-            return ComplexOperators.subtract(a as Complex, b as Complex);
+            return subtractComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
             throw new RangeError();
         }
@@ -91,7 +91,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
         if(isVector1D(vector)) {
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [vector, weight]};
         } else {

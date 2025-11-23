@@ -1,7 +1,7 @@
 import { AbstractComplexVector } from "./AbstractComplexVector";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
-import { Complex, COMPLEX, COMPLEXVECTOR2D, ComplexVector2D } from "./VectorSpaceConstructorInterface";
+import { IComplex, COMPLEX, COMPLEXVECTOR2D, ComplexVector2D } from "./VectorSpaceConstructorInterface";
 
 export class Vector2DTypeComplex extends AbstractComplexVector {
     private data: ComplexVector2D;
@@ -21,17 +21,25 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
     
     get vectorType(): string { return 'Complex2D'; }
     
-    getCoordinate(index: number): Complex {
+    getCoordinate(index: number): IComplex {
         if (index < 0 || index >= 2) throw new RangeError('Coordinate index out of bounds');
         return this.data.coordinates[index];
     }
     
-    setCoordinate(index: number, value: Complex): void {
+    setCoordinate(index: number, value: IComplex): void {
         if (index < 0 || index >= 2) throw new RangeError('Coordinate index out of bounds');
         this.data.coordinates[index] = value;
     }
     
-    get coordinates(): Complex[] { return [...this.data.coordinates]; }
+    // get coordinates(): Complex[] { return [...this.data.coordinates]; }
+    get coordinates(): number[] { 
+        let result: number[] = [];
+        for (let i = 0; i < this.dimension; i++) {
+            result.push(this.data.coordinates[i].real);
+            result.push(this.data.coordinates[i].imaginary);
+        }
+        return result;
+    }; 
     get descriptor(): ComplexVector2D { return this.data; }
     
     clone(): Vector2DTypeComplex {

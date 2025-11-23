@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { Complex, COMPLEX, COMPLEXVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { IComplex, COMPLEX, COMPLEXVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { createTestComplexVector } from "./ComplexVectorSpaceTestFactory";
 
@@ -55,7 +55,7 @@ describe('ComplexVectorSpace2DStrategy', () => {
 
             it(`can scale a ${COMPLEXVECTOR2D} vector with a complex and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestComplexVector(COMPLEXVECTOR2D, [[2, 3], [4, 5]]);
-                const scale: Complex = { type: COMPLEX, real: 2, imaginary: 3 };
+                const scale: IComplex = { type: COMPLEX, real: 2, imaginary: 3 };
                 const result = vectorSpace.scaleRaw(scale, vec1);
                 // Check coordinates
                 expect(result.type).to.eql(COMPLEXVECTOR2D);

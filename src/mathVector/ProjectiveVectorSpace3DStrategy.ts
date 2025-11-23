@@ -2,7 +2,7 @@ import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORS
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { ProjectiveVectorSpaceStrategy } from "./ProjectiveVectorSpace";
-import { COMPLEX, ComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, Real, RealVector, REALVECTOR2D, WEIGHT, IWeight } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, IComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, Real, RealVector, REALVECTOR2D, WEIGHT, IWeight } from "./VectorSpaceConstructorInterface";
 import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
@@ -24,7 +24,7 @@ export class ProjectiveVectorSpace3DStrategy implements ProjectiveVectorSpaceStr
         if(this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {
             const weight1 = v1.coordinates[2].weight;
             const weight2 = v2.coordinates[2].weight;
-            return weightManager.isSameWeightManagement(weight1, weight2);
+            return weightManager.haveSameWeightManagement(weight1, weight2);
         } else {
             if(!this.isInVectorSpace(v1) && !this.isInVectorSpace(v2)) {
                 const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
@@ -146,7 +146,7 @@ export class ProjectiveVectorSpace3DStrategy implements ProjectiveVectorSpaceStr
             const result: number[] = [];
             const weight = v.coordinates[2].weight;
             if(weight.value === 0) {
-                const cWeight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
+                const cWeight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
                 return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]}, cWeight]};  
             } else {
                 return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]},

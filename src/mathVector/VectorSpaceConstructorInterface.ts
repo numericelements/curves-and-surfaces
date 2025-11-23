@@ -28,7 +28,7 @@ export type Real = number;
 
 /** Complex numbers (ℂ) represented as [real, imaginary] */
 // export type Complex = [number, number];
-export interface Complex {
+export interface IComplex {
     readonly type: typeof COMPLEX;
     real: number;
     imaginary: number;
@@ -39,7 +39,7 @@ export interface IWeight {
     weight: Weight;
 }
 
-export interface ComplexWeight {
+export interface IComplexWeight {
     readonly type: typeof COMPLEXWEIGHT;
     real: Weight;
     imaginary: Weight;
@@ -47,7 +47,7 @@ export interface ComplexWeight {
 
 
 /** Scalar types supported in calculations */
-export type Scalar = Real | Complex;
+export type Scalar = Real | IComplex;
 
 /** Generic vector type for n-dimensional space */
 export type RealVector = RealVector1D | RealVector2D | RealVector3D | RealVector4D;
@@ -101,16 +101,16 @@ export interface RealVector4D {
 
 export type Vector4D = RealVector4D | ProjectiveVector3D;
 
-export type ComplexVector1D = Complex;
+export type ComplexVector1D = IComplex;
 
 export interface ComplexVector2D {
     readonly type: typeof COMPLEXVECTOR2D;
-    coordinates: [Complex, Complex];
+    coordinates: [IComplex, IComplex];
 }
 
 export interface ProjectiveComplexVector1D {
     readonly type: typeof PROJECTIVECOMPLEXVECTOR1D;
-    coordinates: [Complex, ComplexWeight];
+    coordinates: [IComplex, IComplexWeight];
 }
 
 export type VectorTypeForSpace<VS extends VectorSpaceType, D extends number> =
@@ -249,8 +249,8 @@ export interface RealVectorSpaceInterface extends VectorSpace<Real, RealVector> 
     scaleRaw(scalar: Real, v: RealVector): RealVector;
 }
 
-export interface ComplexVectorSpaceInterface extends VectorSpace<Complex | Real, ComplexVector> {
-    scaleRaw(scalar: Complex, vector: ComplexVector): ComplexVector;
+export interface ComplexVectorSpaceInterface extends VectorSpace<IComplex | Real, ComplexVector> {
+    scaleRaw(scalar: IComplex, vector: ComplexVector): ComplexVector;
     scaleRaw(scalar: Real, vector: ComplexVector): ComplexVector;
 }
 

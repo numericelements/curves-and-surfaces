@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE, EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/ComplexVectorSpace";
-import { Complex, COMPLEX, ComplexVector1D, ComplexVector2D, COMPLEXVECTOR2D, COMPLEXWEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { IComplex, COMPLEX, ComplexVector1D, ComplexVector2D, COMPLEXVECTOR2D, COMPLEXWEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { createCommonComplexVectorSpaceTests } from "./ComplexVectorSpaceTestFactory";
 import { Weight } from "../../src/mathVector/Weight";
 import { NULL_WEIGHT_TOLERANCE } from "../../src/namedConstants/ProjectiveVectorSpace";
@@ -261,14 +261,14 @@ describe('ComplexVectorSpace', () => {
         it(`cannot scale a ComplexVector of dimension outside the current Complex vector space ${MAX_DIMENSION_COMPLEXVECTORSPACE} when the scale factor is Complex`, () => {
             const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
             const vec1: ComplexVector1D = {type: COMPLEX, real: 0, imaginary: 2};
-            const scale: Complex = {type: COMPLEX, real: 0, imaginary: 2};
+            const scale: IComplex = {type: COMPLEX, real: 0, imaginary: 2};
             expect(() => complexVectorSpace.scaleRaw(scale, vec1)).to.throw(EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE)
         });
 
         it(`cannot scale a ComplexVector of dimension outside the current Complex vector space ${MIN_DIMENSION_COMPLEXVECTORSPACE} when the scale factor is Complex`, () => {
             const complexVectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
             const vec1: ComplexVector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 2}, {type: COMPLEX, real: 1, imaginary: 0}]};
-            const scale: Complex = {type: COMPLEX, real: 0, imaginary: 2};
+            const scale: IComplex = {type: COMPLEX, real: 0, imaginary: 2};
             expect(() => complexVectorSpace.scaleRaw(scale, vec1)).to.throw(EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE)
         });
 

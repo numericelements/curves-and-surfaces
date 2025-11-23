@@ -13,7 +13,7 @@ import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { IVector } from "./Vector";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
 import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
-import { Complex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, ComplexWeight, COMPLEXWEIGHT, IdentifiableVectorSpace, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, IComplexWeight, COMPLEXWEIGHT, IdentifiableVectorSpace, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -24,17 +24,17 @@ export interface ComplexVectorSpaceStrategy<D extends number> {
     createVector(coordinates: number[][]): ComplexVectorOfDimension<D>;
     defaultVect(): ComplexVectorOfDimension<D>;
     add(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
-    scale(scalar: Complex | number, vector: ComplexVector): ComplexVectorOfDimension<D>;
+    scale(scalar: IComplex | number, vector: ComplexVector): ComplexVectorOfDimension<D>;
     subtract(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
     clone(v: ComplexVector): ComplexVectorOfDimension<D>;
     norm(v: ComplexVector): number;
     // normalize(v: ComplexVector): ComplexVector;
     fromComplexVectorSpaceToRealVectorSpace(v: ComplexVector): RealVector;
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(v: ComplexVector, weight: ComplexWeight): ProjectiveComplexVector
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(v: ComplexVector, weight: IComplexWeight): ProjectiveComplexVector
 }
 
 
-export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Complex, ComplexVectorOfDimension<D>> {
+export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<IComplex, ComplexVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
@@ -112,7 +112,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         return vect;
     }
 
-    createComplexWeight(a: number, b: number): ComplexWeight {
+    createComplexWeight(a: number, b: number): IComplexWeight {
         try {
             const realWeight = this.createWeight(a);
             const imagWeight = this.createWeight(b);
@@ -167,9 +167,9 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    scaleRaw(scalar: Complex, vector: ComplexVector): ComplexVectorOfDimension<D>;
+    scaleRaw(scalar: IComplex, vector: ComplexVector): ComplexVectorOfDimension<D>;
     scaleRaw(scalar: number, vector: ComplexVector): ComplexVectorOfDimension<D>;
-    scaleRaw(scalar: Complex | number, vector: ComplexVector): ComplexVectorOfDimension<D> {
+    scaleRaw(scalar: IComplex | number, vector: ComplexVector): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.scale(scalar, vector);
         } catch(error) {
@@ -204,7 +204,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         return this.strategy.fromComplexVectorSpaceToRealVectorSpace(vector);
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
         return this.strategy.fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector, weight);
     }
 

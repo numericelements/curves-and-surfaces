@@ -23,7 +23,7 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
         if(this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {
             const weight1 = v1.coordinates[3].weight;
             const weight2 = v2.coordinates[3].weight;
-            return weightManager.isSameWeightManagement(weight1, weight2);
+            return weightManager.haveSameWeightManagement(weight1, weight2);
         } else {
             if(!this.isInVectorSpace(v1) && !this.isInVectorSpace(v2)) {
                 const error = sendRangeErrorMessage(this.constructor.name, 'shareSameWeightManagement', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);

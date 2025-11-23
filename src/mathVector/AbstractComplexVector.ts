@@ -3,7 +3,7 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { IComplexVector, IVector, VectorFactory } from "./Vector";
-import { Complex, ComplexVector, Vector } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 /**
@@ -16,9 +16,9 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     get vectorSpace(): ComplexVectorSpace<any> { return this._vectorSpace as ComplexVectorSpace<any>; }
     
     abstract get descriptor(): ComplexVector;
-    abstract getCoordinate(index: number): Complex;
+    abstract getCoordinate(index: number): IComplex;
     // abstract setCoordinate(index: number, value: Complex): void;
-    abstract get coordinates(): Complex[];
+    abstract get coordinates(): number[];
     abstract clone(): IComplexVector;
     
     add(other: IComplexVector): IComplexVector {
@@ -61,7 +61,9 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     toArray(): number[] {
         // Flatten complex coordinates to [real1, imag1, real2, imag2, ...]
         // return this.coordinates.flatMap(c => [c.real, c.imaginary]);
-        return [this.coordinates[0].real, this.coordinates[0].imaginary]
+
+        // return [this.coordinates[0].real, this.coordinates[0].imaginary]
+        return [this.coordinates[0], this.coordinates[1]]
     }
 
     equals(other: IComplexVector, tolerance?: number): boolean {

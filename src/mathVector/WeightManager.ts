@@ -1,5 +1,7 @@
-import { EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT } from "../ErrorMessages/WeightManager";
-import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT } from "../ErrorMessages/WeightManager";
+import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { Complex } from "./Complex";
+import { ComplexWeight } from "./ComplexWeight";
 import { Real } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -13,7 +15,9 @@ export interface WeightManagerStrategy {
     scaleWeight(weight: Weight, scalar: Real): Weight;
     createWeightFromValueOnly(value: number): Weight;
     forcesNullWeight(weight: Weight): Weight;
-    setWeightStatusToNullWeightStatus(weight: Weight): Weight
+    setWeightStatusToNullWeightStatus(weight: Weight): Weight;
+    addComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight;
+    subtractComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight;
 }
 
 export class WeightManager {
@@ -94,10 +98,54 @@ export class WeightManager {
         }
     }
 
-    isSameWeightManagement(weightV1: Weight, weightV2: Weight): boolean {
+    addComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
+        try {
+            return this.strategy.addComplexWeights(weightV1, weightV2);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    subtractComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
+        try {
+            return this.strategy.subtractComplexWeights(weightV1, weightV2);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    scaleComplexWeight(weight: ComplexWeight, scalar: Real): ComplexWeight;
+    scaleComplexWeight(weight: ComplexWeight, scalar: Complex): ComplexWeight;
+    scaleComplexWeight(weight: ComplexWeight, scalar: Real | Complex): ComplexWeight {
+        if(scalar instanceof Complex) {
+            const complexWeight = new Complex(weight.real.value, weight.imaginary.value);
+            let scaled = complexWeight.multiply(scalar);
+            if(scaled.real < 0 || scaled.imaginary < 0) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'scaleComplexWeight', EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
+                throw new RangeError(error.generateMessageString());
+            } else if((scaled.real === 0 || scaled.imaginary === 0) && this._weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'scaleComplexWeight', EM_SCALE_FACTOR_NULL);
+                throw new RangeError(error.generateMessageString());
+            }
+            if(this._weightManagement === WeightManagement.SomeNullWeights && (scaled.real < NULL_WEIGHT_TOLERANCE || scaled.imaginary < NULL_WEIGHT_TOLERANCE)) {
+                if(scaled.real < NULL_WEIGHT_TOLERANCE && scaled.imaginary >= NULL_WEIGHT_TOLERANCE) {
+                    return new ComplexWeight(new Weight(0, false), new Weight(scaled.imaginary, false));
+                } else if(scaled.real >= NULL_WEIGHT_TOLERANCE && scaled.imaginary < NULL_WEIGHT_TOLERANCE) {
+                    return new ComplexWeight(new Weight(scaled.real, false), new Weight(0, false));
+                }
+                return new ComplexWeight(new Weight(0, false), new Weight(0, false));
+            }
+            return new ComplexWeight(new Weight(scaled.real, weight.real.strictlyPositive), new Weight(scaled.imaginary, weight.imaginary.strictlyPositive));
+        } else
+            return new ComplexWeight(this.scaleWeight(weight.real, scalar), this.scaleWeight(weight.imaginary, scalar));
+    }
+
+    haveSameWeightManagement(weightV1: Weight, weightV2: Weight): boolean {
         if(this._weightManagement !== WeightManagement.SomeNullWeights) {
             if(weightV1.strictlyPositive === weightV2.strictlyPositive) {
-                return true;
+                if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && weightV1.strictlyPositive) return true;
+                if(this._weightManagement === WeightManagement.AllPositiveWeights && !weightV1.strictlyPositive) return true;
+                return false;
             } else {
                 return false;
             }

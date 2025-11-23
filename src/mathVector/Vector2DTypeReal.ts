@@ -22,7 +22,7 @@ export class Vector2DTypeReal extends AbstractRealVector {
         } else {
             const x = xOrVectorSpace ?? 0;
             this.data = { type: REALVECTOR2D, coordinates: [x, y ?? 0] };
-                        if(vectorSpace !== undefined) {
+            if(vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
             } else {
                 this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<2>;
