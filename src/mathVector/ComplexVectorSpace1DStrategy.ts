@@ -29,7 +29,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         return nullComplex;
     }
 
-    add(a: ComplexVector, b: ComplexVector): ComplexVector1D {
+    addRaw(a: ComplexVector, b: ComplexVector): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
             return addComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
@@ -37,7 +37,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    norm(vector: ComplexVector): number {
+    normRaw(vector: ComplexVector): number {
         if(isVector1D(vector)) {
             return Math.sqrt(vector.real * vector.real + vector.imaginary * vector.imaginary);
         } else {
@@ -45,10 +45,18 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
+    dotRaw(a: ComplexVector, b: ComplexVector): number {
+        if(isVector1D(a) && isVector1D(b)) {
+            return a.real * b.real + a.imaginary * b.imaginary;
+        } else {
+            throw new RangeError();
+        }
+    }
+
     // Overloaded scale method
-    scale(scaleFactor: IComplex, vector: ComplexVector): ComplexVector1D;
-    scale(scaleFactor: number, vector: ComplexVector): ComplexVector1D;
-    scale(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector1D {
+    scaleRaw(scaleFactor: IComplex, vector: ComplexVector): ComplexVector1D;
+    scaleRaw(scaleFactor: number, vector: ComplexVector): ComplexVector1D;
+    scaleRaw(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector1D {
         if (typeof scaleFactor === 'number') {
             if(isVector1D(vector)) {
                 return {type: COMPLEX, real: scaleFactor * vector.real, imaginary: scaleFactor * vector.imaginary};
@@ -66,7 +74,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    subtract(a: ComplexVector, b: ComplexVector): ComplexVector1D {
+    subtractRaw(a: ComplexVector, b: ComplexVector): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
             return subtractComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
@@ -74,7 +82,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    clone(vector: ComplexVector): ComplexVector1D {
+    cloneRaw(vector: ComplexVector): ComplexVector1D {
         if(isVector1D(vector)) {
             return {type: COMPLEX, real: vector.real, imaginary: vector.imaginary};
         } else {

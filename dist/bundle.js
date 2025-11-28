@@ -38451,7 +38451,7 @@ exports.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY = 'The subtraction of 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EM_IMAGINARYWEIGHT_NEGATIVE = exports.EM_REALWEIGHT_NEGATIVE = exports.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_TRANSFORMATION_NOT_AVAILABLE = exports.EM_INPUT_ARRAY_INCONSISTENT_LENGTH = exports.EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR = exports.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_COMPLEXVECTORS_DIFFERENT_DIM = exports.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = exports.EM_IMAGINARYWEIGHT_NEGATIVE = exports.EM_REALWEIGHT_NEGATIVE = exports.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_TRANSFORMATION_NOT_AVAILABLE = exports.EM_INPUT_ARRAY_INCONSISTENT_LENGTH = exports.EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR = exports.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_COMPLEXVECTORS_DIFFERENT_DIM = exports.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
 exports.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
 exports.EM_COMPLEXVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
 exports.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE = 'Vector dimension is out of complex vector space dimension range. Cannot proceed.';
@@ -38461,6 +38461,22 @@ exports.EM_TRANSFORMATION_NOT_AVAILABLE = "Transformation not available for this
 exports.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = "Complex vectors don't belong to the current vector space. Dimensions are incompatible.";
 exports.EM_REALWEIGHT_NEGATIVE = "Real weight must be positive or null. Cannot proceed.";
 exports.EM_IMAGINARYWEIGHT_NEGATIVE = "Imaginary weight must be positive or null. Cannot proceed.";
+exports.EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = 'Cannot apply dot product with complex vectors of dimension 2.';
+
+
+/***/ }),
+
+/***/ "./src/ErrorMessages/ComplexVectors.ts":
+/*!*********************************************!*\
+  !*** ./src/ErrorMessages/ComplexVectors.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.EM_VECTOR_COORDINATE_TYPE_INCONSISTENT = void 0;
+exports.EM_VECTOR_COORDINATE_TYPE_INCONSISTENT = `Complex vector coordinate(s) type must be identical: number if real and imaginary parts are specified or Complex if complex coordinates are specified. Cannot proceed.`;
 
 
 /***/ }),
@@ -51294,6 +51310,7 @@ const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn 
 const AbstractVector_1 = __webpack_require__(/*! ./AbstractVector */ "./src/mathVector/AbstractVector.ts");
 const Vector_1 = __webpack_require__(/*! ./Vector */ "./src/mathVector/Vector.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
+const ComplexVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/ComplexVectorSpace */ "./src/ErrorMessages/ComplexVectorSpace.ts");
 /**
  * Abstract base for complex vectors
  */
@@ -51307,7 +51324,8 @@ class AbstractComplexVector extends AbstractVector_1.AbstractVector {
         return super.subtract(other);
     }
     scale(scalar) {
-        return super.scale(scalar);
+        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
     revert() {
         return super.revert();
@@ -51333,11 +51351,21 @@ class AbstractComplexVector extends AbstractVector_1.AbstractVector {
         // Flatten complex coordinates to [real1, imag1, real2, imag2, ...]
         // return this.coordinates.flatMap(c => [c.real, c.imaginary]);
         // return [this.coordinates[0].real, this.coordinates[0].imaginary]
-        return [this.coordinates[0], this.coordinates[1]];
+        let result = [];
+        for (let i = 0; i < this.dimension; i++) {
+            result.push(this.coordinates[i].real);
+            result.push(this.coordinates[i].imaginary);
+        }
+        return result;
     }
     equals(other, tolerance) {
-        if (this.dimension !== other.dimension || this.vectorType !== other.vectorType || this._vectorSpace !== other.vectorSpace) {
-            return false;
+        if (this.dimension !== other.dimension) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'equals', ComplexVectorSpace_1.EM_COMPLEXVECTORS_DIFFERENT_DIM);
+            throw new RangeError(error.generateMessageString());
+        }
+        else if (this._vectorSpace !== other.vectorSpace) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'equals', Vectors_1.EM_VECTORS_DIFFERENT_VECTOR_SPACES);
+            throw new RangeError(error.generateMessageString());
         }
         if (tolerance === undefined)
             tolerance = Vectors_1.LINEAR_TOL_VECTOR;
@@ -51357,12 +51385,13 @@ class AbstractComplexVector extends AbstractVector_1.AbstractVector {
             tolerance = Vectors_1.LINEAR_TOL_VECTOR;
         const thisNorm = this.norm();
         const otherNorm = other.norm();
-        if (thisNorm === 0 || otherNorm === 0) {
-            return true; // Zero vectors are colinear
+        if (thisNorm < Vectors_1.LINEAR_TOL_VECTOR || otherNorm < Vectors_1.LINEAR_TOL_VECTOR) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'isParallel', Vectors_1.EM_VECTOR_NORM_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
         }
         const dotProduct = this.dot(other);
         const ratio = Math.abs(dotProduct / (thisNorm * otherNorm));
-        return ratio >= 1 - tolerance;
+        return ratio >= (1 - tolerance);
     }
     isOrthogonal(other, angularTolerance) {
         this.validateCompatibility(other);
@@ -51414,7 +51443,8 @@ class AbstractProjectiveComplexVector extends AbstractVector_1.AbstractVector {
         return super.subtract(other);
     }
     scale(scalar) {
-        return super.scale(scalar);
+        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
     revert() {
         return super.revert();
@@ -51536,8 +51566,12 @@ class AbstractProjectiveVector extends AbstractVector_1.AbstractVector {
     subtract(other) {
         return super.subtract(other);
     }
+    // scale(scalar: number): IProjectiveVector {
+    //     return super.scale(scalar) as IProjectiveVector;
+    // }
     scale(scalar) {
-        return super.scale(scalar);
+        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
     revert() {
         return super.revert();
@@ -51631,8 +51665,12 @@ class AbstractRealVector extends AbstractVector_1.AbstractVector {
     subtract(other) {
         return super.subtract(other);
     }
+    // scale(scalar: number): IRealVector {
+    //     return super.scale(scalar) as IRealVector;
+    // }
     scale(scalar) {
-        return super.scale(scalar);
+        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
     dot(other) {
         return super.dot(other);
@@ -51735,10 +51773,10 @@ class AbstractVector {
         const result = this._vectorSpace.subtractRaw(this.descriptor, other.descriptor);
         return this.createVectorFromRaw(result);
     }
-    scale(scalar) {
-        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
-        return this.createVectorFromRaw(result);
-    }
+    // scale(scalar: S): IVector {
+    //     const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+    //     return this.createVectorFromRaw(result);
+    // }
     revert() {
         const result = this._vectorSpace.scaleRaw(-1, this.descriptor);
         return this.createVectorFromRaw(result);
@@ -51832,8 +51870,19 @@ class Complex {
     multiply(other) {
         return new Complex(this._real * other.real - this._imaginary * other.imaginary, this._real * other.imaginary + this._imaginary * other.real);
     }
+    scale(scalarOrComplex) {
+        if (typeof scalarOrComplex === 'number') {
+            return new Complex(this._real * scalarOrComplex, this._imaginary * scalarOrComplex);
+        }
+        else {
+            return this.multiply(scalarOrComplex);
+        }
+    }
     conjugate() {
         return new Complex(this._real, -this._imaginary);
+    }
+    opposite() {
+        return new Complex(-this._real, -this._imaginary);
     }
     magnitude() {
         return Math.sqrt(this._real * this._real + this._imaginary * this._imaginary);
@@ -52126,7 +52175,7 @@ class ComplexVectorSpace {
     }
     addRaw(a, b) {
         try {
-            return this.strategy.add(a, b);
+            return this.strategy.addRaw(a, b);
         }
         catch (error) {
             if (!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
@@ -52137,27 +52186,43 @@ class ComplexVectorSpace {
             throw new RangeError(message2.generateMessageString());
         }
     }
-    norm(vector) {
+    normRaw(vector) {
         try {
-            return this.strategy.norm(vector);
+            return this.strategy.normRaw(vector);
         }
         catch (error) {
+            if (error instanceof RangeError && error.message.includes(ComplexVectorSpace_1.EM_TRANSFORMATION_NOT_AVAILABLE)) {
+                throw error;
+            }
             const message1 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'norm', ComplexVectorSpace_1.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message1.generateMessageString());
         }
     }
     scaleRaw(scalar, vector) {
         try {
-            return this.strategy.scale(scalar, vector);
+            return this.strategy.scaleRaw(scalar, vector);
         }
         catch (error) {
             const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'scale', ComplexVectorSpace_1.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
         }
     }
+    dotRaw(a, b) {
+        try {
+            return this.strategy.dotRaw(a, b);
+        }
+        catch (error) {
+            if (!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
+                const message1 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'dot', ComplexVectorSpace_1.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
+                throw new RangeError(message1.generateMessageString());
+            }
+            const message2 = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'dot', ComplexVectorSpace_1.EM_COMPLEXVECTORS_DIFFERENT_DIM);
+            throw new RangeError(message2.generateMessageString());
+        }
+    }
     subtractRaw(a, b) {
         try {
-            return this.strategy.subtract(a, b);
+            return this.strategy.subtractRaw(a, b);
         }
         catch (error) {
             if (!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
@@ -52170,7 +52235,7 @@ class ComplexVectorSpace {
     }
     cloneRaw(vector) {
         try {
-            return this.strategy.clone(vector);
+            return this.strategy.cloneRaw(vector);
         }
         catch (error) {
             const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'clone', ComplexVectorSpace_1.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
@@ -52245,7 +52310,7 @@ class ComplexVectorSpace1DStrategy {
         const nullComplex = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: 0, imaginary: 0 };
         return nullComplex;
     }
-    add(a, b) {
+    addRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(a) && (0, VectorSpaceUtilities_1.isVector1D)(b)) {
             return (0, ComplexNumberFactory_1.addComplexUsingDescriptors)(a, b);
         }
@@ -52253,7 +52318,7 @@ class ComplexVectorSpace1DStrategy {
             throw new RangeError();
         }
     }
-    norm(vector) {
+    normRaw(vector) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(vector)) {
             return Math.sqrt(vector.real * vector.real + vector.imaginary * vector.imaginary);
         }
@@ -52261,7 +52326,15 @@ class ComplexVectorSpace1DStrategy {
             throw new RangeError();
         }
     }
-    scale(scaleFactor, vector) {
+    dotRaw(a, b) {
+        if ((0, VectorSpaceUtilities_1.isVector1D)(a) && (0, VectorSpaceUtilities_1.isVector1D)(b)) {
+            return a.real * b.real + a.imaginary * b.imaginary;
+        }
+        else {
+            throw new RangeError();
+        }
+    }
+    scaleRaw(scaleFactor, vector) {
         if (typeof scaleFactor === 'number') {
             if ((0, VectorSpaceUtilities_1.isVector1D)(vector)) {
                 return { type: VectorSpaceConstructorInterface_1.COMPLEX, real: scaleFactor * vector.real, imaginary: scaleFactor * vector.imaginary };
@@ -52281,7 +52354,7 @@ class ComplexVectorSpace1DStrategy {
             }
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(a) && (0, VectorSpaceUtilities_1.isVector1D)(b)) {
             return (0, ComplexNumberFactory_1.subtractComplexUsingDescriptors)(a, b);
         }
@@ -52289,7 +52362,7 @@ class ComplexVectorSpace1DStrategy {
             throw new RangeError();
         }
     }
-    clone(vector) {
+    cloneRaw(vector) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(vector)) {
             return { type: VectorSpaceConstructorInterface_1.COMPLEX, real: vector.real, imaginary: vector.imaginary };
         }
@@ -52357,7 +52430,7 @@ class ComplexVectorSpace2DStrategy {
         const nullComplex = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: 0, imaginary: 0 };
         return { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex] };
     }
-    add(a, b) {
+    addRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(a) && (0, VectorSpaceUtilities_1.isVector2D)(b)) {
             return { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [
                     (0, ComplexNumberFactory_1.addComplexUsingDescriptors)(a.coordinates[0], b.coordinates[0]),
@@ -52368,7 +52441,7 @@ class ComplexVectorSpace2DStrategy {
             throw new RangeError();
         }
     }
-    norm(vector) {
+    normRaw(vector) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(vector)) {
             const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'fromComplexVectorSpaceToProjectiveComplexVectorSpace', ComplexVectorSpace_1.EM_TRANSFORMATION_NOT_AVAILABLE);
             throw new RangeError(error.generateMessageString());
@@ -52377,7 +52450,11 @@ class ComplexVectorSpace2DStrategy {
             throw new RangeError();
         }
     }
-    scale(scaleFactor, vector) {
+    dotRaw(a, b) {
+        const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'crossProduct', ComplexVectorSpace_1.EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2);
+        throw new RangeError(error.generateMessageString());
+    }
+    scaleRaw(scaleFactor, vector) {
         if (typeof scaleFactor === 'number') {
             if ((0, VectorSpaceUtilities_1.isVector2D)(vector)) {
                 const result = vector.coordinates.map((val) => ({ type: VectorSpaceConstructorInterface_1.COMPLEX, real: val.real * scaleFactor, imaginary: val.imaginary * scaleFactor }));
@@ -52403,7 +52480,7 @@ class ComplexVectorSpace2DStrategy {
             }
         }
     }
-    subtract(a, b) {
+    subtractRaw(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(a) && (0, VectorSpaceUtilities_1.isVector2D)(b)) {
             return { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [
                     (0, ComplexNumberFactory_1.subtractComplexUsingDescriptors)(a.coordinates[0], b.coordinates[0]),
@@ -52414,7 +52491,7 @@ class ComplexVectorSpace2DStrategy {
             throw new RangeError();
         }
     }
-    clone(vector) {
+    cloneRaw(vector) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(vector)) {
             return { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [
                     { type: VectorSpaceConstructorInterface_1.COMPLEX, real: vector.coordinates[0].real, imaginary: vector.coordinates[0].imaginary },
@@ -53051,6 +53128,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ProjectiveVector1DTypeComplex = void 0;
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const AbstractProjectiveComplexVector_1 = __webpack_require__(/*! ./AbstractProjectiveComplexVector */ "./src/mathVector/AbstractProjectiveComplexVector.ts");
+const Complex_1 = __webpack_require__(/*! ./Complex */ "./src/mathVector/Complex.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
 const Vector2DTypeReal_1 = __webpack_require__(/*! ./Vector2DTypeReal */ "./src/mathVector/Vector2DTypeReal.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
@@ -53087,9 +53165,9 @@ class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVector_1.Ab
         if (index === 1) {
             const real = this.weight.real.value;
             const imaginary = this.weight.imaginary.value;
-            return { type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary };
+            return new Complex_1.Complex(real, imaginary);
         }
-        return this.data.coordinates[index];
+        return new Complex_1.Complex(this.data.coordinates[0].real, this.data.coordinates[0].imaginary);
     }
     // setCoordinate(index: number, value: Complex): void {
     //     if (index < 0 || index >= 1) throw new RangeError('Coordinate index out of bounds');
@@ -54701,6 +54779,7 @@ const ProjectiveVector2DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector2
 const ProjectiveVector3DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector3DTypeReal */ "./src/mathVector/ProjectiveVector3DTypeReal.ts");
 const Vector1DTypeComplex_1 = __webpack_require__(/*! ./Vector1DTypeComplex */ "./src/mathVector/Vector1DTypeComplex.ts");
 const Vector1DTypeReal_1 = __webpack_require__(/*! ./Vector1DTypeReal */ "./src/mathVector/Vector1DTypeReal.ts");
+const Vector2DTypeComplex_1 = __webpack_require__(/*! ./Vector2DTypeComplex */ "./src/mathVector/Vector2DTypeComplex.ts");
 const Vector2DTypeReal_1 = __webpack_require__(/*! ./Vector2DTypeReal */ "./src/mathVector/Vector2DTypeReal.ts");
 const Vector3DTypeReal_1 = __webpack_require__(/*! ./Vector3DTypeReal */ "./src/mathVector/Vector3DTypeReal.ts");
 const Vector4DTypeReal_1 = __webpack_require__(/*! ./Vector4DTypeReal */ "./src/mathVector/Vector4DTypeReal.ts");
@@ -54734,12 +54813,8 @@ class VectorFactory {
             switch (raw.type) {
                 case VectorSpaceConstructorInterface_1.COMPLEX:
                     return new Vector1DTypeComplex_1.Vector1DTypeComplex(raw.real, raw.imaginary, vectorSpace);
-                // case COMPLEXVECTOR2D:
-                //     return new ComplexVector2D(
-                //         raw.coordinates[0], 
-                //         raw.coordinates[1], 
-                //         vectorSpace as ComplexVectorSpace<2>
-                //     );
+                case VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D:
+                    return new Vector2DTypeComplex_1.Vector2DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary, vectorSpace);
                 default:
                     throw new Error(`Unsupported complex vector type: ${string}`);
             }
@@ -54786,40 +54861,62 @@ exports.VectorFactory = VectorFactory;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Vector1DTypeComplex = void 0;
+const Vectors_1 = __webpack_require__(/*! ../namedConstants/Vectors */ "./src/namedConstants/Vectors.ts");
 const AbstractComplexVector_1 = __webpack_require__(/*! ./AbstractComplexVector */ "./src/mathVector/AbstractComplexVector.ts");
+const Complex_1 = __webpack_require__(/*! ./Complex */ "./src/mathVector/Complex.ts");
 const ComplexVectorSpace_1 = __webpack_require__(/*! ./ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const SPACE_DIMENSION = 1;
 class Vector1DTypeComplex extends AbstractComplexVector_1.AbstractComplexVector {
-    constructor(realOrVcetorSpace, imaginary, vectorSpace) {
+    constructor(realOrComplexOrVectorSpace, imaginaryOrVectorSpace, vectorSpace) {
         super();
-        if (realOrVcetorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace) {
-            this._vectorSpace = realOrVcetorSpace;
+        if (realOrComplexOrVectorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace) {
+            this._vectorSpace = realOrComplexOrVectorSpace;
             this.data = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: 0, imaginary: 0 };
             return;
         }
-        else {
-            const real = realOrVcetorSpace !== null && realOrVcetorSpace !== void 0 ? realOrVcetorSpace : 0;
-            this.data = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary !== null && imaginary !== void 0 ? imaginary : 0 };
-            if (vectorSpace !== undefined) {
+        else if (realOrComplexOrVectorSpace instanceof Complex_1.Complex) {
+            const complex = realOrComplexOrVectorSpace;
+            this.data = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: complex.real, imaginary: complex.imaginary };
+            if (imaginaryOrVectorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace) {
+                this._vectorSpace = imaginaryOrVectorSpace;
+            }
+            else if (vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
             }
             else {
                 this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
             }
+            return;
+        }
+        const real = realOrComplexOrVectorSpace !== null && realOrComplexOrVectorSpace !== void 0 ? realOrComplexOrVectorSpace : 0;
+        if (typeof imaginaryOrVectorSpace === 'number') {
+            this.data = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginaryOrVectorSpace };
+        }
+        else {
+            this.data = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: 0 };
+        }
+        if (vectorSpace !== undefined) {
+            this._vectorSpace = vectorSpace;
+        }
+        else {
+            this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
         }
     }
     get dimension() { return SPACE_DIMENSION; }
     get vectorType() { return VectorSpaceConstructorInterface_1.COMPLEXVECTOR1D; }
     get real() { return this.data.real; }
     get imaginary() { return this.data.imaginary; }
-    get coordinates() { return [this.data.real, this.data.imaginary]; }
+    get coordinates() { return [new Complex_1.Complex(this.data.real, this.data.imaginary)]; }
     get descriptor() { return this.data; }
     getCoordinate(index) {
-        if (index !== 0)
-            throw new RangeError('1D vector only has coordinate at index 0');
-        return this.data;
+        if (index !== 0) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getCoordinate', Vectors_1.EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
+        return new Complex_1.Complex(this.data.real, this.data.imaginary);
     }
     // setCoordinate(index: number, value: IComplex): void {
     //     if (index !== 0) throw new RangeError('1D vector only has coordinate at index 0');
@@ -54921,13 +55018,86 @@ exports.Vector1DTypeReal = Vector1DTypeReal;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Vector2DTypeComplex = void 0;
+const ComplexVectors_1 = __webpack_require__(/*! ../ErrorMessages/ComplexVectors */ "./src/ErrorMessages/ComplexVectors.ts");
+const Vectors_1 = __webpack_require__(/*! ../namedConstants/Vectors */ "./src/namedConstants/Vectors.ts");
 const AbstractComplexVector_1 = __webpack_require__(/*! ./AbstractComplexVector */ "./src/mathVector/AbstractComplexVector.ts");
+const Complex_1 = __webpack_require__(/*! ./Complex */ "./src/mathVector/Complex.ts");
+const ComplexVectorSpace_1 = __webpack_require__(/*! ./ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
 const VectorSpaceConstructorInterface_1 = __webpack_require__(/*! ./VectorSpaceConstructorInterface */ "./src/mathVector/VectorSpaceConstructorInterface.ts");
+const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
+const SPACE_DIMENSION = 2;
 class Vector2DTypeComplex extends AbstractComplexVector_1.AbstractComplexVector {
-    constructor(real = 0, imaginary = 0, real2 = 0, imaginary2 = 0, vectorSpace) {
+    constructor(realOrComplexOrVectorSpace, imaginaryOrComplex, real2OrVectorSpace, imaginary2, vectorSpace) {
         super();
-        this.data = { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary }, { type: VectorSpaceConstructorInterface_1.COMPLEX, real: real2, imaginary: imaginary2 }] };
+        if (realOrComplexOrVectorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace) {
+            this._vectorSpace = realOrComplexOrVectorSpace;
+            const nullComplex = { type: VectorSpaceConstructorInterface_1.COMPLEX, real: 0, imaginary: 0 };
+            this.data = { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex] };
+            return;
+        }
+        else if (realOrComplexOrVectorSpace instanceof Complex_1.Complex && imaginaryOrComplex instanceof Complex_1.Complex) {
+            const complex1 = realOrComplexOrVectorSpace;
+            const complex2 = imaginaryOrComplex;
+            this.data = { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [
+                    { type: VectorSpaceConstructorInterface_1.COMPLEX, real: complex1.real, imaginary: complex1.imaginary },
+                    { type: VectorSpaceConstructorInterface_1.COMPLEX, real: complex2.real, imaginary: complex2.imaginary }
+                ] };
+            if (real2OrVectorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace) {
+                this._vectorSpace = real2OrVectorSpace;
+            }
+            else if (vectorSpace !== undefined) {
+                this._vectorSpace = vectorSpace;
+            }
+            else {
+                this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+            }
+            return;
+        }
+        else if (realOrComplexOrVectorSpace instanceof Complex_1.Complex) {
+            const complex1 = realOrComplexOrVectorSpace;
+            if (typeof imaginaryOrComplex === 'number') {
+                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', ComplexVectors_1.EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
+                throw new RangeError(error.generateMessageString());
+            }
+            else if (imaginaryOrComplex instanceof Complex_1.Complex) {
+                const complex2 = imaginaryOrComplex;
+                this.data = { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [
+                        { type: VectorSpaceConstructorInterface_1.COMPLEX, real: complex1.real, imaginary: complex1.imaginary },
+                        { type: VectorSpaceConstructorInterface_1.COMPLEX, real: complex2.real, imaginary: complex2.imaginary }
+                    ] };
+                if (real2OrVectorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace) {
+                    this._vectorSpace = real2OrVectorSpace;
+                }
+                else if (vectorSpace !== undefined) {
+                    this._vectorSpace = vectorSpace;
+                }
+                else {
+                    this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
+                }
+                return;
+            }
+            else {
+                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', ComplexVectors_1.EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
+                throw new RangeError(error.generateMessageString());
+            }
+        }
+        const real = realOrComplexOrVectorSpace !== null && realOrComplexOrVectorSpace !== void 0 ? realOrComplexOrVectorSpace : 0;
+        if (typeof imaginaryOrComplex === 'number') {
+            real2OrVectorSpace = real2OrVectorSpace !== null && real2OrVectorSpace !== void 0 ? real2OrVectorSpace : 0;
+            imaginary2 = imaginary2 !== null && imaginary2 !== void 0 ? imaginary2 : 0;
+        }
+        else if (imaginaryOrComplex instanceof Complex_1.Complex) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', ComplexVectors_1.EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
+            throw new RangeError(error.generateMessageString());
+        }
+        const imaginary = imaginaryOrComplex !== null && imaginaryOrComplex !== void 0 ? imaginaryOrComplex : 0;
+        if (typeof real2OrVectorSpace !== 'number') {
+            real2OrVectorSpace = 0;
+        }
+        real2OrVectorSpace = real2OrVectorSpace !== null && real2OrVectorSpace !== void 0 ? real2OrVectorSpace : 0;
+        imaginary2 = imaginary2 !== null && imaginary2 !== void 0 ? imaginary2 : 0;
+        this.data = { type: VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D, coordinates: [{ type: VectorSpaceConstructorInterface_1.COMPLEX, real: real, imaginary: imaginary }, { type: VectorSpaceConstructorInterface_1.COMPLEX, real: real2OrVectorSpace, imaginary: imaginary2 }] };
         if (vectorSpace !== undefined) {
             this._vectorSpace = vectorSpace;
         }
@@ -54935,31 +55105,31 @@ class Vector2DTypeComplex extends AbstractComplexVector_1.AbstractComplexVector 
             this._vectorSpace = (0, DefaultSpaceResolvers_1.getDefaultVectorSpace)(this.spaceType, this.dimension);
         }
     }
-    get dimension() { return 2; }
-    get vectorType() { return 'Complex2D'; }
+    get dimension() { return SPACE_DIMENSION; }
+    get vectorType() { return VectorSpaceConstructorInterface_1.COMPLEXVECTOR2D; }
     getCoordinate(index) {
-        if (index < 0 || index >= 2)
-            throw new RangeError('Coordinate index out of bounds');
-        return this.data.coordinates[index];
+        if (index < 0 || index >= 2) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getCoordinate', Vectors_1.EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+            throw new RangeError(error.generateMessageString());
+        }
+        return new Complex_1.Complex(this.data.coordinates[index].real, this.data.coordinates[index].imaginary);
     }
-    setCoordinate(index, value) {
-        if (index < 0 || index >= 2)
-            throw new RangeError('Coordinate index out of bounds');
-        this.data.coordinates[index] = value;
-    }
+    // setCoordinate(index: number, value: IComplex): void {
+    //     if (index < 0 || index >= 2) throw new RangeError('Coordinate index out of bounds');
+    //     this.data.coordinates[index] = value;
+    // }
     // get coordinates(): Complex[] { return [...this.data.coordinates]; }
     get coordinates() {
         let result = [];
         for (let i = 0; i < this.dimension; i++) {
-            result.push(this.data.coordinates[i].real);
-            result.push(this.data.coordinates[i].imaginary);
+            result.push(new Complex_1.Complex(this.data.coordinates[i].real, this.data.coordinates[i].imaginary));
         }
         return result;
     }
     ;
     get descriptor() { return this.data; }
     clone() {
-        return new Vector2DTypeComplex(this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.data.coordinates[1].real, this.data.coordinates[1].imaginary);
+        return new Vector2DTypeComplex(this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.data.coordinates[1].real, this.data.coordinates[1].imaginary, this.vectorSpace);
     }
     static fromRaw(raw) {
         return new Vector2DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary);
@@ -65329,7 +65499,7 @@ class OpenBSplineR1toRnComplexVectorStrategy extends AbstractOPenBSplineR1toRnSt
     euclideanDistances() {
         const distances = [];
         for (let i = 0; i < this.openBSplineR1toRn.controlPolygon.length - 1; i += 1) {
-            distances.push(this.vectorSpace.norm(this.vectorSpace.subtractRaw(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
+            distances.push(this.vectorSpace.normRaw(this.vectorSpace.subtractRaw(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
         }
         return distances;
     }

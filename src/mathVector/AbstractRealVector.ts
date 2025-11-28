@@ -35,8 +35,12 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
         return super.subtract(other) as IRealVector;
     }
 
+    // scale(scalar: number): IRealVector {
+    //     return super.scale(scalar) as IRealVector;
+    // }
     scale(scalar: number): IRealVector {
-        return super.scale(scalar) as IRealVector;
+        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
 
     dot(other: IRealVector): number {

@@ -1,5 +1,6 @@
 
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { Complex } from "./Complex";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
@@ -9,11 +10,12 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
 import { Vector1DTypeReal } from "./Vector1DTypeReal";
+import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import { Vector4DTypeReal } from "./Vector4DTypeReal";
 import { VectorInVectorSpace } from "./VectorInVectorSpace";
-import { COMPLEX, IComplex, ComplexVector, IComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { COMPLEX, IComplex, ComplexVector, IComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, VectorSpace, COMPLEXVECTOR2D } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
 
 /**
@@ -27,9 +29,9 @@ export interface IVector {
     readonly vectorSpace: IdentifiableVectorSpace<any, any>; // The vector space this vector belongs to
     
     // Coordinate access
-    getCoordinate(index: number): number | IComplex;
+    getCoordinate(index: number): number | Complex;
     // setCoordinate(index: number, value: number | Complex): void;
-    readonly coordinates: (number | IComplex)[];
+    readonly coordinates: (number | Complex)[];
     
     // Raw data access for interoperability
     readonly descriptor: Vector;
@@ -39,7 +41,7 @@ export interface IVector {
     equals(other: IVector): boolean;
     add(other: IVector): IVector;
     subtract(other: IVector): IVector;
-    scale(scalar: number | IComplex): IVector;
+    scale(scalar: Scalar | Complex): IVector;
     revert(): IVector;
     
     // Vector space operations
@@ -84,15 +86,17 @@ export interface IRealVector extends IVector {
 
 export interface IComplexVector extends IVector {
     readonly vectorSpace: ComplexVectorSpace<any>;
-    getCoordinate(index: number): IComplex;
+    getCoordinate(index: number): Complex;
     // setCoordinate(index: number, value: Complex): void;
     // readonly coordinates: Complex[];
-    readonly coordinates: number[];
+    readonly coordinates: Complex[];
     readonly descriptor: ComplexVector;
 
     add(other: IComplexVector): IComplexVector;
     subtract(other: IComplexVector): IComplexVector;
-    scale(scalar: number): IComplexVector;
+    // scale(scalar: number): IComplexVector;
+    // scale(scalar: Complex): IComplexVector;
+    scale(scalar: number | Complex): IComplexVector;
     
     // Complex-specific methods
     getReal(index: number): number;
@@ -109,7 +113,7 @@ export interface IProjectiveVector extends IVector {
     readonly vectorSpace: ProjectiveVectorSpace<any>;
     readonly weight: Weight;
     readonly descriptor: ProjectiveVector;
-    readonly coordinates: (number | IComplex)[];
+    readonly coordinates: (number | Complex)[];
     readonly homogeneousCoordinates: (number | IComplex)[];
     getCoordinate(index: number): number;
     // setCoordinate(index: number, value: number): void;
@@ -128,7 +132,7 @@ export interface IProjectiveComplexVector extends IVector {
     readonly vectorSpace: ProjectiveComplexVectorSpace<any>;
     readonly weight: Weight | IComplexWeight;
     readonly homogeneousCoordinates: (number | IComplex)[];
-    getCoordinate(index: number): IComplex;
+    getCoordinate(index: number): Complex;
     // setCoordinate(index: number, value: Complex): void;
     
     add(other: IProjectiveComplexVector): IProjectiveComplexVector;
@@ -192,12 +196,14 @@ export class VectorFactory {
                         raw.imaginary, 
                         vectorSpace as ComplexVectorSpace<1>
                     );
-                // case COMPLEXVECTOR2D:
-                //     return new ComplexVector2D(
-                //         raw.coordinates[0], 
-                //         raw.coordinates[1], 
-                //         vectorSpace as ComplexVectorSpace<2>
-                //     );
+                case COMPLEXVECTOR2D:
+                    return new Vector2DTypeComplex(
+                        raw.coordinates[0].real, 
+                        raw.coordinates[0].imaginary,
+                        raw.coordinates[1].real, 
+                        raw.coordinates[1].imaginary,
+                        vectorSpace as ComplexVectorSpace<2>
+                    );
                 default:
                     throw new Error(`Unsupported complex vector type: ${string}`);
             }

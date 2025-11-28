@@ -1,5 +1,6 @@
 import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
+import { Complex } from "./Complex";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { IComplexVector, IProjectiveComplexVector, IRealVector, VectorFactory } from "./Vector";
 import { IComplex, IComplexWeight, ProjectiveComplexVector, Vector } from "./VectorSpaceConstructorInterface";
@@ -13,7 +14,7 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
 
     get vectorSpace(): ProjectiveComplexVectorSpace<any> { return this._vectorSpace as ProjectiveComplexVectorSpace<any>; }
 
-    abstract getCoordinate(index: number): IComplex;
+    abstract getCoordinate(index: number): Complex;
     // abstract setCoordinate(index: number, value: Complex): void;
     abstract get weight(): Weight | IComplexWeight;
     abstract get homogeneousCoordinates(): (number | IComplex)[];
@@ -28,8 +29,14 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
         return super.subtract(other) as IProjectiveComplexVector;
     }
 
-    scale(scalar: number): IProjectiveComplexVector {
-        return super.scale(scalar) as IProjectiveComplexVector;
+    // scale(scalar: number): IProjectiveComplexVector {
+    //     return super.scale(scalar) as IProjectiveComplexVector;
+    // }
+    scale(scalar: number): IProjectiveComplexVector;
+    scale(scalar: Complex): IProjectiveComplexVector;
+    scale(scalar: number | Complex): IProjectiveComplexVector {
+        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
 
     revert(): IProjectiveComplexVector {

@@ -7,3 +7,4 @@ export const EM_TRANSFORMATION_NOT_AVAILABLE = "Transformation not available for
 export const EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = "Complex vectors don't belong to the current vector space. Dimensions are incompatible.";
 export const EM_REALWEIGHT_NEGATIVE = "Real weight must be positive or null. Cannot proceed.";
 export const EM_IMAGINARYWEIGHT_NEGATIVE = "Imaginary weight must be positive or null. Cannot proceed.";
+export const EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = 'Cannot apply dot product with complex vectors of dimension 2.';

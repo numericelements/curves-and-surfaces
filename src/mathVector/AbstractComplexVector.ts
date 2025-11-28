@@ -1,10 +1,12 @@
-import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { IComplexVector, IVector, VectorFactory } from "./Vector";
 import { IComplex, ComplexVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import { EM_COMPLEXVECTORS_DIFFERENT_DIM } from "../ErrorMessages/ComplexVectorSpace";
+import { Complex } from "./Complex";
 
 /**
  * Abstract base for complex vectors
@@ -16,9 +18,9 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     get vectorSpace(): ComplexVectorSpace<any> { return this._vectorSpace as ComplexVectorSpace<any>; }
     
     abstract get descriptor(): ComplexVector;
-    abstract getCoordinate(index: number): IComplex;
+    abstract getCoordinate(index: number): Complex;
     // abstract setCoordinate(index: number, value: Complex): void;
-    abstract get coordinates(): number[];
+    abstract get coordinates(): Complex[];
     abstract clone(): IComplexVector;
     
     add(other: IComplexVector): IComplexVector {
@@ -29,9 +31,13 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         return super.subtract(other) as IComplexVector;
     }
 
-    scale(scalar: number): IComplexVector {
-        return super.scale(scalar) as IComplexVector;
+    scale(scalar: number): IComplexVector;
+    scale(scalar: Complex): IComplexVector;
+    scale(scalar: number | Complex): IComplexVector {
+        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
+    
 
     revert(): IComplexVector {
         return super.revert() as IComplexVector;   
@@ -63,12 +69,21 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         // return this.coordinates.flatMap(c => [c.real, c.imaginary]);
 
         // return [this.coordinates[0].real, this.coordinates[0].imaginary]
-        return [this.coordinates[0], this.coordinates[1]]
+        let result: number[] = [];
+        for (let i = 0; i < this.dimension; i++) {
+            result.push(this.coordinates[i].real);
+            result.push(this.coordinates[i].imaginary);
+        }
+        return result;
     }
 
     equals(other: IComplexVector, tolerance?: number): boolean {
-        if (this.dimension !== other.dimension || this.vectorType !== other.vectorType || this._vectorSpace !== other.vectorSpace) {
-            return false;
+        if (this.dimension !== other.dimension) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_COMPLEXVECTORS_DIFFERENT_DIM);
+            throw new RangeError(error.generateMessageString());
+        } else if(this._vectorSpace !== other.vectorSpace) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_VECTORS_DIFFERENT_VECTOR_SPACES);
+            throw new RangeError(error.generateMessageString());
         }
         if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
         for (let i = 0; i < this.dimension; i++) {
@@ -86,12 +101,13 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
             if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
             const thisNorm = this.norm();
             const otherNorm = other.norm();
-            if (thisNorm === 0 || otherNorm === 0) {
-                return true; // Zero vectors are colinear
+            if(thisNorm < LINEAR_TOL_VECTOR || otherNorm < LINEAR_TOL_VECTOR) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'isParallel', EM_VECTOR_NORM_TOO_SMALL);
+                throw new RangeError(error.generateMessageString());
             }
             const dotProduct = this.dot(other);
             const ratio = Math.abs(dotProduct as number / (thisNorm * otherNorm));
-            return ratio >= 1 - tolerance;
+            return ratio >= (1 - tolerance);
     }
 
     isOrthogonal(other: IComplexVector, angularTolerance?: number): boolean {

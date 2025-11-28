@@ -77,11 +77,34 @@ describe('Complex numbers and associated operators', () => {
                 expect(result.imaginary).to.eql(10);
             });
 
+            it('can scale a complex number with a scalar', () => {
+                const scalar = 2;
+                const c = new Complex(3, 4);
+                const result = c.scale(scalar);
+                expect(result.real).to.eql(6);
+                expect(result.imaginary).to.eql(8);
+            });
+
+            it('can scale a complex number with another complex number', () => {
+                const c1 = new Complex(1, 2);
+                const c2 = new Complex(3, 4);
+                const result = c1.scale(c2);
+                expect(result.real).to.eql(c1.multiply(c2).real);
+                expect(result.imaginary).to.eql(c1.multiply(c2).imaginary);
+            });
+
             it('can compute the conjugate of a complex number', () => {
                 const c = new Complex(3, 4);
                 const conjugate = c.conjugate();
                 expect(conjugate.real).to.eql(3);
                 expect(conjugate.imaginary).to.eql(-4);
+            });
+
+            it('can compute the opposite of a complex number', () => {
+                const c = new Complex(3, -4);
+                const opposite = c.opposite();
+                expect(opposite.real).to.eql(-3);
+                expect(opposite.imaginary).to.eql(4);
             });
 
             it('can compute the magnitude of a complex number', () => {

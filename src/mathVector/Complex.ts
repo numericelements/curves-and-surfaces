@@ -42,8 +42,22 @@ export class Complex {
         );
     }
 
+    scale(scalar: number): Complex;
+    scale(complex: Complex): Complex;
+    scale(scalarOrComplex: number | Complex): Complex {
+        if (typeof scalarOrComplex === 'number') {
+            return new Complex(this._real * scalarOrComplex, this._imaginary * scalarOrComplex);
+        } else {
+            return this.multiply(scalarOrComplex);
+        }
+    }
+
     conjugate(): Complex {
         return new Complex(this._real, -this._imaginary);
+    }
+
+    opposite(): Complex {
+        return new Complex(-this._real, -this._imaginary);
     }
 
     magnitude(): number {

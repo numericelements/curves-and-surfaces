@@ -64,8 +64,12 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
         return super.subtract(other) as IProjectiveVector;
     }
 
+    // scale(scalar: number): IProjectiveVector {
+    //     return super.scale(scalar) as IProjectiveVector;
+    // }
     scale(scalar: number): IProjectiveVector {
-        return super.scale(scalar) as IProjectiveVector;
+        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
 
     revert(): IProjectiveVector {

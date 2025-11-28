@@ -4,6 +4,7 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { IVector } from "./Vector";
 import { IComplex, IdentifiableVectorSpace, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import { Complex } from "./Complex";
 
 /**
  * Base abstract class implementing common IVector functionality
@@ -17,9 +18,9 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     abstract get vectorType(): string;
     abstract get spaceType(): VectorSpaceType;
     abstract get descriptor(): V;
-    abstract get coordinates(): (number | IComplex)[];
+    abstract get coordinates(): (number | Complex)[];
 
-    abstract getCoordinate(index: number): number | IComplex;
+    abstract getCoordinate(index: number): number | Complex;
     // abstract setCoordinate(index: number, value: number | Complex): void;
     abstract clone(): IVector;
     
@@ -41,10 +42,11 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
         return this.createVectorFromRaw(result);
     }
 
-    scale(scalar: S): IVector {
-        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
-        return this.createVectorFromRaw(result);
-    }
+    abstract scale(scalar: S | Complex): IVector;
+    // scale(scalar: S): IVector {
+    //     const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+    //     return this.createVectorFromRaw(result);
+    // }
 
     revert(): IVector {
         const result = this._vectorSpace.scaleRaw(-1, this.descriptor);

@@ -1,3 +1,4 @@
+import { Complex } from "./Complex";
 import { IVector } from "./Vector";
 import { IComplex, COMPLEX, ProjectiveVector2D, PROJECTIVEVECTOR2D, ProjectiveVector3D, PROJECTIVEVECTOR3D, RealVector2D, REALVECTOR2D, RealVector3D, REALVECTOR3D, RealVector4D, REALVECTOR4D, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
@@ -20,7 +21,7 @@ export class VectorInVectorSpace<K extends Scalar, V extends Vector, VS extends 
     }
 
     // Delegate coordinate access to the vector instance
-    get x(): number | IComplex | undefined { 
+    get x(): number | Complex | undefined { 
         return this.vectorInstance.dimension >= 1 ? this.vectorInstance.getCoordinate(0) : undefined; 
     }
 

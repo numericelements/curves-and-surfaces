@@ -1,4 +1,4 @@
-import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR, EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE } from "../ErrorMessages/ComplexVectorSpace";
+import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR, EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE, EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
 import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../namedConstants/ComplexVectorSpace";
@@ -23,11 +23,12 @@ export interface ComplexVectorSpaceStrategy<D extends number> {
     isInVectorSpace(v: ComplexVector): v is ComplexVector;
     createVector(coordinates: number[][]): ComplexVectorOfDimension<D>;
     defaultVect(): ComplexVectorOfDimension<D>;
-    add(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
-    scale(scalar: IComplex | number, vector: ComplexVector): ComplexVectorOfDimension<D>;
-    subtract(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
-    clone(v: ComplexVector): ComplexVectorOfDimension<D>;
-    norm(v: ComplexVector): number;
+    addRaw(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
+    scaleRaw(scalar: IComplex | number, vector: ComplexVector): ComplexVectorOfDimension<D>;
+    subtractRaw(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
+    dotRaw(a: ComplexVector, b: ComplexVector): number;
+    cloneRaw(v: ComplexVector): ComplexVectorOfDimension<D>;
+    normRaw(v: ComplexVector): number;
     // normalize(v: ComplexVector): ComplexVector;
     fromComplexVectorSpaceToRealVectorSpace(v: ComplexVector): RealVector;
     fromComplexVectorSpaceToProjectiveComplexVectorSpace(v: ComplexVector, weight: IComplexWeight): ProjectiveComplexVector
@@ -147,7 +148,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
 
     addRaw(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
         try {
-            return this.strategy.add(a, b);
+            return this.strategy.addRaw(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
@@ -158,10 +159,13 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    norm(vector: ComplexVector): number {
+    normRaw(vector: ComplexVector): number {
         try {
-            return this.strategy.norm(vector);
+            return this.strategy.normRaw(vector);
         } catch(error) {
+            if(error instanceof RangeError && error.message.includes(EM_TRANSFORMATION_NOT_AVAILABLE)) {
+                throw error;
+            }
             const message1 = sendRangeErrorMessage(this.constructor.name, 'norm', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message1.generateMessageString());
         }
@@ -171,16 +175,29 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
     scaleRaw(scalar: number, vector: ComplexVector): ComplexVectorOfDimension<D>;
     scaleRaw(scalar: IComplex | number, vector: ComplexVector): ComplexVectorOfDimension<D> {
         try {
-            return this.strategy.scale(scalar, vector);
+            return this.strategy.scaleRaw(scalar, vector);
         } catch(error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
         }
     }
 
+    dotRaw(a: ComplexVector, b: ComplexVector): number {
+        try {
+            return this.strategy.dotRaw(a, b);
+        } catch(error) {
+            if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
+                const message1 = sendRangeErrorMessage(this.constructor.name, 'dot', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
+                throw new RangeError(message1.generateMessageString());
+            }
+            const message2 = sendRangeErrorMessage(this.constructor.name, 'dot', EM_COMPLEXVECTORS_DIFFERENT_DIM);
+            throw new RangeError(message2.generateMessageString());
+        }
+    }
+
     subtractRaw(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
         try {
-            return this.strategy.subtract(a, b);
+            return this.strategy.subtractRaw(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
@@ -193,7 +210,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
 
     cloneRaw(vector: ComplexVector): ComplexVectorOfDimension<D> {
         try {
-            return this.strategy.clone(vector);
+            return this.strategy.cloneRaw(vector);
         } catch(error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());

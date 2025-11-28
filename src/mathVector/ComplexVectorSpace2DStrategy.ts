@@ -1,4 +1,4 @@
-import { EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
+import { EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2, EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import { ComplexVectorSpaceStrategy } from "./ComplexVectorSpace";
 import { COMPLEX, IComplex, ComplexVector, ComplexVector2D, COMPLEXVECTOR2D, COMPLEXWEIGHT, IComplexWeight } from "./VectorSpaceConstructorInterface";
@@ -31,7 +31,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         return {type: COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex]};
     }
 
-    add(a: ComplexVector, b: ComplexVector): ComplexVector2D {
+    addRaw(a: ComplexVector, b: ComplexVector): ComplexVector2D {
         if (isVector2D(a) && isVector2D(b)) {
             return {type: COMPLEXVECTOR2D, coordinates: [
                 addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
@@ -42,7 +42,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    norm(vector: ComplexVector): number {
+    normRaw(vector: ComplexVector): number {
         if(isVector2D(vector)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromComplexVectorSpaceToProjectiveComplexVectorSpace', EM_TRANSFORMATION_NOT_AVAILABLE);
             throw new RangeError(error.generateMessageString());
@@ -51,9 +51,14 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    scale(scaleFactor: IComplex, vector: ComplexVector): ComplexVector2D;
-    scale(scaleFactor: number, vector: ComplexVector): ComplexVector2D;
-    scale(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector2D {
+    dotRaw(a: ComplexVector, b: ComplexVector): never {
+        const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2);
+        throw new RangeError(error.generateMessageString());
+    }
+
+    scaleRaw(scaleFactor: IComplex, vector: ComplexVector): ComplexVector2D;
+    scaleRaw(scaleFactor: number, vector: ComplexVector): ComplexVector2D;
+    scaleRaw(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector2D {
         if (typeof scaleFactor === 'number') {
             if(isVector2D(vector)) {
                 const result = vector.coordinates.map((val) => ({type: COMPLEX, real: val.real * scaleFactor, imaginary: val.imaginary * scaleFactor}));
@@ -77,7 +82,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    subtract(a: ComplexVector, b: ComplexVector): ComplexVector2D {
+    subtractRaw(a: ComplexVector, b: ComplexVector): ComplexVector2D {
         if(isVector2D(a) && isVector2D(b)) {
             return {type: COMPLEXVECTOR2D, coordinates: [
                 subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
@@ -88,7 +93,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    clone(vector: ComplexVector): ComplexVector2D {
+    cloneRaw(vector: ComplexVector): ComplexVector2D {
         if(isVector2D(vector)) {
             return {type: COMPLEXVECTOR2D, coordinates: [
                 {type: COMPLEX, real: vector.coordinates[0].real, imaginary: vector.coordinates[0].imaginary},
