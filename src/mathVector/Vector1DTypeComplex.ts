@@ -69,6 +69,9 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
     //     this.data = value;
     // }
 
+    toString(): string {
+        return this.vectorType + `(${this.getCoordinate(0).toString()})`;
+    }
     
     clone(): Vector1DTypeComplex {
         return new Vector1DTypeComplex(this.data.real, this.data.imaginary, this.vectorSpace);

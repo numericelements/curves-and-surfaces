@@ -181,7 +181,9 @@ describe('ComplexWeight', () => {
             const weight = new ComplexWeight(weightR, weightI);
             expect(weight.type).to.eql(COMPLEXWEIGHT);
         });
+    });
 
+    describe('Methods', () => {
         it(`can clone a complex weight`, () => {
             const valueR = 2;
             const valueImaginary = 4;

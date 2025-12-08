@@ -77,6 +77,8 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         return result;
     }
 
+    abstract toString(): string;
+
     equals(other: IComplexVector, tolerance?: number): boolean {
         if (this.dimension !== other.dimension) {
             const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_COMPLEXVECTORS_DIFFERENT_DIM);

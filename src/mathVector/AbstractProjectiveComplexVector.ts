@@ -1,6 +1,7 @@
 import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
 import { Complex } from "./Complex";
+import { ComplexWeight } from "./ComplexWeight";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { IComplexVector, IProjectiveComplexVector, IRealVector, VectorFactory } from "./Vector";
 import { IComplex, IComplexWeight, ProjectiveComplexVector, Vector } from "./VectorSpaceConstructorInterface";
@@ -16,10 +17,11 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
 
     abstract getCoordinate(index: number): Complex;
     // abstract setCoordinate(index: number, value: Complex): void;
-    abstract get weight(): Weight | IComplexWeight;
+    abstract get weight(): ComplexWeight;
     abstract get homogeneousCoordinates(): (number | IComplex)[];
     abstract normalize(): IProjectiveComplexVector;
     abstract toCartesian(): IRealVector | IComplexVector;
+    abstract toString(): string;
     
     add(other: IProjectiveComplexVector): IProjectiveComplexVector {
         return super.add(other) as IProjectiveComplexVector;

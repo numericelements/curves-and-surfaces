@@ -40,7 +40,7 @@ export class Weight {
     }
 
     toString(): string {
-        return `${WEIGHT}(value: ${this._value}, strictlyPositive: ${this._strictlyPositive})`;
+        return WEIGHT + `(value: ${this._value}, strictlyPositive: ${this._strictlyPositive})`;
     }
 
     protected assessmentInputWeightValueStrictlyPositive(weight: number): void {

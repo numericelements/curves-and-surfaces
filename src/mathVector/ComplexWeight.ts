@@ -43,7 +43,7 @@ export class ComplexWeight {
     }
 
     toString(): string {
-        return `${COMPLEXWEIGHT}(real: ${this._real.toString()}, imaginary: ${this._imaginary.toString()})`;
+        return COMPLEXWEIGHT + `(real: ${this._real.toString()}, imaginary: ${this._imaginary.toString()})`;
     }
 
     clone(): ComplexWeight {

@@ -112,6 +112,10 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
     }; 
     get descriptor(): ComplexVector2D { return this.data; }
     
+    toString(): string {
+        return this.vectorType + `(${this.coordinates[0].toString()}, ${this.coordinates[1].toString()})`;
+    }
+
     clone(): Vector2DTypeComplex {
         return new Vector2DTypeComplex(this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.data.coordinates[1].real, this.data.coordinates[1].imaginary, this.vectorSpace);
     }

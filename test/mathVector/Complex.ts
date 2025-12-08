@@ -42,7 +42,7 @@ describe('Complex numbers and associated operators', () => {
 
             it('can convert to string', () => {
                 const complex = new Complex(1, 2);
-                expect(complex.toString()).to.eql('(1 , 2i)');
+                expect(complex.toString()).to.eql(COMPLEX + '(1 , i 2)');
             });
 
             it('can convert to descriptor', () => {

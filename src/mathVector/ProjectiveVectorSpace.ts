@@ -192,7 +192,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    norm(a: ProjectiveVector): number {
+    normRaw(a: ProjectiveVector): number {
         try { 
             return this.strategy.norm(a);
         } catch (error) {

@@ -67,6 +67,22 @@ describe('Weight', () => {
             expect(weight.type).to.eql(WEIGHT);
         });
 
+        it('can get the weight positivity status while the weight must be strictly positive', () => {
+            const value = 1;
+            const strictlyPositive = true;
+            const weight = new Weight(value, strictlyPositive);
+            expect(weight.strictlyPositive).to.eql(true);
+        });
+
+        it('can get the weight positivity status while the weight must be positive', () => {
+            const value = 1;
+            const strictlyPositive = false;
+            const weight = new Weight(value, strictlyPositive);
+            expect(weight.strictlyPositive).to.eql(false);
+        });
+    });
+
+    describe('Methods', () => {
         it(`can clone weight`, () => {
             const value = 10;
             let weight = new Weight(value);
@@ -83,20 +99,6 @@ describe('Weight', () => {
             const weight = new Weight(value);
             const string = weight.toString();
             expect(string).to.eql(WEIGHT + `(value: ${weight.value}, strictlyPositive: ${weight.strictlyPositive})`);
-        });
-
-        it('can get the weight positivity status while the weight must be strictly positive', () => {
-            const value = 1;
-            const strictlyPositive = true;
-            const weight = new Weight(value, strictlyPositive);
-            expect(weight.strictlyPositive).to.eql(true);
-        });
-
-        it('can get the weight positivity status while the weight must be positive', () => {
-            const value = 1;
-            const strictlyPositive = false;
-            const weight = new Weight(value, strictlyPositive);
-            expect(weight.strictlyPositive).to.eql(false);
         });
     });
 });

@@ -96,9 +96,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     
     abstract toArray(): number[];
     
-    toString(): string {
-        return `${this.vectorType}(${this.toArray().join(', ')})`;
-    }
+    abstract toString(): string;
 
     // Enhanced validation that checks space identity
     protected validateCompatibility(other: IVector): void {

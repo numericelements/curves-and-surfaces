@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../src/namedConstants/ProjectiveComplexVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
-import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../../src/ErrorMessages/ProjectiveComplexVectorSpace";
+import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS, EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../../src/ErrorMessages/ProjectiveComplexVectorSpace";
 import { IComplex, COMPLEX, IComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, ProjectiveComplexVector1D, PROJECTIVECOMPLEXVECTOR1D, WEIGHT, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../../src/ErrorMessages/ComplexOperators";
@@ -13,6 +13,7 @@ import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVector
 import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdentifierManager";
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
+import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 
 describe('ProjectiveComplexVectorSpace', () => {
    
@@ -276,14 +277,14 @@ describe('ProjectiveComplexVectorSpace', () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(1.5)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(1, false), imaginary: new Weight(1.5, false)}]};
-            expect(() => projectiveVectorSpace.addRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+            expect(() => projectiveVectorSpace.addRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
 
         it(`cannot add two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllStrictlyPositiveWeights} when both vectors have a complex weight with positive weight management`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(1.5, false)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(1, false), imaginary: new Weight(1.5, false)}]};
-            expect(() => projectiveVectorSpace.addRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+            expect(() => projectiveVectorSpace.addRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
 
         it('cannot add two ProjectiveComplexVectors of same dimension if one vector has not the same weight positivity management for real and imaginary weights', () => {
@@ -310,14 +311,14 @@ describe('ProjectiveComplexVectorSpace', () => {
 
         it(`can add two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllPositiveWeights} and one complex real weight smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
-            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(NULL_WEIGHT_TOLERANCE / 2), imaginary: new Weight(2)}]};
+            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(NULL_WEIGHT_TOLERANCE / 2, false), imaginary: new Weight(2, false)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(2, false)}]};
             const res = projectiveVectorSpace.addRaw(vec1, vec2);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
             expect(res.coordinates[0].real).to.eql(2);
             expect(res.coordinates[0].imaginary).to.eql(3);
             expect(res.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-            expect(res.coordinates[1].real).to.eql(new Weight(0, false));
+            expect(res.coordinates[1].real).to.eql(new Weight(NULL_WEIGHT_TOLERANCE / 2, false));
             expect(res.coordinates[1].real.strictlyPositive).to.eql(false);
             expect(res.coordinates[1].imaginary).to.eql(new Weight(4, false));
             expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(false);
@@ -325,7 +326,7 @@ describe('ProjectiveComplexVectorSpace', () => {
 
         it(`can add two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllPositiveWeights} and one complex imaginary weight smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
-            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(NULL_WEIGHT_TOLERANCE / 2)}]};
+            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2, false), imaginary: new Weight(NULL_WEIGHT_TOLERANCE / 2, false)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(2, false), imaginary: new Weight(0, false)}]};
             const res = projectiveVectorSpace.addRaw(vec1, vec2);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
@@ -334,23 +335,23 @@ describe('ProjectiveComplexVectorSpace', () => {
             expect(res.coordinates[1].type).to.eql(COMPLEXWEIGHT);
             expect(res.coordinates[1].real).to.eql(new Weight(4, false));
             expect(res.coordinates[1].real.strictlyPositive).to.eql(false);
-            expect(res.coordinates[1].imaginary).to.eql(new Weight(0, false));
+            expect(res.coordinates[1].imaginary).to.eql(new Weight(NULL_WEIGHT_TOLERANCE / 2, false));
             expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(false);
         });
 
         it(`can add two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllPositiveWeights} and one null complex weight`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
-            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(2)}]};
+            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2, false), imaginary: new Weight(2, false)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)}]};
             const res = projectiveVectorSpace.addRaw(vec1, vec2);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
             expect(res.coordinates[0].real).to.eql(2);
             expect(res.coordinates[0].imaginary).to.eql(3);
             expect(res.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-            expect(res.coordinates[1].real).to.eql(new Weight(2));
-            expect(res.coordinates[1].real.strictlyPositive).to.eql(true);
-            expect(res.coordinates[1].imaginary).to.eql(new Weight(2));
-            expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(true);
+            expect(res.coordinates[1].real).to.eql(new Weight(2, false));
+            expect(res.coordinates[1].real.strictlyPositive).to.eql(false);
+            expect(res.coordinates[1].imaginary).to.eql(new Weight(2, false));
+            expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(false);
         });
 
         it(`can add two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllPositiveWeights} and one null real weight and one null imaginary weight`, () => {
@@ -362,10 +363,10 @@ describe('ProjectiveComplexVectorSpace', () => {
             expect(res.coordinates[0].real).to.eql(2);
             expect(res.coordinates[0].imaginary).to.eql(3);
             expect(res.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-            expect(res.coordinates[1].real).to.eql(new Weight(2));
-            expect(res.coordinates[1].real.strictlyPositive).to.eql(true);
-            expect(res.coordinates[1].imaginary).to.eql(new Weight(2));
-            expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(true);
+            expect(res.coordinates[1].real).to.eql(new Weight(2, false));
+            expect(res.coordinates[1].real.strictlyPositive).to.eql(false);
+            expect(res.coordinates[1].imaginary).to.eql(new Weight(2, false));
+            expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(false);
         });
 
         it(`can subtract two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
@@ -386,14 +387,14 @@ describe('ProjectiveComplexVectorSpace', () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(1.5)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(1, false), imaginary: new Weight(1.5, false)}]};
-            expect(() => projectiveVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+            expect(() => projectiveVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
 
         it(`cannot subtract two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllStrictlyPositiveWeights} when both vectors have a complex weight with positive weight management`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(1.5, false)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(1, false), imaginary: new Weight(1.5, false)}]};
-            expect(() => projectiveVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+            expect(() => projectiveVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
 
         it('cannot subtract two ProjectiveComplexVectors of same dimension if one vector has not the same weight positivity management for real and imaginary weights', () => {
@@ -421,20 +422,20 @@ describe('ProjectiveComplexVectorSpace', () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(2, false), imaginary: new Weight(0.5, false)}]};
-            expect(() => projectiveVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL)
+            expect(() => projectiveVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS)
         });
 
         it(`cannot subtract two ProjectiveComplexVectors of same dimension producing a negative imaginary weight with weight management ${WeightManagement.AllPositiveWeights}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2, false), imaginary: new Weight(0, false)}]};
-            const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight(1.5)}]};
+            const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(DEFAULT_WEIGHT_VALUE, false), imaginary: new Weight(1.5, false)}]};
             expect(() => projectiveVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY)
         });
 
         it(`cannot subtract two ProjectiveComplexVectors of same dimension producing negative real and imaginary weights with weight management ${WeightManagement.AllPositiveWeights}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2, false), imaginary: new Weight(0, false)}]};
-            const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(3), imaginary: new Weight(1.5)}]};
+            const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(3, false), imaginary: new Weight(1.5, false)}]};
             expect(() => projectiveVectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY)
         });
 
@@ -455,14 +456,14 @@ describe('ProjectiveComplexVectorSpace', () => {
 
         it(`can subtract two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllPositiveWeights} and one complex real weight smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
-            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(NULL_WEIGHT_TOLERANCE / 2), imaginary: new Weight(2)}]};
+            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(NULL_WEIGHT_TOLERANCE / 2, false), imaginary: new Weight(2, false)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0.5, false)}]};
             const res = projectiveVectorSpace.subtractRaw(vec1, vec2);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
             expect(res.coordinates[0].real).to.eql(0);
             expect(res.coordinates[0].imaginary).to.eql(1);
             expect(res.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-            expect(res.coordinates[1].real).to.eql(new Weight(0, false));
+            expect(res.coordinates[1].real).to.eql(new Weight(NULL_WEIGHT_TOLERANCE / 2, false));
             expect(res.coordinates[1].real.strictlyPositive).to.eql(false);
             expect(res.coordinates[1].imaginary).to.eql(new Weight(1.5, false));
             expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(false);
@@ -470,7 +471,7 @@ describe('ProjectiveComplexVectorSpace', () => {
 
         it(`can subtract two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllPositiveWeights} and one complex imaginary weight smaller than ${NULL_WEIGHT_TOLERANCE}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
-            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(NULL_WEIGHT_TOLERANCE / 2)}]};
+            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2, false), imaginary: new Weight(NULL_WEIGHT_TOLERANCE / 2, false)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(1, false), imaginary: new Weight(0, false)}]};
             const res = projectiveVectorSpace.subtractRaw(vec1, vec2);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
@@ -479,23 +480,23 @@ describe('ProjectiveComplexVectorSpace', () => {
             expect(res.coordinates[1].type).to.eql(COMPLEXWEIGHT);
             expect(res.coordinates[1].real).to.eql(new Weight(1, false));
             expect(res.coordinates[1].real.strictlyPositive).to.eql(false);
-            expect(res.coordinates[1].imaginary).to.eql(new Weight(0, false));
+            expect(res.coordinates[1].imaginary).to.eql(new Weight(NULL_WEIGHT_TOLERANCE / 2, false));
             expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(false);
         });
 
         it(`can subtract two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllPositiveWeights} and one null complex weight`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
-            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(2)}]};
+            const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2, false), imaginary: new Weight(2, false)}]};
             const vec2: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 1}, {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)}]};
             const res = projectiveVectorSpace.subtractRaw(vec1, vec2);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
             expect(res.coordinates[0].real).to.eql(0);
             expect(res.coordinates[0].imaginary).to.eql(1);
             expect(res.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-            expect(res.coordinates[1].real).to.eql(new Weight(2));
-            expect(res.coordinates[1].real.strictlyPositive).to.eql(true);
-            expect(res.coordinates[1].imaginary).to.eql(new Weight(2));
-            expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(true);
+            expect(res.coordinates[1].real).to.eql(new Weight(2, false));
+            expect(res.coordinates[1].real.strictlyPositive).to.eql(false);
+            expect(res.coordinates[1].imaginary).to.eql(new Weight(2, false));
+            expect(res.coordinates[1].imaginary.strictlyPositive).to.eql(false);
         });
 
         it(`can subtract two ProjectiveComplexVectors of same dimension with weight management ${WeightManagement.AllPositiveWeights} and one null real weight and one null imaginary weight`, () => {
@@ -603,7 +604,7 @@ describe('ProjectiveComplexVectorSpace', () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(3)}]};
             const scaleFactor: IComplex = {type: COMPLEX, real: 0, imaginary: 0};
-            expect(() => projectiveVectorSpace.scaleRaw(scaleFactor, vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+            expect(() => projectiveVectorSpace.scaleRaw(scaleFactor, vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
 
         it(`can scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllPositiveWeights} producing some null weight based on ${NULL_WEIGHT_TOLERANCE}`, () => {
@@ -646,7 +647,7 @@ describe('ProjectiveComplexVectorSpace', () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2, false), imaginary: new Weight(0, false)}]};
             const scaleFactor = 2;
-            expect(() => projectiveVectorSpace.scaleRaw(scaleFactor, vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+            expect(() => projectiveVectorSpace.scaleRaw(scaleFactor, vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
 
         it(`can clone a ProjectiveComplexVector with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
@@ -733,13 +734,13 @@ describe('ProjectiveComplexVectorSpace', () => {
         it(`cannot generate the image of ${PROJECTIVECOMPLEXVECTOR1D} vector into the Complex vector space ${COMPLEX} with weight management ${WeightManagement.AllStrictlyPositiveWeights} if positivity condition exists for real weight`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             let vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(3, false)}]};
-            expect(() => projectiveVectorSpace.fromProjectiveComplexVectorSpaceToComplexVectorSpace(vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+            expect(() => projectiveVectorSpace.fromProjectiveComplexVectorSpaceToComplexVectorSpace(vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
 
         it(`cannot generate the image of ${PROJECTIVECOMPLEXVECTOR1D} vector into the Complex vector space ${COMPLEX} with weight management ${WeightManagement.AllStrictlyPositiveWeights} if positivity condition exists for imaginary weight`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             let vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(3, false), imaginary: new Weight(0, false)}]};
-            expect(() => projectiveVectorSpace.fromProjectiveComplexVectorSpaceToComplexVectorSpace(vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE);
+            expect(() => projectiveVectorSpace.fromProjectiveComplexVectorSpaceToComplexVectorSpace(vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
 
         // const PROJECTIVECOMPLEXVECTOR2D = 'ProjectiveComplexVector2D';

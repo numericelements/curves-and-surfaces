@@ -215,7 +215,7 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector1.vectorSpace.isDefault).to.eql(false);
             const string = complexVector1.toString();
-            expect(string).to.eql(COMPLEXVECTOR2D + `(${complex1.real}, ${complex1.imaginary}, ${complex2.real}, ${complex2.imaginary})`);
+            expect(string).to.eql(COMPLEXVECTOR2D + `(${complex1.toString()}, ${complex2.toString()})`);
         });
 
         it(`cannot normalize a complex vector because this method does not exist for complex vector space 2D`, () => {

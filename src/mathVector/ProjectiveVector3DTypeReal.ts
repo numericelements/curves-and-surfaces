@@ -92,15 +92,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
     // }
     
     normalize(): ProjectiveVector3DTypeReal {
-        const w = this.weight.value;
-        if (w === 0) return this.clone() as ProjectiveVector3DTypeReal;
-        
-        return new ProjectiveVector3DTypeReal(
-            this.data.coordinates[0] / w,
-            this.data.coordinates[1] / w,
-            this.data.coordinates[2] / w,
-            new Weight(DEFAULT_WEIGHT_VALUE)
-        );
+        return super.normalize() as ProjectiveVector3DTypeReal;
     }
     
     toCartesian(): Vector3DTypeReal {
@@ -110,6 +102,10 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
             normalized.data.coordinates[1],
             normalized.data.coordinates[2]
         );
+    }
+
+    toString(): string {
+        return this.vectorType + `(${this.data.coordinates[0]}, ${this.data.coordinates[1]}, ${this.data.coordinates[2]}, ${this.weight.toString()})`;
     }
     
     clone(): ProjectiveVector3DTypeReal {

@@ -1,6 +1,7 @@
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { addComplexUsingDescriptors, addComplexWeightsUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors, subtractComplexWeightsUsingDescriptors } from "./ComplexNumberFactory";
+import { ComplexWeight } from "./ComplexWeight";
 import { ProjectiveComplexVectorSpaceStrategy } from "./ProjectiveComplexVectorSpace";
 import { IComplex, COMPLEX, ComplexVector1D, IComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveComplexVector1D, Real, } from "./VectorSpaceConstructorInterface";
 import { isVector1D, isVector2D } from "./VectorSpaceUtilities";
@@ -53,22 +54,38 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
     }
 
     add(a: ProjectiveComplexVector, b: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector1D {
-        if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
+        if(isVector2D(a) && isVector2D(b)) {
+            const complexWa = new ComplexWeight(a.coordinates[1].real, a.coordinates[1].imaginary);
+            const complexWb = new ComplexWeight(b.coordinates[1].real, b.coordinates[1].imaginary);
+            const sumWeights = weightManager.addComplexWeights(complexWa, complexWb);
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
                 addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-                addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1])]
+                {type: COMPLEXWEIGHT, real: sumWeights.real, imaginary: sumWeights.imaginary}]
             };
-        } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
-            const complexWeight = addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
-            if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
-                complexWeight.real = new Weight(complexWeight.real.value, false);
-            } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
-                complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
-            }
-            return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-                addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-                complexWeight]
-            };
+        // if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
+        //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
+        //         addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
+        //         addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1])]
+        //     };
+        // } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
+        //     const complexWeight = addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
+        //     complexWeight.real = new Weight(complexWeight.real.value, false);
+        //     complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
+        //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
+        //         addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
+        //         complexWeight]
+        //     };
+        // } else if(weightManager.weightManagement === WeightManagement.SomeNullWeights) {
+        //     const complexWeight = addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
+        //     if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
+        //         complexWeight.real = new Weight(complexWeight.real.value, false);
+        //     } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
+        //         complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
+        //     }
+        //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
+        //         addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
+        //         complexWeight]
+        //     };
         } else {
             throw new RangeError();
         }
@@ -114,22 +131,31 @@ export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplex
     }
 
     subtract(a: ProjectiveComplexVector, b: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
-        if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
+        if(isVector2D(a) && isVector2D(b)) {
+            const complexWa = new ComplexWeight(a.coordinates[1].real, a.coordinates[1].imaginary);
+            const complexWb = new ComplexWeight(b.coordinates[1].real, b.coordinates[1].imaginary);
+            const sumWeights = weightManager.subtractComplexWeights(complexWa, complexWb);
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
                 subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-                subtractComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1])]
+                {type: COMPLEXWEIGHT, real: sumWeights.real, imaginary: sumWeights.imaginary}]
             };
-        } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
-            const complexWeight = subtractComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
-            if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
-                complexWeight.real = new Weight(complexWeight.real.value, false);
-            } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
-                complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
-            }
-            return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-                subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-                complexWeight]
-            };
+        
+        // if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
+        //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
+        //         subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
+        //         subtractComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1])]
+        //     };
+        // } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
+        //     const complexWeight = subtractComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
+        //     if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
+        //         complexWeight.real = new Weight(complexWeight.real.value, false);
+        //     } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
+        //         complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
+        //     }
+        //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
+        //         subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
+        //         complexWeight]
+        //     };
         } else {
             throw new RangeError();
         }

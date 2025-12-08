@@ -24,12 +24,12 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
 
     abstract get descriptor(): ProjectiveVector;
     abstract get weight(): Weight;
-    abstract get homogeneousCoordinates(): (number | IComplex)[];
+    abstract get homogeneousCoordinates(): number[];
     abstract getCoordinate(index: number): number;
     // abstract setCoordinate(index: number, value: number): void;
-    abstract normalize(): IProjectiveVector;
     abstract clone(): IProjectiveVector;
     abstract toCartesian(): IRealVector | IComplexVector;
+    abstract toString(): string;
 
     checkValidityWeightStatus(weightOrVSpace: Weight, vectorSpace: ProjectiveVectorSpace<any>): boolean {
         let strictlyPosWeight = true;
@@ -76,10 +76,12 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
         return super.revert() as IProjectiveVector;
     }
 
+    normalize(): IProjectiveVector {
+        return super.normalize() as IProjectiveVector;
+    }
+
     toArray(): number[] {
-        return this.homogeneousCoordinates.map(coord => 
-            typeof coord === 'number' ? coord : coord.real
-        );
+        return this.homogeneousCoordinates;
     }
 
     equals(other: IProjectiveVector, tolerance?: number): boolean {

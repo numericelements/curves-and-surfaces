@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { PROJECTIVEVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
-import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_NORM_TOO_SMALL, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { Weight } from "../../src/mathVector/Weight";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
@@ -12,6 +12,8 @@ import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessa
 import { ProjectiveVector3DTypeReal } from "../../src/mathVector/ProjectiveVector3DTypeReal";
 import { DEFAULT_WEIGHT } from "../../src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2";
 import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM } from "../../src/ErrorMessages/ProjectiveVectorSpace";
+import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
+import { EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT } from "../../src/ErrorMessages/WeightManager";
 
 describe('Projective vector 2D in real vector space: generation and operators in this vector space', () => {
     const dimension = 3;
@@ -409,7 +411,7 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
             const string = projectiveVector1.toString();
-            expect(string).to.eql(PROJECTIVEVECTOR2D + `(${coordinates[0]}, ${coordinates[1]}, ${DEFAULT_WEIGHT})`);
+            expect(string).to.eql(PROJECTIVEVECTOR2D + `(${coordinates[0]}, ${coordinates[1]}, ${new Weight().toString()})`);
         });
 
         it(`cannot check the equality of vectors of different dimensions `, () => {
@@ -436,6 +438,68 @@ describe('Projective vector 2D in real vector space: generation and operators in
             const vSpace1 = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
             const realVector2 = new ProjectiveVector3DTypeReal(coordinates[0], coordinates[1], 0, new Weight(), vSpace1);
             expect(() => projectiveVector1.isParallel(realVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
+        });
+
+        it(`cannot get a null norm with weight management ${WeightManagement.AllStrictlyPositiveWeights} because a null projective vector cannot be created`, () => {
+            const coordinates = [0, 0];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+            expect(() =>  new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(0, false), vSpace)).to.throw(EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
+        });
+
+        it(`can get a null norm with weight management ${WeightManagement.AllPositiveWeights}`, () => {
+            const coordinates = [0, 0];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            const projectiveVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(0, false), vSpace);
+            expect(projectiveVector1.dimension).to.eql(dimension);
+            expect(projectiveVector1.vectorType).to.eql(PROJECTIVEVECTOR2D);
+            expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projectiveVector1.norm()).to.be.eql(0);
+        });
+
+        it(`can get a null norm with weight management ${WeightManagement.SomeNullWeights}`, () => {
+            const coordinates = [0, 0];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+            const projectiveVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(0, false), vSpace);
+            expect(projectiveVector1.dimension).to.eql(dimension);
+            expect(projectiveVector1.vectorType).to.eql(PROJECTIVEVECTOR2D);
+            expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projectiveVector1.norm()).to.be.eql(0);
+        });
+
+        it(`cannot normalize a vector with a norm smaller than ${NULL_WEIGHT_TOLERANCE} and weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+            const coordinates = [0, 0];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+            const projectiveVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(NULL_WEIGHT_TOLERANCE / 2), vSpace);
+            expect(projectiveVector1.dimension).to.eql(dimension);
+            expect(projectiveVector1.vectorType).to.eql(PROJECTIVEVECTOR2D);
+            expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projectiveVector1.norm()).to.be.lessThan(TOLERANCE_FLOAT);
+            expect(() => projectiveVector1.normalize()).to.throw(EM_NORM_TOO_SMALL);
+        });
+
+        it(`cannot normalize a vector with a norm smaller than ${NULL_WEIGHT_TOLERANCE} and weight management ${WeightManagement.AllPositiveWeights}`, () => {
+            const coordinates = [0, 0];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            const projectiveVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(NULL_WEIGHT_TOLERANCE / 2, false), vSpace);
+            expect(projectiveVector1.dimension).to.eql(dimension);
+            expect(projectiveVector1.vectorType).to.eql(PROJECTIVEVECTOR2D);
+            expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
+            expect(() => projectiveVector1.normalize()).to.throw(EM_NORM_TOO_SMALL);
+        });
+
+        it(`cannot normalize a vector with a norm smaller than ${NULL_WEIGHT_TOLERANCE} and weight management ${WeightManagement.SomeNullWeights}`, () => {
+            const coordinates = [0, 0];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+            const projectiveVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(NULL_WEIGHT_TOLERANCE / 2, false), vSpace);
+            expect(projectiveVector1.dimension).to.eql(dimension);
+            expect(projectiveVector1.vectorType).to.eql(PROJECTIVEVECTOR2D);
+            expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
+            expect(() => projectiveVector1.normalize()).to.throw(EM_NORM_TOO_SMALL);
         });
     });
 });

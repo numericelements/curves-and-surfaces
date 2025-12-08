@@ -23,7 +23,6 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
     abstract get coordinates(): number[];
 
     abstract getCoordinate(index: number): number;
-    // abstract setCoordinate(index: number, value: number): void;
     abstract clone(): IRealVector;
     
     // Override with more specific types
@@ -35,9 +34,6 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
         return super.subtract(other) as IRealVector;
     }
 
-    // scale(scalar: number): IRealVector {
-    //     return super.scale(scalar) as IRealVector;
-    // }
     scale(scalar: number): IRealVector {
         const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
         return this.createVectorFromRaw(result);
@@ -53,6 +49,10 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
 
     toArray(): number[] {
         return this.coordinates;
+    }
+
+    toString(): string {
+        return this.vectorType + `(${this.toArray().join(', ')})`;
     }
 
     equals(other: IRealVector, tolerance?: number): boolean {

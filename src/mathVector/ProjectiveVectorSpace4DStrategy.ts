@@ -84,9 +84,9 @@ export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStr
     norm(v: ProjectiveVector): number {
         if(isVector4D(v)) {
             let result = 0;
-            for(let i = 0; i < v.coordinates.length - 2; i++) {
+            for(let i = 0; i < v.coordinates.length; i++) {
                 let component = 0;
-                if(v.coordinates[i] instanceof Weight) {
+                if(i === v.coordinates.length - 1) {
                     const weight = v.coordinates[i] as IWeight;
                     component = weight.weight.value;
                 } else {

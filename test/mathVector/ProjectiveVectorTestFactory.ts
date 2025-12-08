@@ -2,7 +2,7 @@ import { expect } from "chai";
 
 import { IProjectiveVector } from "../../src/mathVector/Vector";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
-import { ANGULAR_TOL_VECTOR, EM_NORM_TOO_SMALL, EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_NORM_TOO_SMALL, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
@@ -389,9 +389,9 @@ export function createCommonProjectiveVectorTests(
                 expect(result.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE + NULL_WEIGHT_TOLERANCE / 2, false));
             });
 
-            it(`can add vectors with different weight statuses under ${WeightManagement.AllPositiveWeights} weight management and get a resulting vector with weight status strictly positive: false`, () => {
+            it(`cannot add vectors with different weight statuses under ${WeightManagement.AllPositiveWeights} weight management and get a resulting vector with weight status strictly positive: false`, () => {
                 const coordinates = [1, -3, 5, 7];
-                const smallWeight = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+                const smallWeight = new Weight(NULL_WEIGHT_TOLERANCE / 2);
                 const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
                 const projRealVector1 = createTestProjectiveVector(dimension, vSpace, undefined, defaultPositiveWeight);
                 expect(projRealVector1.dimension).to.eql(dimension);
@@ -399,17 +399,7 @@ export function createCommonProjectiveVectorTests(
                 expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
                 expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
                 expect(projRealVector1.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE, false));
-                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates, smallWeight);
-                expect(projRealVector2.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
-                const result = projRealVector1.add(projRealVector2);
-                for (let i = 0; i < dimension - 1; i++) {
-                    expect(result.getCoordinate(i)).to.eql(coordinates[i] + defaultCoordinates[i]);
-                }
-                expect(result.getCoordinate(dimension - 1)).to.eql(defaultWeight.value + NULL_WEIGHT_TOLERANCE / 2);
-                expect(result.vectorSpace).to.eql(projRealVector1.vectorSpace);
-                expect(result.vectorSpace.isDefault).to.eql(true);
-                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
-                expect(result.weight).to.eql(new Weight(DEFAULT_WEIGHT_VALUE + NULL_WEIGHT_TOLERANCE / 2, false));
+                expect(() => createTestProjectiveVector(dimension, vSpace, coordinates, smallWeight)).to.throw(EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
             });
 
             it(`cannot add a vector with another vector of same dimension but belonging to another vector space`, () => {
@@ -601,6 +591,104 @@ export function createCommonProjectiveVectorTests(
                 expect(result.vectorSpace.isDefault).to.eql(false);
                 expect(result.weight.value).to.eql(0);
                 expect(result.weight.strictlyPositive).to.eql(false);
+            });
+
+            it(`can compute the norm of a vector with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(projRealVector1.norm()).to.be.greaterThan(0);
+            });
+
+            it(`can compute the norm of a vector with weight management ${WeightManagement.AllPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(projRealVector1.norm()).to.be.greaterThan(0);
+            });
+
+            it(`can compute the norm of a vector with weight management ${WeightManagement.SomeNullWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                expect(projRealVector1.norm()).to.be.greaterThan(0);
+            });
+
+            it(`can normalize a vector with weight management ${WeightManagement.AllStrictlyPositiveWeights} and a norm greater than ${NULL_WEIGHT_TOLERANCE}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(projRealVector1.norm()).to.be.greaterThan(NULL_WEIGHT_TOLERANCE);
+                const result = projRealVector1.normalize();
+                expect(result.norm()).to.be.closeTo(1, TOLERANCE_FLOAT);
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(result.vectorSpace.isDefault).to.eql(false);
+                expect(result.weight.strictlyPositive).to.eql(true);
+            });
+
+            it(`can normalize a vector with weight management ${WeightManagement.AllPositiveWeights} and a norm greater than ${NULL_WEIGHT_TOLERANCE}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(projRealVector1.norm()).to.be.greaterThan(NULL_WEIGHT_TOLERANCE);
+                const result = projRealVector1.normalize();
+                expect(result.norm()).to.be.closeTo(1, TOLERANCE_FLOAT);
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(result.vectorSpace.isDefault).to.eql(false);
+                expect(result.weight.strictlyPositive).to.eql(false);
+            });
+
+            it(`can normalize a vector with weight management ${WeightManagement.SomeNullWeights} and a norm greater than ${NULL_WEIGHT_TOLERANCE} and strictlyPositive weight status false`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                expect(projRealVector1.norm()).to.be.greaterThan(NULL_WEIGHT_TOLERANCE);
+                const result = projRealVector1.normalize();
+                expect(result.norm()).to.be.closeTo(1, TOLERANCE_FLOAT);
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                expect(result.vectorSpace.isDefault).to.eql(false);
+                expect(result.weight.strictlyPositive).to.eql(false);
+            });
+
+            it(`can normalize a vector with weight management ${WeightManagement.SomeNullWeights} and a norm greater than ${NULL_WEIGHT_TOLERANCE} and strictlyPositive weight status true`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                expect(projRealVector1.norm()).to.be.greaterThan(NULL_WEIGHT_TOLERANCE);
+                const result = projRealVector1.normalize();
+                expect(result.norm()).to.be.closeTo(1, TOLERANCE_FLOAT);
+                expect(result.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(result.dimension).to.eql(dimension);
+                expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+                expect(result.vectorSpace.isDefault).to.eql(false);
+                expect(result.weight.strictlyPositive).to.eql(true);
             });
         });
     });

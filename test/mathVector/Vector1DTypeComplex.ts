@@ -203,7 +203,7 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector1.vectorSpace.isDefault).to.eql(false);
             const string = complexVector1.toString();
-            expect(string).to.eql(COMPLEXVECTOR1D + `(${coordinates[0]}, ${coordinates[1]})`);
+            expect(string).to.eql(COMPLEXVECTOR1D + `(${new Complex(coordinates[0], coordinates[1]).toString()})`);
         });
 
         it(`cannot check the equality of vectors of different dimensions `, () => {
@@ -330,7 +330,7 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
         });
 
         it(`can check that two angularly different vectors are not parallel to each other within the default angular tolerance`, () => {
-            const coordinates = [1, 2];
+            const coordinates = [0, 2];
             const vSpace = new ComplexVectorSpace(dimension);
             const complexVector1 = new Vector1DTypeComplex(coordinates[0], coordinates[1], vSpace);
             expect(complexVector1.dimension).to.eql(dimension);

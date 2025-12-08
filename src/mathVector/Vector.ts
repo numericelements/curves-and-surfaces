@@ -2,6 +2,7 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { Complex } from "./Complex";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
+import { ComplexWeight } from "./ComplexWeight";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
 import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
@@ -130,7 +131,7 @@ export interface IProjectiveVector extends IVector {
 
 export interface IProjectiveComplexVector extends IVector {
     readonly vectorSpace: ProjectiveComplexVectorSpace<any>;
-    readonly weight: Weight | IComplexWeight;
+    readonly weight: ComplexWeight;
     readonly homogeneousCoordinates: (number | IComplex)[];
     getCoordinate(index: number): Complex;
     // setCoordinate(index: number, value: Complex): void;

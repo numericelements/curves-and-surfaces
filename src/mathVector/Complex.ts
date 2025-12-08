@@ -20,7 +20,7 @@ export class Complex {
     }
 
     toString(): string {
-        return `(${this._real} , ${this._imaginary}i)`;
+        return COMPLEX + `(${this._real} , i ${this._imaginary})`;
     }
 
     toDescriptor(): IComplex {

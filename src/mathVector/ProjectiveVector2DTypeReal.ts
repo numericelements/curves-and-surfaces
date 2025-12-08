@@ -90,14 +90,11 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
     // }
     
     normalize(): ProjectiveVector2DTypeReal {
-        const w = this.weight.value;
-        if (w === 0) return this.clone() as ProjectiveVector2DTypeReal;
-        
-        return new ProjectiveVector2DTypeReal(
-            this.data.coordinates[0] / w,
-            this.data.coordinates[1] / w,
-            new Weight(DEFAULT_WEIGHT_VALUE)
-        );
+        return super.normalize() as ProjectiveVector2DTypeReal;
+    }
+
+    toString(): string {
+        return this.vectorType + `(${this.data.coordinates[0]}, ${this.data.coordinates[1]}, ${this.weight.toString()})`;
     }
     
     toCartesian(): Vector2DTypeReal {
