@@ -3,7 +3,7 @@ import { ComplexWeight } from "../../src/mathVector/ComplexWeight";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT } from "../../src/ErrorMessages/ComplexWeight";
-import { COMPLEXWEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
 
 describe('ComplexWeight', () => {
 

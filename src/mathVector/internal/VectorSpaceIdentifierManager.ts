@@ -6,7 +6,7 @@ import { ComplexVectorSpace } from "../ComplexVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
 import { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
 import { RealVectorSpace } from "../RealVectorSpace";
-import { IdentifiableVectorSpace } from "../VectorSpaceConstructorInterface";
+import { IdentifiableVectorSpace } from "../Vector";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 
 

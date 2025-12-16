@@ -8,16 +8,18 @@ import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { ProjectiveComplexVectorSpace2DStrategy } from "./ProjectiveComplexVectorSpace2DStrategy";
 import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
-import { IVector } from "./Vector";
-import { COMPLEX, IComplex, ComplexVector1D, COMPLEXWEIGHT, IComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveComplexVectorOfDimension, PROJECTIVEVECTOR3D, Real, VectorSpace } from "./VectorSpaceConstructorInterface";
-import { VectorSpaceIdentifierManager } from "./internal/VectorSpaceIdentifierManager";
+import { IdentifiableVectorSpace, IVector } from "./Vector";
+import { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, Real } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
-import { DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
+import { DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 import { PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
+import { PROJECTIVECOMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
 
 // Strategy interface
 export interface ProjectiveComplexVectorSpaceStrategy<D extends number> {
@@ -330,6 +332,10 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
             const error = sendRangeErrorMessage(this.constructor.name, 'clone', EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
             throw new RangeError(error.generateMessageString());
         }
+    }
+
+    toString(): string {
+        return `${this._name} [ID: ${this._id}]`;
     }
 
     fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector: ProjectiveComplexVector): ComplexVector1D {

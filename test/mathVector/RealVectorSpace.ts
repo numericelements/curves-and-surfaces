@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../src/namedConstants/RealVectorSpace";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../../src/ErrorMessages/RealVectorSpace";
-import { COMPLEX, ComplexVector, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, RealVector1D, REALVECTOR2D, RealVector2D, REALVECTOR3D, RealVector3D, REALVECTOR4D, RealVector4D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ComplexVector, ProjectiveVector, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { isVector1D, isVector2D, isVector3D, isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
 import { Weight } from "../../src/mathVector/Weight";
 import { createCommonRealVectorSpaceTests } from "./RealVectorSpaceTestFactory";
@@ -12,6 +12,9 @@ import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVector
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
 import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdentifierManager";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
+import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
 
 describe('RealVectorSpace', () => {
 
@@ -160,6 +163,15 @@ describe('RealVectorSpace', () => {
                 MAX_DIMENSION_REALVECTORSPACE,
                 REALVECTOR4D
             );
+        });
+
+        it('can get the description of a real vector space as a string', () => {
+            for( const dim of [MIN_DIMENSION_REALVECTORSPACE, 2, 3, MAX_DIMENSION_REALVECTORSPACE]) {
+                const realVectorSpace = new RealVectorSpace(dim);
+                expect(realVectorSpace.toString()).to.eql(`${realVectorSpace.name} [ID: ${realVectorSpace.id}]`);
+                expect(realVectorSpace.toString().includes(realVectorSpace.name)).to.eql(true);
+                expect(realVectorSpace.toString().includes(realVectorSpace.id)).to.eql(true);
+            }
         });
 
         it('can check if two RealVectors of different coordinates are of same dimension 1D', () => {

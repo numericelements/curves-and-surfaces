@@ -1,0 +1,2 @@
+export const EM_WEIGHT_TOO_SMALL = `The weight value is smaller than the minimum weight value. Cannot accurately transform the projective vector into a real one.`;
+export const EM_REVERT_NOT_APPLICABLE = `The revert operator is not applicable into projective vector space because it would produce negative weights that would be incompatible with all the weight managements available.`;

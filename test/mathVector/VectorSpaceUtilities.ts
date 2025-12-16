@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { COMPLEX, COMPLEXVECTOR2D, COMPLEXWEIGHT, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector1D, RealVector2D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Vector, Vector1D, Vector2D, Vector3D, Vector4D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { RealVector1D, Vector1D, Vector2D, Vector3D, Vector4D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { areSameVSpaceAndDimension, isComplexVector, isProjectiveComplexVector, isProjectiveVector, isRealVector, isVector1D, isVector2D, isVector3D, isVector4D, sendRangeErrorMessage } from "../../src/mathVector/VectorSpaceUtilities";
 import { Weight } from "../../src/mathVector/Weight";
 import { ErrorLog } from "../../src/errorProcessing/ErrorLoging";
@@ -7,6 +7,9 @@ import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "..
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../src/namedConstants/ProjectiveComplexVectorSpace";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
+import { COMPLEXWEIGHT, WEIGHT } from "../../src/namedConstants/WeightTypeTags";
 
 describe('isVector1D', () => {
 

@@ -10,36 +10,14 @@ import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
 import { RealVectorSpace2DStrategy } from "./RealVectorSpace2DStrategy";
 import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
 import { RealVectorSpace4DStrategy } from "./RealVectorSpace4DStrategy";
-import { IVector } from "./Vector";
+import { IdentifiableVectorSpace, IVector } from "./Vector";
 import { Vector1DTypeReal } from "./Vector1DTypeReal";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import { Vector4DTypeReal } from "./Vector4DTypeReal";
-import { VectorInVectorSpace } from "./VectorInVectorSpace";
-import { IComplex, ComplexVector, IdentifiableVectorSpace, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, RealVectorOfDimension, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { ComplexVector, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
-
-/**
- * Enhanced VectorSpace interface that can work with IVector instances
- */
-export interface EnhancedVectorSpace<K extends Scalar, V extends Vector> extends VectorSpace<K, V> {
-    // Original methods working with raw vectors
-    addRaw(a: V, b: V): V;
-    subtractRaw(a: V, b: V): V;
-    scaleRaw(scalar: K, v: V): V;
-    
-    // New methods working with IVector instances
-    addVectors(a: IVector, b: IVector): IVector;
-    subtractVectors(a: IVector, b: IVector): IVector;
-    scaleVector(scalar: K, v: IVector): IVector;
-    
-    // Factory method for creating vector instances
-    createVectorInstance(raw: V): IVector;
-    createVectorFromCoordinates(coords: (number | IComplex)[]): IVector;
-}
-
-
 
 /**
  * Implementation of a real vector space
@@ -146,18 +124,18 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
      * @param coordinates - Vector coordinates
      * @returns VectorInVectorSpace instance for fluent operations
      */
-    createVectorInVectorSpace(coordinates: Real[]): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
-        const vector = this.createVector(coordinates);
-        return this.bindVector(vector);
-    }
+    // createVectorInVectorSpace(coordinates: Real[]): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
+    //     const vector = this.createVector(coordinates);
+    //     return this.bindVector(vector);
+    // }
 
 
     /**
      * Creates multiple bound vectors at once
      */
-    createVectorsInVectorSpace(...coordinateSets: Real[][]): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>>[] {
-        return coordinateSets.map(coords => this.createVectorInVectorSpace(coords));
-    }
+    // createVectorsInVectorSpace(...coordinateSets: Real[][]): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>>[] {
+    //     return coordinateSets.map(coords => this.createVectorInVectorSpace(coords));
+    // }
 
     /**
      * Binds an existing vector to this vector space
@@ -170,21 +148,21 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
     // bindVector(vector: RealVector2D): VectorInVectorSpace<Real, RealVector2D, RealVectorSpace<2>>;
     // bindVector(vector: RealVector3D): VectorInVectorSpace<Real, RealVector3D, RealVectorSpace<3>>;
     // bindVector(vector: RealVector4D): VectorInVectorSpace<Real, RealVector4D, RealVectorSpace<4>>;
-    bindVector(vector: RealVectorOfDimension<D>): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
-        if (!this.isInVectorSpace(vector)) {
-            const message = sendRangeErrorMessage(this.constructor.name, 'bindVector', EM_REALVECTOR_NOT_IN_VECTORSPACE);
-            throw new RangeError(message.generateMessageString());
-        }
-        return new VectorInVectorSpace(this.createVectorInstance(vector), this as any);
-    }
+    // bindVector(vector: RealVectorOfDimension<D>): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
+    //     if (!this.isInVectorSpace(vector)) {
+    //         const message = sendRangeErrorMessage(this.constructor.name, 'bindVector', EM_REALVECTOR_NOT_IN_VECTORSPACE);
+    //         throw new RangeError(message.generateMessageString());
+    //     }
+    //     return new VectorInVectorSpace(this.createVectorInstance(vector), this as any);
+    // }
 
     defaultVect(): RealVectorOfDimension<D> {
         return this.strategy.defaultVect();
     }
 
-    defaultVectInVectorSpace(): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
-        return new VectorInVectorSpace(this.createVectorInstance(this.strategy.defaultVect()), this);
-    }
+    // defaultVectInVectorSpace(): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
+    //     return new VectorInVectorSpace(this.createVectorInstance(this.strategy.defaultVect()), this);
+    // }
 
     // Validation methods
     private validateVectorCompatibility(a: IVector, b: IVector): void {

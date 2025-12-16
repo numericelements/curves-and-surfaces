@@ -1,10 +1,13 @@
 import { EM_VECTOR_COORDINATE_TYPE_INCONSISTENT } from "../ErrorMessages/ComplexVectors";
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { COMPLEXVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { AbstractComplexVector } from "./AbstractComplexVector";
 import { Complex } from "./Complex";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
-import { IComplex, COMPLEX, COMPLEXVECTOR2D, ComplexVector2D } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 2;
@@ -97,12 +100,6 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
         return new Complex(this.data.coordinates[index].real, this.data.coordinates[index].imaginary);
     }
     
-    // setCoordinate(index: number, value: IComplex): void {
-    //     if (index < 0 || index >= 2) throw new RangeError('Coordinate index out of bounds');
-    //     this.data.coordinates[index] = value;
-    // }
-    
-    // get coordinates(): Complex[] { return [...this.data.coordinates]; }
     get coordinates(): Complex[] { 
         let result: Complex[] = [];
         for (let i = 0; i < this.dimension; i++) {
@@ -112,8 +109,35 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
     }; 
     get descriptor(): ComplexVector2D { return this.data; }
     
+    add(other: Vector2DTypeComplex): Vector2DTypeComplex {
+        return super.add(other) as Vector2DTypeComplex;
+    }
+
+    subtract(other: Vector2DTypeComplex): Vector2DTypeComplex {
+        return super.subtract(other) as Vector2DTypeComplex;
+    }
+
+    dot(other: Vector2DTypeComplex): number {
+        const error = sendRangeErrorMessage(this.constructor.name, 'dot', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
+    }
+
+    equals(other: Vector2DTypeComplex, tolerance?: number): boolean {
+        return super.equals(other, tolerance);
+    }
+
+    isParallel(other: Vector2DTypeComplex, angularTolerance?: number): boolean {
+        const error = sendRangeErrorMessage(this.constructor.name, 'isParallel', EM_TRANSFORMATION_NOT_AVAILABLE);
+        throw new RangeError(error.generateMessageString());
+    }
+
+    isOrthogonal(other: Vector2DTypeComplex, angularTolerance?: number): boolean {
+        const error = sendRangeErrorMessage(this.constructor.name, 'isOrthogonal', EM_TRANSFORMATION_NOT_AVAILABLE);
+        throw new RangeError(error.generateMessageString());
+    }
+    
     toString(): string {
-        return this.vectorType + `(${this.coordinates[0].toString()}, ${this.coordinates[1].toString()})`;
+        return this.vectorType + `(${this.coordinates[0].toString()}, ${this.coordinates[1].toString()})` + ` ` + this._vectorSpace.toString();
     }
 
     clone(): Vector2DTypeComplex {

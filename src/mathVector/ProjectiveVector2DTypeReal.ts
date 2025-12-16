@@ -1,12 +1,15 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { PROJECTIVEVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
+import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { RealVectorSpace } from "./RealVectorSpace";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
-import { PROJECTIVEVECTOR2D, ProjectiveVector2D, WEIGHT } from "./VectorSpaceConstructorInterface";
+import { ProjectiveVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -79,30 +82,37 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
         if (index === SPACE_DIMENSION - 1) return this.data.coordinates[2].weight.value;
         return this.data.coordinates[index] as number;
     }
-    
-    // setCoordinate(index: number, value: number): void {
-    //     if (index < 0 || index >= SPACE_DIMENSION) throw new RangeError('Coordinate index out of bounds');
-    //     if (index === 2) {
-    //         this.data.coordinates[2].value = new Weight(value);
-    //     } else {
-    //         this.data.coordinates[index] = value;
-    //     }
-    // }
-    
-    normalize(): ProjectiveVector2DTypeReal {
-        return super.normalize() as ProjectiveVector2DTypeReal;
+
+    add(other: ProjectiveVector2DTypeReal): ProjectiveVector2DTypeReal {
+        return super.add(other) as ProjectiveVector2DTypeReal;
+    }
+
+    subtract(other: ProjectiveVector2DTypeReal): ProjectiveVector2DTypeReal {
+        return super.subtract(other) as ProjectiveVector2DTypeReal;
     }
 
     toString(): string {
-        return this.vectorType + `(${this.data.coordinates[0]}, ${this.data.coordinates[1]}, ${this.weight.toString()})`;
+        return this.vectorType + `(${this.data.coordinates[0]}, ${this.data.coordinates[1]}, ${this.weight.toString()})` + ` ` + this._vectorSpace.toString();
+    }
+
+    equals(other: ProjectiveVector2DTypeReal, tolerance?: number): boolean {
+        return super.equals(other, tolerance);
+    }
+
+    isParallel(other: ProjectiveVector2DTypeReal, angularTolerance?: number): boolean {
+        return super.isParallel(other, angularTolerance);
+    }
+
+    isOrthogonal(other: ProjectiveVector2DTypeReal, angularTolerance?: number): boolean {
+        return super.isOrthogonal(other, angularTolerance);
     }
     
-    toCartesian(): Vector2DTypeReal {
-        const normalized = this.normalize();
-        return new Vector2DTypeReal(
-            normalized.data.coordinates[0],
-            normalized.data.coordinates[1]
-        );
+    toRealVector(realVSpace?: RealVectorSpace<2>): Vector2DTypeReal {
+        const realCoord = this.applyHomogeneousTransformation();
+        if (realVSpace !== undefined) {
+            return new Vector2DTypeReal(realCoord[0], realCoord[1], realVSpace);
+        }
+        return new Vector2DTypeReal(realCoord[0], realCoord[1]);
     }
     
     clone(): ProjectiveVector2DTypeReal {

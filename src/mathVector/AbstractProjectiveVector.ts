@@ -1,9 +1,11 @@
+import { EM_REVERT_NOT_APPLICABLE, EM_WEIGHT_TOO_SMALL } from "../ErrorMessages/ProjectiveVectors";
 import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM } from "../ErrorMessages/ProjectiveVectorSpace";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { RealVectorSpace } from "./RealVectorSpace";
 import { IComplexVector, IProjectiveVector, IRealVector, VectorFactory } from "./Vector";
 import { IComplex, ProjectiveVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
@@ -23,12 +25,12 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
     get w(): number { return this.getCoordinate(this.dimension - 1) };
 
     abstract get descriptor(): ProjectiveVector;
+    abstract get coordinates(): number[];
     abstract get weight(): Weight;
     abstract get homogeneousCoordinates(): number[];
     abstract getCoordinate(index: number): number;
-    // abstract setCoordinate(index: number, value: number): void;
     abstract clone(): IProjectiveVector;
-    abstract toCartesian(): IRealVector | IComplexVector;
+    abstract toRealVector(realVectorSpace?: RealVectorSpace<any>): IRealVector;
     abstract toString(): string;
 
     checkValidityWeightStatus(weightOrVSpace: Weight, vectorSpace: ProjectiveVectorSpace<any>): boolean {
@@ -55,6 +57,18 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
         }
         return strictlyPosWeight;
     }
+
+    applyHomogeneousTransformation(): number[] {
+        if(this.weight.value < NULL_WEIGHT_TOLERANCE) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'toVector2DReal', EM_WEIGHT_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+        const realCoordinates: number[] = [];
+        for (let i = 0; i < this._vectorSpace.dimension() - 1; i++) {
+            realCoordinates.push(this.coordinates[i] / this.coordinates[this._vectorSpace.dimension() - 1])
+        }
+        return realCoordinates;
+    }
     
     add(other: IProjectiveVector): IProjectiveVector {
         return super.add(other) as IProjectiveVector;
@@ -64,16 +78,14 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
         return super.subtract(other) as IProjectiveVector;
     }
 
-    // scale(scalar: number): IProjectiveVector {
-    //     return super.scale(scalar) as IProjectiveVector;
-    // }
     scale(scalar: number): IProjectiveVector {
         const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
         return this.createVectorFromRaw(result);
     }
 
     revert(): IProjectiveVector {
-        return super.revert() as IProjectiveVector;
+        const error = sendRangeErrorMessage(this.constructor.name, 'revert', EM_REVERT_NOT_APPLICABLE);
+        throw new RangeError(error.generateMessageString());
     }
 
     normalize(): IProjectiveVector {
@@ -85,20 +97,7 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
     }
 
     equals(other: IProjectiveVector, tolerance?: number): boolean {
-        if (this.dimension !== other.dimension) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
-            throw new RangeError(error.generateMessageString());
-        } else if(this._vectorSpace !== other.vectorSpace) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_VECTORS_DIFFERENT_VECTOR_SPACES);
-            throw new RangeError(error.generateMessageString());
-        }
-        if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
-        for (let i = 0; i < this.dimension; i++) {
-            if(this.getCoordinate(i) * other.getCoordinate(i) > 0 && Math.abs(this.getCoordinate(i) - other.getCoordinate(i)) > tolerance) {
-                return false;
-            }
-        }
-        return true;
+        return super.equals(other, tolerance);
     }
 
     isParallel(other: IProjectiveVector, tolerance?: number): boolean {

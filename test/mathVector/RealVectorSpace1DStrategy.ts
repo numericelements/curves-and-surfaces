@@ -1,10 +1,11 @@
 import { expect } from "chai";
 import { RealVectorSpace1DStrategy } from "../../src/mathVector/RealVectorSpace1DStrategy";
 import { createTestRealVector, vectorTypeReal } from "./RealVectorSpaceTestFactory";
-import { ProjectiveVector, PROJECTIVEVECTOR2D, REALVECTOR2D, RealVector2D, REALVECTOR3D, RealVector3D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { RealVector2D, RealVector3D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { isVector1D } from "../../src/mathVector/VectorSpaceUtilities";
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../../src/ErrorMessages/RealVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
+import { REALVECTOR2D, REALVECTOR3D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('RealVectorSpace1DStrategy', () => {
     

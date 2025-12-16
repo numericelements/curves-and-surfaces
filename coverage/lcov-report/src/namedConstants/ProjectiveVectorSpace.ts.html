@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>18/18</span>
+                <span class='fraction'>29/29</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>18/18</span>
+                <span class='fraction'>29/29</span>
             </div>
         
             
@@ -80,24 +80,46 @@
 <a name='L15'></a><a href='#L15'>15</a>
 <a name='L16'></a><a href='#L16'>16</a>
 <a name='L17'></a><a href='#L17'>17</a>
-<a name='L18'></a><a href='#L18'>18</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">10x</span></td><td class="text"><pre class="prettyprint lang-js">export const MIN_DIMENSION_PROJECTIVEVECTORSPACE = 3;
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-yes">8x</span></td><td class="text"><pre class="prettyprint lang-js">export const MIN_DIMENSION_PROJECTIVEVECTORSPACE = 3;
 export const MAX_DIMENSION_PROJECTIVEVECTORSPACE = 4;
 export const NULL_WEIGHT_TOLERANCE = 1e-10;
 &nbsp;
@@ -107,11 +129,22 @@ export enum WeightManagement {
      */
     AllStrictlyPositiveWeights = 'AllStrictlyPositiveWeights', 
     /**
-     * Some vectors in the projective vector space can have null weights, either user-defined or as a result of some computation.
+     * Some vectors in the projective vector space can have null weights.
+     * The user can prescribe a null weight when creating a vector to assign explicitly a non strictly positive weight specifically for the corresponding vector.
+     * Other null weight derive from the results of some computation using the null weight tolerance.
+     * In this case, user-prescribed null weights are considered as a positive weight with strictlyPositive set to false.
+     * Other strictly positive weights are considered as strictly positive weights with strictlyPositive set to true.
+     * As a result of some computations, some vectors can have strictly positive weights (with strictlyPositive set to true) 
+     * and other vectors can have null weights (with strictlyPositive set to false).
+     * This weight management option enables the user to precisely control the status of the weights of a set of clearly identified vectors
+     * while others must conform to the strictly positive constraint.
      */
     SomeNullWeights = 'SomeNullWeights',
     /**
      * All vectors in the projective vector space must have positive weights.
+     * Some vectors can have a null weight either as the result of some computation using the null weight tolerance
+     * or when the user prescribes a null weight when creating a vector.
+     * In this case, all the weights processed by the weight manager are considered as a positive weight with strictlyPositive set to false.
      */
     AllPositiveWeights = 'AllPositiveWeights'
 };</pre></td></tr></table></pre>
@@ -121,7 +154,7 @@ export enum WeightManagement {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-23T09:53:22.038Z
+                at 2025-12-16T10:14:14.863Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

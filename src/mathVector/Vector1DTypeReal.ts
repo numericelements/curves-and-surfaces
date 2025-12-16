@@ -1,8 +1,11 @@
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { REALVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { REALVECTOR1D, RealVector1D } from "./VectorSpaceConstructorInterface";
+import { IProjectiveVector } from "./Vector";
+import { RealVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 1;
@@ -43,17 +46,37 @@ export class Vector1DTypeReal extends AbstractRealVector {
         return this.value;
     }
     
-    // setCoordinate(index: number, value: number): void {
-    //     if (index !== 0) {
-    //         const error = sendRangeErrorMessage(this.constructor.name, 'setCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
-    //         throw new RangeError(error.generateMessageString());
-    //     }
-    //     this.value = value;
-    // }
-
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector {
+        const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
+    }
     
     clone(): Vector1DTypeReal {
         return new Vector1DTypeReal(this.value, this.vectorSpace);
+    }
+
+    add(other: Vector1DTypeReal): Vector1DTypeReal {
+        return super.add(other) as Vector1DTypeReal;
+    }
+
+    subtract(other: Vector1DTypeReal): Vector1DTypeReal {
+        return super.subtract(other) as Vector1DTypeReal;
+    }
+
+    dot(other: Vector1DTypeReal): number {
+        return super.dot(other);
+    }
+
+    equals(other: Vector1DTypeReal, tolerance?: number): boolean {
+        return super.equals(other, tolerance);
+    }
+
+    isParallel(other: Vector1DTypeReal, angularTolerance?: number): boolean {
+        return super.isParallel(other, angularTolerance);
+    }
+
+    isOrthogonal(other: Vector1DTypeReal, angularTolerance?: number): boolean {
+        return super.isOrthogonal(other, angularTolerance);
     }
     
     // Factory methods

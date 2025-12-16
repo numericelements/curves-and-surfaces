@@ -2,10 +2,11 @@ import { expect } from "chai";
 import { createVectorCollection1D, VectorCollection1D } from "../../src/mathVector/VectorCollection1D";
 import { INVALID_VS_DIMENSION, VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { COMPLEX, COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR1D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, UNDEFINED_VECTORTYPE, WEIGHT, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
-import { Weight } from "../../src/mathVector/Weight";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR1D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, UNDEFINED_VECTORTYPE } from "../../src/namedConstants/VectorTypeTags";
+import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
 
 describe('VectorCollection1D', () => {
 

@@ -1,9 +1,15 @@
+import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { REALVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
-import { getDefaultVectorSpace, resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
+import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { REALVECTOR3D, RealVector3D } from "./VectorSpaceConstructorInterface";
+import { IProjectiveVector } from "./Vector";
+import { RealVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import { Weight } from "./Weight";
 
 const SPACE_DIMENSION = 3;
 
@@ -12,7 +18,7 @@ export class Vector3DTypeReal extends AbstractRealVector {
     protected _vectorSpace: RealVectorSpace<3>;
     
     constructor();
-    constructor(x: number, y: number, z: number,vectorSpace?: RealVectorSpace<3>);
+    constructor(x: number, y: number, z: number, vectorSpace?: RealVectorSpace<3>);
     constructor(vectorSpace: RealVectorSpace<3>);
     constructor(xOrVectorSpace?: number | RealVectorSpace<3>, y?: number, z?: number, vectorSpace?: RealVectorSpace<3>) {
         super();
@@ -44,15 +50,40 @@ export class Vector3DTypeReal extends AbstractRealVector {
         }
         return this.data.coordinates[index];
     }
-    
-    // setCoordinate(index: number, value: number): void {
-    //     if (index < 0 || index >= SPACE_DIMENSION) {
-    //         const error = sendRangeErrorMessage(this.constructor.name, 'setCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
-    //         throw new RangeError(error.generateMessageString());
-    //     }
-    //     this.data.coordinates[index] = value;
-    // }
 
+    add(other: Vector3DTypeReal): Vector3DTypeReal {
+        return super.add(other) as Vector3DTypeReal;
+    }
+
+    subtract(other: Vector3DTypeReal): Vector3DTypeReal {
+        return super.subtract(other) as Vector3DTypeReal;
+    }
+
+    dot(other: Vector3DTypeReal): number {
+        return super.dot(other);
+    }
+
+    equals(other: Vector3DTypeReal, tolerance?: number): boolean {
+        return super.equals(other, tolerance);
+    }
+
+    isParallel(other: Vector3DTypeReal, angularTolerance?: number): boolean {
+        return super.isParallel(other, angularTolerance);
+    }
+
+    isOrthogonal(other: Vector3DTypeReal, angularTolerance?: number): boolean {
+        return super.isOrthogonal(other, angularTolerance);
+    }
+
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<4>): IProjectiveVector {
+        if (projectiveRealVectorSpace !== undefined) {
+            if(projectiveRealVectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
+                return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight(1, false), projectiveRealVectorSpace);
+            }
+            return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight(), projectiveRealVectorSpace);
+        }
+        return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight());
+    }
     
     clone(): Vector3DTypeReal {
         return new Vector3DTypeReal(this.x!, this.y!, this.z!, this.vectorSpace);

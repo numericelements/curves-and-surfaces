@@ -1,7 +1,10 @@
 import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../ErrorMessages/ComplexVectorSpace";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
+import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import { ComplexVectorSpaceStrategy } from "./ComplexVectorSpace";
-import { COMPLEX, IComplex, ComplexVector, ComplexVector1D, COMPLEXWEIGHT, IComplexWeight, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, RealVector, REALVECTOR2D } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

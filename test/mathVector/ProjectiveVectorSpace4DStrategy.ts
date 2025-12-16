@@ -1,9 +1,10 @@
 import { expect } from "chai";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
-import { PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector3D, PROJECTIVEVECTOR3D, REALVECTOR3D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { createTestProjectiveVector } from "./ProjectiveVectorSpaceTestFactory";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
-import { EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../../src/ErrorMessages/ProjectiveVectorSpace";
+import { EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../../src/ErrorMessages/ProjectiveVectorSpace";
+import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
+import { PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR3D, REALVECTOR3D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('ProjectiveVectorSpace4DStrategy', () => {
     

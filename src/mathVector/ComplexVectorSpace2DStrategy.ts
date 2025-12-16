@@ -1,7 +1,10 @@
 import { EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2, EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR2D } from "../namedConstants/VectorTypeTags";
+import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import { ComplexVectorSpaceStrategy } from "./ComplexVectorSpace";
-import { COMPLEX, IComplex, ComplexVector, ComplexVector2D, COMPLEXVECTOR2D, COMPLEXWEIGHT, IComplexWeight } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector, ComplexVector2D, IComplexWeight } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

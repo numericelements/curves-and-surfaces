@@ -1,19 +1,20 @@
-import { EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR, EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE, EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
-import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
+import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE, EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
+import { EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../namedConstants/ComplexVectorSpace";
 import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
 import { COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
+import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import { IVector } from "./Vector";
+import { IdentifiableVectorSpace, IVector } from "./Vector";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
 import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
-import { IComplex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, IComplexWeight, COMPLEXWEIGHT, IdentifiableVectorSpace, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector, ComplexVector1D, ComplexVector2D, ComplexVectorOfDimension, IComplexWeight, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -215,6 +216,10 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
             const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
         }
+    }
+
+    toString(): string {
+        return `${this._name} [ID: ${this._id}]`;
     }
 
     fromComplexVectorSpaceToRealVectorSpace(vector: ComplexVector): RealVector {

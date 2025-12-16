@@ -1,9 +1,11 @@
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { COMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { AbstractComplexVector } from "./AbstractComplexVector";
 import { Complex } from "./Complex";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
-import { COMPLEX, IComplex, COMPLEXVECTOR1D, ComplexVector1D } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
@@ -63,14 +65,33 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
         }
         return new Complex(this.data.real, this.data.imaginary);
     }
+
+    add(other: Vector1DTypeComplex): Vector1DTypeComplex {
+        return super.add(other) as Vector1DTypeComplex;
+    }
+
+    subtract(other: Vector1DTypeComplex): Vector1DTypeComplex {
+        return super.subtract(other) as Vector1DTypeComplex;
+    }
     
-    // setCoordinate(index: number, value: IComplex): void {
-    //     if (index !== 0) throw new RangeError('1D vector only has coordinate at index 0');
-    //     this.data = value;
-    // }
+    dot(other: Vector1DTypeComplex): number {
+        return super.dot(other);
+    }
+
+    equals(other: Vector1DTypeComplex, tolerance?: number): boolean {
+        return super.equals(other, tolerance);
+    }
+
+    isParallel(other: Vector1DTypeComplex, angularTolerance?: number): boolean {
+        return super.isParallel(other, angularTolerance);
+    }
+
+    isOrthogonal(other: Vector1DTypeComplex, angularTolerance?: number): boolean {
+        return super.isOrthogonal(other, angularTolerance);
+    }
 
     toString(): string {
-        return this.vectorType + `(${this.getCoordinate(0).toString()})`;
+        return this.vectorType + `(${this.getCoordinate(0).toString()})` + ` ` + this._vectorSpace.toString();
     }
     
     clone(): Vector1DTypeComplex {

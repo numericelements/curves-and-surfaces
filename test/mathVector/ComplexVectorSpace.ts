@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE, EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/ComplexVectorSpace";
-import { IComplex, COMPLEX, ComplexVector1D, ComplexVector2D, COMPLEXVECTOR2D, COMPLEXWEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector1D, ComplexVector2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { createCommonComplexVectorSpaceTests } from "./ComplexVectorSpaceTestFactory";
 import { Weight } from "../../src/mathVector/Weight";
 import { NULL_WEIGHT_TOLERANCE } from "../../src/namedConstants/ProjectiveVectorSpace";
@@ -12,6 +12,9 @@ import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVector
 import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdentifierManager";
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
+import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('ComplexVectorSpace', () => {
 
@@ -145,6 +148,15 @@ describe('ComplexVectorSpace', () => {
                 COMPLEXVECTOR2D
             );
             
+        });
+
+        it('can get the description of a complex vector space as a string', () => {
+            for( const dim of [MIN_DIMENSION_COMPLEXVECTORSPACE, MAX_DIMENSION_COMPLEXVECTORSPACE]) {
+                const complexVectorSpace = new ComplexVectorSpace(dim);
+                expect(complexVectorSpace.toString()).to.eql(`${complexVectorSpace.name} [ID: ${complexVectorSpace.id}]`);
+                expect(complexVectorSpace.toString().includes(complexVectorSpace.name)).to.eql(true);
+                expect(complexVectorSpace.toString().includes(complexVectorSpace.id)).to.eql(true);
+            }
         });
 
         it(`cannot generate a ${ComplexVectorSpace} with a dimension lower than ${MIN_DIMENSION_COMPLEXVECTORSPACE} or higher than  ${MAX_DIMENSION_COMPLEXVECTORSPACE}`, () => {

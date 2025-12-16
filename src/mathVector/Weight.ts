@@ -1,7 +1,7 @@
 import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
-import { WEIGHT } from "./VectorSpaceConstructorInterface";
+import { WEIGHT } from "../namedConstants/WeightTypeTags";
 
 export class Weight {
 

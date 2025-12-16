@@ -1,4 +1,5 @@
-import { COMPLEX, IComplex } from "./VectorSpaceConstructorInterface";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { IComplex } from "./VectorSpaceConstructorInterface";
 
 
 export class Complex {

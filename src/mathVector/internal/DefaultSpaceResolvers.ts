@@ -17,10 +17,10 @@ import { ComplexVectorSpace } from '../ComplexVectorSpace';
 import { RealVectorSpace } from '../RealVectorSpace';
 import { ProjectiveVectorSpace } from '../ProjectiveVectorSpace';
 import { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
-import { IdentifiableVectorSpace } from '../VectorSpaceConstructorInterface';
 import { DEFAULT } from '../../namedConstants/VectorSpaceIdentifierManager';
 import { sendErrorMessage, sendRangeErrorMessage } from '../VectorSpaceUtilities';
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED, EM_INVALID_VECTOR_SPACE_DIMENSION, EM_INVALID_VECTOR_SPACE_TYPE } from '../../ErrorMessages/DefaultSpaceResolvers';
+import { IdentifiableVectorSpace } from '../Vector';
 
 /**
  * Get default real vector space for given dimension

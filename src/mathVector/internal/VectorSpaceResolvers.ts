@@ -5,7 +5,7 @@
 
 import { VectorSpaceIdentifierManager } from './VectorSpaceIdentifierManager';
 import { RealVectorSpace } from '../RealVectorSpace';
-import { IdentifiableVectorSpace, Scalar, Vector } from '../VectorSpaceConstructorInterface';
+import { Scalar, Vector } from '../VectorSpaceConstructorInterface';
 import { ComplexVectorSpace } from '../ComplexVectorSpace';
 import { ProjectiveVectorSpace } from '../ProjectiveVectorSpace';
 import { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
@@ -13,6 +13,7 @@ import { VectorSpaceType } from '../../namedConstants/BSplineR1toRn';
 import { sendErrorMessage, sendRangeErrorMessage } from '../VectorSpaceUtilities';
 import { EM_INVALID_VECTOR_SPACE_TYPE } from '../../ErrorMessages/DefaultSpaceResolvers';
 import { EM_VECTOR_SPACE_ALREADY_REGISTERED } from '../../ErrorMessages/VectorSpaceResolvers';
+import { IdentifiableVectorSpace } from '../Vector';
 
 /**
  * Register a real vector space for given dimension if not already registered

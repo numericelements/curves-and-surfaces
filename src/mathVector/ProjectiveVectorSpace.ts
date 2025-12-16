@@ -7,8 +7,8 @@ import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
-import { IVector } from "./Vector";
-import { IdentifiableVectorSpace, ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector } from "./VectorSpaceConstructorInterface";
+import { IdentifiableVectorSpace, IVector } from "./Vector";
+import { ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
@@ -224,6 +224,10 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
             const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
             throw new RangeError(message.generateMessageString());
         }
+    }
+
+    toString(): string {
+        return `${this._name} [ID: ${this._id}]`;
     }
 
     fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector {

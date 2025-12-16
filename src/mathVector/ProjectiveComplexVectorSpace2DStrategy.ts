@@ -1,9 +1,12 @@
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { PROJECTIVECOMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
+import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, addComplexWeightsUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors, subtractComplexWeightsUsingDescriptors } from "./ComplexNumberFactory";
 import { ComplexWeight } from "./ComplexWeight";
 import { ProjectiveComplexVectorSpaceStrategy } from "./ProjectiveComplexVectorSpace";
-import { IComplex, COMPLEX, ComplexVector1D, IComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveComplexVector1D, Real, } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVector1D, Real, } from "./VectorSpaceConstructorInterface";
 import { isVector1D, isVector2D } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";

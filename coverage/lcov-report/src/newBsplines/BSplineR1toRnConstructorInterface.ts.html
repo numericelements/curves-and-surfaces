@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/157</span>
+                <span class='fraction'>0/159</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/157</span>
+                <span class='fraction'>0/159</span>
             </div>
         
             
@@ -219,7 +219,11 @@
 <a name='L154'></a><a href='#L154'>154</a>
 <a name='L155'></a><a href='#L155'>155</a>
 <a name='L156'></a><a href='#L156'>156</a>
-<a name='L157'></a><a href='#L157'>157</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -376,149 +380,151 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { Vector } from "../mathVector/VectorSpaceConstructorInterface";</span></span></span>
+<span class="cstat-no" title="statement not covered" >import { ControlPolygon } from "./ControlPolygon";</span>
 <span class="cstat-no" title="statement not covered" >import { IncreasingOpenKnotSequence, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots, IncreasingOpenKnotSequenceUpToC0Discontinuity, IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots, IncreasingPeriodicKnotSequence, StrictIncreasingPeriodicKnotSequence, StrictlyIncreasingOpenKnotSequence, StrictlyIncreasingOpenKnotSequenceCCurve, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity, StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots } from "./KnotSequenceConstructorInterface";</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_CP_NO_KNOT = "OpenBSPL_CP_No_KnotSequence";</span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_CP_DEG_UNIFORM = "OpenBSPL_CP_Degree_UniformKnotSeq";</span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_CP_DEG_UNIFORM_EUCLIDEAN = "OpenBSPL_CP_Degree_UniformKnotSeq_EuclideanDist";</span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_CP_DEG_NONUNIFORM = "OpenBSPL_CP_Degree_NonUniformKnotSeq";</span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_CP_DEG_NONUNIFORM_EUCLIDEAN = "OpenBSPL_CP_Degree_NonUniformKnotSeq_EuclideanDist";</span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_CP_INCREASING_KNOTSEQ = "OpenBSPL_CP_IncreasingSequence_AllKnots";</span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_CP_STRICTLY_INCREASING_KNOTSEQ = "OpenBSPL_CP_StrictlyIncreasingSequence_AllKnots";</span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_CP_KNOTSEQ_INTERFACE = "OpenBSPL_CP_KnotSequenceInterface";</span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_CP_KNOTSEQ_INTERFACE_C0DISCONTINUITY = "OpenBSPL_CP_KnotSequenceInterface_C0Discontinuity";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_NO_KNOT = "ClosedBSPL_CP_No_KnotSequence";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_DEG_PERIODIC_UNIFORM = "ClosedBSPL_CP_Degree_PeriodicUniformKnotSeq";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_DEG_PERIODIC_UNIFORM_EUCLIDEAN = "ClosedBSPL_CP_Degree_PeriodicUniformKnotSeq_EuclideanDist";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_DEG_PERIODIC_NONUNIFORM = "ClosedBSPL_CP_Degree_PeriodicNonUniformKnotSeq";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_DEG_PERIODIC_NONUNIFORM_EUCLIDEAN = "ClosedBSPL_CP_Degree_PeriodicNonUniformKnotSeq_EuclideanDist";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_INCREASING_KNOTSEQ = "ClosedBSPL_CP_IncreasingSequence_AllKnots";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_STRICTLY_INCREASING_KNOTSEQ = "ClosedBSPL_CP_StrictlyIncreasingSequence_AllKnots";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_KNOTSEQ_INTERFACE = "ClosedBSPL_CP_KnotSequenceInterface";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_KNOTSEQ_INTERFACE_C0DISCONTINUITY = "ClosedBSPL_CP_KnotSequenceInterface_C0Discontinuity";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_PERIODICKNOTSEQ_INTERFACE = "ClosedBSpline_CP_PeriodicKnotSeq";</span>
-<span class="cstat-no" title="statement not covered" >export const BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY = "OpenBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity";</span>
-<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY = "ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity";</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_CP_NO_KNOT = "OpenBSPL_CP_No_KnotSequence" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_CP_DEG_UNIFORM = "OpenBSPL_CP_Degree_UniformKnotSeq" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_CP_DEG_UNIFORM_EUCLIDEAN = "OpenBSPL_CP_Degree_UniformKnotSeq_EuclideanDist" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_CP_DEG_NONUNIFORM = "OpenBSPL_CP_Degree_NonUniformKnotSeq" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_CP_DEG_NONUNIFORM_EUCLIDEAN = "OpenBSPL_CP_Degree_NonUniformKnotSeq_EuclideanDist" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_CP_INCREASING_KNOTSEQ = "OpenBSPL_CP_IncreasingSequence_AllKnots" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_CP_STRICTLY_INCREASING_KNOTSEQ = "OpenBSPL_CP_StrictlyIncreasingSequence_AllKnots" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_CP_KNOTSEQ_INTERFACE = "OpenBSPL_CP_KnotSequenceInterface" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_CP_KNOTSEQ_INTERFACE_C0DISCONTINUITY = "OpenBSPL_CP_KnotSequenceInterface_C0Discontinuity" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_NO_KNOT = "ClosedBSPL_CP_No_KnotSequence" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_DEG_PERIODIC_UNIFORM = "ClosedBSPL_CP_Degree_PeriodicUniformKnotSeq" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_DEG_PERIODIC_UNIFORM_EUCLIDEAN = "ClosedBSPL_CP_Degree_PeriodicUniformKnotSeq_EuclideanDist" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_DEG_PERIODIC_NONUNIFORM = "ClosedBSPL_CP_Degree_PeriodicNonUniformKnotSeq" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_DEG_PERIODIC_NONUNIFORM_EUCLIDEAN = "ClosedBSPL_CP_Degree_PeriodicNonUniformKnotSeq_EuclideanDist" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_INCREASING_KNOTSEQ = "ClosedBSPL_CP_IncreasingSequence_AllKnots" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_STRICTLY_INCREASING_KNOTSEQ = "ClosedBSPL_CP_StrictlyIncreasingSequence_AllKnots" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_KNOTSEQ_INTERFACE = "ClosedBSPL_CP_KnotSequenceInterface" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_KNOTSEQ_INTERFACE_C0DISCONTINUITY = "ClosedBSPL_CP_KnotSequenceInterface_C0Discontinuity" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPL_CP_PERIODICKNOTSEQ_INTERFACE = "ClosedBSpline_CP_PeriodicKnotSeq" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY = "OpenBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity" as const;</span>
+<span class="cstat-no" title="statement not covered" >export const CLOSED_BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY = "ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity" as const;</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export const BSPL_PH_QUINTIC_LINE_CIRCLE = "OpenBSpline_PH_quintic_line_circle";</span>
+<span class="cstat-no" title="statement not covered" >export const BSPL_PH_QUINTIC_LINE_CIRCLE = "OpenBSpline_PH_quintic_line_circle" as const;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface BSpline_CP {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPL_CP_No_KnotSequence';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPL_CP_No_KnotSequence';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface BSpline_CP_Deg_Uniform {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPL_CP_Degree_UniformKnotSeq';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPL_CP_Degree_UniformKnotSeq';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    degree: number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface BSpline_CP_Deg_Uniform_EuclideanDist {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPL_CP_Degree_UniformKnotSeq_EuclideanDist';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPL_CP_Degree_UniformKnotSeq_EuclideanDist';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    degree: number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface BSpline_CP_Deg_NonUniform {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPL_CP_Degree_NonUniformKnotSeq';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPL_CP_Degree_NonUniformKnotSeq';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    degree: number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface BSpline_CP_Deg_NonUniform_EuclideanDist {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPL_CP_Degree_NonUniformKnotSeq_EuclideanDist';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPL_CP_Degree_NonUniformKnotSeq_EuclideanDist';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    degree: number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface BSpline_CP_IncreasingKnotSeq_AllKnots {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPL_CP_IncreasingSequence_AllKnots';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPL_CP_IncreasingSequence_AllKnots';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    knots: number[];</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface BSpline_CP_StrctIncreasingKnotSeq_AllKnots {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPL_CP_StrictIncreasingSequence_AllKnots';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPL_CP_StrictIncreasingSequence_AllKnots';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    knots: number[];</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface BSpline_CP_KnotSeqInterface {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPL_CP_KnotSequenceInterface';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPL_CP_KnotSequenceInterface';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    knotSequence: OpenKnotSequenceInterface_type;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface BSpline_CP_KnotSequenceInterface_C0Discontinuity {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPL_CP_KnotSequenceInterface_C0Discontinuity';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPL_CP_KnotSequenceInterface_C0Discontinuity';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    knotSequence: OpenKnotSequenceUpToC0DiscontinuityInterface_type;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface ClosedBSpline_CP {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'ClosedBSPL_CP_No_KnotSequence';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'ClosedBSPL_CP_No_KnotSequence';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface ClosedBSpline_CP_Deg_PeriodicUniformKnotSeq {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'ClosedBSPL_CP_Degree_PeriodicUniformKnotSeq';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'ClosedBSPL_CP_Degree_PeriodicUniformKnotSeq';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    degree: number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface ClosedBSpline_CP_Deg_PeriodicUniformKnotSeq_EuclideanDist {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'ClosedBSPL_CP_Degree_PeriodicUniformKnotSeq_EuclideanDist';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'ClosedBSPL_CP_Degree_PeriodicUniformKnotSeq_EuclideanDist';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    degree: number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface ClosedBSpline_CP_OpenKnotSeq {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'ClosedBSPL_CP_OpenKotSeq';</span>
-<span class="cstat-no" title="statement not covered" >    periodicControlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'ClosedBSPL_CP_OpenKotSeq';</span>
+<span class="cstat-no" title="statement not covered" >    periodicControlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    knotSequence: OpenKnotSequenceCCurveInterface_type;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface ClosedBSpline_CP_OpenKnotSeq_allKnots {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'ClosedBSPL_CP_OpenKnotSeq_allKnots';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'ClosedBSPL_CP_OpenKnotSeq_allKnots';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    knotSequence: OpenKnotSequenceCCurveInterfaceAllCPK_type;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface ClosedBSpline_CP_OpenKnotSeq_allKnots_C0Discontinuity {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'ClosedBSpline_CP_OpenKnotSeq_allKnots_C0Discontinuity';</span>
-<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'ClosedBSpline_CP_OpenKnotSeq_allKnots_C0Discontinuity';</span>
+<span class="cstat-no" title="statement not covered" >    controlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    knotSequence: OpenKnotSequenceUpToC0DiscontinuityCCurveInterfaceAllCPK_type;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface ClosedBSpline_CP_PeriodicKnotSeq {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'ClosedBSpline_CP_PeriodicKnotSeq';</span>
-<span class="cstat-no" title="statement not covered" >    periodicControlPoints: ControlPoints[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'ClosedBSpline_CP_PeriodicKnotSeq';</span>
+<span class="cstat-no" title="statement not covered" >    periodicControlPoints: ControlPoints;</span>
 <span class="cstat-no" title="statement not covered" >    knotSequence: PeriodicKnotSequenceCCurveInterface_type;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface OpenBSPLR1toR1_CP_OpenKnotSeq_C0Discontinuity {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity';</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity';</span>
 <span class="cstat-no" title="statement not covered" >    controlPoints: number[];</span>
 <span class="cstat-no" title="statement not covered" >    knotSequence: OpenKnotSequenceUpToC0DiscontinuityInterface_type;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity';</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity';</span>
 <span class="cstat-no" title="statement not covered" >    controlPoints: number[];</span>
 <span class="cstat-no" title="statement not covered" >    knotSequence: OpenKnotSequenceUpToC0DiscontinuityCCurveInterfaceAllCPK_type;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface OpenBSpline_PH_quintic_line_circle {</span>
-<span class="cstat-no" title="statement not covered" >    type: 'OpenBSpline_PH_quintic_line_circle';</span>
-<span class="cstat-no" title="statement not covered" >    refPoint: ControlPoints;</span>
+<span class="cstat-no" title="statement not covered" >    readonly type: 'OpenBSpline_PH_quintic_line_circle';</span>
+<span class="cstat-no" title="statement not covered" >    refPoint: ControlPoint;</span>
 <span class="cstat-no" title="statement not covered" >    lineDir: Vector;</span>
 <span class="cstat-no" title="statement not covered" >    circle: Vector;</span>
 <span class="cstat-no" title="statement not covered" >    circleRadius: number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export type ControlPoints = Vector;</span>
+<span class="cstat-no" title="statement not covered" >export type ControlPoint = Vector;</span>
+<span class="cstat-no" title="statement not covered" >export type ControlPoints = ControlPolygon | ControlPoint[];</span>
 <span class="cstat-no" title="statement not covered" >export type OpenKnotSequenceInterface_type = IncreasingOpenKnotSequence | StrictlyIncreasingOpenKnotSequence;</span>
 <span class="cstat-no" title="statement not covered" >export type OpenKnotSequenceUpToC0DiscontinuityInterface_type = IncreasingOpenKnotSequenceUpToC0Discontinuity | StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity;</span>
 <span class="cstat-no" title="statement not covered" >export type OpenKnotSequenceCCurveInterface_type = IncreasingOpenKnotSequenceCCurve | StrictlyIncreasingOpenKnotSequenceCCurve;</span>
@@ -538,7 +544,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-23T09:53:22.038Z
+                at 2025-12-16T10:14:14.863Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

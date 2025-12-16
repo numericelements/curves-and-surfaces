@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { Complex } from "../../src/mathVector/Complex";
-import { COMPLEX } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 
 describe('Complex numbers and associated operators', () => {
 

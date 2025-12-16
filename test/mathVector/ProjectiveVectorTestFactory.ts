@@ -14,6 +14,7 @@ import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVector
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS } from "../../src/ErrorMessages/WeightManager";
 import { EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
+import { EM_REVERT_NOT_APPLICABLE } from "../../src/ErrorMessages/ProjectiveVectors";
 
 
 const defaultCoordinates = [1, 2, 3];
@@ -58,6 +59,15 @@ export function createCommonProjectiveVectorTests(
                 const projRealVector = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
                 for (let i = 0; i < dimension; i++) {
                     expect(projRealVector.coordinates[i]).to.eql(coordinates[i]);
+                }
+            });
+
+            it(`can get the coordinates of a vector also called homogeneous coordinates`, () => {
+                const vSpace = new ProjectiveVectorSpace(dimension);
+                const coordinates = [-1, 0, 1, 2];
+                const projRealVector = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                for (let i = 0; i < dimension; i++) {
+                    expect(projRealVector.homogeneousCoordinates[i]).to.eql(projRealVector.homogeneousCoordinates[i]);
                 }
             });
 
@@ -689,6 +699,41 @@ export function createCommonProjectiveVectorTests(
                 expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
                 expect(result.vectorSpace.isDefault).to.eql(false);
                 expect(result.weight.strictlyPositive).to.eql(true);
+            });
+
+            it(`cannot check the equality of vectors belonging to different vector spaces of same type `, () => {
+                const coordinates = [1, 3, 5, 7];
+                const vSpace = new ProjectiveVectorSpace(dimension);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates);
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                const projRealVector2 = createTestProjectiveVector(dimension, undefined, coordinates);
+                expect(() => projRealVector1.equals(projRealVector2)).to.throw(EM_VECTORS_DIFFERENT_VECTOR_SPACES);
+            });
+
+            it(`can get the coordinates of a projective vector as an array of numbers`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                const coord = projRealVector1.toArray();
+                for (let i = 0; i < projRealVector1.dimension - 1; i++) {
+                    expect(coord[i]).to.eql(coordinates[i]);
+                }
+                expect(coord[projRealVector1.dimension - 1]).to.eql(coordinates[projRealVector1.dimension - 1]);
+            });
+
+            it(`cannot apply the revert operator to a projective vector with wieght management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                expect(() => projRealVector1.revert()).to.throw(EM_REVERT_NOT_APPLICABLE);
             });
         });
     });

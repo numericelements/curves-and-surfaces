@@ -1,12 +1,9 @@
 import { expect } from "chai";
-import { Vector2DTypeReal } from "../../src/mathVector/Vector2DTypeReal";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { REALVECTOR2D, REALVECTOR4D } from "../../src/mathVector/VectorSpaceConstructorInterface";
-import { ANGULAR_TOL_VECTOR, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
-import { Vector3DTypeReal } from "../../src/mathVector/Vector3DTypeReal";
-import { EM_REALVECTORS_DIFFERENT_DIM } from "../../src/ErrorMessages/RealVectorSpace";
+import { ANGULAR_TOL_VECTOR, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { Vector4DTypeReal } from "../../src/mathVector/Vector4DTypeReal";
+import { REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('Vector 4D in real vector space: generation and operators in this vector space', () => {
     const dimension = 4;
@@ -107,30 +104,6 @@ describe('Vector 4D in real vector space: generation and operators in this vecto
 
     describe('Methods', () => {
 
-        it(`cannot add a vector with another vector of different dimension`, () => {
-            const coordinates = [1, 3, 5, 7];
-            const realVector1 = new Vector4DTypeReal(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
-            expect(realVector1.dimension).to.eql(dimension);
-            expect(realVector1.vectorType).to.eql(REALVECTOR4D);
-            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
-            expect(realVector1.vectorSpace.isDefault).to.eql(true);
-            const realVector2 = new Vector2DTypeReal(2, -1);
-            expect(realVector2.dimension).to.not.eql(realVector1.dimension);
-            expect(() => realVector1.add(realVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
-        });
-
-        it(`cannot subtract a vector from another vector of different dimension`, () => {
-            const coordinates = [1, 3, 5, 7];
-            const realVector1 = new Vector4DTypeReal(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
-            expect(realVector1.dimension).to.eql(dimension);
-            expect(realVector1.vectorType).to.eql(REALVECTOR4D);
-            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
-            expect(realVector1.vectorSpace.isDefault).to.eql(true);
-            const realVector2 = new Vector2DTypeReal(2, -1);
-            expect(realVector2.dimension).to.not.eql(realVector1.dimension);
-            expect(() => realVector1.subtract(realVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
-        });
-
         it(`can get the vector data structure as a string`, () => {
             const coordinates = [1, 3, 5, 7];
             const vSpace1 = new RealVectorSpace(dimension);
@@ -140,33 +113,7 @@ describe('Vector 4D in real vector space: generation and operators in this vecto
             expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector1.vectorSpace.isDefault).to.eql(false);
             const string = realVector1.toString();
-            expect(string).to.eql(REALVECTOR4D + `(${coordinates[0]}, ${coordinates[1]}, ${coordinates[2]}, ${coordinates[3]})`);
-        });
-
-        it(`cannot check the equality of vectors of different dimensions `, () => {
-            const coordinates = [1, 3, 5, 7];
-            const vSpace = new RealVectorSpace(dimension);
-            const realVector1 = new Vector4DTypeReal(coordinates[0], coordinates[1], coordinates[2], coordinates[3], vSpace);
-            expect(realVector1.dimension).to.eql(dimension);
-            expect(realVector1.vectorType).to.eql(REALVECTOR4D);
-            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
-            expect(realVector1.vectorSpace.isDefault).to.eql(false);
-            const vSpace1 = new RealVectorSpace(3);
-            const realVector2 = new Vector3DTypeReal(coordinates[0], coordinates[1], 0, vSpace1);
-            expect(() => realVector1.equals(realVector2)).to.throw(EM_REALVECTORS_DIFFERENT_DIM);
-        });
-
-        it(`cannot check the parallelism of vectors belonging to different vector spaces of different dimensions`, () => {
-            const coordinates = [1, 3, 5, 7];
-            const vSpace = new RealVectorSpace(dimension);
-            const realVector1 = new Vector4DTypeReal(coordinates[0], coordinates[1], coordinates[2], coordinates[3], vSpace);
-            expect(realVector1.dimension).to.eql(dimension);
-            expect(realVector1.vectorType).to.eql(REALVECTOR4D);
-            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
-            expect(realVector1.vectorSpace.isDefault).to.eql(false);
-            const vSpace1 = new RealVectorSpace(3);
-            const realVector2 = new Vector3DTypeReal(coordinates[0], coordinates[1], 0, vSpace1);
-            expect(() => realVector1.isParallel(realVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
+            expect(string).to.eql(REALVECTOR4D + `(${coordinates[0]}, ${coordinates[1]}, ${coordinates[2]}, ${coordinates[3]})` + ` ` + realVector1.vectorSpace.toString());
         });
 
         it(`cannot check the orthogonality of vectors belonging to different vector spaces`, () => {
@@ -179,19 +126,6 @@ describe('Vector 4D in real vector space: generation and operators in this vecto
             expect(realVector1.vectorSpace.isDefault).to.eql(false);
             const realVector2 = new Vector4DTypeReal(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
             expect(() => realVector1.isOrthogonal(realVector2)).to.throw(EM_VECTORS_NOT_IN_SAME_VECTORSPACE);
-        });
-
-        it(`cannot check the orthogonality of vectors belonging to different vector spaces of different dimensions`, () => {
-            const coordinates = [1, 3, 5, 7];
-            const vSpace = new RealVectorSpace(dimension);
-            const realVector1 = new Vector4DTypeReal(coordinates[0], coordinates[1], coordinates[2], coordinates[3], vSpace);
-            expect(realVector1.dimension).to.eql(dimension);
-            expect(realVector1.vectorType).to.eql(REALVECTOR4D);
-            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
-            expect(realVector1.vectorSpace.isDefault).to.eql(false);
-            const vSpace1 = new RealVectorSpace(3);
-            const realVector2 = new Vector3DTypeReal(coordinates[0], coordinates[1], 0, vSpace1);
-            expect(() => realVector1.isOrthogonal(realVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
         });
 
         it(`can check that two vectors are orthogonal to each other using the default angular tolerance`, () => {
@@ -263,6 +197,16 @@ describe('Vector 4D in real vector space: generation and operators in this vecto
             const realVector2 = new Vector4DTypeReal(coordinates1[0], coordinates1[1] + angularTolerance * 4, 
                         coordinates1[2], coordinates1[3] + angularTolerance * 4, vSpace);
             expect(realVector1.isOrthogonal(realVector2, angularTolerance)).to.eql(false);
+        });
+
+        it(`cannot map a real 4D vector into a projective real vector`, () => {
+            const vSpace = new RealVectorSpace(dimension);
+            const realVector1 = new Vector4DTypeReal(1, 2, 3, 4, vSpace);
+            expect(realVector1.dimension).to.eql(dimension);
+            expect(realVector1.vectorType).to.eql(REALVECTOR4D);
+            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector1.vectorSpace.isDefault).to.eql(false);
+            expect(() => realVector1.toProjectiveVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         });
     });
 });

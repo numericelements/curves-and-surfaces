@@ -3,7 +3,7 @@ import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOM
 import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS, EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../../src/ErrorMessages/ProjectiveComplexVectorSpace";
-import { IComplex, COMPLEX, IComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, ProjectiveComplexVector1D, PROJECTIVECOMPLEXVECTOR1D, WEIGHT, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { IComplex, ProjectiveComplexVector1D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../../src/ErrorMessages/ComplexOperators";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
@@ -14,6 +14,9 @@ import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdent
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
+import { PROJECTIVECOMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('ProjectiveComplexVectorSpace', () => {
    
@@ -204,6 +207,15 @@ describe('ProjectiveComplexVectorSpace', () => {
         it('can get the dimension of a ProjectiveComplexVectorSpace', () => {
             const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             expect(projectiveComplexVectorSpace.dimension()).to.eql(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)
+        });
+
+        it('can get the description of a complex vector space as a string', () => {
+            for( const dim of [MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE]) {
+                const complexVectorSpace = new ProjectiveComplexVectorSpace(dim);
+                expect(complexVectorSpace.toString()).to.eql(`${complexVectorSpace.name} [ID: ${complexVectorSpace.id}]`);
+                expect(complexVectorSpace.toString().includes(complexVectorSpace.name)).to.eql(true);
+                expect(complexVectorSpace.toString().includes(complexVectorSpace.id)).to.eql(true);
+            }
         });
 
         it(`cannot check that two vectors share the same weight management status if one of the vectors has not the same weight management for its real and imaginary weights`, () => {

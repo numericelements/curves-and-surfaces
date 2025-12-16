@@ -1,7 +1,7 @@
 import { EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT } from "../ErrorMessages/ComplexWeight";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
-import { COMPLEXWEIGHT } from "./VectorSpaceConstructorInterface";
+import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { Weight } from "./Weight";
 
 export class ComplexWeight {

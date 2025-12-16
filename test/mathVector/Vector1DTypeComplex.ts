@@ -1,14 +1,12 @@
 import { expect } from "chai";
 import { Vector1DTypeComplex } from "../../src/mathVector/Vector1DTypeComplex";
-import { COMPLEX, COMPLEXVECTOR1D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { Vector2DTypeComplex } from "../../src/mathVector/Vector2DTypeComplex";
-import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { Complex } from "../../src/mathVector/Complex";
-import { EM_COMPLEXVECTORS_DIFFERENT_DIM } from "../../src/ErrorMessages/ComplexVectorSpace";
-import { MAX_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('Vector 1D in complex vector space: generation and operators in this vector space', () => {
     const dimension = 1;
@@ -158,29 +156,29 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
 
     describe('Methods', () => {
 
-        it(`cannot add a vector with another vector of different dimension`, () => {
-            const coordinates = [1, 3];
-            const complexVector1 = new Vector1DTypeComplex(coordinates[0], coordinates[1]);
-            expect(complexVector1.dimension).to.eql(dimension);
-            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR1D);
-            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
-            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
-            const complexVector2 = new Vector2DTypeComplex();
-            expect(complexVector2.dimension).to.not.eql(complexVector1.dimension);
-            expect(() => complexVector1.add(complexVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
-        });
+        // it(`cannot add a vector with another vector of different dimension`, () => {
+        //     const coordinates = [1, 3];
+        //     const complexVector1 = new Vector1DTypeComplex(coordinates[0], coordinates[1]);
+        //     expect(complexVector1.dimension).to.eql(dimension);
+        //     expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR1D);
+        //     expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+        //     expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+        //     const complexVector2 = new Vector2DTypeComplex();
+        //     expect(complexVector2.dimension).to.not.eql(complexVector1.dimension);
+        //     expect(() => complexVector1.add(complexVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
+        // });
 
-        it(`cannot subtract a vector from another vector of different dimension`, () => {
-            const coordinates = [1, 3];
-            const complexVector1 = new Vector1DTypeComplex(coordinates[0], coordinates[1]);
-            expect(complexVector1.dimension).to.eql(dimension);
-            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR1D);
-            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
-            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
-            const complexVector2 = new Vector2DTypeComplex();
-            expect(complexVector2.dimension).to.not.eql(complexVector1.dimension);
-            expect(() => complexVector1.subtract(complexVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
-        });
+        // it(`cannot subtract a vector from another vector of different dimension`, () => {
+        //     const coordinates = [1, 3];
+        //     const complexVector1 = new Vector1DTypeComplex(coordinates[0], coordinates[1]);
+        //     expect(complexVector1.dimension).to.eql(dimension);
+        //     expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR1D);
+        //     expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+        //     expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+        //     const complexVector2 = new Vector2DTypeComplex();
+        //     expect(complexVector2.dimension).to.not.eql(complexVector1.dimension);
+        //     expect(() => complexVector1.subtract(complexVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
+        // });
 
         it(`can compute the norm of a vector`, () => {
             const coordinates = [1, 3];
@@ -203,20 +201,7 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector1.vectorSpace.isDefault).to.eql(false);
             const string = complexVector1.toString();
-            expect(string).to.eql(COMPLEXVECTOR1D + `(${new Complex(coordinates[0], coordinates[1]).toString()})`);
-        });
-
-        it(`cannot check the equality of vectors of different dimensions `, () => {
-            const coordinates = [1, 3];
-            const vSpace = new ComplexVectorSpace(dimension);
-            const complexVector1 = new Vector1DTypeComplex(coordinates[0], coordinates[1], vSpace);
-            expect(complexVector1.dimension).to.eql(dimension);
-            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR1D);
-            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
-            expect(complexVector1.vectorSpace.isDefault).to.eql(false);
-            const vSpace1 = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
-            const complexVector2 = new Vector2DTypeComplex(coordinates[0], coordinates[1], coordinates[0], coordinates[1], vSpace1);
-            expect(() => complexVector1.equals(complexVector2)).to.throw(EM_COMPLEXVECTORS_DIFFERENT_DIM);
+            expect(string).to.eql(COMPLEXVECTOR1D + `(${new Complex(coordinates[0], coordinates[1]).toString()})` + ` ` + complexVector1.vectorSpace.toString());
         });
 
         it(`cannot check the equality of vectors belonging to different vector spaces `, () => {
@@ -229,19 +214,6 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector1.vectorSpace.isDefault).to.eql(false);
             const complexVector2 = new Vector1DTypeComplex(coordinates[0], coordinates[1]);
             expect(() => complexVector1.equals(complexVector2)).to.throw(EM_VECTORS_DIFFERENT_VECTOR_SPACES);
-        });
-
-        it(`cannot check the parallelism of vectors belonging to different vector spaces of different dimensions`, () => {
-            const coordinates = [1, 3];
-            const vSpace = new ComplexVectorSpace(dimension);
-            const complexVector1 = new Vector1DTypeComplex(coordinates[0], coordinates[1], vSpace);
-            expect(complexVector1.dimension).to.eql(dimension);
-            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR1D);
-            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
-            expect(complexVector1.vectorSpace.isDefault).to.eql(false);
-            const vSpace1 = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
-            const complexVector2 = new Vector2DTypeComplex(coordinates[0], coordinates[1], coordinates[0], coordinates[1], vSpace1);
-            expect(() => complexVector1.isParallel(complexVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
         });
 
         it(`cannot check the parallelism of vectors belonging to different vector spaces`, () => {
@@ -301,19 +273,6 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             const coordinates1 = [2, 6];
             const complexVector2 = new Vector1DTypeComplex(coordinates1[0], coordinates1[1], vSpace);
             expect(realVector1.isParallel(complexVector2)).to.eql(true);
-        });
-
-        it(`cannot check the orthogonality of vectors belonging to different vector spaces of different dimensions`, () => {
-            const coordinates = [1, 3];
-            const vSpace = new ComplexVectorSpace(dimension);
-            const complexVector1 = new Vector1DTypeComplex(coordinates[0], coordinates[1], vSpace);
-            expect(complexVector1.dimension).to.eql(dimension);
-            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR1D);
-            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
-            expect(complexVector1.vectorSpace.isDefault).to.eql(false);
-            const vSpace1 = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
-            const complexVector2 = new Vector2DTypeComplex(coordinates[0], coordinates[1], coordinates[0], coordinates[1], vSpace1);
-            expect(() => complexVector1.isOrthogonal(complexVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
         });
 
         it(`can check that two angularly different vectors are parallel to each other using the default angular tolerance`, () => {

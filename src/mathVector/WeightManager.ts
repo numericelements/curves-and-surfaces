@@ -1,4 +1,4 @@
-import { EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT } from "../ErrorMessages/WeightManager";
+import { EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_MANAGEMENT_UNKOWN, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT } from "../ErrorMessages/WeightManager";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { Complex } from "./Complex";
 import { ComplexWeight } from "./ComplexWeight";
@@ -26,7 +26,7 @@ export class WeightManager {
 
     constructor(weightManagement: WeightManagement) {
         this._weightManagement = weightManagement;
-        switch (this._weightManagement) {
+        switch (weightManagement) {
             case WeightManagement.AllPositiveWeights:
                 this.strategy = new WeightManagerPositiveWeightStrategy();
                 break;
@@ -37,7 +37,7 @@ export class WeightManager {
                 this.strategy = new WeightManagerSomeNullWeightStrategy();
                 break;
             default:
-                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_WEIGHT_MANAGEMENT_UNKOWN);
                 throw new RangeError(error.generateMessageString());
         }
     }
@@ -143,9 +143,10 @@ export class WeightManager {
     haveSameWeightManagement(weightV1: Weight, weightV2: Weight): boolean {
         if(this._weightManagement !== WeightManagement.SomeNullWeights) {
             if(weightV1.strictlyPositive === weightV2.strictlyPositive) {
-                if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && weightV1.strictlyPositive) return true;
-                if(this._weightManagement === WeightManagement.AllPositiveWeights && !weightV1.strictlyPositive) return true;
-                return false;
+                let haveSameWeightManagement = false
+                if(this._weightManagement === WeightManagement.AllStrictlyPositiveWeights && weightV1.strictlyPositive) haveSameWeightManagement = true;
+                if(this._weightManagement === WeightManagement.AllPositiveWeights && !weightV1.strictlyPositive) haveSameWeightManagement = true;
+                return haveSameWeightManagement;
             } else {
                 return false;
             }

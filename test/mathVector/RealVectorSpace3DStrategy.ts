@@ -1,10 +1,12 @@
 import { expect } from "chai";
 import { createTestRealVector, vectorTypeReal } from "./RealVectorSpaceTestFactory";
-import { ProjectiveVector, PROJECTIVEVECTOR3D, REALVECTOR2D, RealVector2D, REALVECTOR3D, RealVector3D, REALVECTOR4D, RealVector4D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ProjectiveVector, RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { RealVectorSpace3DStrategy } from "../../src/mathVector/RealVectorSpace3DStrategy";
 import { isVector3D, isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../../src/ErrorMessages/RealVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
+import { PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
+import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
 
 describe('RealVectorSpace3DStrategy', () => {
     

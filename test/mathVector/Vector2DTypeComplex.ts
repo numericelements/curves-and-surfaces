@@ -1,19 +1,29 @@
 import { expect } from "chai";
 import { Vector2DTypeComplex } from "../../src/mathVector/Vector2DTypeComplex";
-import { COMPLEX, COMPLEXVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { Complex } from "../../src/mathVector/Complex";
-import { EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/ComplexVectorSpace";
-import { Vector1DTypeComplex } from "../../src/mathVector/Vector1DTypeComplex";
-import { EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES } from "../../src/namedConstants/Vectors";
-import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
-import { MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
+import { EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/ComplexVectorSpace";
+import { EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('Vector 1D in complex vector space: generation and operators in this vector space', () => {
     const dimension = 2;
     let defaultVectorSpaceID = '';
     let userSpecificVSID = '';
+
+    // test('debug imports', () => {
+    //     // require to observe runtime values (works with CommonJS jest)
+    //     // eslint-disable-next-line @typescript-eslint/no-var-requires
+    //     const ACV = require('../../src/mathVector/AbstractComplexVector').AbstractComplexVector;
+    //     // eslint-disable-next-line no-console
+    //     console.log('AbstractComplexVector is', ACV);
+    //     // eslint-disable-next-line @typescript-eslint/no-var-requires
+    //     const V2 = require('../../src/mathVector/Vector2DTypeComplex').Vector2DTypeComplex;
+    //     // eslint-disable-next-line no-console
+    //     console.log('Vector2DTypeComplex is', V2);
+    // });
 
     describe('Constructor', () => {
         it(`can generate a default complex vector into the default 2D vector space`, () => {
@@ -176,29 +186,6 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
         const coordinatesA = [complex1, complex2];
         const coordinatesB = [complex3, complex4];
 
-        it(`cannot add a vector with another vector of different dimension`, () => {
-            const coordinates = [1, 3];
-            const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
-            expect(complexVector1.dimension).to.eql(dimension);
-            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
-            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
-            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
-            const complexVector2 = new Vector1DTypeComplex();
-            expect(complexVector2.dimension).to.not.eql(complexVector1.dimension);
-            expect(() => complexVector1.add(complexVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
-        });
-
-        it(`cannot subtract a vector from another vector of different dimension`, () => {
-            const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
-            expect(complexVector1.dimension).to.eql(dimension);
-            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
-            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
-            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
-            const complexVector2 = new Vector1DTypeComplex();
-            expect(complexVector2.dimension).to.not.eql(complexVector1.dimension);
-            expect(() => complexVector1.subtract(complexVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
-        });
-
         it(`cannot compute the norm of a vector because this method does not exist for complex vector space 2D`, () => {
             const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
             expect(complexVector1.dimension).to.eql(dimension);
@@ -215,7 +202,7 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector1.vectorSpace.isDefault).to.eql(false);
             const string = complexVector1.toString();
-            expect(string).to.eql(COMPLEXVECTOR2D + `(${complex1.toString()}, ${complex2.toString()})`);
+            expect(string).to.eql(COMPLEXVECTOR2D + `(${complex1.toString()}, ${complex2.toString()})` + ` ` + complexVector1.vectorSpace.toString());
         });
 
         it(`cannot normalize a complex vector because this method does not exist for complex vector space 2D`, () => {
@@ -224,18 +211,6 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector1.vectorSpace.isDefault).to.eql(true);
             expect(() => complexVector1.normalize()).to.throw(EM_TRANSFORMATION_NOT_AVAILABLE);
-        });
-
-        it(`cannot check the equality of vectors of different dimensions `, () => {
-            const vSpace = new ComplexVectorSpace(dimension);
-            const complexVector1 = new Vector2DTypeComplex(complex1, complex2, vSpace);
-            expect(complexVector1.dimension).to.eql(dimension);
-            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
-            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
-            expect(complexVector1.vectorSpace.isDefault).to.eql(false);
-            const vSpace1 = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
-            const complexVector2 = new Vector1DTypeComplex(complex1, vSpace1);
-            expect(() => complexVector1.equals(complexVector2)).to.throw(EM_COMPLEXVECTORS_DIFFERENT_DIM);
         });
 
         it(`cannot check the equality of vectors belonging to different vector spaces `, () => {
@@ -269,6 +244,17 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector1.vectorSpace.isDefault).to.eql(false);
             const complexVector2 = new Vector2DTypeComplex(complex3, complex4, vSpace);
             expect(() => complexVector1.isOrthogonal(complexVector2)).to.throw(EM_TRANSFORMATION_NOT_AVAILABLE);
+        });
+
+        it(`cannot get the dot product of vectors because this property is not available for 2D complex vectors`, () => {
+            const vSpace = new ComplexVectorSpace(dimension);
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2, vSpace);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(false);
+            const complexVector2 = new Vector2DTypeComplex(complex3, complex4, vSpace);
+            expect(() => complexVector1.dot(complexVector2)).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         });
     });
 });

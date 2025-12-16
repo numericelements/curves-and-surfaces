@@ -1,19 +1,17 @@
 import { expect } from "chai";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
-import { PROJECTIVEVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
-import { ANGULAR_TOL_VECTOR, EM_NORM_TOO_SMALL, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
+import { EM_NORM_TOO_SMALL, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
 import { Weight } from "../../src/mathVector/Weight";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
-import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { ProjectiveVector2DTypeReal } from "../../src/mathVector/ProjectiveVector2DTypeReal";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
-import { ProjectiveVector3DTypeReal } from "../../src/mathVector/ProjectiveVector3DTypeReal";
-import { DEFAULT_WEIGHT } from "../../src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2";
-import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM } from "../../src/ErrorMessages/ProjectiveVectorSpace";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
-import { EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT } from "../../src/ErrorMessages/WeightManager";
+import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
+import { EM_WEIGHT_TOO_SMALL } from "../../src/ErrorMessages/ProjectiveVectors";
+import { PROJECTIVEVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('Projective vector 2D in real vector space: generation and operators in this vector space', () => {
     const dimension = 3;
@@ -378,29 +376,6 @@ describe('Projective vector 2D in real vector space: generation and operators in
     });
 
     describe('Methods', () => {
-        it(`cannot add a vector with another vector of different dimension`, () => {
-            const coordinates = [1, 3, 2];
-            const projectiveVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1]);
-            expect(projectiveVector1.dimension).to.eql(dimension);
-            expect(projectiveVector1.vectorType).to.eql(PROJECTIVEVECTOR2D);
-            expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
-            expect(projectiveVector1.vectorSpace.isDefault).to.eql(true);
-            const projectiveVector2 = new ProjectiveVector3DTypeReal(coordinates[0], coordinates[1], coordinates[2]);
-            expect(projectiveVector2.dimension).to.not.eql(projectiveVector1.dimension);
-            expect(() => projectiveVector1.add(projectiveVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
-        });
-
-        it(`cannot subtract a vector from another vector of different dimension`, () => {
-            const coordinates = [1, 3, 4];
-            const projectiveVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1]);
-            expect(projectiveVector1.dimension).to.eql(dimension);
-            expect(projectiveVector1.vectorType).to.eql(PROJECTIVEVECTOR2D);
-            expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
-            expect(projectiveVector1.vectorSpace.isDefault).to.eql(true);
-            const projectiveVector2 = new ProjectiveVector3DTypeReal(coordinates[0], coordinates[1], coordinates[2]);
-            expect(projectiveVector2.dimension).to.not.eql(projectiveVector1.dimension);
-            expect(() => projectiveVector1.subtract(projectiveVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
-        });
 
         it(`can get the vector descriptor as a string`, () => {
             const coordinates = [1, 3];
@@ -411,33 +386,7 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
             const string = projectiveVector1.toString();
-            expect(string).to.eql(PROJECTIVEVECTOR2D + `(${coordinates[0]}, ${coordinates[1]}, ${new Weight().toString()})`);
-        });
-
-        it(`cannot check the equality of vectors of different dimensions `, () => {
-            const coordinates = [1, 3];
-            const vSpace = new ProjectiveVectorSpace(dimension);
-            const projectiveVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], vSpace);
-            expect(projectiveVector1.dimension).to.eql(dimension);
-            expect(projectiveVector1.vectorType).to.eql(PROJECTIVEVECTOR2D);
-            expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
-            expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
-            const vSpace1 = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
-            const projectiveVector2 = new ProjectiveVector3DTypeReal(coordinates[0], coordinates[1], 0, new Weight(), vSpace1);
-            expect(() => projectiveVector1.equals(projectiveVector2)).to.throw(EM_PROJECTIVEVECTORS_DIFFERENT_DIM);
-        });
-
-        it(`cannot check the parallelism of vectors belonging to different vector spaces of different dimensions`, () => {
-            const coordinates = [1, 3];
-            const vSpace = new ProjectiveVectorSpace(dimension);
-            const projectiveVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], vSpace);
-            expect(projectiveVector1.dimension).to.eql(dimension);
-            expect(projectiveVector1.vectorType).to.eql(PROJECTIVEVECTOR2D);
-            expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
-            expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
-            const vSpace1 = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
-            const realVector2 = new ProjectiveVector3DTypeReal(coordinates[0], coordinates[1], 0, new Weight(), vSpace1);
-            expect(() => projectiveVector1.isParallel(realVector2)).to.throw(EM_VECTORS_DIFFERENT_DIM);
+            expect(string).to.eql(PROJECTIVEVECTOR2D + `(${coordinates[0]}, ${coordinates[1]}, ${new Weight().toString()})` + ` `+ projectiveVector1.vectorSpace.toString());
         });
 
         it(`cannot get a null norm with weight management ${WeightManagement.AllStrictlyPositiveWeights} because a null projective vector cannot be created`, () => {
@@ -500,6 +449,56 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
             expect(() => projectiveVector1.normalize()).to.throw(EM_NORM_TOO_SMALL);
+        });
+
+        it(`can transform a projective real 3D vector with weight management ${WeightManagement.AllStrictlyPositiveWeights} and a weight greater than ${NULL_WEIGHT_TOLERANCE} into a real 2D vector of a default 2D real vector space`, () => {
+            const coordinates = [6, 12];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(2), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            expect(projRealVector1.norm()).to.be.greaterThan(NULL_WEIGHT_TOLERANCE);
+            const result = projRealVector1.toRealVector();
+            expect(result.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(result.dimension).to.eql(dimension - 1);
+            for(let i = 0; i < coordinates.length; i++) {
+                expect(result.getCoordinate(i)).to.eql(coordinates[i] / projRealVector1.weight.value)
+            }
+            expect(result.vectorSpace.isDefault).to.eql(true);
+        });
+
+        it(`can transform a projective real 3D vector with weight management ${WeightManagement.AllStrictlyPositiveWeights} and a weight greater than ${NULL_WEIGHT_TOLERANCE} into a real 2D vector of a user-defined 2D real vector space`, () => {
+            const coordinates = [6, 12];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(2), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            expect(projRealVector1.weight.value).to.be.greaterThan(NULL_WEIGHT_TOLERANCE);
+            const realSpaceDimension = 2;
+            const realVSpace = new RealVectorSpace(realSpaceDimension);
+            const result = projRealVector1.toRealVector(realVSpace);
+            expect(result.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(result.dimension).to.eql(dimension - 1);
+            for(let i = 0; i < coordinates.length; i++) {
+                expect(result.getCoordinate(i)).to.eql(coordinates[i] / projRealVector1.weight.value)
+            }
+            expect(result.vectorSpace).to.eql(realVSpace)
+            expect(result.vectorSpace.isDefault).to.eql(false);
+        });
+
+        it(`cannot transform a projective real 3D vector with weight management ${WeightManagement.AllStrictlyPositiveWeights} and a weight smaller than ${NULL_WEIGHT_TOLERANCE} into a real 2D vector`, () => {
+            const coordinates = [6, 12];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(NULL_WEIGHT_TOLERANCE / 2), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            expect(projRealVector1.weight.value).to.be.lessThan(NULL_WEIGHT_TOLERANCE);
+            const realSpaceDimension = 2;
+            const realVSpace = new RealVectorSpace(realSpaceDimension);
+            expect(() => projRealVector1.toRealVector(realVSpace)).to.throw(EM_WEIGHT_TOO_SMALL);
         });
     });
 });

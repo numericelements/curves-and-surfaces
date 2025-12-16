@@ -1,10 +1,13 @@
 import { expect } from "chai";
 import { MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
-import { COMPLEX, COMPLEXWEIGHT, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector2D, PROJECTIVEVECTOR2D, REALVECTOR2D, WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ProjectiveVector2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { createTestProjectiveVector } from "./ProjectiveVectorSpaceTestFactory";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
-import { EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
+import { EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXWEIGHT, WEIGHT } from "../../src/namedConstants/WeightTypeTags";
+import { PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, REALVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('ProjectiveVectorSpace3DStrategy', () => {
     

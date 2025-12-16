@@ -1,6 +1,8 @@
 import { expect } from "chai";
-import { COMPLEX, ComplexVector, ComplexVector1D, COMPLEXVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ComplexVector, ComplexVector1D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 
 export type vectorTypeComplex = typeof COMPLEX | typeof COMPLEXVECTOR2D;
 

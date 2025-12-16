@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../../src/ErrorMessages/ProjectiveVectorSpace";
-import { PROJECTIVEVECTOR2D, ProjectiveVector2D, PROJECTIVEVECTOR3D, ProjectiveVector3D, WEIGHT, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ProjectiveVector2D, ProjectiveVector3D, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
 import { createCommonProjectiveVectorSpaceTests } from "./ProjectiveVectorSpaceTestFactory";
 import { PROJECTIVE_VECTOR_SPACE_NAME } from "../../src/namedConstants/VectorSpaceResolvers";
@@ -11,6 +11,8 @@ import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVector
 import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdentifierManager";
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
+import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
+import { PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('ProjectiveVectorSpace', () => {
     
@@ -221,6 +223,15 @@ describe('ProjectiveVectorSpace', () => {
                 3
             );
             
+        });
+
+        it('can get the description of a complex vector space as a string', () => {
+            for( const dim of [MIN_DIMENSION_PROJECTIVEVECTORSPACE, MAX_DIMENSION_PROJECTIVEVECTORSPACE]) {
+                const complexVectorSpace = new ProjectiveVectorSpace(dim);
+                expect(complexVectorSpace.toString()).to.eql(`${complexVectorSpace.name} [ID: ${complexVectorSpace.id}]`);
+                expect(complexVectorSpace.toString().includes(complexVectorSpace.name)).to.eql(true);
+                expect(complexVectorSpace.toString().includes(complexVectorSpace.id)).to.eql(true);
+            }
         });
 
         it(`cannot check that two vectors share the same weight management status if one of the vectors is not in the vector space`, () => {

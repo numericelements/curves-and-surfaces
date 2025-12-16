@@ -1,8 +1,11 @@
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
-import { getDefaultVectorSpace, resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { REALVECTOR4D, RealVector4D } from "./VectorSpaceConstructorInterface";
+import { IProjectiveVector } from "./Vector";
+import { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 4;
@@ -45,14 +48,35 @@ export class Vector4DTypeReal extends AbstractRealVector {
         }
         return this.data.coordinates[index];
     }
+
+    add(other: Vector4DTypeReal): Vector4DTypeReal {
+        return super.add(other) as Vector4DTypeReal;
+    }
+
+    subtract(other: Vector4DTypeReal): Vector4DTypeReal {
+        return super.subtract(other) as Vector4DTypeReal;
+    }
+
+    dot(other: Vector4DTypeReal): number {
+        return super.dot(other);
+    }
+
+    equals(other: Vector4DTypeReal, tolerance?: number): boolean {
+        return super.equals(other, tolerance);
+    }
+
+    isParallel(other: Vector4DTypeReal, angularTolerance?: number): boolean {
+        return super.isParallel(other, angularTolerance);
+    }
+
+    isOrthogonal(other: Vector4DTypeReal, angularTolerance?: number): boolean {
+        return super.isOrthogonal(other, angularTolerance);
+    }
     
-    // setCoordinate(index: number, value: number): void {
-    //     if (index < 0 || index >= SPACE_DIMENSION) {
-    //         const error = sendRangeErrorMessage(this.constructor.name, 'setCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
-    //         throw new RangeError(error.generateMessageString());
-    //     }
-    //     this.data.coordinates[index] = value;
-    // }
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector {
+        const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
+    }
     
     clone(): Vector4DTypeReal {
         return new Vector4DTypeReal(this.x!, this.y!, this.z!, this.t!, this.vectorSpace);

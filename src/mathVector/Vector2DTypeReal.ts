@@ -1,9 +1,15 @@
+import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
+import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { REALVECTOR2D, RealVector2D } from "./VectorSpaceConstructorInterface";
+import { IProjectiveVector } from "./Vector";
+import { RealVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import { Weight } from "./Weight";
 
 const SPACE_DIMENSION = 2;
 
@@ -43,14 +49,40 @@ export class Vector2DTypeReal extends AbstractRealVector {
         }
         return this.data.coordinates[index];
     }
+
+    add(other: Vector2DTypeReal): Vector2DTypeReal {
+        return super.add(other) as Vector2DTypeReal;
+    }
+
+    subtract(other: Vector2DTypeReal): Vector2DTypeReal {
+        return super.subtract(other) as Vector2DTypeReal;
+    }
+
+    dot(other: Vector2DTypeReal): number {
+        return super.dot(other);
+    }
+
+    equals(other: Vector2DTypeReal, tolerance?: number): boolean {
+        return super.equals(other, tolerance);
+    }
+
+    isParallel(other: Vector2DTypeReal, angularTolerance?: number): boolean {
+        return super.isParallel(other, angularTolerance);
+    }
+
+    isOrthogonal(other: Vector2DTypeReal, angularTolerance?: number): boolean {
+        return super.isOrthogonal(other, angularTolerance);
+    }
     
-    // setCoordinate(index: number, value: number): void {
-    //     if (index < 0 || index >= SPACE_DIMENSION) {
-    //         const error = sendRangeErrorMessage(this.constructor.name, 'setCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
-    //         throw new RangeError(error.generateMessageString());
-    //     }
-    //     this.data.coordinates[index] = value;
-    // }
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<3>): IProjectiveVector {
+        if (projectiveRealVectorSpace !== undefined) {
+            if(projectiveRealVectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
+                return new ProjectiveVector2DTypeReal(this.x, this.y, new Weight(1, false), projectiveRealVectorSpace);
+            }
+            return new ProjectiveVector2DTypeReal(this.x, this.y, new Weight(), projectiveRealVectorSpace);
+        }
+        return new ProjectiveVector2DTypeReal(this.x, this.y, new Weight());
+    }
     
     clone(): Vector2DTypeReal {
         return new Vector2DTypeReal(this.x!, this.y!, this.vectorSpace);

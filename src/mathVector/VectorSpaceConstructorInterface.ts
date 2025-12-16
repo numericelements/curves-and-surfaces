@@ -4,30 +4,17 @@
  */
 
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { IVector } from "./Vector";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR1D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, UNDEFINED_VECTORTYPE } from "../namedConstants/VectorTypeTags";
+import { COMPLEXWEIGHT, WEIGHT } from "../namedConstants/WeightTypeTags";
 import { Weight } from "./Weight";
 
 // ------------ Type Definitions ------------
-
-export const COMPLEX = 'Complex' as const;
-export const WEIGHT = 'Weight' as const;
-export const COMPLEXWEIGHT = 'ComplexWeight' as const;
-export const REALVECTOR1D = 'RealVector1D' as const;
-export const REALVECTOR2D = 'RealVector2D' as const;
-export const REALVECTOR3D = 'RealVector3D' as const;
-export const REALVECTOR4D = 'RealVector4D' as const;
-export const COMPLEXVECTOR1D = 'ComplexVector1D' as const;
-export const COMPLEXVECTOR2D = 'ComplexVector2D' as const;
-export const PROJECTIVEVECTOR2D = 'ProjectiveVector2D' as const;
-export const PROJECTIVEVECTOR3D = 'ProjectiveVector3D' as const;
-export const PROJECTIVECOMPLEXVECTOR1D = 'ProjectiveComplexVector1D' as const;
-export const UNDEFINED_VECTORTYPE = 'UndefinedVectorType' as const;
 
 /** Real numbers (ℝ) */
 export type Real = number;
 
 /** Complex numbers (ℂ) represented as [real, imaginary] */
-// export type Complex = [number, number];
 export interface IComplex {
     readonly type: typeof COMPLEX;
     real: number;
@@ -216,63 +203,3 @@ export const VECTOR_TYPE_INFO = {
     }
 } as const;
 
-
-// ------------ Vector Space Interface ------------
-
-/**
- * Vector Space interface following mathematical axioms
- * V is a vector space over field K if it satisfies the vector space axioms
- */
-export interface VectorSpace<K extends Scalar, V extends Vector> {
-    /** Additive identity element (zero vector) */
-    defaultVect(): V;
-    
-    /** Vector addition (commutative group operation) */
-    addRaw(a: V, b: V): V;
-    
-    /** Scalar multiplication */
-    scaleRaw(scalar: K, v: V): V;
-    
-    /** Vector subtraction (derived operation) */
-    subtractRaw(a: V, b: V): V;
-    
-    /** Dimension of the vector space */
-    dimension(): number;
-
-    /** Duplicate vector */
-    cloneRaw(v: V): V;
-
-    addVectors(v1: IVector, v2: IVector): IVector;
-}
-
-export interface RealVectorSpaceInterface extends VectorSpace<Real, RealVector> {
-    scaleRaw(scalar: Real, v: RealVector): RealVector;
-}
-
-export interface ComplexVectorSpaceInterface extends VectorSpace<IComplex | Real, ComplexVector> {
-    scaleRaw(scalar: IComplex, vector: ComplexVector): ComplexVector;
-    scaleRaw(scalar: Real, vector: ComplexVector): ComplexVector;
-}
-
-/**
- * Enhanced Vector Space Interface with Identity
- */
-export interface IdentifiableVectorSpace<K extends Scalar, V extends Vector> extends VectorSpace<K, V> {
-    /** Unique identifier for this vector space instance */
-    readonly id: string;
-    
-    /** Human-readable name for this vector space */
-    readonly name: string;
-    
-    /** Whether this is a default vector space managed by singleton */
-    readonly isDefault: boolean;
-    
-    /** Type of vector space (Real, Complex, etc.) */
-    readonly spaceType: VectorSpaceType;
-    
-    /** Check if this vector space is the same as another */
-    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean;
-    
-    /** Check if this vector space is isomorphic to another */
-    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean;
-}

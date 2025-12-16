@@ -1,13 +1,15 @@
 import { expect } from "chai";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
-import { ProjectiveVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, PROJECTIVEVECTOR3D, ProjectiveVector3D, WEIGHT, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { DEFAULT_WEIGHT } from "../../src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2";
 import { EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
 import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE } from "../../src/ErrorMessages/WeightManager";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
+import { PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D } from "../../src/namedConstants/VectorTypeTags";
+import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
 
 export function createCommonProjectiveVectorSpaceTests(
     createProjectiveVectorSpace: (weightManagement?: WeightManagement) => ProjectiveVectorSpace,

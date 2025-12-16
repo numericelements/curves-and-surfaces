@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { REALVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Vector2DTypeReal } from "../../src/mathVector/Vector2DTypeReal";
 
 describe('Vector', () => {

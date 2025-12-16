@@ -2,10 +2,11 @@ import { ANGULAR_TOL_VECTOR, EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTOR_NORM_TOO_
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IRealVector, VectorFactory } from "./Vector";
-import { RealVector, Vector } from "./VectorSpaceConstructorInterface";
+import { IProjectiveVector, IRealVector, VectorFactory } from "./Vector";
+import { ProjectiveVector, RealVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { EM_REALVECTORS_DIFFERENT_DIM } from "../ErrorMessages/RealVectorSpace";
+import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 
 /**
  * Abstract base for real vectors
@@ -21,7 +22,7 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
 
     abstract get descriptor(): RealVector;
     abstract get coordinates(): number[];
-
+    abstract toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector;
     abstract getCoordinate(index: number): number;
     abstract clone(): IRealVector;
     
@@ -52,24 +53,11 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
     }
 
     toString(): string {
-        return this.vectorType + `(${this.toArray().join(', ')})`;
+        return this.vectorType + `(${this.toArray().join(', ')})` + ` ` + this._vectorSpace.toString();
     }
 
     equals(other: IRealVector, tolerance?: number): boolean {
-        if (this.dimension !== other.dimension) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_REALVECTORS_DIFFERENT_DIM);
-            throw new RangeError(error.generateMessageString());
-        } else if(this._vectorSpace !== other.vectorSpace) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_VECTORS_DIFFERENT_VECTOR_SPACES);
-            throw new RangeError(error.generateMessageString());
-        }
-        if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
-        for (let i = 0; i < this.dimension; i++) {
-            if(this.getCoordinate(i) * other.getCoordinate(i) > 0 && Math.abs(this.getCoordinate(i) - other.getCoordinate(i)) > tolerance) {
-                return false;
-            }
-        }
-        return true;
+        return super.equals(other, tolerance);
     }
 
     isParallel(other: IRealVector, angularTolerance?: number): boolean {

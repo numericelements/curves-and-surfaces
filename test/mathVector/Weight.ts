@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { Weight } from "../../src/mathVector/Weight";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../../src/ErrorMessages/Weight";
-import { WEIGHT } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
 
 describe('Weight', () => {
 

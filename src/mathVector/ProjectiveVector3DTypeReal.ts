@@ -1,12 +1,16 @@
+import { EM_WEIGHT_TOO_SMALL } from "../ErrorMessages/ProjectiveVectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { PROJECTIVEVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
+import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { RealVectorSpace } from "./RealVectorSpace";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
-import { PROJECTIVEVECTOR3D, ProjectiveVector3D, WEIGHT } from "./VectorSpaceConstructorInterface";
+import { ProjectiveVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -81,31 +85,49 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
         if (index === SPACE_DIMENSION - 1) return this.data.coordinates[3].weight.value;
         return this.data.coordinates[index] as number;
     }
-    
-    // setCoordinate(index: number, value: number): void {
-    //     if (index < 0 || index >= 4) throw new RangeError('Coordinate index out of bounds');
-    //     if (index === 3) {
-    //         this.data.coordinates[3].value = new Weight(value);
-    //     } else {
-    //         this.data.coordinates[index] = value;
-    //     }
-    // }
-    
-    normalize(): ProjectiveVector3DTypeReal {
-        return super.normalize() as ProjectiveVector3DTypeReal;
+
+    add(other: ProjectiveVector3DTypeReal): ProjectiveVector3DTypeReal {
+        return super.add(other) as ProjectiveVector3DTypeReal;
+    }
+
+    subtract(other: ProjectiveVector3DTypeReal): ProjectiveVector3DTypeReal {
+        return super.subtract(other) as ProjectiveVector3DTypeReal;
     }
     
-    toCartesian(): Vector3DTypeReal {
-        const normalized = this.normalize();
+    equals(other: ProjectiveVector3DTypeReal, tolerance?: number): boolean {
+        return super.equals(other, tolerance);
+    }
+
+    isParallel(other: ProjectiveVector3DTypeReal, angularTolerance?: number): boolean {
+        return super.isParallel(other, angularTolerance);
+    }
+
+    isOrthogonal(other: ProjectiveVector3DTypeReal, angularTolerance?: number): boolean {
+        return super.isOrthogonal(other, angularTolerance);
+    }
+    
+    toRealVector(realVSpace?: RealVectorSpace<3>): Vector3DTypeReal {
+        if(this.weight.value < NULL_WEIGHT_TOLERANCE) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'toVector3DReal', EM_WEIGHT_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+        if(realVSpace !== undefined) {
+            return new Vector3DTypeReal(
+                this.coordinates[0] / this.coordinates[SPACE_DIMENSION - 1],
+                this.coordinates[1] / this.coordinates[SPACE_DIMENSION - 1],
+                this.coordinates[2] / this.coordinates[SPACE_DIMENSION - 1],
+                realVSpace
+            );
+        }
         return new Vector3DTypeReal(
-            normalized.data.coordinates[0],
-            normalized.data.coordinates[1],
-            normalized.data.coordinates[2]
+            this.coordinates[0] / this.coordinates[SPACE_DIMENSION - 1],
+            this.coordinates[1] / this.coordinates[SPACE_DIMENSION - 1],
+            this.coordinates[2] / this.coordinates[SPACE_DIMENSION - 1]
         );
     }
 
     toString(): string {
-        return this.vectorType + `(${this.data.coordinates[0]}, ${this.data.coordinates[1]}, ${this.data.coordinates[2]}, ${this.weight.toString()})`;
+        return this.vectorType + `(${this.data.coordinates[0]}, ${this.data.coordinates[1]}, ${this.data.coordinates[2]}, ${this.weight.toString()})` + ` ` + this._vectorSpace.toString();
     }
     
     clone(): ProjectiveVector3DTypeReal {

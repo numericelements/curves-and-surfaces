@@ -6,8 +6,8 @@ import { IComplexVector } from "../../src/mathVector/Vector";
 import { Complex } from "../../src/mathVector/Complex";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
-import { COMPLEXVECTOR1D, ComplexVector2D, IComplex } from "../../src/mathVector/VectorSpaceConstructorInterface";
-import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
+import { ComplexVector2D, IComplex } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { COMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
 
 let complex1 = new Complex(1, 2);
 let complex2 = new Complex(3, 4);

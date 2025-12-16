@@ -1,8 +1,10 @@
 import { expect } from "chai";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { IComplex, COMPLEX, COMPLEXVECTOR2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { IComplex } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { createTestComplexVector } from "./ComplexVectorSpaceTestFactory";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 
 
 describe('ComplexVectorSpace2DStrategy', () => {

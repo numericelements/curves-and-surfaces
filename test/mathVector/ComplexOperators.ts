@@ -1,16 +1,24 @@
 import { expect } from "chai";
-import { IComplex, COMPLEX, IComplexWeight, COMPLEXWEIGHT, WEIGHT, IWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { IComplex, IComplexWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
-import { addComplexUsingDescriptors, addComplexWeightsUsingDescriptors, conjugateUsingDescriptor, createComplexDescriptor, magnitudeUsingDescriptor, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors, subtractComplexWeightsUsingDescriptors } from "../../src/mathVector/ComplexNumberFactory";
+import { addComplexUsingDescriptors, addComplexWeightsUsingDescriptors, conjugateUsingDescriptor, createComplex, createComplexDescriptor, magnitudeUsingDescriptor, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors, subtractComplexWeightsUsingDescriptors } from "../../src/mathVector/ComplexNumberFactory";
 import { NULL_WEIGHT_TOLERANCE } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../../src/ErrorMessages/ComplexOperators";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
+import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
+import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
 
 describe('ComplexNumbersFactory', () => {
 
-    it('can create a complex number', () => {
+    it('can create a complex number descriptor', () => {
         const result = createComplexDescriptor(1, 2);
         expect(result.type).to.eql(COMPLEX);
+        expect(result.real).to.eql(1);
+        expect(result.imaginary).to.eql(2);
+    });
+
+    it('can create a complex number as an object', () => {
+        const result = createComplex(1, 2);
         expect(result.real).to.eql(1);
         expect(result.imaginary).to.eql(2);
     });
@@ -317,18 +325,4 @@ describe('ComplexNumbersFactory', () => {
         const c2: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(3)};
         expect(() => multiplyComplexWeightsUsingDescriptors(c1, c2)).to.throw(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY);
     });
-
-    // it('can clone a complex weight', () => {
-    //     let c1: ComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(2)};
-    //     const result = ComplexOperators.cloneWeight(c1);
-    //     expect(result.type).to.eql(COMPLEXWEIGHT);
-    //     expect(result.real.value).to.eql(1.5);
-    //     expect(result.real.strictlyPositive).to.eql(true);
-    //     expect(result.imaginary.value).to.eql(2);
-    //     expect(result.imaginary.strictlyPositive).to.eql(true);
-    //     c1.real = new Weight(3);
-    //     c1.imaginary = new Weight(4);
-    //     expect(result.real.value).to.eql(1.5);
-    //     expect(result.imaginary.value).to.eql(2);
-    // });
 });

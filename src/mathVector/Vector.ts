@@ -1,5 +1,7 @@
 
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import { Complex } from "./Complex";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { ComplexWeight } from "./ComplexWeight";
@@ -15,9 +17,59 @@ import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import { Vector4DTypeReal } from "./Vector4DTypeReal";
-import { VectorInVectorSpace } from "./VectorInVectorSpace";
-import { COMPLEX, IComplex, ComplexVector, IComplexWeight, IdentifiableVectorSpace, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, VectorSpace, COMPLEXVECTOR2D } from "./VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, Scalar, Vector } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
+
+
+/**
+ * Vector Space interface following mathematical axioms
+ * V is a vector space over field K if it satisfies the vector space axioms
+ */
+export interface VectorSpace<K extends Scalar, V extends Vector> {
+    /** Additive identity element (zero vector) */
+    defaultVect(): V;
+    
+    /** Vector addition (commutative group operation) */
+    addRaw(a: V, b: V): V;
+    
+    /** Scalar multiplication */
+    scaleRaw(scalar: K, v: V): V;
+    
+    /** Vector subtraction (derived operation) */
+    subtractRaw(a: V, b: V): V;
+    
+    /** Dimension of the vector space */
+    dimension(): number;
+
+    /** Duplicate vector */
+    cloneRaw(v: V): V;
+
+    addVectors(v1: IVector, v2: IVector): IVector;
+}
+
+
+/**
+ * Enhanced Vector Space Interface with Identity
+ */
+export interface IdentifiableVectorSpace<K extends Scalar, V extends Vector> extends VectorSpace<K, V> {
+    /** Unique identifier for this vector space instance */
+    readonly id: string;
+    
+    /** Human-readable name for this vector space */
+    readonly name: string;
+    
+    /** Whether this is a default vector space managed by singleton */
+    readonly isDefault: boolean;
+    
+    /** Type of vector space (Real, Complex, etc.) */
+    readonly spaceType: VectorSpaceType;
+    
+    /** Check if this vector space is the same as another */
+    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean;
+    
+    /** Check if this vector space is isomorphic to another */
+    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean;
+}
 
 /**
  * Core vector interface - all vector classes implement this
@@ -114,10 +166,9 @@ export interface IProjectiveVector extends IVector {
     readonly vectorSpace: ProjectiveVectorSpace<any>;
     readonly weight: Weight;
     readonly descriptor: ProjectiveVector;
-    readonly coordinates: (number | Complex)[];
+    readonly coordinates: number[];
     readonly homogeneousCoordinates: (number | IComplex)[];
     getCoordinate(index: number): number;
-    // setCoordinate(index: number, value: number): void;
     
     add(other: IProjectiveVector): IProjectiveVector;
     subtract(other: IProjectiveVector): IProjectiveVector;
@@ -126,7 +177,7 @@ export interface IProjectiveVector extends IVector {
     // Projective-specific methods
     clone(): IProjectiveVector;
     normalize(): IProjectiveVector;
-    toCartesian(): IRealVector | IComplexVector;
+    toRealVector(realVectorSpace?: RealVectorSpace<any>): IRealVector;
 }
 
 export interface IProjectiveComplexVector extends IVector {
@@ -142,7 +193,7 @@ export interface IProjectiveComplexVector extends IVector {
 
     // Projective-specific methods
     normalize(): IProjectiveComplexVector;
-    toCartesian(): IRealVector | IComplexVector;
+    toComplexVector(): IRealVector | IComplexVector;
 }
 
 

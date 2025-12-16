@@ -99,7 +99,7 @@ export class WeightManagerSomeNullWeightStrategy {
         }
         let newWeight = new ComplexWeight(newWeightR, newWeightI);
         if(!weightV1.real.strictlyPositive && !weightV2.real.strictlyPositive) {
-            newWeight = new ComplexWeight(new Weight(this.addWeights(weightV1.real, weightV2.real).value, false), new Weight(this.addWeights(weightV1.imaginary, weightV2.imaginary).value, false));
+            newWeight = new ComplexWeight(new Weight(this.subtractWeights(weightV1.real, weightV2.real).value, false), new Weight(this.subtractWeights(weightV1.imaginary, weightV2.imaginary).value, false));
         }
         return newWeight;
     }

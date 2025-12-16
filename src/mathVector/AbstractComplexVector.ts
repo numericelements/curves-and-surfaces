@@ -31,6 +31,10 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         return super.subtract(other) as IComplexVector;
     }
 
+    dot(other: IComplexVector): number {
+        return super.dot(other) as number;
+    }
+
     scale(scalar: number): IComplexVector;
     scale(scalar: Complex): IComplexVector;
     scale(scalar: number | Complex): IComplexVector {
@@ -38,7 +42,6 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         return this.createVectorFromRaw(result);
     }
     
-
     revert(): IComplexVector {
         return super.revert() as IComplexVector;   
     }
@@ -54,21 +57,7 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         return coord.imaginary;
     }
     
-    // setReal(index: number, value: number): void {
-    //     const coord = this.getCoordinate(index);
-    //     this.setCoordinate(index, { ...coord, real: value });
-    // }
-    
-    // setImaginary(index: number, value: number): void {
-    //     const coord = this.getCoordinate(index);
-    //     this.setCoordinate(index, { ...coord, imaginary: value });
-    // }
-    
     toArray(): number[] {
-        // Flatten complex coordinates to [real1, imag1, real2, imag2, ...]
-        // return this.coordinates.flatMap(c => [c.real, c.imaginary]);
-
-        // return [this.coordinates[0].real, this.coordinates[0].imaginary]
         let result: number[] = [];
         for (let i = 0; i < this.dimension; i++) {
             result.push(this.coordinates[i].real);
@@ -80,22 +69,7 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     abstract toString(): string;
 
     equals(other: IComplexVector, tolerance?: number): boolean {
-        if (this.dimension !== other.dimension) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_COMPLEXVECTORS_DIFFERENT_DIM);
-            throw new RangeError(error.generateMessageString());
-        } else if(this._vectorSpace !== other.vectorSpace) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_VECTORS_DIFFERENT_VECTOR_SPACES);
-            throw new RangeError(error.generateMessageString());
-        }
-        if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
-        for (let i = 0; i < this.dimension; i++) {
-            if(this.getCoordinate(i).real * other.getCoordinate(i).real > 0 && Math.abs(this.getCoordinate(i).real - other.getCoordinate(i).real) > tolerance) {
-                return false;
-            } else if(this.getCoordinate(i).imaginary * other.getCoordinate(i).imaginary > 0 && Math.abs(this.getCoordinate(i).imaginary - other.getCoordinate(i).imaginary) > tolerance) {
-                return false;
-            }
-        }
-        return true;
+        return super.equals(other, tolerance);
     }
 
     isParallel(other: IComplexVector, tolerance?: number): boolean {

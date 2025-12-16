@@ -1,8 +1,11 @@
 import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/ProjectiveVectorSpace";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
+import { COMPLEXWEIGHT, WEIGHT } from "../namedConstants/WeightTypeTags";
 import { ProjectiveVectorSpaceStrategy } from "./ProjectiveVectorSpace";
-import { COMPLEX, IComplexWeight, COMPLEXWEIGHT, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, Real, RealVector, REALVECTOR2D, WEIGHT, IWeight } from "./VectorSpaceConstructorInterface";
+import { IComplexWeight, ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, Real, RealVector, IWeight } from "./VectorSpaceConstructorInterface";
 import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";

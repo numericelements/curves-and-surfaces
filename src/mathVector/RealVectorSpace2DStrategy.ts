@@ -1,6 +1,9 @@
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/RealVectorSpace";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { PROJECTIVEVECTOR2D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
+import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import { RealVectorSpaceStrategy } from "./RealVectorSpace";
-import { COMPLEX, ComplexVector, PROJECTIVEVECTOR2D, ProjectiveVector2D, Real, RealVector, RealVector2D, REALVECTOR2D, WEIGHT } from "./VectorSpaceConstructorInterface";
+import { ComplexVector, ProjectiveVector2D, Real, RealVector, RealVector2D } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

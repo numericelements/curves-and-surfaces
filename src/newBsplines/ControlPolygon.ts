@@ -1,5 +1,5 @@
 import { VectorCollection1D } from "../mathVector/VectorCollection1D";
-import { ComplexVector1D, ComplexVector2D, ProjectiveComplexVector1D, ProjectiveVector2D, ProjectiveVector3D, RealVector1D, RealVector2D, RealVector3D, RealVector4D, Vector, VectorSpace } from "../mathVector/VectorSpaceConstructorInterface";
+import { ComplexVector1D, ComplexVector2D, ProjectiveComplexVector1D, ProjectiveVector2D, ProjectiveVector3D, RealVector1D, RealVector2D, RealVector3D, RealVector4D, Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { areSameVSpaceAndDimension, getVectorSpaceTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { ControlPolygonComplexProjectiveVectorStrategy } from "./ControlPolygonComplexProjectiveVectorStrategy";

@@ -1,9 +1,11 @@
 // ------------ Complex Number Operations ------------
 
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../ErrorMessages/ComplexOperators";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
+import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { Complex } from "./Complex";
-import { COMPLEX, IComplex, COMPLEXWEIGHT, IComplexWeight } from "./VectorSpaceConstructorInterface";
+import { IComplex, IComplexWeight } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -97,11 +99,11 @@ export function subtractComplexWeightsUsingDescriptors(a: IComplexWeight, b: ICo
         return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
     }
     if(realRes < 0 || imaginaryRes < 0) {
-        let error = sendRangeErrorMessage('ComplexOperators', 'subtractWeights', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
+        let error = sendRangeErrorMessage('ComplexOperators', 'subtractComplexWeightsUsingDescriptors', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
         if (realRes < 0 && imaginaryRes < 0) {
-            error = sendRangeErrorMessage('ComplexOperators', 'subtractWeights', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY);
+            error = sendRangeErrorMessage('ComplexOperators', 'subtractComplexWeightsUsingDescriptors', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY);
         } else if (imaginaryRes < 0) {
-            error = sendRangeErrorMessage('ComplexOperators', 'subtractWeights', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY);
+            error = sendRangeErrorMessage('ComplexOperators', 'subtractComplexWeightsUsingDescriptors', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY);
         }
         throw new RangeError(error.generateMessageString());
     }
@@ -122,11 +124,11 @@ export function multiplyComplexWeightsUsingDescriptors(a: IComplex, b: IComplexW
         return {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
     }
     if(realRes < 0 || imaginaryRes < 0) {
-        let error = sendRangeErrorMessage('ComplexOperators', 'subtractWeights', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
+        let error = sendRangeErrorMessage('ComplexOperators', 'multiplyComplexWeightsUsingDescriptors', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
         if (realRes < 0 && imaginaryRes < 0) {
-            error = sendRangeErrorMessage('ComplexOperators', 'subtractWeights', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY);
+            error = sendRangeErrorMessage('ComplexOperators', 'multiplyComplexWeightsUsingDescriptors', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY);
         } else if (imaginaryRes < 0) {
-            error = sendRangeErrorMessage('ComplexOperators', 'subtractWeights', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY);
+            error = sendRangeErrorMessage('ComplexOperators', 'multiplyComplexWeightsUsingDescriptors', EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY);
         }
         throw new RangeError(error.generateMessageString());
     }

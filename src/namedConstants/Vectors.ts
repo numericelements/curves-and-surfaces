@@ -31,3 +31,5 @@ export const WM_VECTOR_NORM_TOO_SMALL = 'The norm of the vector is smaller than 
 
 // Error message when the weight status of a projective vector is incompatible with the weight management assigned to the vector space
 export const EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE = 'The weight status of the projective vector is incompatible with the weight management assigned to the vector space';
+
+export const EM_VECTORSPACE_DIMENSION_INCOMPATIBLE = `This method is not implemented for the current vector space dimension.`;

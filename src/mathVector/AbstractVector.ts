@@ -1,8 +1,8 @@
 import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { EM_NORM_TOO_SMALL, EM_VECTOR_NOT_APPLICABLE_TO_NORM, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
+import { EM_NORM_TOO_SMALL, EM_VECTOR_NOT_APPLICABLE_TO_NORM, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { IVector } from "./Vector";
-import { IComplex, IdentifiableVectorSpace, Scalar, Vector, VectorSpace } from "./VectorSpaceConstructorInterface";
+import { IdentifiableVectorSpace, IVector } from "./Vector";
+import { IComplex, Scalar, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Complex } from "./Complex";
 
@@ -21,7 +21,6 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     abstract get coordinates(): (number | Complex)[];
 
     abstract getCoordinate(index: number): number | Complex;
-    // abstract setCoordinate(index: number, value: number | Complex): void;
     abstract clone(): IVector;
     
 
@@ -85,9 +84,23 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
         throw new Error('Dot product not available for this vector space');
     }
 
-    // Common implementations
-    abstract equals(other: IVector, tolerance?: number): boolean;
+    equals(other: IVector, tolerance?: number): boolean {
+        if(this._vectorSpace !== other.vectorSpace) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_VECTORS_DIFFERENT_VECTOR_SPACES);
+            throw new RangeError(error.generateMessageString());
+        }
+        const currentVector = this.toArray();
+        const otherVector = other.toArray();
+        const tol = tolerance ?? LINEAR_TOL_VECTOR;
+        for (let i = 0; i < currentVector.length; i++) {
+            if (Math.abs(currentVector[i] - otherVector[i]) > tol) {
+                return false;
+            }
+        }
+        return true;
+    }
 
+    // Common implementations
     // abstract distanceToPoint(point: Point): number;
     // abstract angleTo(other: IVector): number;
     // abstract isColinear(other: IVector, tolerance?: number): boolean;

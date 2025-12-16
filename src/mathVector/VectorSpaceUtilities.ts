@@ -1,6 +1,8 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { COMPLEX, ComplexVector, COMPLEXVECTOR2D, ProjectiveComplexVector, PROJECTIVECOMPLEXVECTOR1D, ProjectiveVector, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, RealVector, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, Scalar, Vector, Vector2D, Vector3D, Vector4D, VECTOR_TYPE_INFO } from "./VectorSpaceConstructorInterface";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
+import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, Scalar, Vector, Vector2D, Vector3D, Vector4D, VECTOR_TYPE_INFO } from "./VectorSpaceConstructorInterface";
 
 // ------------ Type Guards ------------
 

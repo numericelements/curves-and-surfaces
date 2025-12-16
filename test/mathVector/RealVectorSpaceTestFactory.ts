@@ -1,7 +1,8 @@
 import { expect } from "chai";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { Real, RealVector, RealVector2D, REALVECTOR2D, RealVector3D, REALVECTOR3D, RealVector4D, REALVECTOR4D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { RealVector, RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
 
 
 export type vectorTypeReal = 'number' | typeof REALVECTOR2D | typeof REALVECTOR3D | typeof REALVECTOR4D;

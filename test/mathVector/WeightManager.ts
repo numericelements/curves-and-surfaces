@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { WeightManager } from "../../src/mathVector/WeightManager";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
-import { EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_TOGGLE_STATUS_INCOMPATIBLE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT, EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_WEIGHT_SUBTRACTION_ERROR } from "../../src/ErrorMessages/WeightManager";
+import { EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_TOGGLE_STATUS_INCOMPATIBLE, EM_WEIGHT_MANAGEMENT_UNKOWN, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT, EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_WEIGHT_SUBTRACTION_ERROR } from "../../src/ErrorMessages/WeightManager";
 import { WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE, WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE } from "../../src/WarningMessages/WeightManager";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
@@ -27,6 +27,11 @@ describe('WeightManager', () => {
         it('can generate a Weight manager with ' + WeightManagement.SomeNullWeights + ' weight management', () => {
             const weightManagement = WeightManagement.SomeNullWeights;
             expect(() => new WeightManager(weightManagement)).to.not.throw()
+        });
+
+        it('cannot generate a Weight manager with a weight management outside ' + `(`+ WeightManagement.AllPositiveWeights + WeightManagement.AllStrictlyPositiveWeights + WeightManagement.SomeNullWeights + `)`, () => {
+            const weightManagement = ('Invalid weight management' as unknown) as WeightManagement;
+            expect(() => new WeightManager(weightManagement)).to.throw(EM_WEIGHT_MANAGEMENT_UNKOWN)
         });
 
     });
@@ -533,6 +538,28 @@ describe('WeightManager', () => {
             expect(weight.value - weight1.value).to.be.lessThan(0);
             expect(Math.abs(weight.value - weight1.value)).to.be.greaterThan(NULL_WEIGHT_TOLERANCE);
             expect(() => weightManager.subtractWeights(weight, weight1)).to.throw(EM_WEIGHT_SUBTRACTION_ERROR)
+        });
+
+        it('can subtract weights with management category ' + WeightManagement.SomeNullWeights + `and values smaller than ${NULL_WEIGHT_TOLERANCE} and propagate a strictlyPositive status false when weights have the same status or different statuses`, () => {
+            const weightManagement = WeightManagement.SomeNullWeights;
+            const weightManager = new WeightManager(weightManagement);
+            // configuration propagating strictlyPositive status to false
+            let weight = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+            expect(weight.value).to.be.lessThan(NULL_WEIGHT_TOLERANCE);
+            const value = NULL_WEIGHT_TOLERANCE / 3;
+            let weight1 = new Weight(value, false);
+            expect(weight1.value).to.be.lessThan(NULL_WEIGHT_TOLERANCE);
+            const newWeight2 = weightManager.subtractWeights(weight, weight1);
+            expect(newWeight2.strictlyPositive).to.eql(false);
+            // configuration promoting strictlyPositive status to false
+            weight = new Weight(NULL_WEIGHT_TOLERANCE / 2);
+            const newWeight3 = weightManager.subtractWeights(weight, weight1);
+            expect(newWeight3.strictlyPositive).to.eql(false);
+            // configuration promoting strictlyPositive status to false
+            weight = new Weight(NULL_WEIGHT_TOLERANCE / 2, false);
+            weight1 = new Weight(value);
+            const newWeight4 = weightManager.subtractWeights(weight, weight1);
+            expect(newWeight4.strictlyPositive).to.eql(false);
         });
 
         it(`cannot scale weight if the scale factor is strictly negative under ${WeightManagement.AllStrictlyPositiveWeights} management`, () => {
@@ -1310,6 +1337,24 @@ describe('WeightManager', () => {
             expect(newWeight.imaginary.value).to.be.closeTo(NULL_WEIGHT_TOLERANCE / 2, TOLERANCE_FLOAT);
         });
 
+        it(`assigns a false strictlyPositive status, whatever with input complex weights of status false, if the subtraction produces a positive complex weight smaller than ${NULL_WEIGHT_TOLERANCE} under ` + WeightManagement.SomeNullWeights + ' management' , () => {
+            const weightR = new Weight(DEFAULT_WEIGHT_VALUE, false);
+            const weightI = new Weight(DEFAULT_WEIGHT_VALUE, false);
+            const weight = new ComplexWeight(weightR, weightI);
+            const value = DEFAULT_WEIGHT_VALUE - NULL_WEIGHT_TOLERANCE / 2;
+            const weight1R = new Weight(DEFAULT_WEIGHT_VALUE / 2, false);
+            const weight1I = new Weight(value, false);
+            const weight1 = new ComplexWeight(weight1R, weight1I);
+            const weightManagement = WeightManagement.SomeNullWeights;
+            const weightManager = new WeightManager(weightManagement);
+            expect(weightI.value - weight1I.value).to.be.greaterThan(0);
+            expect(Math.abs(weightI.value - weight1I.value)).to.be.lessThan(NULL_WEIGHT_TOLERANCE);
+            const newWeight = weightManager.subtractComplexWeights(weight, weight1);
+            expect(newWeight.real.strictlyPositive).to.eql(false)
+            expect(newWeight.imaginary.strictlyPositive).to.eql(false);
+            expect(newWeight.imaginary.value).to.be.closeTo(NULL_WEIGHT_TOLERANCE / 2, TOLERANCE_FLOAT);
+        });
+
         it(`assigns a true strictlyPositive status, whatever the status of the input complex weights, if the subtraction produces a positive complex weight greater than ${NULL_WEIGHT_TOLERANCE} under ` + WeightManagement.SomeNullWeights + ' management' , () => {
             const weightR = new Weight();
             const weightI = new Weight();
@@ -1744,7 +1789,7 @@ describe('WeightManager', () => {
             expect(newWeight.imaginary.strictlyPositive).to.eql(false);
         });
 
-        it(`can scale a complex weight if the complex scale factor is null and assign a false strictlyPositive status under ${WeightManagement.SomeNullWeights} management`, () => {
+        it(`can scale a complex weight if the scaled real weight is null and assign a false strictlyPositive status under ${WeightManagement.SomeNullWeights} management`, () => {
             const value = NULL_WEIGHT_TOLERANCE / 3;
             let weightR = new Weight(value, false);
             let weightI = new Weight(value, false);
@@ -1767,6 +1812,32 @@ describe('WeightManager', () => {
             expect(newWeight.real.value).to.eql(0)
             expect(newWeight.real.strictlyPositive).to.eql(false);
             expect(newWeight.imaginary.value).to.eql(weightC.multiply(scale).imaginary)
+            expect(newWeight.imaginary.strictlyPositive).to.eql(false);
+        });
+
+        it(`can scale a complex weight if the scaled imaginary weight is null and assign a false strictlyPositive status under ${WeightManagement.SomeNullWeights} management`, () => {
+            const value = NULL_WEIGHT_TOLERANCE / 3;
+            let weightR = new Weight(DEFAULT_WEIGHT_VALUE, false);
+            let weightI = new Weight(value, false);
+            let weight = new ComplexWeight(weightR, weightI);
+            let scale = new Complex(1, value);
+            const weightC = new Complex(weightR.value, weightI.value);
+            expect(weightC.multiply(scale).real).to.be.greaterThan(NULL_WEIGHT_TOLERANCE);
+            expect(weightC.multiply(scale).imaginary).to.be.lessThan(NULL_WEIGHT_TOLERANCE);
+            const weightManagement = WeightManagement.SomeNullWeights;
+            const weightManager = new WeightManager(weightManagement);
+            let newWeight = weightManager.scaleComplexWeight(weight, scale);
+            expect(newWeight.real.value).to.eql(weightC.multiply(scale).real)
+            expect(newWeight.real.strictlyPositive).to.eql(weightR.strictlyPositive);
+            expect(newWeight.imaginary.value).to.eql(0)
+            expect(newWeight.imaginary.strictlyPositive).to.eql(weightI.strictlyPositive);
+            weightR = new Weight(DEFAULT_WEIGHT_VALUE);
+            weightI = new Weight(value);
+            weight = new ComplexWeight(weightR, weightI);
+            newWeight = weightManager.scaleComplexWeight(weight, scale);
+            expect(newWeight.real.value).to.eql(weightC.multiply(scale).real)
+            expect(newWeight.real.strictlyPositive).to.eql(false);
+            expect(newWeight.imaginary.value).to.eql(0)
             expect(newWeight.imaginary.strictlyPositive).to.eql(false);
         });
 
