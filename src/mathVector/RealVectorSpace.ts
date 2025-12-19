@@ -6,16 +6,14 @@ import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifier
 import { REAL_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
+import { IdentifiableVectorSpace } from "./IVectorSpace";
 import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
 import { RealVectorSpace2DStrategy } from "./RealVectorSpace2DStrategy";
 import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
 import { RealVectorSpace4DStrategy } from "./RealVectorSpace4DStrategy";
-import { IdentifiableVectorSpace, IVector } from "./Vector";
-import { Vector1DTypeReal } from "./Vector1DTypeReal";
-import { Vector2DTypeReal } from "./Vector2DTypeReal";
-import { Vector3DTypeReal } from "./Vector3DTypeReal";
-import { Vector4DTypeReal } from "./Vector4DTypeReal";
-import { ComplexVector, ProjectiveVector, Real, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
+import { IVector } from "./Vector";
+import { ComplexVector, ProjectiveVector, Real, RealVector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -23,31 +21,12 @@ import { Weight } from "./Weight";
  * Implementation of a real vector space
  */
 
-// Strategy interface
-export interface RealVectorSpaceStrategy<D extends number>  {
-    areSameDimension(v1: RealVector, v2: RealVector): boolean;
-    isInVectorSpace(v: RealVector): v is RealVector;
-    createVector(coordinates: Real[]): RealVectorOfDimension<D>;
-    defaultVect(): RealVectorOfDimension<D>;
-    addRaw(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
-    scaleRaw(scalar: Real, v: RealVector): RealVectorOfDimension<D>;
-    subtractRaw(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
-    cloneRaw(v: RealVector): RealVectorOfDimension<D>;
-    normRaw(v: RealVector): number;
-    normalizeRaw(v: RealVector): RealVector;
-    crossProductRaw(a: RealVector, b: RealVector): RealVector;
-    dotRaw(a: RealVector, b: RealVector): number;
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight): ProjectiveVector;
-    fromRealVectorSpaceToComplexVectorSpace(v: RealVector): ComplexVector
-}
-
-// Main class using strategy
 export class RealVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Real, RealVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
     protected readonly dim: D;
-    protected strategy: RealVectorSpaceStrategy<D>;
+    protected strategy: IRealVectorSpaceStrategy<D>;
     
     constructor(dimension: D, isDefault: boolean = false, name?: string) {
         this.dim = dimension;
@@ -65,16 +44,16 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         }
         switch(this.dim) {
             case MIN_DIMENSION_REALVECTORSPACE:
-                this.strategy = new RealVectorSpace1DStrategy() as unknown as RealVectorSpaceStrategy<D>;
+                this.strategy = new RealVectorSpace1DStrategy() as unknown as IRealVectorSpaceStrategy<D>;
                 break;
             case 2:
-                this.strategy = new RealVectorSpace2DStrategy() as RealVectorSpaceStrategy<D>;
+                this.strategy = new RealVectorSpace2DStrategy() as IRealVectorSpaceStrategy<D>;
                 break;
             case 3:
-                this.strategy = new RealVectorSpace3DStrategy() as unknown as RealVectorSpaceStrategy<D>;
+                this.strategy = new RealVectorSpace3DStrategy() as unknown as IRealVectorSpaceStrategy<D>;
                 break;
             case MAX_DIMENSION_REALVECTORSPACE:
-                this.strategy = new RealVectorSpace4DStrategy() as unknown as RealVectorSpaceStrategy<D>;
+                this.strategy = new RealVectorSpace4DStrategy() as unknown as IRealVectorSpaceStrategy<D>;
                 break;
             default:
                 const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -119,50 +98,9 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         return vect;
     }
 
-    /**
-     * Creates a vector active into this vector space
-     * @param coordinates - Vector coordinates
-     * @returns VectorInVectorSpace instance for fluent operations
-     */
-    // createVectorInVectorSpace(coordinates: Real[]): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
-    //     const vector = this.createVector(coordinates);
-    //     return this.bindVector(vector);
-    // }
-
-
-    /**
-     * Creates multiple bound vectors at once
-     */
-    // createVectorsInVectorSpace(...coordinateSets: Real[][]): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>>[] {
-    //     return coordinateSets.map(coords => this.createVectorInVectorSpace(coords));
-    // }
-
-    /**
-     * Binds an existing vector to this vector space
-     * Mathematical concept: embedding a vector into the vector space context
-     * @param vector - Vector to bind
-     * @returns VectorInVectorSpace instance for enhanced operations
-     */
-    // bindVector(vector: RealVectorOfDimension<D>): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>>;
-    // bindVector(vector: RealVector1D): VectorInVectorSpace<Real, RealVector1D, RealVectorSpace<1>>;
-    // bindVector(vector: RealVector2D): VectorInVectorSpace<Real, RealVector2D, RealVectorSpace<2>>;
-    // bindVector(vector: RealVector3D): VectorInVectorSpace<Real, RealVector3D, RealVectorSpace<3>>;
-    // bindVector(vector: RealVector4D): VectorInVectorSpace<Real, RealVector4D, RealVectorSpace<4>>;
-    // bindVector(vector: RealVectorOfDimension<D>): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
-    //     if (!this.isInVectorSpace(vector)) {
-    //         const message = sendRangeErrorMessage(this.constructor.name, 'bindVector', EM_REALVECTOR_NOT_IN_VECTORSPACE);
-    //         throw new RangeError(message.generateMessageString());
-    //     }
-    //     return new VectorInVectorSpace(this.createVectorInstance(vector), this as any);
-    // }
-
     defaultVect(): RealVectorOfDimension<D> {
         return this.strategy.defaultVect();
     }
-
-    // defaultVectInVectorSpace(): VectorInVectorSpace<Real, RealVectorOfDimension<D>, RealVectorSpace<D>> {
-    //     return new VectorInVectorSpace(this.createVectorInstance(this.strategy.defaultVect()), this);
-    // }
 
     // Validation methods
     private validateVectorCompatibility(a: IVector, b: IVector): void {
@@ -192,9 +130,9 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         return other instanceof RealVectorSpace && this.isSameSpace(other);
     }
     
-    addRaw(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
+    addDescriptors(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
         try { 
-            return this.strategy.addRaw(a, b);
+            return this.strategy.addDescriptors(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_REALVECTORS_NOT_IN_VECTORSPACE);
@@ -205,9 +143,9 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         }
     }
 
-    subtractRaw(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
+    subtractDescriptors(a: RealVector, b: RealVector): RealVectorOfDimension<D> {
         try {
-            return this.strategy.subtractRaw(a, b);
+            return this.strategy.subtractDescriptors(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_REALVECTORS_NOT_IN_VECTORSPACE);
@@ -218,27 +156,27 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         }
     }
 
-    scaleRaw(scalar: Real, v: RealVector): RealVectorOfDimension<D> {
+    scaleDescriptor(scalar: Real, v: RealVector): RealVectorOfDimension<D> {
         try {
-            return this.strategy.scaleRaw(scalar, v);
+            return this.strategy.scaleDescriptor(scalar, v);
         } catch(error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
 
-    cloneRaw(v: RealVector): RealVectorOfDimension<D> {
+    cloneVector(v: RealVector): RealVectorOfDimension<D> {
         try{
-            return this.strategy.cloneRaw(v);
+            return this.strategy.cloneVector(v);
         } catch (error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_REALVECTOR_NOT_IN_VECTORSPACE)
             throw new RangeError(message.generateMessageString());
         }
     }
 
-    normRaw(v: RealVector): number {
+    normDescriptor(v: RealVector): number {
         try {
-            return this.strategy.normRaw(v);
+            return this.strategy.normDescriptor(v);
         } catch (error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'norm', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
@@ -258,9 +196,9 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
             return this.strategy.crossProductRaw(a, b);
     }
 
-    dotRaw(a: RealVector, b: RealVector): number {
+    dotDescriptors(a: RealVector, b: RealVector): number {
         try {
-            return this.strategy.dotRaw(a, b);
+            return this.strategy.dotDescriptors(a, b);
         } catch(error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'dot', EM_REALVECTORS_NOT_IN_VECTORSPACE);
@@ -281,32 +219,32 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
 
 
     // Enhanced methods working with IVector
-    addVectors(a: IVector, b: IVector): IVector {
-        if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
-            throw new Error('Vector dimensions or types do not match');
-        }
-        const rawA = a.descriptor as RealVectorOfDimension<D>;
-        const rawB = b.descriptor as RealVectorOfDimension<D>;
-        const result = this.addRaw(rawA, rawB);
+    // addVectors(a: IVector, b: IVector): IVector {
+    //     if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
+    //         throw new Error('Vector dimensions or types do not match');
+    //     }
+    //     const rawA = a.descriptor as RealVectorOfDimension<D>;
+    //     const rawB = b.descriptor as RealVectorOfDimension<D>;
+    //     const result = this.addRaw(rawA, rawB);
         
-        return this.createVectorInstance(result);
-    }
+    //     return this.createVectorInstance(result);
+    // }
 
-    createVectorInstance(raw: RealVectorOfDimension<D>): IVector {
-        // return this.strategy.fromRaw(raw as RealVector1D);
-        switch (this.dim) {
-            case 1:
-                return Vector1DTypeReal.fromRaw(raw as RealVector1D);
-            case 2:
-                return Vector2DTypeReal.fromRaw(raw as RealVector2D);
-            case 3:
-                return Vector3DTypeReal.fromRaw(raw as RealVector3D);
-            case 4:
-                return Vector4DTypeReal.fromRaw(raw as RealVector4D);
-            default:
-                throw new Error('Unsupported dimension');
-        }
-    }
+    // createVectorInstance(raw: RealVectorOfDimension<D>): IVector {
+    //     // return this.strategy.fromRaw(raw as RealVector1D);
+    //     switch (this.dim) {
+    //         case 1:
+    //             return Vector1DTypeReal.fromRaw(raw as RealVector1D);
+    //         case 2:
+    //             return Vector2DTypeReal.fromRaw(raw as RealVector2D);
+    //         case 3:
+    //             return Vector3DTypeReal.fromRaw(raw as RealVector3D);
+    //         case 4:
+    //             return Vector4DTypeReal.fromRaw(raw as RealVector4D);
+    //         default:
+    //             throw new Error('Unsupported dimension');
+    //     }
+    // }
 
   }
   

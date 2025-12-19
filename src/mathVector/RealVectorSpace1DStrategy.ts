@@ -1,11 +1,11 @@
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../ErrorMessages/RealVectorSpace";
-import { RealVectorSpaceStrategy } from "./RealVectorSpace";
+import { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
 import { Real, RealVector, RealVector1D } from "./VectorSpaceConstructorInterface";
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
+export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
     
     // Implementation for 1D vectors
 
@@ -27,7 +27,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         return 0;
     }
 
-    addRaw(a: RealVector, b: RealVector): RealVector1D {
+    addDescriptors(a: RealVector, b: RealVector): RealVector1D {
         if(isVector1D(a) && isVector1D(b)) {
             return a + b;
         } else {
@@ -35,7 +35,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         }
     }
 
-    scaleRaw(scalar: Real, v: RealVector): RealVector1D {
+    scaleDescriptor(scalar: Real, v: RealVector): RealVector1D {
         if(isVector1D(v)) {
             return scalar * v;
         } else {
@@ -43,7 +43,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         }
     }
 
-    subtractRaw(a: RealVector, b: RealVector): RealVector1D {
+    subtractDescriptors(a: RealVector, b: RealVector): RealVector1D {
         if(isVector1D(a) && isVector1D(b)) {
             return a - b;
         } else {
@@ -51,7 +51,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         }
     }
 
-    cloneRaw(v: RealVector): RealVector1D {
+    cloneVector(v: RealVector): RealVector1D {
         if(isVector1D(v)) {
             return v;
         } else {
@@ -59,7 +59,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         }
     }
 
-    normRaw(v: RealVector): number {
+    normDescriptor(v: RealVector): number {
         if(isVector1D(v)) {
             return Math.abs(v);
         } else {
@@ -69,7 +69,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
 
     normalizeRaw(v: RealVector): RealVector1D {
         if(isVector1D(v)) {
-            return v / this.normRaw(v);
+            return v / this.normDescriptor(v);
         } else {
             throw new RangeError();
         }
@@ -80,7 +80,7 @@ export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1> {
         throw new RangeError(error.generateMessageString());
     }
 
-    dotRaw(a: RealVector, b: RealVector): number {
+    dotDescriptors(a: RealVector, b: RealVector): number {
         if(isVector1D(a) && isVector1D(b)) {
             return a * b;
         } else {

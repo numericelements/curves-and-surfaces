@@ -2,13 +2,13 @@ import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE,
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { PROJECTIVEVECTOR2D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
-import { RealVectorSpaceStrategy } from "./RealVectorSpace";
+import { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
 import { ComplexVector, ProjectiveVector2D, Real, RealVector, RealVector2D } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
+export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
     // Implementation for 2D vectors
 
     areSameDimension(v1: RealVector, v2: RealVector): boolean {
@@ -30,7 +30,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         return {type: REALVECTOR2D, coordinates: [0, 0]};
     }
 
-    addRaw(a: RealVector, b: RealVector): RealVector2D {
+    addDescriptors(a: RealVector, b: RealVector): RealVector2D {
         if(isVector2D(a) && isVector2D(b)) {
             return {type: REALVECTOR2D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1]]};
         } else {
@@ -38,7 +38,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    subtractRaw(a: RealVector, b: RealVector): RealVector2D {
+    subtractDescriptors(a: RealVector, b: RealVector): RealVector2D {
         if(isVector2D(a) && isVector2D(b)) {
             return {type: REALVECTOR2D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1]]};
         } else {
@@ -46,7 +46,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    scaleRaw(scalar: Real, v: RealVector): RealVector2D {
+    scaleDescriptor(scalar: Real, v: RealVector): RealVector2D {
         if(isVector2D(v)) {
             return {type: REALVECTOR2D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1]]};
         } else {
@@ -54,7 +54,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    cloneRaw(v: RealVector): RealVector2D {
+    cloneVector(v: RealVector): RealVector2D {
         if(isVector2D(v)) {
             return {type: REALVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1]]};
         } else {
@@ -62,7 +62,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    normRaw(v: RealVector): number {
+    normDescriptor(v: RealVector): number {
         if(isVector2D(v)) {
             let result = 0;
             for(const component of v.coordinates) {
@@ -77,7 +77,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
 
     normalizeRaw(v: RealVector): RealVector2D {
         if(isVector2D(v)) {
-            const norm = this.normRaw(v);
+            const norm = this.normDescriptor(v);
             return {type: REALVECTOR2D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm]};
         } else {
             throw new RangeError();
@@ -97,7 +97,7 @@ export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2> {
         }
     }
 
-    dotRaw(a: RealVector, b: RealVector): number {
+    dotDescriptors(a: RealVector, b: RealVector): number {
         if(isVector2D(a) && isVector2D(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1];
         } else {

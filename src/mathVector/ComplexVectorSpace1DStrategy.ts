@@ -3,12 +3,12 @@ import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
-import { ComplexVectorSpaceStrategy } from "./ComplexVectorSpace";
+import { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
 import { IComplex, ComplexVector, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<1> {
+export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy<1> {
 
     // Implementation for 1D vectors
 
@@ -32,7 +32,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         return nullComplex;
     }
 
-    addRaw(a: ComplexVector, b: ComplexVector): ComplexVector1D {
+    addDescriptors(a: ComplexVector, b: ComplexVector): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
             return addComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
@@ -40,7 +40,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    normRaw(vector: ComplexVector): number {
+    normDescriptor(vector: ComplexVector): number {
         if(isVector1D(vector)) {
             return Math.sqrt(vector.real * vector.real + vector.imaginary * vector.imaginary);
         } else {
@@ -48,7 +48,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    dotRaw(a: ComplexVector, b: ComplexVector): number {
+    dotDescriptors(a: ComplexVector, b: ComplexVector): number {
         if(isVector1D(a) && isVector1D(b)) {
             return a.real * b.real + a.imaginary * b.imaginary;
         } else {
@@ -57,9 +57,9 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
     }
 
     // Overloaded scale method
-    scaleRaw(scaleFactor: IComplex, vector: ComplexVector): ComplexVector1D;
-    scaleRaw(scaleFactor: number, vector: ComplexVector): ComplexVector1D;
-    scaleRaw(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector1D {
+    scaleDescriptor(scaleFactor: IComplex, vector: ComplexVector): ComplexVector1D;
+    scaleDescriptor(scaleFactor: number, vector: ComplexVector): ComplexVector1D;
+    scaleDescriptor(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector1D {
         if (typeof scaleFactor === 'number') {
             if(isVector1D(vector)) {
                 return {type: COMPLEX, real: scaleFactor * vector.real, imaginary: scaleFactor * vector.imaginary};
@@ -77,7 +77,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    subtractRaw(a: ComplexVector, b: ComplexVector): ComplexVector1D {
+    subtractDescriptors(a: ComplexVector, b: ComplexVector): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
             return subtractComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
@@ -85,7 +85,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    cloneRaw(vector: ComplexVector): ComplexVector1D {
+    cloneVector(vector: ComplexVector): ComplexVector1D {
         if(isVector1D(vector)) {
             return {type: COMPLEX, real: vector.real, imaginary: vector.imaginary};
         } else {

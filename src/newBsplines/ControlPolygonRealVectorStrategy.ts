@@ -14,6 +14,6 @@ export class ControlPolygonRealVectorStrategy implements ControlPolygonStrategy<
 
 
     moveControlPoint(index: number, displacement: RealVector): void {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addRaw(this.controlPolygon.vectorCollection[index] as RealVector, displacement);
+        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addDescriptors(this.controlPolygon.vectorCollection[index] as RealVector, displacement);
     }
 }

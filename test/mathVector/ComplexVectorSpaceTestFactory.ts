@@ -30,7 +30,7 @@ export function createCommonComplexVectorSpaceTests(
             const vectorSpace = createComplexVectorSpace();
             const vec1 = createTestComplexVector(vectorType);
             const vec2 = createTestComplexVector(vectorType);
-            const vec3 = vectorSpace.addRaw(vec1, vec2);
+            const vec3 = vectorSpace.addDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(vec3)).to.eql(true);
         });
 
@@ -38,7 +38,7 @@ export function createCommonComplexVectorSpaceTests(
             const vectorSpace = createComplexVectorSpace();
             const vec1 = createTestComplexVector(vectorType);
             const vec2 = createTestComplexVector(vectorType);
-            const vec3 = vectorSpace.subtractRaw(vec1, vec2);
+            const vec3 = vectorSpace.subtractDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(vec3)).to.eql(true);
         });
 
@@ -46,7 +46,7 @@ export function createCommonComplexVectorSpaceTests(
             const vectorSpace = createComplexVectorSpace();
             const vec1 = createTestComplexVector(vectorType);
             const scaleFactor = 2;
-            const vec2 = vectorSpace.scaleRaw(scaleFactor, vec1);
+            const vec2 = vectorSpace.scaleDescriptor(scaleFactor, vec1);
             expect(vectorSpace.isInVectorSpace(vec2)).to.eql(true);
         });
 
@@ -54,14 +54,14 @@ export function createCommonComplexVectorSpaceTests(
             const vectorSpace = createComplexVectorSpace();
             const vec1 = createTestComplexVector(vectorType);
             const scaleComplex: ComplexVector1D = { type: COMPLEX, real: 2, imaginary: 3 };
-            const vec2 = vectorSpace.scaleRaw(scaleComplex, vec1);
+            const vec2 = vectorSpace.scaleDescriptor(scaleComplex, vec1);
             expect(vectorSpace.isInVectorSpace(vec2)).to.eql(true);
         });
 
         it(`can clone a ComplexVector of dimension ${dimension}`, () => {
             const vectorSpace = createComplexVectorSpace();
             const vec1 = createTestComplexVector(vectorType);
-            const vec2 = vectorSpace.cloneRaw(vec1);
+            const vec2 = vectorSpace.cloneVector(vec1);
             expect(vectorSpace.isInVectorSpace(vec2)).to.eql(true);
             expect(vec2).to.eql(vec1);
         });

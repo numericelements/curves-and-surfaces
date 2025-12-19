@@ -3,15 +3,15 @@ import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { PROJECTIVECOMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
-import { addComplexUsingDescriptors, addComplexWeightsUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors, subtractComplexWeightsUsingDescriptors } from "./ComplexNumberFactory";
+import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors, subtractComplexWeightsUsingDescriptors } from "./ComplexNumberFactory";
 import { ComplexWeight } from "./ComplexWeight";
-import { ProjectiveComplexVectorSpaceStrategy } from "./ProjectiveComplexVectorSpace";
+import { IProjectiveComplexVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveComplexVectorSpaceStrategy";
 import { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVector1D, Real, } from "./VectorSpaceConstructorInterface";
 import { isVector1D, isVector2D } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
 
-export class ProjectiveComplexVectorSpace2DStrategy implements ProjectiveComplexVectorSpaceStrategy<1> {
+export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComplexVectorSpaceStrategy<1> {
     // Implementation for 2D vectors
 
     getWeight(v: ProjectiveComplexVector1D): IComplexWeight {

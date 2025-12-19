@@ -29,7 +29,7 @@ describe('RealVectorSpace3DStrategy', () => {
         it(`can add two Real3D vectors and check the coordinates of the resulting vector`, () => {
             const vec1 = createTestRealVector(vectorType, [1, 1, 1]);
             const vec2 = createTestRealVector(vectorType, [2, -1, 1]);
-            const result = vectorSpace.addRaw(vec1, vec2);
+            const result = vectorSpace.addDescriptors(vec1, vec2);
             expect(result.type).to.eql(vectorType);
             // Check coordinates
             expect(result.coordinates).to.eql([3, 0, 2]);
@@ -38,13 +38,13 @@ describe('RealVectorSpace3DStrategy', () => {
         it('cannot add two RealVectors of different dimensions. Only one vector belongs to the current vector space.', () => {
             const vec1 = createTestRealVector(vectorType, [1, 1, 1]);
             const vec2: RealVector2D = {type: REALVECTOR2D, coordinates: [0, 1]};
-            expect(() => vectorSpace.addRaw(vec1, vec2)).to.throw();
+            expect(() => vectorSpace.addDescriptors(vec1, vec2)).to.throw();
         });
 
         it('can scale a RealVector', () => {
             const vec1 = createTestRealVector(vectorType, [1, 1, 1]);
             const scaleFactor = 2;
-            const vec2 = vectorSpace.scaleRaw(scaleFactor, vec1);
+            const vec2 = vectorSpace.scaleDescriptor(scaleFactor, vec1);
             const vec1D = isVector3D(vec2);
             expect(vec2.type).to.eql(vectorType);
             expect(vec1D).to.eql(true);
@@ -54,13 +54,13 @@ describe('RealVectorSpace3DStrategy', () => {
         it('cannot scale a RealVector of dimension outside the current vector space dimension', () => {
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [0, 1]};
             const scaleFactor = 2;
-            expect(() => vectorSpace.scaleRaw(scaleFactor, vec1)).to.throw();
+            expect(() => vectorSpace.scaleDescriptor(scaleFactor, vec1)).to.throw();
         });
 
         it(`can subtract two Real3D vectors and check the coordinates of the resulting vector`, () => {
             const vec1 = createTestRealVector(vectorType, [1, 1, 1]);
             const vec2 = createTestRealVector(vectorType, [2, -1, 1]);
-            const result = vectorSpace.subtractRaw(vec1, vec2);
+            const result = vectorSpace.subtractDescriptors(vec1, vec2);
             expect(result.type).to.eql(vectorType);
             // Check coordinates
             expect(result.coordinates).to.eql([-1, 2, 0]);
@@ -69,12 +69,12 @@ describe('RealVectorSpace3DStrategy', () => {
         it('cannot subtract two RealVectors of different dimensions. Only one vector belongs to the current vector space.', () => {
             const vec1 = createTestRealVector(vectorType, [1, 1, 1]);
             const vec2: RealVector2D = {type: REALVECTOR2D, coordinates: [0, 1]};
-            expect(() => vectorSpace.subtractRaw(vec1, vec2)).to.throw();
+            expect(() => vectorSpace.subtractDescriptors(vec1, vec2)).to.throw();
         });
 
         it('can clone a RealVector', () => {
             let vec1 = createTestRealVector(vectorType, [1, 2, 3]);
-            const vec2 = vectorSpace.cloneRaw(vec1);
+            const vec2 = vectorSpace.cloneVector(vec1);
             const vec = isVector3D(vec2);
             expect(vec2.type).to.eql(vectorType);
             expect(vec).to.eql(true);
@@ -85,18 +85,18 @@ describe('RealVectorSpace3DStrategy', () => {
 
         it('cannot clone a RealVector of dimension outside the current vector space dimension', () => {
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [0, 1]};
-            expect(() => vectorSpace.cloneRaw(vec1)).to.throw();
+            expect(() => vectorSpace.cloneVector(vec1)).to.throw();
         });
 
         it(`can get the norm of a RealVector`, () => {
             const vec1 = createTestRealVector(vectorType, [1, 2, 3]);
-            const norm = vectorSpace.normRaw(vec1);
+            const norm = vectorSpace.normDescriptor(vec1);
             expect(norm).to.eql(Math.sqrt(14));
         });
 
         it('cannot get the norm of a RealVector of dimension outside the current vector space dimension', () => {
             const vec1 = 0;
-            expect(() => vectorSpace.normRaw(vec1)).to.throw();
+            expect(() => vectorSpace.normDescriptor(vec1)).to.throw();
         });
 
         it('can get the normalized vector of a RealVector', () => {
@@ -105,7 +105,7 @@ describe('RealVectorSpace3DStrategy', () => {
             const vec = isVector3D(normalized);
             expect(normalized.type).to.eql(vectorType);
             expect(vec).to.eql(true);
-            expect(normalized.coordinates).to.eql([vec1.coordinates[0] / vectorSpace.normRaw(vec1), vec1.coordinates[1] / vectorSpace.normRaw(vec1), vec1.coordinates[2] / vectorSpace.normRaw(vec1)]);
+            expect(normalized.coordinates).to.eql([vec1.coordinates[0] / vectorSpace.normDescriptor(vec1), vec1.coordinates[1] / vectorSpace.normDescriptor(vec1), vec1.coordinates[2] / vectorSpace.normDescriptor(vec1)]);
         });
 
         it('cannot normalize a RealVector of dimension outside the current vector space dimension', () => {
@@ -160,14 +160,14 @@ describe('RealVectorSpace3DStrategy', () => {
         it('can get the dot product of two RealVectors of dimension 3', () => {
             const vec1 = createTestRealVector(vectorType, [1, 2, 3])
             const vec2 = createTestRealVector(vectorType, [4, 5, 6])
-            const scalarProduct = vectorSpace.dotRaw(vec1, vec2);
+            const scalarProduct = vectorSpace.dotDescriptors(vec1, vec2);
             expect(scalarProduct).to.eql(32);
         });
 
         it('cannot get the dot of two RealVectors of different dimensions. Only one vector belongs to the current vector space.', () => {
             const vec1 = createTestRealVector(vectorType, [1, 2, 3])
             const vec2: RealVector2D = {type: REALVECTOR2D, coordinates: [0, 1]};
-            expect(() => vectorSpace.dotRaw(vec1, vec2)).to.throw();
+            expect(() => vectorSpace.dotDescriptors(vec1, vec2)).to.throw();
         });
 
             it('can transform a 3D RealVector into a ProjectiveRealVector with custom strictly positive weight', () => {

@@ -23,7 +23,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             it(`can add two ${PROJECTIVEVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const vec2 = vectorSpace.defaultVect();
-                const result = vectorSpace.addRaw(vec1, vec2);
+                const result = vectorSpace.addDescriptors(vec1, vec2);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(0);
@@ -32,7 +32,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             it(`can subtract two ${PROJECTIVEVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const vec2 = vectorSpace.defaultVect();
-                const result = vectorSpace.subtractRaw(vec1, vec2);
+                const result = vectorSpace.subtractDescriptors(vec1, vec2);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(0);
@@ -41,7 +41,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             it(`can scale a ${PROJECTIVEVECTOR2D} vector and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const scale = 2;
-                const result = vectorSpace.scaleRaw(scale, vec1);
+                const result = vectorSpace.scaleDescriptor(scale, vec1);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(2);
                 expect(result.coordinates[1]).to.eql(0);
@@ -101,8 +101,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
                 const vec2 = vectorSpace.defaultVect();
                 const vec3 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
-                const result = vectorSpace.addRaw(vec1, vec2);
-                const result1 = vectorSpace.addRaw(vec1, vec3);
+                const result = vectorSpace.addDescriptors(vec1, vec2);
+                const result1 = vectorSpace.addDescriptors(vec1, vec3);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(0);
@@ -115,8 +115,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, false);
                 const vec2 = vectorSpace.defaultVect();
                 const vec3 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
-                const result = vectorSpace.subtractRaw(vec1, vec2);
-                const result1 = vectorSpace.subtractRaw(vec1, vec3);
+                const result = vectorSpace.subtractDescriptors(vec1, vec2);
+                const result1 = vectorSpace.subtractDescriptors(vec1, vec3);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(0);
@@ -128,7 +128,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             it(`can scale a ${PROJECTIVEVECTOR2D} vector with a strictly positive value and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, false);
                 const scale = 2;
-                const result = vectorSpace.scaleRaw(scale, vec1);
+                const result = vectorSpace.scaleDescriptor(scale, vec1);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(2);
                 expect(result.coordinates[1]).to.eql(0);
@@ -137,7 +137,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             it(`can scale a ${PROJECTIVEVECTOR2D} vector with a null value and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, false);
                 const scale = 0;
-                const result = vectorSpace.scaleRaw(scale, vec1);
+                const result = vectorSpace.scaleDescriptor(scale, vec1);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(0);
                 expect(result.coordinates[1]).to.eql(0);
@@ -227,8 +227,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
                 const vec2 = vectorSpace.defaultVect();
                 const vec3 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
-                const result = vectorSpace.addRaw(vec1, vec2);
-                const result1 = vectorSpace.addRaw(vec1, vec3);
+                const result = vectorSpace.addDescriptors(vec1, vec2);
+                const result1 = vectorSpace.addDescriptors(vec1, vec3);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(0);
@@ -241,8 +241,8 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, false);
                 const vec2 = vectorSpace.defaultVect();
                 const vec3 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 0, false);
-                const result = vectorSpace.subtractRaw(vec1, vec2);
-                const result1 = vectorSpace.subtractRaw(vec1, vec3);
+                const result = vectorSpace.subtractDescriptors(vec1, vec2);
+                const result1 = vectorSpace.subtractDescriptors(vec1, vec3);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(1);
                 expect(result.coordinates[1]).to.eql(0);
@@ -254,7 +254,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             it(`can scale a ${PROJECTIVEVECTOR2D} vector with a strictly positive value and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const scale = 2;
-                const result = vectorSpace.scaleRaw(scale, vec1);
+                const result = vectorSpace.scaleDescriptor(scale, vec1);
                 // Check coordinates
                 expect(result.coordinates[0]).to.eql(2);
                 expect(result.coordinates[1]).to.eql(0);
@@ -263,7 +263,7 @@ describe('ProjectiveVectorSpace3DStrategy', () => {
             it(`can scale a ${PROJECTIVEVECTOR2D} vector with a null value and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestProjectiveVector(PROJECTIVEVECTOR2D, 2, true);
                 const scale = 0;
-                const result = vectorSpace.scaleRaw(scale, vec1);
+                const result = vectorSpace.scaleDescriptor(scale, vec1);
                 for(let i = 0; i < result.coordinates.length - 1; i++) {
                     expect(result.coordinates[i]).to.eql(0);
                 }

@@ -1,11 +1,11 @@
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../ErrorMessages/RealVectorSpace";
 import { REALVECTOR4D } from "../namedConstants/VectorTypeTags";
-import { RealVectorSpaceStrategy } from "./RealVectorSpace";
+import { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
 import { Real, RealVector, RealVector4D } from "./VectorSpaceConstructorInterface";
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
+export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
     // Implementation for 4D vectors
 
     areSameDimension(a: RealVector, b: RealVector): boolean {
@@ -27,7 +27,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         return {type: REALVECTOR4D, coordinates: [0, 0, 0, 0]};
     }
 
-    addRaw(a: RealVector, b: RealVector): RealVector4D {
+    addDescriptors(a: RealVector, b: RealVector): RealVector4D {
         if(isVector4D(a) && isVector4D(b)) {
             return {type: REALVECTOR4D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], a.coordinates[3] + b.coordinates[3]]};
         } else {
@@ -35,7 +35,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         }
     }
 
-    subtractRaw(a: RealVector, b: RealVector): RealVector4D {
+    subtractDescriptors(a: RealVector, b: RealVector): RealVector4D {
         if(isVector4D(a) && isVector4D(b)) {
             return {type: REALVECTOR4D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2], a.coordinates[3] - b.coordinates[3]]};
         } else {
@@ -43,7 +43,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         }
     }
 
-    scaleRaw(scalar: Real, v: RealVector): RealVector4D {
+    scaleDescriptor(scalar: Real, v: RealVector): RealVector4D {
         if(isVector4D(v)) {
             return {type: REALVECTOR4D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2], scalar * v.coordinates[3]]};
         } else {
@@ -51,7 +51,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         }
     }
 
-    cloneRaw(v: RealVector): RealVector4D {
+    cloneVector(v: RealVector): RealVector4D {
         if(isVector4D(v)) {
             return {type: REALVECTOR4D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], v.coordinates[3]]};
         } else {
@@ -59,7 +59,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         }
     }
 
-    normRaw(v: RealVector): number {
+    normDescriptor(v: RealVector): number {
         if(isVector4D(v)) {
             let result = 0;
             for(const component of v.coordinates) {
@@ -74,7 +74,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
 
     normalizeRaw(v: RealVector): RealVector4D {
         if(isVector4D(v)) {
-            const norm = this.normRaw(v);
+            const norm = this.normDescriptor(v);
             return {type: REALVECTOR4D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm, v.coordinates[3] / norm]};
         } else {
             throw new RangeError();
@@ -86,7 +86,7 @@ export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4> {
         throw new RangeError(error.generateMessageString());
     }
 
-    dotRaw(a: RealVector, b: RealVector): number {
+    dotDescriptors(a: RealVector, b: RealVector): number {
         if(isVector4D(a) && isVector4D(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1] + a.coordinates[2] * b.coordinates[2] + a.coordinates[3] * b.coordinates[3];
         } else {

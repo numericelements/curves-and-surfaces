@@ -8,3 +8,15 @@ export const PROJECTIVEVECTOR2D = 'ProjectiveVector2D' as const;
 export const PROJECTIVEVECTOR3D = 'ProjectiveVector3D' as const;
 export const PROJECTIVECOMPLEXVECTOR1D = 'ProjectiveComplexVector1D' as const;
 export const UNDEFINED_VECTORTYPE = 'UndefinedVectorType' as const;
+
+// export type VectorTypeTag =
+//   | typeof REALVECTOR1D
+//   | typeof REALVECTOR2D
+//   | typeof REALVECTOR3D
+//   | typeof REALVECTOR4D
+//   | typeof COMPLEXVECTOR1D
+//   | typeof COMPLEXVECTOR2D
+//   | typeof PROJECTIVEVECTOR2D
+//   | typeof PROJECTIVEVECTOR3D
+//   | typeof PROJECTIVECOMPLEXVECTOR1D
+//   | typeof UNDEFINED_VECTORTYPE;

@@ -1,11 +1,10 @@
-import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
-import { IComplexVector, IVector, VectorFactory } from "./Vector";
-import { IComplex, ComplexVector, Vector } from "./VectorSpaceConstructorInterface";
+import { IComplexVector } from "./Vector";
+import { ComplexVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { EM_COMPLEXVECTORS_DIFFERENT_DIM } from "../ErrorMessages/ComplexVectorSpace";
 import { Complex } from "./Complex";
 
 /**
@@ -19,7 +18,6 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     
     abstract get descriptor(): ComplexVector;
     abstract getCoordinate(index: number): Complex;
-    // abstract setCoordinate(index: number, value: Complex): void;
     abstract get coordinates(): Complex[];
     abstract clone(): IComplexVector;
     
@@ -38,8 +36,9 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     scale(scalar: number): IComplexVector;
     scale(scalar: Complex): IComplexVector;
     scale(scalar: number | Complex): IComplexVector {
-        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
-        return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor) as IComplexVector;
+        return result;
+        // return this.createVectorFromRaw(result);
     }
     
     revert(): IComplexVector {
@@ -101,7 +100,7 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         return ratio <= angularTolerance;
     }
 
-    protected createVectorFromRaw(raw: Vector): IComplexVector {
-        return VectorFactory.createComplexVectorFromRaw(raw as ComplexVector, this.vectorSpace);
-    }
+    // protected createVectorFromRaw(raw: Vector): IComplexVector {
+    //     return VectorFactory.createComplexVectorFromRaw(raw as ComplexVector, this.vectorSpace);
+    // }
 }

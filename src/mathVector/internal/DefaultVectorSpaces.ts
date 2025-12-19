@@ -7,10 +7,10 @@ import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPAC
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../namedConstants/RealVectorSpace";
 import { INITIAL_VECTOR_SPACE_ID, VECTOR_SPACE } from "../../namedConstants/VectorSpaceIdentifierManager";
 import { ComplexVectorSpace } from "../ComplexVectorSpace";
+import { IdentifiableVectorSpace } from "../IVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
 import { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
 import { RealVectorSpace } from "../RealVectorSpace";
-import { IdentifiableVectorSpace } from "../Vector";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 
 /**

@@ -56,11 +56,17 @@ export class Vector1DTypeReal extends AbstractRealVector {
     }
 
     add(other: Vector1DTypeReal): Vector1DTypeReal {
-        return super.add(other) as Vector1DTypeReal;
+        // return super.add(other) as Vector1DTypeReal;
+        return new Vector1DTypeReal(super.add(other).coordinates[0], this.vectorSpace) as Vector1DTypeReal;
     }
 
     subtract(other: Vector1DTypeReal): Vector1DTypeReal {
-        return super.subtract(other) as Vector1DTypeReal;
+        // return super.subtract(other) as Vector1DTypeReal;
+        return new Vector1DTypeReal(super.subtract(other).coordinates[0], this.vectorSpace) as Vector1DTypeReal;
+    }
+
+    scale(factor: number): Vector1DTypeReal {
+        return new Vector1DTypeReal(super.scale(factor).coordinates[0], this.vectorSpace) as Vector1DTypeReal;
     }
 
     dot(other: Vector1DTypeReal): number {
@@ -80,17 +86,17 @@ export class Vector1DTypeReal extends AbstractRealVector {
     }
     
     // Factory methods
-    static fromRaw(raw: RealVector1D, vectorSpace?: RealVectorSpace<1>): Vector1DTypeReal {
-        return new Vector1DTypeReal(raw, vectorSpace);
-    }
+    // static fromRaw(raw: RealVector1D, vectorSpace?: RealVectorSpace<1>): Vector1DTypeReal {
+    //     return new Vector1DTypeReal(raw, vectorSpace);
+    // }
     
-    static fromCoordinates(coords: number[], vectorSpace?: RealVectorSpace<1>): Vector1DTypeReal {
-        if (coords.length !== 1) throw new RangeError('1D vector requires exactly 1 coordinate');
-        return new Vector1DTypeReal(coords[0], vectorSpace);
-    }
+    // static fromCoordinates(coords: number[], vectorSpace?: RealVectorSpace<1>): Vector1DTypeReal {
+    //     if (coords.length !== 1) throw new RangeError('1D vector requires exactly 1 coordinate');
+    //     return new Vector1DTypeReal(coords[0], vectorSpace);
+    // }
 
     // Static method to create with default vector space
-    static create(value: number = 0): Vector1DTypeReal {
-        return new Vector1DTypeReal(value);
-    }
+    // static create(value: number = 0): Vector1DTypeReal {
+    //     return new Vector1DTypeReal(value);
+    // }
 }

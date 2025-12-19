@@ -3,10 +3,10 @@ import { EM_INVALID_VECTOR_SPACE_ID_STRUCTURE, EM_INVALID_VECTOR_SPACE_INDEX_VAL
 import { VectorSpaceType } from "../../namedConstants/BSplineR1toRn";
 import { INITIAL_VECTOR_SPACE_ID, LOCATION_INDEX_INTO_VECTOR_SPACE_ID, VECTOR_SPACE, VSPACE_INDEX_INITIAL_VALUE } from "../../namedConstants/VectorSpaceIdentifierManager";
 import { ComplexVectorSpace } from "../ComplexVectorSpace";
+import { IdentifiableVectorSpace } from "../IVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
 import { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
 import { RealVectorSpace } from "../RealVectorSpace";
-import { IdentifiableVectorSpace } from "../Vector";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 
 

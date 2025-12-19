@@ -1,6 +1,5 @@
-import { EM_WEIGHT_TOO_SMALL } from "../ErrorMessages/ProjectiveVectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { PROJECTIVEVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
@@ -8,8 +7,6 @@ import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
-import { RealVectorSpace } from "./RealVectorSpace";
-import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import { ProjectiveVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -87,11 +84,17 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
     }
 
     add(other: ProjectiveVector3DTypeReal): ProjectiveVector3DTypeReal {
-        return super.add(other) as ProjectiveVector3DTypeReal;
+        // return super.add(other) as ProjectiveVector3DTypeReal;
+        return new ProjectiveVector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).weight, this._vectorSpace) as ProjectiveVector3DTypeReal;
     }
 
     subtract(other: ProjectiveVector3DTypeReal): ProjectiveVector3DTypeReal {
-        return super.subtract(other) as ProjectiveVector3DTypeReal;
+        // return super.subtract(other) as ProjectiveVector3DTypeReal;
+        return new ProjectiveVector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).weight, this._vectorSpace) as ProjectiveVector3DTypeReal;
+    }
+
+    scale(factor: number): ProjectiveVector3DTypeReal {
+        return new ProjectiveVector3DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).coordinates[2], super.scale(factor).weight, this._vectorSpace) as ProjectiveVector3DTypeReal;
     }
     
     equals(other: ProjectiveVector3DTypeReal, tolerance?: number): boolean {
@@ -106,25 +109,25 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
         return super.isOrthogonal(other, angularTolerance);
     }
     
-    toRealVector(realVSpace?: RealVectorSpace<3>): Vector3DTypeReal {
-        if(this.weight.value < NULL_WEIGHT_TOLERANCE) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'toVector3DReal', EM_WEIGHT_TOO_SMALL);
-            throw new RangeError(error.generateMessageString());
-        }
-        if(realVSpace !== undefined) {
-            return new Vector3DTypeReal(
-                this.coordinates[0] / this.coordinates[SPACE_DIMENSION - 1],
-                this.coordinates[1] / this.coordinates[SPACE_DIMENSION - 1],
-                this.coordinates[2] / this.coordinates[SPACE_DIMENSION - 1],
-                realVSpace
-            );
-        }
-        return new Vector3DTypeReal(
-            this.coordinates[0] / this.coordinates[SPACE_DIMENSION - 1],
-            this.coordinates[1] / this.coordinates[SPACE_DIMENSION - 1],
-            this.coordinates[2] / this.coordinates[SPACE_DIMENSION - 1]
-        );
-    }
+    // toRealVector(realVSpace?: RealVectorSpace<3>): Vector3DTypeReal {
+    //     if(this.weight.value < NULL_WEIGHT_TOLERANCE) {
+    //         const error = sendRangeErrorMessage(this.constructor.name, 'toVector3DReal', EM_WEIGHT_TOO_SMALL);
+    //         throw new RangeError(error.generateMessageString());
+    //     }
+    //     if(realVSpace !== undefined) {
+    //         return new Vector3DTypeReal(
+    //             this.coordinates[0] / this.coordinates[SPACE_DIMENSION - 1],
+    //             this.coordinates[1] / this.coordinates[SPACE_DIMENSION - 1],
+    //             this.coordinates[2] / this.coordinates[SPACE_DIMENSION - 1],
+    //             realVSpace
+    //         );
+    //     }
+    //     return new Vector3DTypeReal(
+    //         this.coordinates[0] / this.coordinates[SPACE_DIMENSION - 1],
+    //         this.coordinates[1] / this.coordinates[SPACE_DIMENSION - 1],
+    //         this.coordinates[2] / this.coordinates[SPACE_DIMENSION - 1]
+    //     );
+    // }
 
     toString(): string {
         return this.vectorType + `(${this.data.coordinates[0]}, ${this.data.coordinates[1]}, ${this.data.coordinates[2]}, ${this.weight.toString()})` + ` ` + this._vectorSpace.toString();
@@ -143,7 +146,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
         );
     }
 
-    static fromRaw(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
-        return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].weight);
-    }
+    // static fromRaw(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
+    //     return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].weight);
+    // }
 }

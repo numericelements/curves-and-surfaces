@@ -2,10 +2,9 @@ import { ANGULAR_TOL_VECTOR, EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTOR_NORM_TOO_
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IProjectiveVector, IRealVector, VectorFactory } from "./Vector";
-import { ProjectiveVector, RealVector, Vector } from "./VectorSpaceConstructorInterface";
+import { IProjectiveVector, IRealVector } from "./Vector";
+import { RealVector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { EM_REALVECTORS_DIFFERENT_DIM } from "../ErrorMessages/RealVectorSpace";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 
 /**
@@ -36,8 +35,9 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
     }
 
     scale(scalar: number): IRealVector {
-        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
-        return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
+        // return this.createVectorFromRaw(result);
+        return result as IRealVector;
     }
 
     dot(other: IRealVector): number {
@@ -94,7 +94,7 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
         return (halfPi - angle) <= angularTolerance;
     }
 
-    protected createVectorFromRaw(raw: Vector): IRealVector {
-        return VectorFactory.createRealVectorFromRaw(raw as RealVector, this.vectorSpace);
-    }
+    // protected createVectorFromRaw(raw: Vector): IRealVector {
+    //     return VectorFactory.createRealVectorFromRaw(raw as RealVector, this.vectorSpace);
+    // }
 }

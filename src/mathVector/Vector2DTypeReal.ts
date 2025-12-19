@@ -6,7 +6,7 @@ import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IProjectiveVector } from "./Vector";
+import { IProjectiveVector, IRealVector } from "./Vector";
 import { RealVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -51,11 +51,16 @@ export class Vector2DTypeReal extends AbstractRealVector {
     }
 
     add(other: Vector2DTypeReal): Vector2DTypeReal {
-        return super.add(other) as Vector2DTypeReal;
+        // return super.add(other) as Vector2DTypeReal;
+        return new Vector2DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], this.vectorSpace) as Vector2DTypeReal;
     }
 
     subtract(other: Vector2DTypeReal): Vector2DTypeReal {
-        return super.subtract(other) as Vector2DTypeReal;
+        return new Vector2DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], this.vectorSpace) as Vector2DTypeReal;
+    }
+
+    scale(scalar: number): Vector2DTypeReal {
+        return new Vector2DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], this.vectorSpace) as Vector2DTypeReal;
     }
 
     dot(other: Vector2DTypeReal): number {
@@ -88,16 +93,16 @@ export class Vector2DTypeReal extends AbstractRealVector {
         return new Vector2DTypeReal(this.x!, this.y!, this.vectorSpace);
     }
     
-    static fromRaw(raw: RealVector2D, vectorSpace?: RealVectorSpace<2>): Vector2DTypeReal {
-        return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], vectorSpace);
-    }
+    // static fromRaw(raw: RealVector2D, vectorSpace?: RealVectorSpace<2>): Vector2DTypeReal {
+    //     return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], vectorSpace);
+    // }
     
-    static fromCoordinates(coords: number[], vectorSpace?: RealVectorSpace<2>): Vector2DTypeReal {
-        if (coords.length !== 2) throw new RangeError('2D vector requires exactly 2 coordinates');
-        return new Vector2DTypeReal(coords[0], coords[1], vectorSpace);
-    }
+    // static fromCoordinates(coords: number[], vectorSpace?: RealVectorSpace<2>): Vector2DTypeReal {
+    //     if (coords.length !== 2) throw new RangeError('2D vector requires exactly 2 coordinates');
+    //     return new Vector2DTypeReal(coords[0], coords[1], vectorSpace);
+    // }
 
-    static create(x: number = 0, y: number = 0): Vector2DTypeReal {
-        return new Vector2DTypeReal(x, y);
-    }
+    // static create(x: number = 0, y: number = 0): Vector2DTypeReal {
+    //     return new Vector2DTypeReal(x, y);
+    // }
 }

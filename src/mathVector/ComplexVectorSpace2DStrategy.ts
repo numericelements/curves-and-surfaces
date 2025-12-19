@@ -3,13 +3,13 @@ import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
-import { ComplexVectorSpaceStrategy } from "./ComplexVectorSpace";
+import { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
 import { IComplex, ComplexVector, ComplexVector2D, IComplexWeight } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<2> {
+export class ComplexVectorSpace2DStrategy implements IComplexVectorSpaceStrategy<2> {
 
     // Implementation for 2D vectors
 
@@ -34,7 +34,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         return {type: COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex]};
     }
 
-    addRaw(a: ComplexVector, b: ComplexVector): ComplexVector2D {
+    addDescriptors(a: ComplexVector, b: ComplexVector): ComplexVector2D {
         if (isVector2D(a) && isVector2D(b)) {
             return {type: COMPLEXVECTOR2D, coordinates: [
                 addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
@@ -45,7 +45,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    normRaw(vector: ComplexVector): number {
+    normDescriptor(vector: ComplexVector): number {
         if(isVector2D(vector)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromComplexVectorSpaceToProjectiveComplexVectorSpace', EM_TRANSFORMATION_NOT_AVAILABLE);
             throw new RangeError(error.generateMessageString());
@@ -54,14 +54,14 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    dotRaw(a: ComplexVector, b: ComplexVector): never {
+    dotDescriptors(a: ComplexVector, b: ComplexVector): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2);
         throw new RangeError(error.generateMessageString());
     }
 
-    scaleRaw(scaleFactor: IComplex, vector: ComplexVector): ComplexVector2D;
-    scaleRaw(scaleFactor: number, vector: ComplexVector): ComplexVector2D;
-    scaleRaw(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector2D {
+    scaleDescriptor(scaleFactor: IComplex, vector: ComplexVector): ComplexVector2D;
+    scaleDescriptor(scaleFactor: number, vector: ComplexVector): ComplexVector2D;
+    scaleDescriptor(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector2D {
         if (typeof scaleFactor === 'number') {
             if(isVector2D(vector)) {
                 const result = vector.coordinates.map((val) => ({type: COMPLEX, real: val.real * scaleFactor, imaginary: val.imaginary * scaleFactor}));
@@ -85,7 +85,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    subtractRaw(a: ComplexVector, b: ComplexVector): ComplexVector2D {
+    subtractDescriptors(a: ComplexVector, b: ComplexVector): ComplexVector2D {
         if(isVector2D(a) && isVector2D(b)) {
             return {type: COMPLEXVECTOR2D, coordinates: [
                 subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
@@ -96,7 +96,7 @@ export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<
         }
     }
 
-    cloneRaw(vector: ComplexVector): ComplexVector2D {
+    cloneVector(vector: ComplexVector): ComplexVector2D {
         if(isVector2D(vector)) {
             return {type: COMPLEXVECTOR2D, coordinates: [
                 {type: COMPLEX, real: vector.coordinates[0].real, imaginary: vector.coordinates[0].imaginary},

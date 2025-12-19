@@ -4,8 +4,9 @@ import { AbstractVector } from "./AbstractVector";
 import { Complex } from "./Complex";
 import { ComplexWeight } from "./ComplexWeight";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
-import { IComplexVector, IProjectiveComplexVector, IRealVector, VectorFactory } from "./Vector";
-import { IComplex, IComplexWeight, ProjectiveComplexVector, Vector } from "./VectorSpaceConstructorInterface";
+import { IComplexVector, IProjectiveComplexVector } from "./Vector";
+import { VectorFactory } from "./VectorFromDescriptorFactory";
+import { IComplex, ProjectiveComplexVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 /**
@@ -33,7 +34,7 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
     scale(scalar: number): IProjectiveComplexVector;
     scale(scalar: Complex): IProjectiveComplexVector;
     scale(scalar: number | Complex): IProjectiveComplexVector {
-        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
+        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
         return this.createVectorFromRaw(result);
     }
 

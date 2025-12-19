@@ -3,13 +3,12 @@ import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { PROJECTIVEVECTOR3D, REALVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
-import { ProjectiveVectorSpaceStrategy } from "./ProjectiveVectorSpace";
+import { IProjectiveVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveVectorSpaceStrategy";
 import { ProjectiveVector, ProjectiveVector3D, Real, RealVector, IWeight } from "./VectorSpaceConstructorInterface";
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
 
-export class ProjectiveVectorSpace4DStrategy implements ProjectiveVectorSpaceStrategy<4> {
+export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceStrategy<4> {
     // Implementation for 4D vectors
 
     getWeight(v: ProjectiveVector3D): Real {

@@ -1,10 +1,11 @@
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { EM_NORM_TOO_SMALL, EM_VECTOR_NOT_APPLICABLE_TO_NORM, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { IdentifiableVectorSpace, IVector } from "./Vector";
+import { IVector } from "./Vector";
 import { IComplex, Scalar, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Complex } from "./Complex";
+import { IdentifiableVectorSpace } from "./IVectorSpace";
 
 /**
  * Base abstract class implementing common IVector functionality
@@ -31,14 +32,16 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     // Vector operations using the vector space
     add(other: IVector): IVector {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.addRaw(this.descriptor, other.descriptor as V);
-        return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.addDescriptors(this.descriptor, other.descriptor as V) as IVector;
+        return result;
+        // return this.createVectorFromRaw(result);
     }
 
     subtract(other: IVector): IVector {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.subtractRaw(this.descriptor, other.descriptor as V);
-        return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.subtractDescriptors(this.descriptor, other.descriptor as V) as IVector;
+        return result;
+        // return this.createVectorFromRaw(result);
     }
 
     abstract scale(scalar: S | Complex): IVector;
@@ -48,14 +51,15 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     // }
 
     revert(): IVector {
-        const result = this._vectorSpace.scaleRaw(-1, this.descriptor);
-        return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.scaleDescriptor(-1, this.descriptor) as IVector;
+        return result;
+        // return this.createVectorFromRaw(result);
     }
 
     norm(tolerance?: number): number {
         if(tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
-        if ('normRaw' in this._vectorSpace && typeof this._vectorSpace.normRaw === 'function') {
-            const norm = (this._vectorSpace as any).normRaw(this.descriptor);
+        if ('normDescriptor' in this._vectorSpace && typeof this._vectorSpace.normDescriptor === 'function') {
+            const norm = (this._vectorSpace as any).normDescriptor(this.descriptor);
             if(norm < tolerance) {
                 const warning = new WarningLog(this.constructor.name, "norm", WM_VECTOR_NORM_TOO_SMALL);
                 warning.logMessage();
@@ -78,8 +82,8 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
 
     dot(other: IVector): number | IComplex {
         this.validateCompatibility(other);
-        if ('dotRaw' in this._vectorSpace && typeof this._vectorSpace.dotRaw === 'function') {
-            return (this._vectorSpace as any).dotRaw(this.descriptor, other.descriptor);
+        if ('dotDescriptors' in this._vectorSpace && typeof this._vectorSpace.dotDescriptors === 'function') {
+            return (this._vectorSpace as any).dotDescriptors(this.descriptor, other.descriptor);
         }
         throw new Error('Dot product not available for this vector space');
     }
@@ -138,5 +142,5 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     //     }
     // }
 
-    protected abstract createVectorFromRaw(raw: Vector): IVector;
+    // protected abstract createVectorFromRaw(raw: Vector): IVector;
 }

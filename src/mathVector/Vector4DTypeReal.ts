@@ -4,7 +4,7 @@ import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IProjectiveVector } from "./Vector";
+import { IProjectiveVector, IRealVector } from "./Vector";
 import { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
@@ -50,11 +50,16 @@ export class Vector4DTypeReal extends AbstractRealVector {
     }
 
     add(other: Vector4DTypeReal): Vector4DTypeReal {
-        return super.add(other) as Vector4DTypeReal;
+        // return super.add(other) as Vector4DTypeReal;
+        return new Vector4DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
     }
 
     subtract(other: Vector4DTypeReal): Vector4DTypeReal {
-        return super.subtract(other) as Vector4DTypeReal;
+        return new Vector4DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
+    }
+
+    scale(scalar: number): Vector4DTypeReal {
+        return new Vector4DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], super.scale(scalar).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
     }
 
     dot(other: Vector4DTypeReal): number {
@@ -82,12 +87,12 @@ export class Vector4DTypeReal extends AbstractRealVector {
         return new Vector4DTypeReal(this.x!, this.y!, this.z!, this.t!, this.vectorSpace);
     }
     
-    static fromRaw(raw: RealVector4D): Vector4DTypeReal {
-        return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3]);
-    }
+    // static fromRaw(raw: RealVector4D): Vector4DTypeReal {
+    //     return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3]);
+    // }
     
-    static fromCoordinates(coords: number[]): Vector4DTypeReal {
-        if (coords.length !== 4) throw new RangeError('4D vector requires exactly 4 coordinates');
-        return new Vector4DTypeReal(coords[0], coords[1], coords[2], coords[3]);
-    }
+    // static fromCoordinates(coords: number[]): Vector4DTypeReal {
+    //     if (coords.length !== 4) throw new RangeError('4D vector requires exactly 4 coordinates');
+    //     return new Vector4DTypeReal(coords[0], coords[1], coords[2], coords[3]);
+    // }
 }

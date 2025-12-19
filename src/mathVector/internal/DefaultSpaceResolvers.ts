@@ -13,14 +13,14 @@ import type {
     ProjectiveComplexVectorSpaceOfDimension,
     AnyVectorSpace
 } from '../VectorSpaceTypes';
-import { ComplexVectorSpace } from '../ComplexVectorSpace';
-import { RealVectorSpace } from '../RealVectorSpace';
-import { ProjectiveVectorSpace } from '../ProjectiveVectorSpace';
-import { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
+import type { ComplexVectorSpace } from '../ComplexVectorSpace';
+import type { RealVectorSpace } from '../RealVectorSpace';
+import type { ProjectiveVectorSpace } from '../ProjectiveVectorSpace';
+import type { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
 import { DEFAULT } from '../../namedConstants/VectorSpaceIdentifierManager';
 import { sendErrorMessage, sendRangeErrorMessage } from '../VectorSpaceUtilities';
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED, EM_INVALID_VECTOR_SPACE_DIMENSION, EM_INVALID_VECTOR_SPACE_TYPE } from '../../ErrorMessages/DefaultSpaceResolvers';
-import { IdentifiableVectorSpace } from '../Vector';
+import { IdentifiableVectorSpace } from '../IVectorSpace';
 
 /**
  * Get default real vector space for given dimension

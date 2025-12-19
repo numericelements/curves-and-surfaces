@@ -6,7 +6,7 @@ import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IProjectiveVector } from "./Vector";
+import { IProjectiveVector, IRealVector } from "./Vector";
 import { RealVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -52,11 +52,16 @@ export class Vector3DTypeReal extends AbstractRealVector {
     }
 
     add(other: Vector3DTypeReal): Vector3DTypeReal {
-        return super.add(other) as Vector3DTypeReal;
+        // return super.add(other) as Vector3DTypeReal;
+        return new Vector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], this.vectorSpace) as Vector3DTypeReal;
     }
 
     subtract(other: Vector3DTypeReal): Vector3DTypeReal {
-        return super.subtract(other) as Vector3DTypeReal;
+        return new Vector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], this.vectorSpace) as Vector3DTypeReal;
+    }
+
+    scale(scalar: number): Vector3DTypeReal {
+        return new Vector3DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], this.vectorSpace) as Vector3DTypeReal;
     }
 
     dot(other: Vector3DTypeReal): number {
@@ -89,12 +94,12 @@ export class Vector3DTypeReal extends AbstractRealVector {
         return new Vector3DTypeReal(this.x!, this.y!, this.z!, this.vectorSpace);
     }
     
-    static fromRaw(raw: RealVector3D): Vector3DTypeReal {
-        return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2]);
-    }
+    // static fromRaw(raw: RealVector3D): Vector3DTypeReal {
+    //     return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2]);
+    // }
     
-    static fromCoordinates(coords: number[]): Vector3DTypeReal {
-        if (coords.length !== 3) throw new RangeError('3D vector requires exactly 3 coordinates');
-        return new Vector3DTypeReal(coords[0], coords[1], coords[2]);
-    }
+    // static fromCoordinates(coords: number[]): Vector3DTypeReal {
+    //     if (coords.length !== 3) throw new RangeError('3D vector requires exactly 3 coordinates');
+    //     return new Vector3DTypeReal(coords[0], coords[1], coords[2]);
+    // }
 }

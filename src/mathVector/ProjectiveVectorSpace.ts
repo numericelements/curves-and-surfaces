@@ -4,50 +4,29 @@ import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_F
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
-import { IdentifiableVectorSpace, IVector } from "./Vector";
-import { ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, ProjectiveVectorOfDimension, Real, RealVector } from "./VectorSpaceConstructorInterface";
+import { ProjectiveComplexVector, ProjectiveVector, ProjectiveVectorOfDimension, Real, RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
-import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
 import { PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
+import { IProjectiveVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveVectorSpaceStrategy";
+import { IdentifiableVectorSpace } from "./IVectorSpace";
 
 /**
  * Implementation of a projective vector space
  */
 
-
-// Strategy interface
-export interface ProjectiveVectorSpaceStrategy<D extends number> {
-    getWeight(v: ProjectiveVector): Real;
-    shareSameWeightManagement(v1: ProjectiveVector, v2: ProjectiveVector, weightManager: WeightManager): boolean;
-    areSameDimension(v1: ProjectiveVector, v2: ProjectiveVector): boolean;
-    isInVectorSpace(v: ProjectiveVector): v is ProjectiveVector;
-    createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
-    defaultVect(weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
-    add(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
-    scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
-    subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVectorOfDimension<D>;
-    norm(a: ProjectiveVector): Real;
-    clone(v: ProjectiveVector): ProjectiveVectorOfDimension<D>;
-    fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector;
-    fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector): ProjectiveComplexVector
-}
-
-
-// Main class using strategy
 export class ProjectiveVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Real, ProjectiveVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
     
     private dim: D;
-    protected strategy: ProjectiveVectorSpaceStrategy<D>;
+    protected strategy: IProjectiveVectorSpaceStrategy<D>;
     protected _weightManagement: WeightManagement;
     private weightManager: WeightManager;
     
@@ -82,10 +61,10 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
         switch(this.dim) {
             case MIN_DIMENSION_PROJECTIVEVECTORSPACE:
-                this.strategy = new ProjectiveVectorSpace3DStrategy() as ProjectiveVectorSpaceStrategy<D>;
+                this.strategy = new ProjectiveVectorSpace3DStrategy() as IProjectiveVectorSpaceStrategy<D>;
                 break;
             case MAX_DIMENSION_PROJECTIVEVECTORSPACE:
-                this.strategy = new ProjectiveVectorSpace4DStrategy() as unknown as ProjectiveVectorSpaceStrategy<D>;
+                this.strategy = new ProjectiveVectorSpace4DStrategy() as unknown as IProjectiveVectorSpaceStrategy<D>;
                 break;
             default:
                 const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -159,7 +138,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         return vect;
     }
     
-    addRaw(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    addDescriptors(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try { 
             return this.strategy.add(a, b, this.weightManager);
         } catch (error) {
@@ -172,7 +151,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    subtractRaw(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    subtractDescriptors(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.subtract(a, b, this.weightManager);
         } catch (error) {
@@ -192,7 +171,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    normRaw(a: ProjectiveVector): number {
+    normDescriptor(a: ProjectiveVector): number {
         try { 
             return this.strategy.norm(a);
         } catch (error) {
@@ -201,7 +180,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    scaleRaw(scalar: Real, v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    scaleDescriptor(scalar: Real, v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.scale(scalar, v, this.weightManager);
         } catch(error) {
@@ -217,7 +196,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    cloneRaw(v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    cloneVector(v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.clone(v);
         } catch (error) {
@@ -244,28 +223,28 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
     }
 
     // Enhanced methods working with IVector
-    addVectors(a: IVector, b: IVector): IVector {
-        if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
-            throw new Error('Vector dimensions or types do not match');
-        }
-        const rawA = a.descriptor as ProjectiveVectorOfDimension<D>;
-        const rawB = b.descriptor as ProjectiveVectorOfDimension<D>;
-        const result = this.addRaw(rawA, rawB);
+    // addVectors(a: IVector, b: IVector): IVector {
+    //     if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
+    //         throw new Error('Vector dimensions or types do not match');
+    //     }
+    //     const rawA = a.descriptor as ProjectiveVectorOfDimension<D>;
+    //     const rawB = b.descriptor as ProjectiveVectorOfDimension<D>;
+    //     const result = this.addRaw(rawA, rawB);
         
-        return this.createVectorInstance(result);
-    }
+    //     return this.createVectorInstance(result);
+    // }
     
-    createVectorInstance(raw: ProjectiveVectorOfDimension<D>): IVector {
-        // return this.strategy.fromRaw(raw as RealVector1D);
-        switch (this.dim) {
-            case 3:
-                return ProjectiveVector2DTypeReal.fromRaw(raw as ProjectiveVector2D);
-            case 4:
-                return ProjectiveVector3DTypeReal.fromRaw(raw as ProjectiveVector3D);
-            default:
-                throw new Error('Unsupported dimension');
-        }
-    }
+    // createVectorInstance(raw: ProjectiveVectorOfDimension<D>): IVector {
+    //     // return this.strategy.fromRaw(raw as RealVector1D);
+    //     switch (this.dim) {
+    //         case 3:
+    //             return ProjectiveVector2DTypeReal.fromRaw(raw as ProjectiveVector2D);
+    //         case 4:
+    //             return ProjectiveVector3DTypeReal.fromRaw(raw as ProjectiveVector3D);
+    //         default:
+    //             throw new Error('Unsupported dimension');
+    //     }
+    // }
 }
 
   

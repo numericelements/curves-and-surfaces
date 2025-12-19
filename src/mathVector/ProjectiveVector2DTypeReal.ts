@@ -7,8 +7,6 @@ import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
-import { RealVectorSpace } from "./RealVectorSpace";
-import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import { ProjectiveVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -84,11 +82,19 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
     }
 
     add(other: ProjectiveVector2DTypeReal): ProjectiveVector2DTypeReal {
-        return super.add(other) as ProjectiveVector2DTypeReal;
+        // return super.add(other) as ProjectiveVector2DTypeReal;
+        const result = super.add(other) as ProjectiveVector2DTypeReal;
+        const weight = result.descriptor.coordinates[2].weight;
+        return new ProjectiveVector2DTypeReal(result.coordinates[0], result.coordinates[1], weight, this._vectorSpace) as ProjectiveVector2DTypeReal;
     }
 
     subtract(other: ProjectiveVector2DTypeReal): ProjectiveVector2DTypeReal {
-        return super.subtract(other) as ProjectiveVector2DTypeReal;
+        // return super.subtract(other) as ProjectiveVector2DTypeReal;
+        return new ProjectiveVector2DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).weight, this._vectorSpace) as ProjectiveVector2DTypeReal;
+    }
+
+    scale(factor: number): ProjectiveVector2DTypeReal {
+        return new ProjectiveVector2DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).weight, this._vectorSpace) as ProjectiveVector2DTypeReal;
     }
 
     toString(): string {
@@ -107,13 +113,13 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
         return super.isOrthogonal(other, angularTolerance);
     }
     
-    toRealVector(realVSpace?: RealVectorSpace<2>): Vector2DTypeReal {
-        const realCoord = this.applyHomogeneousTransformation();
-        if (realVSpace !== undefined) {
-            return new Vector2DTypeReal(realCoord[0], realCoord[1], realVSpace);
-        }
-        return new Vector2DTypeReal(realCoord[0], realCoord[1]);
-    }
+    // toRealVector(realVSpace?: RealVectorSpace<2>): Vector2DTypeReal {
+    //     const realCoord = this.applyHomogeneousTransformation();
+    //     if (realVSpace !== undefined) {
+    //         return new Vector2DTypeReal(realCoord[0], realCoord[1], realVSpace);
+    //     }
+    //     return new Vector2DTypeReal(realCoord[0], realCoord[1]);
+    // }
     
     clone(): ProjectiveVector2DTypeReal {
         let strictlyPosWeight = true;
@@ -127,7 +133,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
         );
     }
 
-    static fromRaw(raw: ProjectiveVector2D): ProjectiveVector2DTypeReal {
-        return new ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].weight);
-    }
+    // static fromRaw(raw: ProjectiveVector2D): ProjectiveVector2DTypeReal {
+    //     return new ProjectiveVector2DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2].weight);
+    // }
 }

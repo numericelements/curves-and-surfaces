@@ -1,13 +1,11 @@
 import { EM_REVERT_NOT_APPLICABLE, EM_WEIGHT_TOO_SMALL } from "../ErrorMessages/ProjectiveVectors";
-import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM } from "../ErrorMessages/ProjectiveVectorSpace";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
-import { RealVectorSpace } from "./RealVectorSpace";
-import { IComplexVector, IProjectiveVector, IRealVector, VectorFactory } from "./Vector";
-import { IComplex, ProjectiveVector, Vector } from "./VectorSpaceConstructorInterface";
+import { IProjectiveVector } from "./Vector";
+import { ProjectiveVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -30,7 +28,7 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
     abstract get homogeneousCoordinates(): number[];
     abstract getCoordinate(index: number): number;
     abstract clone(): IProjectiveVector;
-    abstract toRealVector(realVectorSpace?: RealVectorSpace<any>): IRealVector;
+    // abstract toRealVector(realVectorSpace?: RealVectorSpace<any>): IRealVector;
     abstract toString(): string;
 
     checkValidityWeightStatus(weightOrVSpace: Weight, vectorSpace: ProjectiveVectorSpace<any>): boolean {
@@ -79,8 +77,9 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
     }
 
     scale(scalar: number): IProjectiveVector {
-        const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
-        return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor) as IProjectiveVector;
+        return result;
+        // return this.createVectorFromRaw(result);
     }
 
     revert(): IProjectiveVector {
@@ -128,7 +127,7 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
         return ratio <= angularTolerance;
     }
 
-    protected createVectorFromRaw(raw: Vector): IProjectiveVector {
-        return VectorFactory.createProjectiveVectorFromRaw(raw as ProjectiveVector, this.vectorSpace);
-    }
+    // protected createVectorFromRaw(raw: Vector): IProjectiveVector {
+    //     return VectorFactory.createProjectiveVectorFromRaw(raw as ProjectiveVector, this.vectorSpace);
+    // }
 }

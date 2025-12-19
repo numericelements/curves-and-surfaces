@@ -130,7 +130,7 @@ export function createCommonProjectiveVectorSpaceTests(
             const weight_val = 2;
             const vec1 = createTestProjectiveVector(vectorType, weight_val, true);
             const vec2 = vectorSpace.defaultVect();
-            const result = vectorSpace.addRaw(vec1, vec2);
+            const result = vectorSpace.addDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -143,8 +143,8 @@ export function createCommonProjectiveVectorSpaceTests(
             const vec1 = createTestProjectiveVector(vectorType, 0, false);
             const vec2 = vectorSpace.defaultVect();
             const vec3 = createTestProjectiveVector(vectorType, 0, false);
-            const result = vectorSpace.addRaw(vec1, vec2);
-            const result1 = vectorSpace.addRaw(vec1, vec3);
+            const result = vectorSpace.addDescriptors(vec1, vec2);
+            const result1 = vectorSpace.addDescriptors(vec1, vec3);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             expect(vectorSpace.isInVectorSpace(result1)).to.eql(true);
@@ -162,8 +162,8 @@ export function createCommonProjectiveVectorSpaceTests(
             const vec1 = createTestProjectiveVector(vectorType, 0, false);
             const vec2 = vectorSpace.defaultVect();
             const vec3 = createTestProjectiveVector(vectorType, 0, false);
-            const result = vectorSpace.addRaw(vec1, vec2);
-            const result1 = vectorSpace.addRaw(vec1, vec3);
+            const result = vectorSpace.addDescriptors(vec1, vec2);
+            const result1 = vectorSpace.addDescriptors(vec1, vec3);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             expect(vectorSpace.isInVectorSpace(result1)).to.eql(true);
@@ -180,7 +180,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, true);
             const vec2 = vectorSpace.defaultVect();
-            const result = vectorSpace.subtractRaw(vec1, vec2);
+            const result = vectorSpace.subtractDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -192,7 +192,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, false);
             const vec2 = vectorSpace.defaultVect();
-            const result = vectorSpace.subtractRaw(vec1, vec2);
+            const result = vectorSpace.subtractDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -205,7 +205,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, 1, true);
             const vec2 = vectorSpace.defaultVect();
-            expect(() => vectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
+            expect(() => vectorSpace.subtractDescriptors(vec1, vec2)).to.throw(EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
         });
 
         it(`cannot subtract two ${vectorType} vectors with weights within ${NULL_WEIGHT_TOLERANCE} and a resulting weight negative, in the vector space, with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
@@ -213,7 +213,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT - (NULL_WEIGHT_TOLERANCE / 2), true);
             const vec2 = vectorSpace.defaultVect();
-            expect(() => vectorSpace.subtractRaw(vec1, vec2)).to.throw(EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
+            expect(() => vectorSpace.subtractDescriptors(vec1, vec2)).to.throw(EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS);
         });
 
         it(`cannot subtract two ${vectorType} vectors producing a negative weight with absolute value greater than ${NULL_WEIGHT_TOLERANCE} in the vector space with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
@@ -221,7 +221,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, true);
             const vec2 = vectorSpace.defaultVect();
-            expect(() => vectorSpace.subtractRaw(vec2, vec1)).to.throw(EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
+            expect(() => vectorSpace.subtractDescriptors(vec2, vec1)).to.throw(EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
         });
 
         it(`can subtract two ${vectorType} vectors with same weights in the vector space with weight management ${WeightManagement.AllPositiveWeights}`, () => {
@@ -229,7 +229,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT, false);
             const vec2 = vectorSpace.defaultVect();
-            const result = vectorSpace.subtractRaw(vec1, vec2);
+            const result = vectorSpace.subtractDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -242,7 +242,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT - (NULL_WEIGHT_TOLERANCE / 2), false);
             const vec2 = vectorSpace.defaultVect();
-            const result = vectorSpace.subtractRaw(vec1, vec2);
+            const result = vectorSpace.subtractDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -255,7 +255,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, false);
             const vec2 = vectorSpace.defaultVect();
-            expect(() => vectorSpace.subtractRaw(vec2, vec1)).to.throw(EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
+            expect(() => vectorSpace.subtractDescriptors(vec2, vec1)).to.throw(EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
         });
 
         it(`can subtract two ${vectorType} vectors in the vector space with weight management ${WeightManagement.SomeNullWeights}`, () => {
@@ -263,7 +263,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, true);
             const vec2 = vectorSpace.defaultVect();
-            const result = vectorSpace.subtractRaw(vec1, vec2);
+            const result = vectorSpace.subtractDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -276,7 +276,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
             const vec1 = createTestProjectiveVector(vectorType, 0, false);
             const vec2 = vectorSpace.defaultVect();
-            const result = vectorSpace.subtractRaw(vec2, vec1);
+            const result = vectorSpace.subtractDescriptors(vec2, vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -289,7 +289,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT, true);
             const vec2 = vectorSpace.defaultVect();
-            const result = vectorSpace.subtractRaw(vec1, vec2);
+            const result = vectorSpace.subtractDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -302,7 +302,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT - (NULL_WEIGHT_TOLERANCE / 2), true);
             const vec2 = vectorSpace.defaultVect();
-            const result = vectorSpace.subtractRaw(vec1, vec2);
+            const result = vectorSpace.subtractDescriptors(vec1, vec2);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -315,7 +315,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, true);
             const vec2 = vectorSpace.defaultVect();
-            expect(() => vectorSpace.subtractRaw(vec2, vec1)).to.throw(EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
+            expect(() => vectorSpace.subtractDescriptors(vec2, vec1)).to.throw(EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT);
         });
 
         it(`can scale a ${vectorType} vector with a strictly positive real value with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
@@ -323,7 +323,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, true);
             const scale = 2;
-            const result = vectorSpace.scaleRaw(scale, vec1);
+            const result = vectorSpace.scaleDescriptor(scale, vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -336,7 +336,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, true);
             const scale = -1;
-            expect(() => vectorSpace.scaleRaw(scale, vec1)).to.throw(EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
+            expect(() => vectorSpace.scaleDescriptor(scale, vec1)).to.throw(EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
         });
 
         it(`cannot scale a ${vectorType} vector with a null value with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
@@ -344,7 +344,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, true);
             const scale = 0;
-            expect(() => vectorSpace.scaleRaw(scale, vec1)).to.throw(EM_SCALE_FACTOR_NULL);
+            expect(() => vectorSpace.scaleDescriptor(scale, vec1)).to.throw(EM_SCALE_FACTOR_NULL);
         });
 
         it(`can scale a ${vectorType} vector with a strictly positive real value with weight management ${WeightManagement.AllPositiveWeights}`, () => {
@@ -352,7 +352,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, 2, true);
             const scale = 2;
-            const result = vectorSpace.scaleRaw(scale, vec1);
+            const result = vectorSpace.scaleDescriptor(scale, vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -365,7 +365,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT_VALUE, true);
             let scale = NULL_WEIGHT_TOLERANCE / 3;
-            const result = vectorSpace.scaleRaw(scale, vec1);
+            const result = vectorSpace.scaleDescriptor(scale, vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -379,7 +379,7 @@ export function createCommonProjectiveVectorSpaceTests(
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT_VALUE, false);
             const scale = -2;
             expect(scale).to.be.lessThan(0);
-            expect(() => vectorSpace.scaleRaw(scale, vec1)).to.throw(EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
+            expect(() => vectorSpace.scaleDescriptor(scale, vec1)).to.throw(EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
         });
 
         it(`can scale a ${vectorType} vector with a null value with weight management ${WeightManagement.AllPositiveWeights}`, () => {
@@ -387,7 +387,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT_VALUE, false);
             const scale = 0;
-            const result = vectorSpace.scaleRaw(scale, vec1);
+            const result = vectorSpace.scaleDescriptor(scale, vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -400,7 +400,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT_VALUE, true);
             const scale = 2;
-            const result = vectorSpace.scaleRaw(scale, vec1);
+            const result = vectorSpace.scaleDescriptor(scale, vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -413,7 +413,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT_VALUE, true);
             let scale = NULL_WEIGHT_TOLERANCE / 3;
-            const result = vectorSpace.scaleRaw(scale, vec1);
+            const result = vectorSpace.scaleDescriptor(scale, vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -427,7 +427,7 @@ export function createCommonProjectiveVectorSpaceTests(
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT_VALUE, false);
             const scale = -2;
             expect(scale).to.be.lessThan(0);
-            expect(() => vectorSpace.scaleRaw(scale, vec1)).to.throw(EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
+            expect(() => vectorSpace.scaleDescriptor(scale, vec1)).to.throw(EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
         });
 
         it(`can scale a ${vectorType} vector with a null value with weight management ${WeightManagement.SomeNullWeights}`, () => {
@@ -435,7 +435,7 @@ export function createCommonProjectiveVectorSpaceTests(
             expect(vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
             const vec1 = createTestProjectiveVector(vectorType, DEFAULT_WEIGHT_VALUE, false);
             const scale = 0;
-            const result = vectorSpace.scaleRaw(scale, vec1);
+            const result = vectorSpace.scaleDescriptor(scale, vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             const weight = result.coordinates[weightIndex] as IWeight;
@@ -449,7 +449,7 @@ export function createCommonProjectiveVectorSpaceTests(
             const value = 2;
             const vec1 = createTestProjectiveVector(vectorType, value, true);
             const coord1 = vec1.coordinates[0];
-            let result = vectorSpace.cloneRaw(vec1);
+            let result = vectorSpace.cloneVector(vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             expect(result.coordinates[0]).to.eql(vec1.coordinates[0]);
@@ -468,7 +468,7 @@ export function createCommonProjectiveVectorSpaceTests(
             const value = 2;
             const vec1 = createTestProjectiveVector(vectorType, value, false);
             const coord1 = vec1.coordinates[0];
-            let result = vectorSpace.cloneRaw(vec1);
+            let result = vectorSpace.cloneVector(vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             expect(result.coordinates[0]).to.eql(vec1.coordinates[0]);
@@ -487,7 +487,7 @@ export function createCommonProjectiveVectorSpaceTests(
             const value = 2;
             const vec1 = createTestProjectiveVector(vectorType, value, true);
             const coord1 = vec1.coordinates[0];
-            let result = vectorSpace.cloneRaw(vec1);
+            let result = vectorSpace.cloneVector(vec1);
             expect(vectorSpace.isInVectorSpace(result)).to.eql(true);
             expect(result.type).to.eql(vectorType);
             expect(result.coordinates[0]).to.eql(vec1.coordinates[0]);
@@ -499,7 +499,7 @@ export function createCommonProjectiveVectorSpaceTests(
             result.coordinates[0] = -1;
             expect(vec1.coordinates[0]).to.eql(coord1);
             const vec2 = createTestProjectiveVector(vectorType, value, false);
-            let result1 = vectorSpace.cloneRaw(vec2);
+            let result1 = vectorSpace.cloneVector(vec2);
             expect(vectorSpace.isInVectorSpace(result1)).to.eql(true);
             expect(result1.type).to.eql(vectorType);
             const weight2 = result1.coordinates[weightIndex] as IWeight;
