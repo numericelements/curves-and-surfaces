@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = exports.EM_IMAGINARYWEIGHT_NEGATIVE = exports.EM_REALWEIGHT_NEGATIVE = exports.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_TRANSFORMATION_NOT_AVAILABLE = exports.EM_INPUT_ARRAY_INCONSISTENT_LENGTH = exports.EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR = exports.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_COMPLEXVECTORS_DIFFERENT_DIM = exports.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
+exports.EM_COMPLEXVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
+exports.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE = 'Vector dimension is out of complex vector space dimension range. Cannot proceed.';
+exports.EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR = "The scale factor is neither complex nor real. Current type is invalid.";
+exports.EM_INPUT_ARRAY_INCONSISTENT_LENGTH = "The input array length must be equal to 2 to describe the real and imaginary parts of a complex number. Cannot proceed.";
+exports.EM_TRANSFORMATION_NOT_AVAILABLE = "Transformation not available for this vector space dimension.";
+exports.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = "Complex vectors don't belong to the current vector space. Dimensions are incompatible.";
+exports.EM_REALWEIGHT_NEGATIVE = "Real weight must be positive or null. Cannot proceed.";
+exports.EM_IMAGINARYWEIGHT_NEGATIVE = "Imaginary weight must be positive or null. Cannot proceed.";
+exports.EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = 'Cannot apply dot product with complex vectors of dimension 2.';

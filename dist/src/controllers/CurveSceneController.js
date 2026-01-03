@@ -1,37 +1,37 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveSceneController = void 0;
-var CurveModel_1 = require("../newModels/CurveModel");
-var ControlPointsView_1 = require("../views/ControlPointsView");
-var ControlPolygonView_1 = require("../views/ControlPolygonView");
-var CurveView_1 = require("../views/CurveView");
-var ClickButtonView_1 = require("../views/ClickButtonView");
-var CurvatureExtremaView_1 = require("../views/CurvatureExtremaView");
-var InflectionsView_1 = require("../views/InflectionsView");
-var TransitionCurvatureExtremaView_1 = require("../views/TransitionCurvatureExtremaView");
-var CurveKnotsView_1 = require("../views/CurveKnotsView");
-var ClampedControlPointView_1 = require("../views/ClampedControlPointView");
-var ShapeNavigableCurve_1 = require("../shapeNavigableCurve/ShapeNavigableCurve");
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var CurveConstraintSelectionState_1 = require("./CurveConstraintSelectionState");
-var ClosedCurveModel_1 = require("../newModels/ClosedCurveModel");
-var CurveModelObserver_1 = require("../models/CurveModelObserver");
-var HighlightedControlPolygonView_1 = require("../views/HighlightedControlPolygonView");
-var CurveSceneControllerInteractionStrategy_1 = require("./CurveSceneControllerInteractionStrategy");
-var PhantomCurveView_1 = require("../views/PhantomCurveView");
-var SelectedSlipOutOfShapeSpaceCurvExtremView_1 = require("../views/SelectedSlipOutOfShapeSpaceCurvExtremView");
-var SelectedSlipOutOfShapeSpaceInflectionView_1 = require("../views/SelectedSlipOutOfShapeSpaceInflectionView");
-var SelectedEnteringShapeSpaceCurvExtremView_1 = require("../views/SelectedEnteringShapeSpaceCurvExtremView");
-var SelectedEnteringShapeSpaceInflectionView_1 = require("../views/SelectedEnteringShapeSpaceInflectionView");
+const CurveModel_1 = require("../newModels/CurveModel");
+const ControlPointsView_1 = require("../views/ControlPointsView");
+const ControlPolygonView_1 = require("../views/ControlPolygonView");
+const CurveView_1 = require("../views/CurveView");
+const ClickButtonView_1 = require("../views/ClickButtonView");
+const CurvatureExtremaView_1 = require("../views/CurvatureExtremaView");
+const InflectionsView_1 = require("../views/InflectionsView");
+const TransitionCurvatureExtremaView_1 = require("../views/TransitionCurvatureExtremaView");
+const CurveKnotsView_1 = require("../views/CurveKnotsView");
+const ClampedControlPointView_1 = require("../views/ClampedControlPointView");
+const ShapeNavigableCurve_1 = require("../shapeNavigableCurve/ShapeNavigableCurve");
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+const CurveConstraintSelectionState_1 = require("./CurveConstraintSelectionState");
+const ClosedCurveModel_1 = require("../newModels/ClosedCurveModel");
+const CurveModelObserver_1 = require("../models/CurveModelObserver");
+const HighlightedControlPolygonView_1 = require("../views/HighlightedControlPolygonView");
+const CurveSceneControllerInteractionStrategy_1 = require("./CurveSceneControllerInteractionStrategy");
+const PhantomCurveView_1 = require("../views/PhantomCurveView");
+const SelectedSlipOutOfShapeSpaceCurvExtremView_1 = require("../views/SelectedSlipOutOfShapeSpaceCurvExtremView");
+const SelectedSlipOutOfShapeSpaceInflectionView_1 = require("../views/SelectedSlipOutOfShapeSpaceInflectionView");
+const SelectedEnteringShapeSpaceCurvExtremView_1 = require("../views/SelectedEnteringShapeSpaceCurvExtremView");
+const SelectedEnteringShapeSpaceInflectionView_1 = require("../views/SelectedEnteringShapeSpaceInflectionView");
 // Margin expressed in pixel size
-var MARGIN_WINDOW_CANVAS = 150;
+const MARGIN_WINDOW_CANVAS = 150;
 // Window background color setting
-var BACKGROUND_RED_COLOR = 0.3;
-var BACKGROUND_GREEN_COLOR = 0.3;
-var BACKGROUND_BLUE_COLOR = 0.3;
-var BACKGROUND_ALPHA = 1.0;
-var CurveSceneController = /** @class */ (function () {
-    function CurveSceneController(canvas, gl, curveModelDefinitionEventListener, shapeSpaceNavigationEventListener) {
+const BACKGROUND_RED_COLOR = 0.3;
+const BACKGROUND_GREEN_COLOR = 0.3;
+const BACKGROUND_BLUE_COLOR = 0.3;
+const BACKGROUND_ALPHA = 1.0;
+class CurveSceneController {
+    constructor(canvas, gl, curveModelDefinitionEventListener, shapeSpaceNavigationEventListener) {
         this.canvas = canvas;
         this.gl = gl;
         this._selectedControlPoint = null;
@@ -50,7 +50,7 @@ var CurveSceneController = /** @class */ (function () {
         this.inflectionsView = new InflectionsView_1.InflectionsView(this.gl, this._curveDiffEventsLocations);
         this.curveKnotsView = new CurveKnotsView_1.CurveKnotsView(this.gl, this.curveModel.spline);
         this._clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this._shapeNavigableCurve.clampedPoints);
-        var selectedEvent = [];
+        const selectedEvent = [];
         this._selectedSlipOutCurvatureExtremaView = new SelectedSlipOutOfShapeSpaceCurvExtremView_1.SelectedSlipOutOfShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
         this._selectedEnteringCurvatureExtremaView = new SelectedEnteringShapeSpaceCurvExtremView_1.SelectedEnteringShapeSpaceCurvExtremaView(this.gl, this.curveModel.spline, selectedEvent);
         this._selectedSlipOutInflectionsView = new SelectedSlipOutOfShapeSpaceInflectionView_1.SelectedSlipOutOfShapeSpaceInflectionView(this.gl, this.curveModel.spline, selectedEvent);
@@ -71,132 +71,64 @@ var CurveSceneController = /** @class */ (function () {
         this._curveConstraintSelectionState = new CurveConstraintSelectionState_1.HandleConstraintAtPoint1Point2NoConstraintState(this);
         console.log("end constructor curveSceneController");
     }
-    Object.defineProperty(CurveSceneController.prototype, "clampedControlPointView", {
-        get: function () {
-            return this._clampedControlPointView;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "insertKnotButtonView", {
-        get: function () {
-            return this._insertKnotButtonView;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "controlPointsView", {
-        get: function () {
-            return this._controlPointsView;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "highlightedControlPolygonView", {
-        get: function () {
-            return this._highlightedControlPolygonView;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "phantomCurveView", {
-        get: function () {
-            return this._phantomCurveView;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "curveConstraintSelectionState", {
-        get: function () {
-            return this._curveConstraintSelectionState;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "controlOfKnotInsertion", {
-        get: function () {
-            return this._controlOfKnotInsertion;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "selectedControlPoint", {
-        get: function () {
-            return this._selectedControlPoint;
-        },
-        set: function (selectedCPIndex) {
-            this._selectedControlPoint = selectedCPIndex;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "sceneInteraction", {
-        get: function () {
-            return this._sceneInteractionStrategy;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "selectedSlipOutInflectionsView", {
-        get: function () {
-            return this._selectedSlipOutInflectionsView;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "selectedEnteringInflectionsView", {
-        get: function () {
-            return this._selectedEnteringInflectionsView;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "selectedSlipOutCurvatureExtremaView", {
-        get: function () {
-            return this._selectedSlipOutCurvatureExtremaView;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "selectedEnteringCurvatureExtremaView", {
-        get: function () {
-            return this._selectedEnteringCurvatureExtremaView;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "navigationState", {
-        get: function () {
-            return this._navigationState;
-        },
-        set: function (navigationState) {
-            this._navigationState = navigationState;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "shapeNavigableCurve", {
-        get: function () {
-            return this._shapeNavigableCurve;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "curveShapeSpaceNavigator", {
-        get: function () {
-            return this._curveShapeSpaceNavigator;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveSceneController.prototype, "curveDiffEventsLocations", {
-        set: function (curveDiffEventsLocations) {
-            this._curveDiffEventsLocations = curveDiffEventsLocations;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    CurveSceneController.prototype.initCurveSceneView = function () {
+    get clampedControlPointView() {
+        return this._clampedControlPointView;
+    }
+    get insertKnotButtonView() {
+        return this._insertKnotButtonView;
+    }
+    get controlPointsView() {
+        return this._controlPointsView;
+    }
+    get highlightedControlPolygonView() {
+        return this._highlightedControlPolygonView;
+    }
+    get phantomCurveView() {
+        return this._phantomCurveView;
+    }
+    get curveConstraintSelectionState() {
+        return this._curveConstraintSelectionState;
+    }
+    get controlOfKnotInsertion() {
+        return this._controlOfKnotInsertion;
+    }
+    get selectedControlPoint() {
+        return this._selectedControlPoint;
+    }
+    get sceneInteraction() {
+        return this._sceneInteractionStrategy;
+    }
+    get selectedSlipOutInflectionsView() {
+        return this._selectedSlipOutInflectionsView;
+    }
+    get selectedEnteringInflectionsView() {
+        return this._selectedEnteringInflectionsView;
+    }
+    get selectedSlipOutCurvatureExtremaView() {
+        return this._selectedSlipOutCurvatureExtremaView;
+    }
+    get selectedEnteringCurvatureExtremaView() {
+        return this._selectedEnteringCurvatureExtremaView;
+    }
+    get navigationState() {
+        return this._navigationState;
+    }
+    get shapeNavigableCurve() {
+        return this._shapeNavigableCurve;
+    }
+    get curveShapeSpaceNavigator() {
+        return this._curveShapeSpaceNavigator;
+    }
+    set selectedControlPoint(selectedCPIndex) {
+        this._selectedControlPoint = selectedCPIndex;
+    }
+    set navigationState(navigationState) {
+        this._navigationState = navigationState;
+    }
+    set curveDiffEventsLocations(curveDiffEventsLocations) {
+        this._curveDiffEventsLocations = curveDiffEventsLocations;
+    }
+    initCurveSceneView() {
         this._controlPointsView = new ControlPointsView_1.ControlPointsView(this.gl, this.curveModel.spline);
         this.controlPolygonView = new ControlPolygonView_1.ControlPolygonView(this.gl, this.curveModel.spline);
         this._insertKnotButtonView = new ClickButtonView_1.ClickButtonView(this.gl);
@@ -208,9 +140,8 @@ var CurveSceneController = /** @class */ (function () {
         this._clampedControlPointView = new ClampedControlPointView_1.ClampedControlPointView(this.gl, this.curveModel.spline, this._shapeNavigableCurve.clampedPoints);
         this.registerCurveObservers();
         this._selectedControlPoint = null;
-    };
-    CurveSceneController.prototype.registerCurveObservers = function () {
-        var _this = this;
+    }
+    registerCurveObservers() {
         this.curveModel.registerObserver(this._controlPointsView, "control points");
         this.curveModel.registerObserver(this.controlPolygonView, "control points");
         this.curveModel.registerObserver(this.curveView, "curve");
@@ -223,34 +154,34 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModelDifferentialEventsExtractor.registerObserver(this.curvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.transitionCurvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.registerObserver(this.inflectionsView, "control points");
-        this.curveModelDifferentialEventsExtractor.observersCP.forEach(function (element) {
-            element.update(_this._curveDiffEventsLocations);
+        this.curveModelDifferentialEventsExtractor.observersCP.forEach(element => {
+            element.update(this._curveDiffEventsLocations);
         });
         if (this.curveModel instanceof CurveModel_1.CurveModel) {
-            this.curveModel.observers.forEach(function (element) {
-                if (_this.curveModel !== undefined) {
-                    element.update(_this.curveModel.spline);
+            this.curveModel.observers.forEach(element => {
+                if (this.curveModel !== undefined) {
+                    element.update(this.curveModel.spline);
                 }
                 else {
-                    var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
+                    const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
                     error.logMessage();
                 }
             });
         }
         else if (this.curveModel instanceof ClosedCurveModel_1.ClosedCurveModel) {
-            this.curveModel.observers.forEach(function (element) {
-                if (_this.curveModel !== undefined) {
-                    element.update(_this.curveModel.spline);
+            this.curveModel.observers.forEach(element => {
+                if (this.curveModel !== undefined) {
+                    element.update(this.curveModel.spline);
                 }
                 else {
-                    var error = new ErrorLoging_1.ErrorLog(_this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
+                    const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "registerCurveObservers", "Unable to initialize a CurveSceneController");
                     error.logMessage();
                 }
             });
         }
         this.curveModel.checkObservers();
-    };
-    CurveSceneController.prototype.removeCurveObservers = function () {
+    }
+    removeCurveObservers() {
         this.curveModel.removeObserver(this._controlPointsView, "control points");
         this.curveModel.removeObserver(this.controlPolygonView, "control points");
         this.curveModel.removeObserver(this.curveView, "curve");
@@ -263,9 +194,9 @@ var CurveSceneController = /** @class */ (function () {
         this.curveModelDifferentialEventsExtractor.removeObserver(this.curvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.removeObserver(this.transitionCurvatureExtremaView, "control points");
         this.curveModelDifferentialEventsExtractor.removeObserver(this.inflectionsView, "control points");
-    };
-    CurveSceneController.prototype.setupWindowBackground = function () {
-        var size = Math.min(window.innerWidth, window.innerHeight) - MARGIN_WINDOW_CANVAS;
+    }
+    setupWindowBackground() {
+        const size = Math.min(window.innerWidth, window.innerHeight) - MARGIN_WINDOW_CANVAS;
         this.canvas.width = size;
         this.canvas.height = size;
         this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
@@ -273,8 +204,8 @@ var CurveSceneController = /** @class */ (function () {
         this.gl.clear(this.gl.COLOR_BUFFER_BIT);
         this.gl.enable(this.gl.BLEND);
         this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-    };
-    CurveSceneController.prototype.renderFrame = function () {
+    }
+    renderFrame() {
         this.setupWindowBackground();
         this.curveView.renderFrame();
         this.curvatureExtremaView.renderFrame();
@@ -300,49 +231,49 @@ var CurveSceneController = /** @class */ (function () {
         if (this._shapeNavigableCurve.controlOfCurveClamping && this._clampedControlPointView !== null) {
             this._clampedControlPointView.renderFrame();
         }
-    };
-    CurveSceneController.prototype.addCurveObserver = function (curveObserver) {
+    }
+    addCurveObserver(curveObserver) {
         if (this.curveModel !== undefined) {
             curveObserver.update(this.curveModel.spline);
             this.curveModel.registerObserver(curveObserver, "curve");
         }
         else
             throw new Error("Unable to attach a curve observer to the current curve. Undefined curve model");
-    };
-    CurveSceneController.prototype.removeCurveObserver = function (curveObserver) {
+    }
+    removeCurveObserver(curveObserver) {
         if (this.curveModel !== undefined) {
             curveObserver.update(this.curveModel.spline);
             this.curveModel.removeObserver(curveObserver, "curve");
         }
         else
             throw new Error("Unable to detach a curve observer to the current curve. Undefined curve model");
-    };
-    CurveSceneController.prototype.curveConstraintTransitionTo = function (curveConstraintSelectionState) {
+    }
+    curveConstraintTransitionTo(curveConstraintSelectionState) {
         this._curveConstraintSelectionState = curveConstraintSelectionState;
-    };
-    CurveSceneController.prototype.changeSceneInteraction = function (sceneInteraction) {
+    }
+    changeSceneInteraction(sceneInteraction) {
         this._sceneInteractionStrategy = sceneInteraction;
-    };
-    CurveSceneController.prototype.leftMouseDown_event = function (ndcX, ndcY) {
+    }
+    leftMouseDown_event(ndcX, ndcY) {
         this._sceneInteractionStrategy.processLeftMouseDownInteraction(ndcX, ndcY);
-    };
-    CurveSceneController.prototype.leftMouseDragged_event = function (ndcX, ndcY) {
+    }
+    leftMouseDragged_event(ndcX, ndcY) {
         this._sceneInteractionStrategy.processLeftMouseDragInteraction(ndcX, ndcY);
-    };
-    CurveSceneController.prototype.leftMouseUp_event = function () {
+    }
+    leftMouseUp_event() {
         this._sceneInteractionStrategy.processLeftMouseUpInteraction();
-    };
-    CurveSceneController.prototype.shiftKeyDown = function () {
+    }
+    shiftKeyDown() {
         this._sceneInteractionStrategy.processShiftKeyDownInteraction();
-    };
-    CurveSceneController.prototype.shiftKeyUp = function () {
+    }
+    shiftKeyUp() {
         this._sceneInteractionStrategy.processShiftKeyUpInteraction();
-    };
-    CurveSceneController.prototype.dbleClick_event = function (ndcX, ndcY) {
+    }
+    dbleClick_event(ndcX, ndcY) {
         if (this.curveModel !== undefined) {
             if (this._shapeNavigableCurve.controlOfCurveClamping) {
                 if (this._clampedControlPointView !== null) {
-                    var selectedClampedControlPoint = this._clampedControlPointView.knotSelection(ndcX, ndcY);
+                    let selectedClampedControlPoint = this._clampedControlPointView.knotSelection(ndcX, ndcY);
                     console.log("dlble_click: id conrol pt = " + selectedClampedControlPoint);
                     if (selectedClampedControlPoint !== null) {
                         if ((this._shapeNavigableCurve.clampedPoints[0] === selectedClampedControlPoint || this._shapeNavigableCurve.clampedPoints[0] === ShapeNavigableCurve_1.NO_CONSTRAINT)
@@ -368,7 +299,6 @@ var CurveSceneController = /** @class */ (function () {
         else {
             throw new Error("Unable to process the selected point for clamping. Undefined curve model");
         }
-    };
-    return CurveSceneController;
-}());
+    }
+}
 exports.CurveSceneController = CurveSceneController;

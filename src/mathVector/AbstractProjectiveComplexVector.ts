@@ -1,12 +1,12 @@
 import { EM_REVERT_NOT_APPLICABLE_PROJECTIVE_COMPLEX } from "../ErrorMessages/ProjectiveComplexVectors";
 import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
-import { Complex } from "./Complex";
-import { ComplexWeight } from "./ComplexWeight";
-import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
-import { IComplexVector, IProjectiveComplexVector } from "./Vector";
-import { VectorFactory } from "./VectorFromDescriptorFactory";
-import { IComplex, ProjectiveComplexVector, Vector } from "./VectorSpaceConstructorInterface";
+import type { Complex } from "./Complex";
+import type { ComplexWeight } from "./ComplexWeight";
+import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
+import type { IComplexVector, IProjectiveComplexVector } from "./Vector";
+// import { VectorFactory } from "./VectorFromDescriptorFactory";
+import type { IComplex, ProjectiveComplexVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 /**
@@ -85,7 +85,9 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
         return ratio <= angularTolerance;
     }
 
-    protected createVectorFromRaw(raw: Vector): IProjectiveComplexVector {
-        return VectorFactory.createProjectiveComplexVectorFromRaw(raw as ProjectiveComplexVector, this.vectorSpace);
-    }
+    protected abstract createVectorFromRaw(raw: ProjectiveComplexVector): IProjectiveComplexVector;
+
+    // protected createVectorFromRaw(raw: Vector): IProjectiveComplexVector {
+    //     return VectorFactory.createProjectiveComplexVectorFromRaw(raw as ProjectiveComplexVector, this.vectorSpace);
+    // }
 }

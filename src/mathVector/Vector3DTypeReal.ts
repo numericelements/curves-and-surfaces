@@ -4,10 +4,10 @@ import { REALVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
-import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IProjectiveVector, IRealVector } from "./Vector";
-import { RealVector3D } from "./VectorSpaceConstructorInterface";
+import type { IProjectiveVector } from "./Vector";
+import type { RealVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -31,7 +31,11 @@ export class Vector3DTypeReal extends AbstractRealVector {
             if(vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
             } else {
-                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<3>;
+                try{
+                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<3>;
+                } catch(error) {
+                    this._vectorSpace = new RealVectorSpace(this.dimension, true) as RealVectorSpace<3>;
+                }
             }
         }
     }
@@ -92,6 +96,10 @@ export class Vector3DTypeReal extends AbstractRealVector {
     
     clone(): Vector3DTypeReal {
         return new Vector3DTypeReal(this.x!, this.y!, this.z!, this.vectorSpace);
+    }
+
+    createVectorFromRaw(raw: RealVector3D): Vector3DTypeReal {
+        return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], this.vectorSpace);
     }
     
     // static fromRaw(raw: RealVector3D): Vector3DTypeReal {

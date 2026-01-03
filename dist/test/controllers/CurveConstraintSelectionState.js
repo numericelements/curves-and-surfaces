@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-describe('CurveConstraintSelectionState', function () {
-    describe('handleCurveConstraintAtPoint1', function () {
-        it('process a click to update constraint at first point', function () {
+describe('CurveConstraintSelectionState', () => {
+    describe('handleCurveConstraintAtPoint1', () => {
+        it('process a click to update constraint at first point', () => {
             // let document: Document = new Document();
             // const canvas = <HTMLCanvasElement> document.getElementById("webgl");
             //             const gl = WebGLUtils().setupWebGL(canvas);

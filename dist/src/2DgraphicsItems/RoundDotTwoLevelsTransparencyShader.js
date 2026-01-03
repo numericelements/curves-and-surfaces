@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoundDotTwoLevelsTransparencyShader = void 0;
-var cuon_utils_1 = require("../webgl/cuon-utils");
-var RoundDotTwoLevelsTransparencyShader = /** @class */ (function () {
-    function RoundDotTwoLevelsTransparencyShader(gl) {
+const cuon_utils_1 = require("../webgl/cuon-utils");
+class RoundDotTwoLevelsTransparencyShader {
+    constructor(gl) {
         // Vertex shader program
         this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
             'attribute vec2 a_Texture; \n' +
@@ -33,13 +33,13 @@ var RoundDotTwoLevelsTransparencyShader = /** @class */ (function () {
             '     gl_FragColor = (fColor1+fColor2)/2.0; \n' +
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
         this.gl.useProgram(this.program);
     }
-    RoundDotTwoLevelsTransparencyShader.prototype.renderFrame = function (numberOfElements, selectedControlPoint) {
+    renderFrame(numberOfElements, selectedControlPoint) {
         if (this.program) {
             //this.gl.uniform1i(this.gl.getUniformLocation(this.program, "selected"), False);
             this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
@@ -48,7 +48,6 @@ var RoundDotTwoLevelsTransparencyShader = /** @class */ (function () {
                 this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_BYTE, selectedControlPoint * 6);
             }
         }
-    };
-    return RoundDotTwoLevelsTransparencyShader;
-}());
+    }
+}
 exports.RoundDotTwoLevelsTransparencyShader = RoundDotTwoLevelsTransparencyShader;

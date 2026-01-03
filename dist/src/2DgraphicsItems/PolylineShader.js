@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PolylineShader = void 0;
-var cuon_utils_1 = require("../webgl/cuon-utils");
-var PolylineShader = /** @class */ (function () {
-    function PolylineShader(gl) {
+const cuon_utils_1 = require("../webgl/cuon-utils");
+class PolylineShader {
+    constructor(gl) {
         // Vertex shader program
         this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
             'void main() {\n' +
@@ -16,16 +16,15 @@ var PolylineShader = /** @class */ (function () {
             '    gl_FragColor = fColor; \n' +
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
         this.gl.useProgram(this.program);
     }
-    PolylineShader.prototype.renderFrame = function (numberOfVertices) {
+    renderFrame(numberOfVertices) {
         this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, numberOfVertices);
-    };
-    return PolylineShader;
-}());
+    }
+}
 exports.PolylineShader = PolylineShader;
 ;

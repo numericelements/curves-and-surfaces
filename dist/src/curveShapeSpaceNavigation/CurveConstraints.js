@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveConstraints = exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT = exports.CurveExtremity = exports.ConstraintType = void 0;
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var CurveConstraintStrategy_1 = require("./CurveConstraintStrategy");
-var ShapeNavigableCurve_1 = require("../shapeNavigableCurve/ShapeNavigableCurve");
-var BSplineR1toR2_1 = require("../newBsplines/BSplineR1toR2");
-var PeriodicBSplineR1toR2withOpenKnotSequence_1 = require("../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence");
-var BSplineR1toR1_1 = require("../newBsplines/BSplineR1toR1");
-var AbstractBSplineR1toR2_1 = require("../newBsplines/AbstractBSplineR1toR2");
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+const CurveConstraintStrategy_1 = require("./CurveConstraintStrategy");
+const ShapeNavigableCurve_1 = require("../shapeNavigableCurve/ShapeNavigableCurve");
+const BSplineR1toR2_1 = require("../newBsplines/BSplineR1toR2");
+const PeriodicBSplineR1toR2withOpenKnotSequence_1 = require("../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence");
+const BSplineR1toR1_1 = require("../newBsplines/BSplineR1toR1");
+const AbstractBSplineR1toR2_1 = require("../newBsplines/AbstractBSplineR1toR2");
 var ConstraintType;
 (function (ConstraintType) {
     ConstraintType[ConstraintType["none"] = 0] = "none";
@@ -21,10 +21,10 @@ var CurveExtremity;
     CurveExtremity[CurveExtremity["last"] = 1] = "last";
 })(CurveExtremity = exports.CurveExtremity || (exports.CurveExtremity = {}));
 exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT = 10;
-var CurveConstraints = /** @class */ (function () {
+class CurveConstraints {
     // private _optimizedCurve: BSplineR1toR2Interface;
-    function CurveConstraints(shapeNavigableCurve) {
-        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
+    constructor(shapeNavigableCurve) {
+        let warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessage();
         this._shapeNavigableCurve = shapeNavigableCurve;
         this._curveConstraintStrategy = new CurveConstraintStrategy_1.CurveConstraintNoConstraint(this);
@@ -35,58 +35,38 @@ var CurveConstraints = /** @class */ (function () {
         this._lastControlPoint = ConstraintType.none;
         // this._optimizedCurve = this._shapeNavigableCurve.optimizedCurve;
     }
-    Object.defineProperty(CurveConstraints.prototype, "firstControlPoint", {
-        get: function () {
-            return this._firstControlPoint;
-        },
-        set: function (constraintAtFirstPoint) {
-            this._firstControlPoint = constraintAtFirstPoint;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveConstraints.prototype, "lastControlPoint", {
-        get: function () {
-            return this._lastControlPoint;
-        },
-        set: function (constraintAtLastPoint) {
-            this._lastControlPoint = constraintAtLastPoint;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveConstraints.prototype, "curveConstraintStrategy", {
-        get: function () {
-            return this._curveConstraintStrategy;
-        },
-        set: function (curveConstraintStrategy) {
-            this._curveConstraintStrategy = curveConstraintStrategy;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveConstraints.prototype, "shapeNavigableCurve", {
-        get: function () {
-            return this._shapeNavigableCurve;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(CurveConstraints.prototype, "curveShapeSpaceNavigator", {
-        get: function () {
-            return this._shapeNavigableCurve;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    CurveConstraints.prototype.setConstraint = function (curveConstraintStrategy) {
+    set firstControlPoint(constraintAtFirstPoint) {
+        this._firstControlPoint = constraintAtFirstPoint;
+    }
+    set lastControlPoint(constraintAtLastPoint) {
+        this._lastControlPoint = constraintAtLastPoint;
+    }
+    set curveConstraintStrategy(curveConstraintStrategy) {
+        this._curveConstraintStrategy = curveConstraintStrategy;
+    }
+    get shapeNavigableCurve() {
+        return this._shapeNavigableCurve;
+    }
+    get firstControlPoint() {
+        return this._firstControlPoint;
+    }
+    get lastControlPoint() {
+        return this._lastControlPoint;
+    }
+    get curveConstraintStrategy() {
+        return this._curveConstraintStrategy;
+    }
+    get curveShapeSpaceNavigator() {
+        return this._shapeNavigableCurve;
+    }
+    setConstraint(curveConstraintStrategy) {
         this._curveConstraintStrategy = curveConstraintStrategy;
         this._firstControlPoint = this._curveConstraintStrategy.firstControlPoint;
         this._lastControlPoint = this._curveConstraintStrategy.lastControlPoint;
-    };
-    CurveConstraints.prototype.processConstraint = function () {
+    }
+    processConstraint() {
         this._curveConstraintStrategy.locateCurveExtremityUnderConstraint(this);
-    };
+    }
     // clearConstraint(extremity: CurveExtremity): void {
     //     if(extremity === CurveExtremity.first) {
     //         this._firstControlPoint = ConstraintType.none;
@@ -95,29 +75,29 @@ var CurveConstraints = /** @class */ (function () {
     //         this._lastControlPoint = ConstraintType.none;
     //     }
     // }
-    CurveConstraints.prototype.clearAll = function () {
+    clearAll() {
         this._firstControlPoint = ConstraintType.none;
         this._lastControlPoint = ConstraintType.none;
-    };
-    CurveConstraints.prototype.slideConstraintAlongCurve = function () {
-        var valid = true;
-        var indexPoint1 = this._shapeNavigableCurve.clampedPoints[0];
-        var indexPoint2 = this._shapeNavigableCurve.clampedPoints[1];
+    }
+    slideConstraintAlongCurve() {
+        let valid = true;
+        const indexPoint1 = this._shapeNavigableCurve.clampedPoints[0];
+        const indexPoint2 = this._shapeNavigableCurve.clampedPoints[1];
         if (indexPoint1 === ShapeNavigableCurve_1.NO_CONSTRAINT || indexPoint2 === ShapeNavigableCurve_1.NO_CONSTRAINT) {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "slideConstraintAlongCurve", "Configuration with only one clamped point: cannot be processed.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "slideConstraintAlongCurve", "Configuration with only one clamped point: cannot be processed.");
             error.logMessage();
         }
         else {
-            var knots = this._curveConstraintStrategy.optimizedCurve.getDistinctKnots();
-            var optimizedSpline = this._curveConstraintStrategy.optimizedCurve;
-            var newAbscRefPt2 = this.computeAbscissae(indexPoint1, indexPoint2);
-            var deltaU2 = Math.abs(newAbscRefPt2.abscissa - knots[indexPoint2]);
+            const knots = this._curveConstraintStrategy.optimizedCurve.getDistinctKnots();
+            let optimizedSpline = this._curveConstraintStrategy.optimizedCurve;
+            const newAbscRefPt2 = this.computeAbscissae(indexPoint1, indexPoint2);
+            const deltaU2 = Math.abs(newAbscRefPt2.abscissa - knots[indexPoint2]);
             console.log('newAbsc2 ' + newAbscRefPt2.abscissa + ' iter ' + newAbscRefPt2.nbIter + ' delatU2 ' + deltaU2);
-            var newAbscRefPt1 = this.computeAbscissae(indexPoint2, indexPoint1);
-            var deltaU1 = Math.abs(newAbscRefPt1.abscissa - knots[indexPoint1]);
+            const newAbscRefPt1 = this.computeAbscissae(indexPoint2, indexPoint1);
+            const deltaU1 = Math.abs(newAbscRefPt1.abscissa - knots[indexPoint1]);
             console.log('newAbsc1 ' + newAbscRefPt1.abscissa + ' iter ' + newAbscRefPt1.nbIter + ' delatU1 ' + deltaU1);
-            var newAbsc = void 0;
-            var segment = void 0;
+            let newAbsc;
+            let segment;
             if (newAbscRefPt1.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT && newAbscRefPt2.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT
                 && newAbscRefPt1.nbIter !== -1 && newAbscRefPt2.nbIter !== -1) {
                 if (deltaU1 > deltaU2) {
@@ -162,7 +142,7 @@ var CurveConstraints = /** @class */ (function () {
                 valid = false;
                 console.log("newAbsc = " + newAbsc);
             }
-            for (var i = 0; i < optimizedSpline.degree + 1; i++) {
+            for (let i = 0; i < optimizedSpline.degree + 1; i++) {
                 if (optimizedSpline.knots[i] !== 0.0) {
                     console.log("Inconsistent knot sequence");
                 }
@@ -179,7 +159,7 @@ var CurveConstraints = /** @class */ (function () {
                             optimizedSpline = optimizedSpline.splitAt(newAbsc, segment);
                     }
                     this._curveConstraintStrategy.optimizedCurve = optimizedSpline;
-                    for (var i = 0; i < optimizedSpline.degree + 1; i++) {
+                    for (let i = 0; i < optimizedSpline.degree + 1; i++) {
                         if (optimizedSpline.knots[i] !== 0.0) {
                             console.log("Inconsistent knot sequence");
                         }
@@ -193,47 +173,47 @@ var CurveConstraints = /** @class */ (function () {
             }
         }
         return valid;
-    };
-    CurveConstraints.prototype.computeAbscissae = function (indexPoint1, indexPoint2) {
-        var spline = this._curveConstraintStrategy.currentCurve;
-        var optimizedSpline = this._curveConstraintStrategy.optimizedCurve;
-        var knots = spline.getDistinctKnots();
-        var point1 = spline.evaluate(knots[indexPoint1]);
-        var point2 = spline.evaluate(knots[indexPoint2]);
-        var refDistance = point1.distance(point2);
-        var knotsOptCrv = optimizedSpline.getDistinctKnots();
-        var point1Opt = optimizedSpline.evaluate(knotsOptCrv[indexPoint1]);
-        var point2Opt = optimizedSpline.evaluate(knotsOptCrv[indexPoint2]);
-        var distance = point1Opt.distance(point2Opt);
-        var sx = new BSplineR1toR1_1.BSplineR1toR1(optimizedSpline.getControlPointsX(), optimizedSpline.knots);
-        var sxu = sx.derivative();
-        var sy = new BSplineR1toR1_1.BSplineR1toR1(optimizedSpline.getControlPointsY(), optimizedSpline.knots);
-        var syu = sy.derivative();
-        var newAbsc = knotsOptCrv[indexPoint2];
-        var iter = 0;
-        var solution1 = false;
-        var solution2 = false;
-        var iterOutside = 0;
-        var minVariationDistance = 0;
-        var maxVariationDistance = 0;
-        var minVariationAbscissa = 0;
-        var maxVariationAbscissa = 0;
-        var offset = 0.0;
+    }
+    computeAbscissae(indexPoint1, indexPoint2) {
+        const spline = this._curveConstraintStrategy.currentCurve;
+        let optimizedSpline = this._curveConstraintStrategy.optimizedCurve;
+        const knots = spline.getDistinctKnots();
+        const point1 = spline.evaluate(knots[indexPoint1]);
+        const point2 = spline.evaluate(knots[indexPoint2]);
+        const refDistance = point1.distance(point2);
+        let knotsOptCrv = optimizedSpline.getDistinctKnots();
+        const point1Opt = optimizedSpline.evaluate(knotsOptCrv[indexPoint1]);
+        let point2Opt = optimizedSpline.evaluate(knotsOptCrv[indexPoint2]);
+        let distance = point1Opt.distance(point2Opt);
+        let sx = new BSplineR1toR1_1.BSplineR1toR1(optimizedSpline.getControlPointsX(), optimizedSpline.knots);
+        let sxu = sx.derivative();
+        let sy = new BSplineR1toR1_1.BSplineR1toR1(optimizedSpline.getControlPointsY(), optimizedSpline.knots);
+        let syu = sy.derivative();
+        let newAbsc = knotsOptCrv[indexPoint2];
+        let iter = 0;
+        let solution1 = false;
+        let solution2 = false;
+        let iterOutside = 0;
+        let minVariationDistance = 0;
+        let maxVariationDistance = 0;
+        let minVariationAbscissa = 0;
+        let maxVariationAbscissa = 0;
+        let offset = 0.0;
         if (knotsOptCrv[0] !== 0.0) {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "computeAbscissae", "Inconsistent knot sequence. First knot is not 0.0");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "computeAbscissae", "Inconsistent knot sequence. First knot is not 0.0");
             error.logMessage();
         }
         while (Math.abs(distance - refDistance) > CurveConstraintStrategy_1.TOL_LOCATION_CURVE_REFERENCE_POINTS && iter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
-            var c = Math.pow(distance, 2) - Math.pow(refDistance, 2);
-            var point2dx = sxu.evaluate(newAbsc);
-            var point2dy = syu.evaluate(newAbsc);
-            var a = Math.pow(point2dx, 2) + Math.pow(point2dy, 2);
+            const c = Math.pow(distance, 2) - Math.pow(refDistance, 2);
+            const point2dx = sxu.evaluate(newAbsc);
+            const point2dy = syu.evaluate(newAbsc);
+            const a = Math.pow(point2dx, 2) + Math.pow(point2dy, 2);
             point2Opt = optimizedSpline.evaluate(newAbsc);
-            var vectorP1P2 = point2Opt.substract(point1Opt);
-            var bprime = point2dx * vectorP1P2.x + point2dy * vectorP1P2.y;
-            var discriminant = Math.pow(bprime, 2) - a * c;
-            var deltaU1 = 0.0;
-            var deltaU2 = 0.0;
+            let vectorP1P2 = point2Opt.substract(point1Opt);
+            const bprime = point2dx * vectorP1P2.x + point2dy * vectorP1P2.y;
+            const discriminant = Math.pow(bprime, 2) - a * c;
+            let deltaU1 = 0.0;
+            let deltaU2 = 0.0;
             if (discriminant >= 0.0) {
                 deltaU1 = (-bprime + Math.sqrt(discriminant)) / a;
                 deltaU2 = (-bprime - Math.sqrt(discriminant)) / a;
@@ -242,23 +222,23 @@ var CurveConstraints = /** @class */ (function () {
                 iter = -1;
                 break;
             }
-            var solPoint1 = void 0, solPoint2 = void 0;
-            var u1 = knotsOptCrv[indexPoint2] + deltaU1;
+            let solPoint1, solPoint2;
+            const u1 = knotsOptCrv[indexPoint2] + deltaU1;
             if (u1 < knotsOptCrv[0] || u1 > knotsOptCrv[knotsOptCrv.length - 1]) {
                 solPoint1 = optimizedSpline.evaluateOutsideRefInterval(u1);
             }
             else {
                 solPoint1 = optimizedSpline.evaluate(u1);
             }
-            var u2 = knotsOptCrv[indexPoint2] + deltaU2;
+            const u2 = knotsOptCrv[indexPoint2] + deltaU2;
             if (u2 < knotsOptCrv[0] || u2 > knotsOptCrv[knotsOptCrv.length - 1]) {
                 solPoint2 = optimizedSpline.evaluateOutsideRefInterval(u2);
             }
             else {
                 solPoint2 = optimizedSpline.evaluate(u2);
             }
-            var distance1 = point1Opt.distance(solPoint1);
-            var distance2 = point1Opt.distance(solPoint2);
+            const distance1 = point1Opt.distance(solPoint1);
+            const distance2 = point1Opt.distance(solPoint2);
             if (iter === 0) {
                 if (Math.abs(distance1 - refDistance) > Math.abs(distance2 - refDistance)) {
                     solution2 = true;
@@ -279,7 +259,7 @@ var CurveConstraints = /** @class */ (function () {
                 iterOutside++;
                 // console.log(' newAbsc outside interval. redefine curve');
                 if (optimizedSpline instanceof BSplineR1toR2_1.BSplineR1toR2) {
-                    var tempSpline = optimizedSpline.extend(newAbsc);
+                    let tempSpline = optimizedSpline.extend(newAbsc);
                     if (newAbsc < knotsOptCrv[0]) {
                         offset = offset - newAbsc;
                         minVariationAbscissa = 0.0;
@@ -296,7 +276,7 @@ var CurveConstraints = /** @class */ (function () {
                     // console.log(' ctrlPts'+JSON.stringify(optimizedSpline.controlPoints)+' knots '+optimizedSpline.knots);
                 }
                 else if (this._curveConstraintStrategy.optimizedCurve instanceof PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence) {
-                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "computeAbscissae", "something to do there");
+                    const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "computeAbscissae", "something to do there");
                     error.logMessage();
                 }
             }
@@ -320,7 +300,7 @@ var CurveConstraints = /** @class */ (function () {
         if (iter === exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
             if (iterOutside >= (exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT / 2) - 1) {
                 // console.log('Nb Iter Outside = '+iterOutside+' maxVariation = '+ maxVariationDistance+' minVariation = '+minVariationDistance);
-                var newAbscRef = this.solveWithLinearApproximation(indexPoint1, indexPoint2, minVariationAbscissa, maxVariationAbscissa, optimizedSpline, offset);
+                let newAbscRef = this.solveWithLinearApproximation(indexPoint1, indexPoint2, minVariationAbscissa, maxVariationAbscissa, optimizedSpline, offset);
                 if (newAbscRef.nbIter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
                     iter = 1;
                     newAbsc = newAbscRef.abscissa;
@@ -337,29 +317,29 @@ var CurveConstraints = /** @class */ (function () {
             abscissa: newAbsc - offset,
             nbIter: iter
         };
-    };
-    CurveConstraints.prototype.solveWithLinearApproximation = function (indexPoint1, indexPoint2, minVariationAbscissa, maxVariationAbscissa, optimizedSplineInit, offset) {
-        var spline = this._curveConstraintStrategy.currentCurve;
-        var optimizedSpline = optimizedSplineInit.clone();
-        var knots = spline.getDistinctKnots();
-        var point1 = spline.evaluate(knots[indexPoint1]);
-        var point2 = spline.evaluate(knots[indexPoint2]);
-        var refDistance = point1.distance(point2);
-        var knotsOpt = optimizedSpline.getDistinctKnots();
-        var point1Opt = optimizedSpline.evaluate(knotsOpt[indexPoint1]);
-        var umin = offset + minVariationAbscissa;
-        var uMax = offset + maxVariationAbscissa;
+    }
+    solveWithLinearApproximation(indexPoint1, indexPoint2, minVariationAbscissa, maxVariationAbscissa, optimizedSplineInit, offset) {
+        const spline = this._curveConstraintStrategy.currentCurve;
+        let optimizedSpline = optimizedSplineInit.clone();
+        let knots = spline.getDistinctKnots();
+        const point1 = spline.evaluate(knots[indexPoint1]);
+        const point2 = spline.evaluate(knots[indexPoint2]);
+        const refDistance = point1.distance(point2);
+        let knotsOpt = optimizedSpline.getDistinctKnots();
+        const point1Opt = optimizedSpline.evaluate(knotsOpt[indexPoint1]);
+        let umin = offset + minVariationAbscissa;
+        let uMax = offset + maxVariationAbscissa;
         // if(umin < 0.0) {
         //     console.log("umin = "+umin+" uMax = "+uMax);
         // }
-        var point2Opt1 = optimizedSpline.evaluate(offset + minVariationAbscissa);
-        var distance1 = point1Opt.distance(point2Opt1);
-        var point2Opt2 = optimizedSpline.evaluate(offset + maxVariationAbscissa);
-        var distance2 = point1Opt.distance(point2Opt2);
-        var u = offset;
-        var iter = 0;
+        let point2Opt1 = optimizedSpline.evaluate(offset + minVariationAbscissa);
+        let distance1 = point1Opt.distance(point2Opt1);
+        let point2Opt2 = optimizedSpline.evaluate(offset + maxVariationAbscissa);
+        let distance2 = point1Opt.distance(point2Opt2);
+        let u = offset;
+        let iter = 0;
         if ((distance1 - refDistance) * (distance2 - refDistance) < 0.0) {
-            var distance = distance1;
+            let distance = distance1;
             while (Math.abs(distance - refDistance) > CurveConstraintStrategy_1.TOL_LOCATION_CURVE_REFERENCE_POINTS && iter < exports.NB_MAX_ITER_SLIDING_CLAMPING_CONSTRAINT) {
                 u = offset + maxVariationAbscissa - ((distance2 - refDistance) / (distance2 - distance1)) * (maxVariationAbscissa - minVariationAbscissa);
                 distance = point1Opt.distance(optimizedSpline.evaluate(u));
@@ -390,14 +370,13 @@ var CurveConstraints = /** @class */ (function () {
             }
         }
         else {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "solveWithLinearApproximation", "Cannot process robustly this configuration.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "solveWithLinearApproximation", "Cannot process robustly this configuration.");
             error.logMessage();
         }
         return {
             abscissa: u,
             nbIter: iter
         };
-    };
-    return CurveConstraints;
-}());
+    }
+}
 exports.CurveConstraints = CurveConstraints;

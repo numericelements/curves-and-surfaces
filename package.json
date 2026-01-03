@@ -8,7 +8,9 @@
     "build": "webpack",
     "start": "webpack-dev-server --port 9000 --inline --progress --profile --colors --watch  --mode development",
     "coverage": "jest --coverage",
-    "docs": "typedoc"
+    "docs": "typedoc",
+    "clean": "rm -rf dist",
+    "rebuild": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",

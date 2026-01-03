@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Knot = void 0;
-var Knots_1 = require("../ErrorMessages/Knots");
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var Knots_2 = require("../namedConstants/Knots");
+const Knots_1 = require("../ErrorMessages/Knots");
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+const Knots_2 = require("../namedConstants/Knots");
 /**
  * Represents a knot in a B-spline knot sequence with its location (abscissa) along the axis of reals and its multiplicity.
  *
@@ -14,7 +14,7 @@ var Knots_2 = require("../namedConstants/Knots");
  *
  *
  */
-var Knot = /** @class */ (function () {
+class Knot {
     /**
      * Creates a new knot.
      *
@@ -28,7 +28,7 @@ var Knot = /** @class */ (function () {
      * const knot = new Knot(1.5); // Knot at u=1.5 with multiplicity that defaults to 1
      * const knot = new Knot(); // Knot at default value (Infinity) with multiplicity that defaults to Infinity
      */
-    function Knot(abscissa, multiplicity) {
+    constructor(abscissa, multiplicity) {
         if (abscissa !== undefined) {
             if (abscissa === Knots_2.DEFAULT_KNOT_ABSCISSA_VALUE) {
                 this.throwRangeErrorMessage("constructor", Knots_1.EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA);
@@ -51,73 +51,63 @@ var Knot = /** @class */ (function () {
             this._multiplicity = Knots_2.DEFAULT_MULTIPLICITY_VALUE;
         }
     }
-    Object.defineProperty(Knot.prototype, "abscissa", {
-        /**
-         * Gets the abscissa (position) value of the knot
-         * @returns The abscissa value along the axis of reals
-         */
-        get: function () {
-            return this._abscissa;
-        },
-        /**
-         * Sets the abscissa (position) value of the knot
-         * @param abscissa - The new abscissa value to set
-         * @throws {RangeError} If abscissa equals DEFAULT_KNOT_ABSCISSA_VALUE
-         */
-        set: function (abscissa) {
-            if (abscissa === Knots_2.DEFAULT_KNOT_ABSCISSA_VALUE) {
-                this.throwRangeErrorMessage("abscissa_setter", Knots_1.EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA);
-            }
-            else {
-                this._abscissa = abscissa;
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(Knot.prototype, "multiplicity", {
-        /**
-         * Gets the multiplicity (number of repetitions) of the knot
-         * @returns The multiplicity value
-         */
-        get: function () {
-            return this._multiplicity;
-        },
-        /**
-         * Sets the multiplicity (number of repetitions) of the knot
-         * @param multiplicity - The new multiplicity value to set
-         * @throws {RangeError} If multiplicity is less than 1
-         */
-        set: function (multiplicity) {
-            if (multiplicity < 1) {
-                this.throwRangeErrorMessage("multiplicity_setter", Knots_1.EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY);
-            }
-            else {
-                this._multiplicity = multiplicity;
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
+    /**
+     * Gets the abscissa (position) value of the knot
+     * @returns The abscissa value along the axis of reals
+     */
+    get abscissa() {
+        return this._abscissa;
+    }
+    /**
+     * Gets the multiplicity (number of repetitions) of the knot
+     * @returns The multiplicity value
+     */
+    get multiplicity() {
+        return this._multiplicity;
+    }
+    /**
+     * Sets the abscissa (position) value of the knot
+     * @param abscissa - The new abscissa value to set
+     * @throws {RangeError} If abscissa equals DEFAULT_KNOT_ABSCISSA_VALUE
+     */
+    set abscissa(abscissa) {
+        if (abscissa === Knots_2.DEFAULT_KNOT_ABSCISSA_VALUE) {
+            this.throwRangeErrorMessage("abscissa_setter", Knots_1.EM_KNOT_CONSTRUCTOR_KNOT_ABSCISSA);
+        }
+        else {
+            this._abscissa = abscissa;
+        }
+    }
+    /**
+     * Sets the multiplicity (number of repetitions) of the knot
+     * @param multiplicity - The new multiplicity value to set
+     * @throws {RangeError} If multiplicity is less than 1
+     */
+    set multiplicity(multiplicity) {
+        if (multiplicity < 1) {
+            this.throwRangeErrorMessage("multiplicity_setter", Knots_1.EM_KNOT_CONSTRUCTOR_KNOT_MULTIPLICITY);
+        }
+        else {
+            this._multiplicity = multiplicity;
+        }
+    }
     /**
      * Increases the knot multiplicity by the specified increment
      * @param increment - The value to increase multiplicity by (default: 1)
      * @throws {RangeError} If increment is less than 1
      */
-    Knot.prototype.incrementMultiplicity = function (increment) {
-        if (increment === void 0) { increment = 1; }
+    incrementMultiplicity(increment = 1) {
         if (increment < 1)
             this.throwRangeErrorMessage("incrementMultiplicity", Knots_1.EM_KNOT_INCREMENT_DECREMENT);
         this._multiplicity = this._multiplicity + increment;
         return;
-    };
+    }
     /**
      * Decreases the knot multiplicity by the specified decrement
      * @param decrement - The value to decrease multiplicity by (default: 1)
      * @throws {RangeError} If decrement is less than 1 or if resulting multiplicity would be less than 1
      */
-    Knot.prototype.decrementMultiplicity = function (decrement) {
-        if (decrement === void 0) { decrement = 1; }
+    decrementMultiplicity(decrement = 1) {
         if (decrement < 1)
             this.throwRangeErrorMessage("incrementMultiplicity", Knots_1.EM_KNOT_INCREMENT_DECREMENT);
         if (this._multiplicity < (decrement + 1)) {
@@ -127,19 +117,18 @@ var Knot = /** @class */ (function () {
             this._multiplicity = this._multiplicity - decrement;
         }
         return;
-    };
+    }
     /**
      * Throws a RangeError with formatted error message
      * @param functionName - Name of the function where error occurred
      * @param message - The error message to display
      * @throws {RangeError} With formatted error message
      */
-    Knot.prototype.throwRangeErrorMessage = function (functionName, message) {
-        var error = new ErrorLoging_1.ErrorLog(this.constructor.name, functionName);
+    throwRangeErrorMessage(functionName, message) {
+        const error = new ErrorLoging_1.ErrorLog(this.constructor.name, functionName);
         error.addMessage(message);
         console.log(error.generateMessageString());
         throw new RangeError(error.generateMessageString());
-    };
-    return Knot;
-}());
+    }
+}
 exports.Knot = Knot;

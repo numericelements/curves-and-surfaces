@@ -1,8 +1,8 @@
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/RealVectorSpace";
 import { PROJECTIVEVECTOR3D, REALVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
-import { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import { ProjectiveVector3D, Real, RealVector, RealVector3D } from "./VectorSpaceConstructorInterface";
+import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
+import type { ProjectiveVector3D, Real, RealVector, RealVector3D } from "./VectorSpaceConstructorInterface";
 import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

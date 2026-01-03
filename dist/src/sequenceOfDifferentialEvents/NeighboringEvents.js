@@ -29,7 +29,7 @@ var NeighboringEventsType;
     NeighboringEventsType[NeighboringEventsType["moreThanOneEvent"] = 23] = "moreThanOneEvent";
 })(NeighboringEventsType = exports.NeighboringEventsType || (exports.NeighboringEventsType = {}));
 exports.INITIAL_INTERV_INDEX = -1;
-var NeighboringEvents = /** @class */ (function () {
+class NeighboringEvents {
     /**
      * All configurations of events that can appear or disappear when comparing two consecutive sequences of differential events.
      * The configurations are elementary ones enumerated in NeighboringEventsType.
@@ -38,7 +38,7 @@ var NeighboringEvents = /** @class */ (function () {
      * It is defined by the index of the index of an inflection as right bound of the interval betwwen [0,sequence.length] and initialized
      * to INITIAL_INTERV_INDEX, i.e., -1, if not explicitly defined.
      */
-    function NeighboringEvents(eventType, indexInSequence) {
+    constructor(eventType, indexInSequence) {
         if (eventType !== undefined) {
             this._type = eventType;
         }
@@ -52,32 +52,23 @@ var NeighboringEvents = /** @class */ (function () {
             this._index = exports.INITIAL_INTERV_INDEX;
         }
     }
-    Object.defineProperty(NeighboringEvents.prototype, "type", {
-        get: function () {
-            return this._type;
-        },
-        set: function (eventType) {
-            this._type = eventType;
-            return;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(NeighboringEvents.prototype, "index", {
-        get: function () {
-            return this._index;
-        },
-        set: function (indexInSequence) {
-            this._index = indexInSequence;
-            return;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    NeighboringEvents.prototype.clear = function () {
+    set type(eventType) {
+        this._type = eventType;
+        return;
+    }
+    set index(indexInSequence) {
+        this._index = indexInSequence;
+        return;
+    }
+    get type() {
+        return this._type;
+    }
+    get index() {
+        return this._index;
+    }
+    clear() {
         this._index = exports.INITIAL_INTERV_INDEX;
         this._type = NeighboringEventsType.none;
-    };
-    return NeighboringEvents;
-}());
+    }
+}
 exports.NeighboringEvents = NeighboringEvents;

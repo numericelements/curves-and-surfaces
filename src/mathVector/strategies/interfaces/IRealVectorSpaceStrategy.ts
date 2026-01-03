@@ -1,5 +1,5 @@
-import { ComplexVector, ProjectiveVector, Real, RealVector, RealVectorOfDimension } from "../../VectorSpaceConstructorInterface";
-import { Weight } from "../../Weight";
+import type { ComplexVector, ProjectiveVector, Real, RealVector, RealVectorOfDimension } from "../../VectorSpaceConstructorInterface";
+import type { Weight } from "../../Weight";
 
 export interface IRealVectorSpaceStrategy<D extends number>  {
     areSameDimension(v1: RealVector, v2: RealVector): boolean;

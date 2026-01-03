@@ -7,23 +7,12 @@ import { EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/Complex
 import { EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
+import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 
-describe('Vector 1D in complex vector space: generation and operators in this vector space', () => {
+describe('Vector 2D in complex vector space: generation and operators in this vector space', () => {
     const dimension = 2;
     let defaultVectorSpaceID = '';
     let userSpecificVSID = '';
-
-    // test('debug imports', () => {
-    //     // require to observe runtime values (works with CommonJS jest)
-    //     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    //     const ACV = require('../../src/mathVector/AbstractComplexVector').AbstractComplexVector;
-    //     // eslint-disable-next-line no-console
-    //     console.log('AbstractComplexVector is', ACV);
-    //     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    //     const V2 = require('../../src/mathVector/Vector2DTypeComplex').Vector2DTypeComplex;
-    //     // eslint-disable-next-line no-console
-    //     console.log('Vector2DTypeComplex is', V2);
-    // });
 
     describe('Constructor', () => {
         it(`can generate a default complex vector into the default 2D vector space`, () => {
@@ -63,6 +52,7 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector.vectorType).to.eql(COMPLEXVECTOR2D);
             expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector.vectorSpace.isDefault).to.eql(true);
+            defaultVectorSpaceID = DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension).id;
             expect(complexVector.vectorSpace.id).to.eql(defaultVectorSpaceID);
         });
 

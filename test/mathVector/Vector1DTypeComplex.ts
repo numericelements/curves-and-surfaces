@@ -7,6 +7,7 @@ import { Complex } from "../../src/mathVector/Complex";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
+import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 
 describe('Vector 1D in complex vector space: generation and operators in this vector space', () => {
     const dimension = 1;
@@ -74,6 +75,7 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector.vectorType).to.eql(COMPLEXVECTOR1D);
             expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector.vectorSpace.isDefault).to.eql(true);
+            defaultVectorSpaceID = DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension).id;
             expect(complexVector.vectorSpace.id).to.eql(defaultVectorSpaceID);
         });
 

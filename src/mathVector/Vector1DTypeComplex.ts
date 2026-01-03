@@ -5,7 +5,7 @@ import { AbstractComplexVector } from "./AbstractComplexVector";
 import { Complex } from "./Complex";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
-import { IComplex, ComplexVector1D } from "./VectorSpaceConstructorInterface";
+import type { IComplex, ComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
@@ -33,7 +33,11 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
             } else if (vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
             } else {
-                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
+                try {
+                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
+                } catch(error) {
+                    this._vectorSpace = new ComplexVectorSpace(this.dimension, true) as ComplexVectorSpace<1>;
+                }
             }
             return;
         }
@@ -46,7 +50,11 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
         if(vectorSpace !== undefined) {
             this._vectorSpace = vectorSpace;
         } else {
-            this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
+            try {
+                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
+            } catch(error) {
+                this._vectorSpace = new ComplexVectorSpace(this.dimension, true) as ComplexVectorSpace<1>;
+            }
         }
     }
     
@@ -96,6 +104,10 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
     
     clone(): Vector1DTypeComplex {
         return new Vector1DTypeComplex(this.data.real, this.data.imaginary, this.vectorSpace);
+    }
+
+    createVectorFromRaw(raw: ComplexVector1D): Vector1DTypeComplex {
+        return new Vector1DTypeComplex(raw.real, raw.imaginary, this.vectorSpace);
     }
     
     static fromRaw(raw: ComplexVector1D, vectorSpace?: ComplexVectorSpace<1>): Vector1DTypeComplex {

@@ -5,3 +5,4 @@ export const EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE = 'Vector dimension is out 
 export const EM_PROJECTIVEVECTOR_WEIGHT_OUT_WEIGHTMANAGER_RANGE = 'Weight is NULL and out of weight manager range. Change weight manager.';
 export const EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT = "Projective vector has a negative weight. Cannot proceed.";
 export const EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT = "Projective vector has a null weight while weights must be strictly positive. Cannot proceed.";
+export const EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION = 'No default projective vector space found for the specified dimension.';

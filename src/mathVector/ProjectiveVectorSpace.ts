@@ -6,15 +6,15 @@ import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPAC
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
-import { ProjectiveComplexVector, ProjectiveVector, ProjectiveVectorOfDimension, Real, RealVector } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveComplexVector, ProjectiveVector, ProjectiveVectorOfDimension, Real, RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
 import { PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
-import { IProjectiveVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveVectorSpaceStrategy";
-import { IdentifiableVectorSpace } from "./IVectorSpace";
+import type { IProjectiveVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveVectorSpaceStrategy";
+import type { IdentifiableVectorSpace } from "./IVectorSpace";
 
 /**
  * Implementation of a projective vector space

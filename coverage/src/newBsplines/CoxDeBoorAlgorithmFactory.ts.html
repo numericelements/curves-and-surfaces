@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">25.64% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/39</span>
+                <span class='fraction'>10/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/0</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>0/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">25.64% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/39</span>
+                <span class='fraction'>10/39</span>
             </div>
         
             
@@ -101,7 +101,13 @@
 <a name='L36'></a><a href='#L36'>36</a>
 <a name='L37'></a><a href='#L37'>37</a>
 <a name='L38'></a><a href='#L38'>38</a>
-<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L39'></a><a href='#L39'>39</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -124,6 +130,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -131,21 +139,13 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";</span></span></span>
-<span class="cstat-no" title="statement not covered" >import { ControlPolygon } from "./ControlPolygon";</span>
-<span class="cstat-no" title="statement not covered" >import { AlgorithmFactory, BSplineEvaluator, CoxDeBoorProjectiveEvaluator, CoxDeBoorRealEvaluator } from "./OpenBSplineR1toRn";</span>
-<span class="cstat-no" title="statement not covered" >import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export class CoxDeBoorAlgorithmFactory implements AlgorithmFactory {</span>
-<span class="cstat-no" title="statement not covered" >    createEvaluator(</span>
+<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
+import { ControlPolygon } from "./ControlPolygon";
+import { AlgorithmFactory, BSplineEvaluator, CoxDeBoorProjectiveEvaluator, CoxDeBoorRealEvaluator } from "./OpenBSplineR1toRn";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+&nbsp;
+export class CoxDeBoorAlgorithmFactory implements AlgorithmFactory {
+<span class="fstat-no" title="function not covered" >    createEvaluator(</span>
 <span class="cstat-no" title="statement not covered" >        controlPolygon: ControlPolygon,</span>
 <span class="cstat-no" title="statement not covered" >        knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,</span>
 <span class="cstat-no" title="statement not covered" >        degree: number,</span>
@@ -168,8 +168,8 @@
 <span class="cstat-no" title="statement not covered" >                throw new Error(`Unsupported vector space type for Cox-de Boor algorithm`);</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    private getVectorSpaceType(vectorSpace: any): VectorSpaceType {</span>
+&nbsp;
+    private <span class="fstat-no" title="function not covered" >getVectorSpaceType(vectorSpace: any): VectorSpaceType {</span>
 <span class="cstat-no" title="statement not covered" >        // Determine type based on vectorSpace instance</span>
 <span class="cstat-no" title="statement not covered" >        if (vectorSpace.constructor.name.includes('Real')) return VectorSpaceType.REAL;</span>
 <span class="cstat-no" title="statement not covered" >        if (vectorSpace.constructor.name.includes('Projective') &amp;&amp; vectorSpace.constructor.name.includes('Complex')) return VectorSpaceType.PROJECTIVECOMPLEX;</span>
@@ -177,14 +177,14 @@
 <span class="cstat-no" title="statement not covered" >        if (vectorSpace.constructor.name.includes('Complex')) return VectorSpaceType.COMPLEX;</span>
 <span class="cstat-no" title="statement not covered" >        return VectorSpaceType.REAL; // Default</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
+}</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-16T10:14:15.944Z
+                at 2026-01-03T15:41:12.728Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

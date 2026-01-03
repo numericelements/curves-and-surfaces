@@ -1,4 +1,4 @@
-import { ComplexVector, ComplexVectorOfDimension, IComplex, IComplexWeight, ProjectiveComplexVector, RealVector } from "../../VectorSpaceConstructorInterface";
+import type { ComplexVector, ComplexVectorOfDimension, IComplex, IComplexWeight, ProjectiveComplexVector, RealVector } from "../../VectorSpaceConstructorInterface";
 
 export interface IComplexVectorSpaceStrategy<D extends number> {
     areSameDimension(v1: ComplexVector, v2: ComplexVector): boolean;

@@ -2,7 +2,7 @@ import { EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_MANA
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { Complex } from "./Complex";
 import { ComplexWeight } from "./ComplexWeight";
-import { Real } from "./VectorSpaceConstructorInterface";
+import type { Real } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManagerPositiveWeightStrategy } from "./WeightManagerPositiveWeightStrategy";

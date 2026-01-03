@@ -1,48 +1,25 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SimpleCurveModel = void 0;
-var BSplineR1toR2_1 = require("../newBsplines/BSplineR1toR2");
-var Vector2d_1 = require("../mathVector/Vector2d");
-var AbstractCurveModel_1 = require("./AbstractCurveModel");
-var SimpleCurveModel = /** @class */ (function (_super) {
-    __extends(SimpleCurveModel, _super);
+const BSplineR1toR2_1 = require("../newBsplines/BSplineR1toR2");
+const Vector2d_1 = require("../mathVector/Vector2d");
+const AbstractCurveModel_1 = require("./AbstractCurveModel");
+class SimpleCurveModel extends AbstractCurveModel_1.AbstractCurveModel {
     //private observers: IObserver<BSplineR1toR2Interface>[] = []
-    function SimpleCurveModel() {
-        var _this = _super.call(this) || this;
-        var cp0 = new Vector2d_1.Vector2d(-0.5, 0);
-        var cp1 = new Vector2d_1.Vector2d(-0.1, 0.5);
-        var cp2 = new Vector2d_1.Vector2d(0.1, 0.5);
-        var cp3 = new Vector2d_1.Vector2d(0.5, 0);
-        _this._spline = new BSplineR1toR2_1.BSplineR1toR2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1]);
-        return _this;
+    constructor() {
+        super();
+        const cp0 = new Vector2d_1.Vector2d(-0.5, 0);
+        const cp1 = new Vector2d_1.Vector2d(-0.1, 0.5);
+        const cp2 = new Vector2d_1.Vector2d(0.1, 0.5);
+        const cp3 = new Vector2d_1.Vector2d(0.5, 0);
+        this._spline = new BSplineR1toR2_1.BSplineR1toR2([cp0, cp1, cp2, cp3], [0, 0, 0, 0, 1, 1, 1, 1]);
     }
-    Object.defineProperty(SimpleCurveModel.prototype, "spline", {
-        get: function () {
-            return this._spline.clone();
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(SimpleCurveModel.prototype, "isClosed", {
-        get: function () {
-            return false;
-        },
-        enumerable: false,
-        configurable: true
-    });
+    get spline() {
+        return this._spline.clone();
+    }
+    get isClosed() {
+        return false;
+    }
     /*
     moveControlPoint(controlPointIndex: number, deltaX: number, deltaY: number) {
         this._spline.moveControlPoint(controlPointIndex, deltaX, deltaY)
@@ -51,16 +28,16 @@ var SimpleCurveModel = /** @class */ (function (_super) {
         }
     }
     */
-    SimpleCurveModel.prototype.setControlPointPosition = function (controlPointIndex, x, y) {
+    setControlPointPosition(controlPointIndex, x, y) {
         this._spline.setControlPointPosition(controlPointIndex, new Vector2d_1.Vector2d(x, y));
         this.notifyObservers();
-    };
-    SimpleCurveModel.prototype.setSpline = function (spline) {
+    }
+    setSpline(spline) {
         this._spline = spline;
         this.notifyObservers();
-    };
-    SimpleCurveModel.prototype.addControlPoint = function (controlPointIndex) {
-        var cp = controlPointIndex;
+    }
+    addControlPoint(controlPointIndex) {
+        let cp = controlPointIndex;
         if (cp != null) {
             if (cp === 0) {
                 cp += 1;
@@ -68,18 +45,17 @@ var SimpleCurveModel = /** @class */ (function (_super) {
             if (cp === this._spline.controlPoints.length - 1) {
                 cp -= 1;
             }
-            var grevilleAbscissae = this._spline.grevilleAbscissae();
+            const grevilleAbscissae = this._spline.grevilleAbscissae();
             this._spline.insertKnot(grevilleAbscissae[cp]);
             //this.resetCurve(this.curveModel)
         }
         this.notifyObservers();
-    };
-    SimpleCurveModel.prototype.setActiveControl = function () {
-    };
-    SimpleCurveModel.prototype.toggleActiveControlOfCurvatureExtrema = function () {
-    };
-    SimpleCurveModel.prototype.toggleActiveControlOfInflections = function () {
-    };
-    return SimpleCurveModel;
-}(AbstractCurveModel_1.AbstractCurveModel));
+    }
+    setActiveControl() {
+    }
+    toggleActiveControlOfCurvatureExtrema() {
+    }
+    toggleActiveControlOfInflections() {
+    }
+}
 exports.SimpleCurveModel = SimpleCurveModel;

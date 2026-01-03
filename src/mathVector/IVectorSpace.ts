@@ -1,5 +1,5 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { Scalar, Vector } from "./VectorSpaceConstructorInterface";
+import type { Scalar, Vector } from "./VectorSpaceConstructorInterface";
 
 /**
  * Vector Space interface following mathematical axioms

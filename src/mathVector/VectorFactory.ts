@@ -1,7 +1,7 @@
 import type { RealVectorSpace } from './RealVectorSpace';
 import type { ComplexVectorSpace } from './ComplexVectorSpace';
 import { VectorSpaceType } from '../namedConstants/BSplineR1toRn';
-import { IComplex } from './VectorSpaceConstructorInterface';
+import type { IComplex } from './VectorSpaceConstructorInterface';
 import { Vector1DTypeReal } from './Vector1DTypeReal';
 import { Vector2DTypeReal } from './Vector2DTypeReal';
 import { Vector3DTypeReal } from './Vector3DTypeReal';

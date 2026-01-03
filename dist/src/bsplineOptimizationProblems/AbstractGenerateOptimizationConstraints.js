@@ -1,19 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AbtractGenerateOptimizationConstraints = void 0;
-var AbtractGenerateOptimizationConstraints = /** @class */ (function () {
-    function AbtractGenerateOptimizationConstraints() {
-    }
-    AbtractGenerateOptimizationConstraints.prototype.generateOptimizationConstraints = function (shapeSpaceDiffEventsStructure) {
+class AbtractGenerateOptimizationConstraints {
+    generateOptimizationConstraints(shapeSpaceDiffEventsStructure) {
         this.generateInflectionConstraints(shapeSpaceDiffEventsStructure);
         this.generateCurvatureExtremaConstraints(shapeSpaceDiffEventsStructure);
-    };
-    AbtractGenerateOptimizationConstraints.prototype.generateInflectionConstraints = function (shapeSpaceDiffEventsStructure) {
+    }
+    generateInflectionConstraints(shapeSpaceDiffEventsStructure) {
         if (shapeSpaceDiffEventsStructure.activeControlInflections) {
         }
-    };
-    AbtractGenerateOptimizationConstraints.prototype.generateCurvatureExtremaConstraints = function (shapeSpaceDiffEventsStructure) {
-    };
-    return AbtractGenerateOptimizationConstraints;
-}());
+    }
+    generateCurvatureExtremaConstraints(shapeSpaceDiffEventsStructure) {
+    }
+}
 exports.AbtractGenerateOptimizationConstraints = AbtractGenerateOptimizationConstraints;

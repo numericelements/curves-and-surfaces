@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = exports.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS = exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS = exports.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM = exports.EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
+exports.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
+exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE = 'Vector dimension is out of projective complex vector space dimension range. Cannot proceed.';
+exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE = 'Projective complex vector dimension is not compatible with the complex vector space dimensions available.';
+exports.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER = 'Real and imaginary weight managements are different. These weights must conform to the same management.';
+exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS = 'Complex weight management is restricted to strictly positive weights a the current complex weight is positive. This is incompatible, please check the strictlyPositive property of each weight.';
+exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS = 'Complex weight management is restricted to positive weights but a current complex weight is strictly positive. This is incompatible, please check the strictlyPositive property of each weight.';
+exports.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = "Projective complex vectors don't belong to the current vector space. Dimensions are incompatible.";
+exports.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = "Projective complex vector has some negative real or imaginary weights. Cannot proceed.";

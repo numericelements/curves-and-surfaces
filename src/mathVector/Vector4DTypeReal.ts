@@ -4,8 +4,8 @@ import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IProjectiveVector, IRealVector } from "./Vector";
-import { RealVector4D } from "./VectorSpaceConstructorInterface";
+import type { IProjectiveVector, IRealVector } from "./Vector";
+import type { RealVector, RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 4;
@@ -28,7 +28,11 @@ export class Vector4DTypeReal extends AbstractRealVector {
                         if(vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
             } else {
-                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<4>;
+                try{
+                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<4>;
+                } catch(error) {
+                    this._vectorSpace = new RealVectorSpace(this.dimension, true) as RealVectorSpace<4>;
+                }
             }
         }
     }
@@ -85,6 +89,10 @@ export class Vector4DTypeReal extends AbstractRealVector {
     
     clone(): Vector4DTypeReal {
         return new Vector4DTypeReal(this.x!, this.y!, this.z!, this.t!, this.vectorSpace);
+    }
+
+    createVectorFromRaw(raw: RealVector4D): Vector4DTypeReal {
+        return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3], this.vectorSpace);
     }
     
     // static fromRaw(raw: RealVector4D): Vector4DTypeReal {

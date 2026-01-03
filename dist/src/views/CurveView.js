@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveView = void 0;
-var PolylineShader_1 = require("../2DgraphicsItems/PolylineShader");
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var CurveView = /** @class */ (function () {
-    function CurveView(gl, spline) {
+const PolylineShader_1 = require("../2DgraphicsItems/PolylineShader");
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+class CurveView {
+    constructor(gl, spline) {
         this.POINT_SEQUENCE_SIZE = 1000;
         this.THICKNESS = 0.005;
         this.RED_COLOR = 216 / 255;
@@ -21,30 +21,30 @@ var CurveView = /** @class */ (function () {
         this.a_Position = -1;
         this.fColorLocation = -1;
         // Write the positions of vertices to a vertex shader
-        var check = this.initVertexBuffers();
+        const check = this.initVertexBuffers();
         if (check < 0) {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
+            const warning = new ErrorLoging_1.WarningLog(this.constructor.name, "constructor", 'Failed to set the positions of the vertices.');
             warning.logMessage();
         }
     }
-    CurveView.prototype.updatePointSequenceOnSpline = function () {
-        var start = this.spline.knots[this.spline.degree];
-        var end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
+    updatePointSequenceOnSpline() {
+        const start = this.spline.knots[this.spline.degree];
+        const end = this.spline.knots[this.spline.knots.length - this.spline.degree - 1];
         this.pointSequenceOnSpline = [];
-        for (var i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
-            var point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
+        for (let i = 0; i < this.POINT_SEQUENCE_SIZE; i += 1) {
+            let point = this.spline.evaluate(i / (this.POINT_SEQUENCE_SIZE - 1) * (end - start) + start);
             this.pointSequenceOnSpline.push(point);
         }
-    };
-    CurveView.prototype.updateVertices = function () {
-        var maxLength = this.THICKNESS * 3;
-        var tangent = ((this.pointSequenceOnSpline[1]).substract(this.pointSequenceOnSpline[0])).normalize();
-        var normal = tangent.rotate90degrees();
-        var miter, length;
-        var triangleStripVertices = [];
+    }
+    updateVertices() {
+        const maxLength = this.THICKNESS * 3;
+        let tangent = ((this.pointSequenceOnSpline[1]).substract(this.pointSequenceOnSpline[0])).normalize();
+        let normal = tangent.rotate90degrees();
+        let miter, length;
+        let triangleStripVertices = [];
         triangleStripVertices.push(this.pointSequenceOnSpline[0].add(normal.multiply(this.THICKNESS)));
         triangleStripVertices.push(this.pointSequenceOnSpline[0].substract(normal.multiply(this.THICKNESS)));
-        for (var i = 1; i < this.pointSequenceOnSpline.length - 1; i += 1) {
+        for (let i = 1; i < this.pointSequenceOnSpline.length - 1; i += 1) {
             normal = (this.pointSequenceOnSpline[i].substract(this.pointSequenceOnSpline[i - 1])).normalize().rotate90degrees();
             tangent = (this.pointSequenceOnSpline[i + 1].substract(this.pointSequenceOnSpline[i - 1])).normalize();
             miter = tangent.rotate90degrees();
@@ -59,16 +59,16 @@ var CurveView = /** @class */ (function () {
         normal = tangent.rotate90degrees();
         triangleStripVertices.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].add(normal.multiply(this.THICKNESS)));
         triangleStripVertices.push(this.pointSequenceOnSpline[this.pointSequenceOnSpline.length - 1].substract(normal.multiply(this.THICKNESS)));
-        for (var i = 0; i < triangleStripVertices.length; i += 1) {
+        for (let i = 0; i < triangleStripVertices.length; i += 1) {
             this.vertices[3 * i] = triangleStripVertices[i].x;
             this.vertices[3 * i + 1] = triangleStripVertices[i].y;
             this.vertices[3 * i + 2] = this.Z;
         }
-    };
-    CurveView.prototype.update = function (spline) {
-        for (var i = 0; i < spline.controlPoints.length; i++) {
+    }
+    update(spline) {
+        for (let i = 0; i < spline.controlPoints.length; i++) {
             if (isNaN(spline.controlPoints[i].x) || isNaN(spline.controlPoints[i].y)) {
-                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "NaN");
+                const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", "NaN");
                 console.log("i = ", i);
                 error.logMessage();
             }
@@ -77,29 +77,29 @@ var CurveView = /** @class */ (function () {
         this.updatePointSequenceOnSpline();
         this.updateVertices();
         this.updateBuffers();
-    };
-    CurveView.prototype.initAttribLocation = function () {
+    }
+    initAttribLocation() {
         this.a_Position = this.gl.getAttribLocation(this.polylineShader.program, 'a_Position');
         this.fColorLocation = this.gl.getUniformLocation(this.polylineShader.program, "fColor");
         if (this.a_Position < 0) {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
+            const warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
             warning.logMessage();
         }
-    };
-    CurveView.prototype.assignVertexAttrib = function () {
+    }
+    assignVertexAttrib() {
         // Assign the buffer object to a_Position variable
         this.gl.vertexAttribPointer(this.a_Position, 3, this.gl.FLOAT, false, 0, 0);
         // Enable the assignment to a_Position variable
         this.gl.enableVertexAttribArray(this.a_Position);
-    };
-    CurveView.prototype.reset = function (spline) {
-    };
-    CurveView.prototype.updateBuffers = function () {
+    }
+    reset(spline) {
+    }
+    updateBuffers() {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
-    };
-    CurveView.prototype.renderFrame = function () {
+    }
+    renderFrame() {
         this.initAttribLocation();
         this.gl.useProgram(this.polylineShader.program);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -109,12 +109,12 @@ var CurveView = /** @class */ (function () {
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
-    };
-    CurveView.prototype.initVertexBuffers = function () {
+    }
+    initVertexBuffers() {
         // Create a buffer object
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
+            const warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
             warning.logMessage();
             return -1;
         }
@@ -129,7 +129,6 @@ var CurveView = /** @class */ (function () {
         // Unbind the buffer object
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         return 1;
-    };
-    return CurveView;
-}());
+    }
+}
 exports.CurveView = CurveView;

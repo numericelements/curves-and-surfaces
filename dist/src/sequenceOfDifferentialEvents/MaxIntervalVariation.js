@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MaxIntervalVariation = void 0;
 /* named constants */
-var NeighboringEvents_1 = require("./NeighboringEvents");
-var MaxIntervalVariation = /** @class */ (function () {
-    function MaxIntervalVariation(intervalIndex, value) {
+const NeighboringEvents_1 = require("./NeighboringEvents");
+class MaxIntervalVariation {
+    constructor(intervalIndex, value) {
         if (intervalIndex !== undefined) {
             this._index = intervalIndex;
         }
@@ -18,28 +18,19 @@ var MaxIntervalVariation = /** @class */ (function () {
             this._value = 0.0;
         }
     }
-    Object.defineProperty(MaxIntervalVariation.prototype, "index", {
-        get: function () {
-            return this._index;
-        },
-        set: function (intervalIndex) {
-            this._index = intervalIndex;
-            return;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(MaxIntervalVariation.prototype, "value", {
-        get: function () {
-            return this._value;
-        },
-        set: function (value) {
-            this._value = value;
-            return;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    return MaxIntervalVariation;
-}());
+    get index() {
+        return this._index;
+    }
+    get value() {
+        return this._value;
+    }
+    set index(intervalIndex) {
+        this._index = intervalIndex;
+        return;
+    }
+    set value(value) {
+        this._value = value;
+        return;
+    }
+}
 exports.MaxIntervalVariation = MaxIntervalVariation;

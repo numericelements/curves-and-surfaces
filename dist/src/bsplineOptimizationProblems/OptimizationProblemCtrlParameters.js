@@ -9,8 +9,8 @@
 */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OptimizationProblemCtrlParameters = void 0;
-var OptimizationProblemCtrlParameters = /** @class */ (function () {
-    function OptimizationProblemCtrlParameters(activeOptimizer, updateConstraintBounds) {
+class OptimizationProblemCtrlParameters {
+    constructor(activeOptimizer, updateConstraintBounds) {
         this._activeOptimizer = false;
         this._updateConstraintsBounds = false;
         this._reverseConstraints = false;
@@ -22,26 +22,17 @@ var OptimizationProblemCtrlParameters = /** @class */ (function () {
             this._updateConstraintsBounds = updateConstraintBounds;
         }
     }
-    Object.defineProperty(OptimizationProblemCtrlParameters.prototype, "optimizerStatus", {
-        get: function () {
-            return this._activeOptimizer;
-        },
-        set: function (activeOptimizer) {
-            this._activeOptimizer = activeOptimizer;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OptimizationProblemCtrlParameters.prototype, "updateConstraintBounds", {
-        get: function () {
-            return this._updateConstraintsBounds;
-        },
-        set: function (activateUpdate) {
-            this._updateConstraintsBounds = activateUpdate;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    return OptimizationProblemCtrlParameters;
-}());
+    get optimizerStatus() {
+        return this._activeOptimizer;
+    }
+    get updateConstraintBounds() {
+        return this._updateConstraintsBounds;
+    }
+    set optimizerStatus(activeOptimizer) {
+        this._activeOptimizer = activeOptimizer;
+    }
+    set updateConstraintBounds(activateUpdate) {
+        this._updateConstraintsBounds = activateUpdate;
+    }
+}
 exports.OptimizationProblemCtrlParameters = OptimizationProblemCtrlParameters;

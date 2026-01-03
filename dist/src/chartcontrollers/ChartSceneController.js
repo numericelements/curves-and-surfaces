@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChartSceneController = exports.CHART_AXIS_SCALE = exports.DATASET_NAMES = exports.CHART_X_AXIS_NAME = exports.CHART_AXES_NAMES = exports.CHART_TITLES = exports.CHART_WIDTH = exports.CHART_HEIGHT = exports.NB_CURVE_POINTS = exports.MAX_NB_CHARTS = void 0;
-var ChartDescriptorQueueItem_1 = require("../containers/ChartDescriptorQueueItem");
-var Queue_1 = require("../containers/Queue");
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var ChartContentState_1 = require("./ChartContentState");
-var ChartController_1 = require("./ChartController");
-var NoFunctionSceneController_1 = require("./NoFunctionSceneController");
+const ChartDescriptorQueueItem_1 = require("../containers/ChartDescriptorQueueItem");
+const Queue_1 = require("../containers/Queue");
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+const ChartContentState_1 = require("./ChartContentState");
+const ChartController_1 = require("./ChartController");
+const NoFunctionSceneController_1 = require("./NoFunctionSceneController");
 exports.MAX_NB_CHARTS = 3;
 exports.NB_CURVE_POINTS = 100;
 exports.CHART_HEIGHT = '600px';
@@ -26,8 +26,8 @@ exports.CHART_AXES_NAMES = ["Function A",
 exports.CHART_X_AXIS_NAME = "u parameter";
 exports.DATASET_NAMES = ["Control Polygon", "tbd"];
 exports.CHART_AXIS_SCALE = ["linear", "logarithmic"];
-var ChartSceneController = /** @class */ (function () {
-    function ChartSceneController(chartRenderingContext, shapeNavigableCurve) {
+class ChartSceneController {
+    constructor(chartRenderingContext, shapeNavigableCurve) {
         this.chartRenderingContext = chartRenderingContext;
         this.shapeNavigableCurve = shapeNavigableCurve;
         this._curveModel = shapeNavigableCurve.curveCategory.curveModel;
@@ -42,73 +42,52 @@ var ChartSceneController = /** @class */ (function () {
         this.generateDefaultChartNames();
         this.init();
     }
-    Object.defineProperty(ChartSceneController.prototype, "curveObservers", {
-        get: function () {
-            return this._curveObservers;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ChartSceneController.prototype, "chartControllers", {
-        get: function () {
-            return this._chartControllers;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ChartSceneController.prototype, "uncheckedChart", {
-        get: function () {
-            return this._uncheckedChart;
-        },
-        set: function (chartTitle) {
-            this._uncheckedChart = chartTitle;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ChartSceneController.prototype, "curveModel", {
-        set: function (curveModel) {
-            this._curveModel = curveModel;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ChartSceneController.prototype, "curveObserver", {
-        set: function (curveObservers) {
-            this._curveObservers = curveObservers;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    ChartSceneController.prototype.resetUncheckedChart = function () {
+    get curveObservers() {
+        return this._curveObservers;
+    }
+    get chartControllers() {
+        return this._chartControllers;
+    }
+    get uncheckedChart() {
+        return this._uncheckedChart;
+    }
+    set curveModel(curveModel) {
+        this._curveModel = curveModel;
+    }
+    set curveObserver(curveObservers) {
+        this._curveObservers = curveObservers;
+    }
+    set uncheckedChart(chartTitle) {
+        this._uncheckedChart = chartTitle;
+    }
+    resetUncheckedChart() {
         this._uncheckedChart = "";
-    };
-    ChartSceneController.prototype.generateDefaultChartNames = function () {
-        for (var i = 0; i < exports.MAX_NB_CHARTS; i++) {
+    }
+    generateDefaultChartNames() {
+        for (let i = 0; i < exports.MAX_NB_CHARTS; i++) {
             this.defaultChartTitles.push('Graph' + (i + 1) + ' tbd');
         }
-    };
-    ChartSceneController.prototype.changeChartContentState = function (chartController, chartContent) {
-        for (var i = 0; i < exports.MAX_NB_CHARTS; i++) {
+    }
+    changeChartContentState(chartController, chartContent) {
+        for (let i = 0; i < exports.MAX_NB_CHARTS; i++) {
             if (this.chartControllers[i] === chartController)
                 this.chartContent[i] = chartContent;
         }
-    };
-    ChartSceneController.prototype.init = function () {
-        for (var i = 0; i < exports.MAX_NB_CHARTS; i++) {
+    }
+    init() {
+        for (let i = 0; i < exports.MAX_NB_CHARTS; i++) {
             if (this.chartControllers.length === exports.MAX_NB_CHARTS) {
                 this.chartControllers[i].destroy();
             }
             this.chartControllers.push(new ChartController_1.ChartController(this.defaultChartTitles[i], this.chartRenderingContext[i], exports.CHART_HEIGHT, exports.CHART_WIDTH));
             this._curveObservers.push(new NoFunctionSceneController_1.NoFunctionSceneController(this.chartControllers[this.chartControllers.length - 1]));
             this.chartContent.push(new ChartContentState_1.ChartWithNoFunction(this, this.chartControllers[i]));
-            var queueItem = new ChartDescriptorQueueItem_1.ChartDescriptorQueueItem(this.chartControllers[this.chartControllers.length - 1], this.defaultChartTitles[i], this._curveObservers[this._curveObservers.length - 1]);
+            const queueItem = new ChartDescriptorQueueItem_1.ChartDescriptorQueueItem(this.chartControllers[this.chartControllers.length - 1], this.defaultChartTitles[i], this._curveObservers[this._curveObservers.length - 1]);
             this.freeChartsQueue.enqueue(queueItem.chartController);
             this.chartsDescriptorsQueue.enqueue(queueItem);
         }
-    };
-    ChartSceneController.prototype.restart = function (curveModel) {
-        var _this = this;
+    }
+    restart(curveModel) {
         this._curveModel = curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
@@ -120,12 +99,12 @@ var ChartSceneController = /** @class */ (function () {
         this.defaultChartTitles = [];
         this.generateDefaultChartNames();
         this.init();
-        this._curveObservers.forEach(function (element) {
-            element.update(_this._curveModel.spline);
+        this._curveObservers.forEach(element => {
+            element.update(this._curveModel.spline);
         });
-    };
-    ChartSceneController.prototype.switchChartState = function (chartTitle, indexCtrlr) {
-        var chartIndex = exports.CHART_TITLES.indexOf(chartTitle);
+    }
+    switchChartState(chartTitle, indexCtrlr) {
+        const chartIndex = exports.CHART_TITLES.indexOf(chartTitle);
         if (chartIndex !== -1) {
             switch (chartIndex) {
                 case 0: {
@@ -153,77 +132,77 @@ var ChartSceneController = /** @class */ (function () {
         else {
             this.chartContent[indexCtrlr].setChartWithNoFunction();
         }
-        var queueItem = new ChartDescriptorQueueItem_1.ChartDescriptorQueueItem(this.chartControllers[indexCtrlr], chartTitle, this._curveObservers[indexCtrlr]);
+        const queueItem = new ChartDescriptorQueueItem_1.ChartDescriptorQueueItem(this.chartControllers[indexCtrlr], chartTitle, this._curveObservers[indexCtrlr]);
         if (exports.CHART_TITLES.indexOf(chartTitle) === -1) {
             this.chartsDescriptorsQueue.enqueue(queueItem);
         }
         else {
             this.chartsDescriptorsQueue.insertAtController(this.chartControllers[indexCtrlr], queueItem);
         }
-    };
-    ChartSceneController.prototype.resetChartToDefaultChart = function (chartTitle, currentQueueItem) {
-        var index = this.chartsDescriptorsQueue.indexOfFromTitle(chartTitle);
+    }
+    resetChartToDefaultChart(chartTitle, currentQueueItem) {
+        const index = this.chartsDescriptorsQueue.indexOfFromTitle(chartTitle);
         this.chartsDescriptorsQueue.extractAt(index);
         this.enqueueAndReorderFreeCharts(currentQueueItem.chartController);
-        var chartOberserver = currentQueueItem.curveObserver;
+        const chartOberserver = currentQueueItem.curveObserver;
         if (chartOberserver !== undefined) {
             this.removeCurveObserver(chartOberserver);
         }
         else {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "resetChartToDefaultChart", "Undefined chartObserver. Impossible to process graphs correctly.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "resetChartToDefaultChart", "Undefined chartObserver. Impossible to process graphs correctly.");
             error.logMessage();
         }
-        var indexCtrlr = this.chartControllers.indexOf(currentQueueItem.chartController);
+        const indexCtrlr = this.chartControllers.indexOf(currentQueueItem.chartController);
         chartTitle = this.defaultChartTitles[indexCtrlr];
         this._uncheckedChart = chartTitle;
         this.switchChartState(chartTitle, indexCtrlr);
-    };
-    ChartSceneController.prototype.addChartAtADefaultChartPlace = function (chartTitle) {
-        var chartController = this.freeChartsQueue.dequeue();
+    }
+    addChartAtADefaultChartPlace(chartTitle) {
+        const chartController = this.freeChartsQueue.dequeue();
         if (chartController !== undefined) {
-            var indexCtrlr = this.chartControllers.indexOf(chartController);
-            var currentQueueItem = this.chartsDescriptorsQueue.findItemFromChartController(chartController);
+            const indexCtrlr = this.chartControllers.indexOf(chartController);
+            const currentQueueItem = this.chartsDescriptorsQueue.findItemFromChartController(chartController);
             if (currentQueueItem !== undefined) {
-                var chartOberserver = currentQueueItem.curveObserver;
+                const chartOberserver = currentQueueItem.curveObserver;
                 this._uncheckedChart = currentQueueItem.chartTitle;
                 if (chartOberserver !== undefined) {
                     this.removeCurveObserver(chartOberserver);
                 }
                 else {
-                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined chartObserver. Impossible to process graphs correctly.");
+                    const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined chartObserver. Impossible to process graphs correctly.");
                     error.logMessage();
                 }
             }
             this.switchChartState(chartTitle, indexCtrlr);
         }
         else {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined ChartController. Impossible to process graphs correctly.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartAtADefaultChartPlace", "Undefined ChartController. Impossible to process graphs correctly.");
             error.logMessage();
         }
-    };
-    ChartSceneController.prototype.addChartInPlaceOfTheOldestOne = function (chartTitle) {
-        var item = this.chartsDescriptorsQueue.get(0);
+    }
+    addChartInPlaceOfTheOldestOne(chartTitle) {
+        const item = this.chartsDescriptorsQueue.get(0);
         if (item !== undefined) {
             this._uncheckedChart = item.chartTitle;
-            var chartController = item.chartController;
-            var indexCtrlr = this.chartControllers.indexOf(chartController);
-            var chartOberserver = item.curveObserver;
+            const chartController = item.chartController;
+            const indexCtrlr = this.chartControllers.indexOf(chartController);
+            const chartOberserver = item.curveObserver;
             if (chartOberserver !== undefined) {
                 this.removeCurveObserver(chartOberserver);
             }
             else {
-                var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined chartObserver. Impossible to process graphs correctly.");
+                const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined chartObserver. Impossible to process graphs correctly.");
                 error.logMessage();
             }
             this.switchChartState(chartTitle, indexCtrlr);
         }
         else {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined ChartController. Queue content is inconsistent.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addChartInPlaceOfTheOldestOne", "Undefined ChartController. Queue content is inconsistent.");
             error.logMessage();
         }
-    };
-    ChartSceneController.prototype.addChart = function (chartTitle) {
-        var currentQueueItem = this.chartsDescriptorsQueue.findItemFromTitle(chartTitle);
+    }
+    addChart(chartTitle) {
+        const currentQueueItem = this.chartsDescriptorsQueue.findItemFromTitle(chartTitle);
         if (currentQueueItem !== undefined) {
             this.resetChartToDefaultChart(chartTitle, currentQueueItem);
         }
@@ -235,13 +214,13 @@ var ChartSceneController = /** @class */ (function () {
                 this.addChartInPlaceOfTheOldestOne(chartTitle);
             }
         }
-    };
-    ChartSceneController.prototype.reorderFreeCharts = function (chartController, indexCtrlr) {
-        var i = this.freeChartsQueue.length() - 2;
-        var insert = false;
+    }
+    reorderFreeCharts(chartController, indexCtrlr) {
+        let i = this.freeChartsQueue.length() - 2;
+        let insert = false;
         while (i >= 0) {
-            var chartCtrlr = this.freeChartsQueue.at(i);
-            var index = this.chartControllers.indexOf(chartCtrlr);
+            const chartCtrlr = this.freeChartsQueue.at(i);
+            const index = this.chartControllers.indexOf(chartCtrlr);
             if (index < indexCtrlr) {
                 this.freeChartsQueue.insertAt(i, chartController);
                 insert = true;
@@ -250,12 +229,12 @@ var ChartSceneController = /** @class */ (function () {
         }
         if (!insert)
             this.freeChartsQueue.insertAt(0, chartController);
-    };
-    ChartSceneController.prototype.enqueueAndReorderFreeCharts = function (chartController) {
-        var lastChartCtrlr = this.freeChartsQueue.getLast();
+    }
+    enqueueAndReorderFreeCharts(chartController) {
+        const lastChartCtrlr = this.freeChartsQueue.getLast();
         if (lastChartCtrlr !== undefined) {
-            var indexCtrlr = this.chartControllers.indexOf(chartController);
-            var indexLast = this.chartControllers.indexOf(lastChartCtrlr);
+            const indexCtrlr = this.chartControllers.indexOf(chartController);
+            const indexLast = this.chartControllers.indexOf(lastChartCtrlr);
             if (indexCtrlr > indexLast) {
                 this.freeChartsQueue.enqueue(chartController);
             }
@@ -271,42 +250,42 @@ var ChartSceneController = /** @class */ (function () {
         else {
             this.freeChartsQueue.enqueue(chartController);
         }
-    };
-    ChartSceneController.prototype.checkRenderingContext = function () {
+    }
+    checkRenderingContext() {
         if (this.chartRenderingContext.length !== exports.MAX_NB_CHARTS) {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkRenderingContext", "Inconsistent number of rendering contexts. Must be equal to MAX_NB_GRAPHS.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkRenderingContext", "Inconsistent number of rendering contexts. Must be equal to MAX_NB_GRAPHS.");
             error.logMessage();
         }
         else {
-            for (var i = 0; i < exports.MAX_NB_CHARTS; i++) {
+            for (let i = 0; i < exports.MAX_NB_CHARTS; i++) {
                 if (this.chartRenderingContext[i] === null) {
-                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkRenderingContext", "Rendering context of graph" + (i + 1) + " is null. Impossible to process graphs correctly.");
+                    const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "checkRenderingContext", "Rendering context of graph" + (i + 1) + " is null. Impossible to process graphs correctly.");
                     error.logMessage();
                 }
             }
         }
-    };
-    ChartSceneController.prototype.addCurveObserver = function (curveObserver) {
+    }
+    addCurveObserver(curveObserver) {
         if (this._curveModel !== undefined) {
             curveObserver.update(this._curveModel.spline);
             this._curveModel.registerObserver(curveObserver, "curve");
         }
         else {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addCurveObserver", "Unable to attach a curve observer to the current curve. Undefined curve model.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "addCurveObserver", "Unable to attach a curve observer to the current curve. Undefined curve model.");
             error.logMessage();
         }
-    };
-    ChartSceneController.prototype.removeCurveObserver = function (curveObserver) {
+    }
+    removeCurveObserver(curveObserver) {
         if (this._curveModel !== undefined) {
             curveObserver.update(this._curveModel.spline);
             this._curveModel.removeObserver(curveObserver, "curve");
         }
         else {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "removeCurveObserver", "Unable to detach a curve observer to the current curve. Undefined curve model.");
             error.logMessage();
         }
-    };
-    ChartSceneController.prototype.update = function () {
+    }
+    update() {
         this._curveModel = this.shapeNavigableCurve.curveCategory.curveModel;
         this._uncheckedChart = "";
         this._curveObservers = [];
@@ -318,7 +297,6 @@ var ChartSceneController = /** @class */ (function () {
         this.generateDefaultChartNames();
         this.init();
         console.log("need to update chartSceneController");
-    };
-    return ChartSceneController;
-}());
+    }
+}
 exports.ChartSceneController = ChartSceneController;

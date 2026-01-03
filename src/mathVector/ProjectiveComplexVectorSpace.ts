@@ -7,7 +7,7 @@ import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOM
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { ProjectiveComplexVectorSpace2DStrategy } from "./ProjectiveComplexVectorSpace2DStrategy";
-import { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, Real } from "./VectorSpaceConstructorInterface";
+import type { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, Real } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
@@ -18,8 +18,8 @@ import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifier
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { PROJECTIVECOMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
-import { IProjectiveComplexVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveComplexVectorSpaceStrategy";
-import { IdentifiableVectorSpace } from "./IVectorSpace";
+import type { IProjectiveComplexVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveComplexVectorSpaceStrategy";
+import type { IdentifiableVectorSpace } from "./IVectorSpace";
 
 
 export class ProjectiveComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<IComplex, ProjectiveComplexVectorOfDimension<D>> {

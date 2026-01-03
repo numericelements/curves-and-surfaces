@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChartController = void 0;
-var chart_js_1 = require("chart.js");
-var ChartSceneController_1 = require("./ChartSceneController");
-var ChartController = /** @class */ (function () {
-    function ChartController(chartTitle, canvasContext, chartHeight, chartWidth, chartXaxisLabel) {
+const chart_js_1 = require("chart.js");
+const ChartSceneController_1 = require("./ChartSceneController");
+class ChartController {
+    constructor(chartTitle, canvasContext, chartHeight, chartWidth, chartXaxisLabel) {
         var _a;
         this.chartTitle = chartTitle;
         this.canvasContext = canvasContext;
@@ -62,36 +62,34 @@ var ChartController = /** @class */ (function () {
         this.canvasElementChart.style.height = chartHeight;
         this.canvasElementChart.style.width = chartWidth;
     }
-    ChartController.prototype.addPolylineDataset = function (datasetLabel, dataPoints) {
-        var _this = this;
+    addPolylineDataset(datasetLabel, dataPoints) {
         this.datasetPolylineLabel = datasetLabel;
         this.dataCP = [];
-        dataPoints.forEach(function (element) {
-            _this.dataCP.push({ x: element.x, y: element.y });
+        dataPoints.forEach(element => {
+            this.dataCP.push({ x: element.x, y: element.y });
         });
-    };
-    ChartController.prototype.addCurvePointDataset = function (datasetLabel, curvePoints, color) {
-        var _this = this;
+    }
+    addCurvePointDataset(datasetLabel, curvePoints, color) {
         this.datasetCurveLabel = datasetLabel;
-        var curveColor = 'rgba(';
-        var colorCode = color.red.toString() + ', ' + color.green.toString() + ', ' + color.blue.toString() + ', ' + color.alpha.toString();
+        let curveColor = 'rgba(';
+        let colorCode = color.red.toString() + ', ' + color.green.toString() + ', ' + color.blue.toString() + ', ' + color.alpha.toString();
         this.colorSpline = curveColor.concat(colorCode, ')');
         this.dataSpline = [];
-        curvePoints.forEach(function (element) {
-            _this.dataSpline.push({ x: element.x, y: element.y });
+        curvePoints.forEach(element => {
+            this.dataSpline.push({ x: element.x, y: element.y });
         });
-    };
-    ChartController.prototype.setChartLabel = function (chartLabel) {
+    }
+    setChartLabel(chartLabel) {
         this.chartTitle = chartLabel;
-    };
-    ChartController.prototype.setYaxisScale = function (scaleType) {
+    }
+    setYaxisScale(scaleType) {
         this.yAxisScale = scaleType;
-    };
-    ChartController.prototype.dataCleanUp = function () {
+    }
+    dataCleanUp() {
         this.dataCP = [];
         this.dataSpline = [];
-    };
-    ChartController.prototype.drawChart = function () {
+    }
+    drawChart() {
         if (this.dataCP.length === 0) {
             this.chart.data.datasets = [{
                     label: this.datasetCurveLabel,
@@ -142,10 +140,9 @@ var ChartController = /** @class */ (function () {
             }
         };
         this.chart.update();
-    };
-    ChartController.prototype.destroy = function () {
+    }
+    destroy() {
         this.chart.destroy();
-    };
-    return ChartController;
-}());
+    }
+}
 exports.ChartController = ChartController;

@@ -1,43 +1,25 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveModelObserverInCurveSceneController = exports.CurveModelObserverInFileEventListener = exports.CurveModelObserverInShapeSpaceNavigationEventListener = exports.CurveModelObserverInCurveModelEventListener = exports.CurveModelObserverInChartEventListener = void 0;
-var CurveModel_1 = require("../newModels/CurveModel");
-var ClosedCurveModel_1 = require("../newModels/ClosedCurveModel");
-var NavigationState_1 = require("../curveShapeSpaceNavigation/NavigationState");
-var ShapeNavigableCurve_1 = require("../shapeNavigableCurve/ShapeNavigableCurve");
-var NavigationCurveModel_1 = require("../curveShapeSpaceNavigation/NavigationCurveModel");
-var CurveConstraintSelectionState_1 = require("../controllers/CurveConstraintSelectionState");
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var EventStateAtCurveExtremity_1 = require("../shapeNavigableCurve/EventStateAtCurveExtremity");
-var CurveSceneControllerInteractionStrategy_1 = require("../controllers/CurveSceneControllerInteractionStrategy");
-var CurveModelObserver = /** @class */ (function () {
-    function CurveModelObserver() {
+const CurveModel_1 = require("../newModels/CurveModel");
+const ClosedCurveModel_1 = require("../newModels/ClosedCurveModel");
+const NavigationState_1 = require("../curveShapeSpaceNavigation/NavigationState");
+const ShapeNavigableCurve_1 = require("../shapeNavigableCurve/ShapeNavigableCurve");
+const NavigationCurveModel_1 = require("../curveShapeSpaceNavigation/NavigationCurveModel");
+const CurveConstraintSelectionState_1 = require("../controllers/CurveConstraintSelectionState");
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+const EventStateAtCurveExtremity_1 = require("../shapeNavigableCurve/EventStateAtCurveExtremity");
+const CurveSceneControllerInteractionStrategy_1 = require("../controllers/CurveSceneControllerInteractionStrategy");
+class CurveModelObserver {
+}
+class CurveModelObserverInChartEventListener extends CurveModelObserver {
+    constructor(listener) {
+        super();
+        this.listener = listener;
     }
-    return CurveModelObserver;
-}());
-var CurveModelObserverInChartEventListener = /** @class */ (function (_super) {
-    __extends(CurveModelObserverInChartEventListener, _super);
-    function CurveModelObserverInChartEventListener(listener) {
-        var _this = _super.call(this) || this;
-        _this.listener = listener;
-        return _this;
-    }
-    CurveModelObserverInChartEventListener.prototype.update = function (message) {
-        var degreeChange = this.listener.shapeNavigableCurve.curveCategory.degreeChange;
-        var curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
+    update(message) {
+        const degreeChange = this.listener.shapeNavigableCurve.curveCategory.degreeChange;
+        const curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
         if (curveModelChange) {
             if (message instanceof CurveModel_1.CurveModel) {
                 if (this.listener.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
@@ -52,49 +34,46 @@ var CurveModelObserverInChartEventListener = /** @class */ (function (_super) {
                 }
             }
         }
-    };
-    CurveModelObserverInChartEventListener.prototype.reset = function (message) {
+    }
+    reset(message) {
         if (message instanceof CurveModel_1.CurveModel) {
-            var curveModel = new CurveModel_1.CurveModel();
+            const curveModel = new CurveModel_1.CurveModel();
             if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
                 this.listener.curveModel = curveModel;
             }
         }
         else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
-            var curveModel = new ClosedCurveModel_1.ClosedCurveModel();
+            const curveModel = new ClosedCurveModel_1.ClosedCurveModel();
             if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
                 this.listener.curveModel = curveModel;
             }
         }
-    };
-    return CurveModelObserverInChartEventListener;
-}(CurveModelObserver));
-exports.CurveModelObserverInChartEventListener = CurveModelObserverInChartEventListener;
-var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_super) {
-    __extends(CurveModelObserverInCurveModelEventListener, _super);
-    function CurveModelObserverInCurveModelEventListener(listener) {
-        var _this = _super.call(this) || this;
-        _this.listener = listener;
-        return _this;
     }
-    CurveModelObserverInCurveModelEventListener.prototype.update = function (message) {
+}
+exports.CurveModelObserverInChartEventListener = CurveModelObserverInChartEventListener;
+class CurveModelObserverInCurveModelEventListener extends CurveModelObserver {
+    constructor(listener) {
+        super();
+        this.listener = listener;
+    }
+    update(message) {
         this.listener.curveModel = message;
-        var curveCategory = this.listener.shapeNavigableCurve.curveCategory;
+        const curveCategory = this.listener.shapeNavigableCurve.curveCategory;
         if (message instanceof CurveModel_1.CurveModel) {
             curveCategory.curveModel = message;
-            var curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
+            const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
             if (curveShapeSpaceNavigator !== undefined) {
                 curveShapeSpaceNavigator.navigationCurveModel.curveModel = message;
-                var shapeSpaceConfigurationChange = curveShapeSpaceNavigator.curveControlState.curveControlParamChange;
-                var navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
-                var curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
+                const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.curveControlState.curveControlParamChange;
+                const navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
+                const curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
                 if (curveModelChange) {
-                    var degree = message.spline.degree;
+                    const degree = message.spline.degree;
                     this.listener.updateCurveDegreeSelector(degree);
                     this.listener.reinitializeConstraintControl();
                 }
                 if (navigationStateChange) {
-                    var degree = message.spline.degree;
+                    const degree = message.spline.degree;
                     this.listener.updateCurveDegreeSelector(degree);
                     // this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
                     // this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
@@ -122,19 +101,19 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
         }
         else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
             this.listener.shapeNavigableCurve.curveCategory.curveModel = message;
-            var curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
+            const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
             if (curveShapeSpaceNavigator !== undefined) {
                 curveShapeSpaceNavigator.navigationCurveModel.curveModel = message;
-                var shapeSpaceConfigurationChange = curveShapeSpaceNavigator.curveControlState.curveControlParamChange;
-                var navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
-                var curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
+                const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.curveControlState.curveControlParamChange;
+                const navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
+                const curveModelChange = this.listener.shapeNavigableCurve.curveCategory.curveModelChange;
                 if (curveModelChange) {
-                    var degree = message.spline.degree;
+                    const degree = message.spline.degree;
                     this.listener.updateCurveDegreeSelector(degree);
                     this.listener.reinitializeConstraintControl();
                 }
                 if (navigationStateChange) {
-                    var degree = message.spline.degree;
+                    const degree = message.spline.degree;
                     this.listener.updateCurveDegreeSelector(degree);
                     // this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
                     // this.listener.shapeNavigableCurve.clampedPoints.push(NO_CONSTRAINT);
@@ -158,33 +137,30 @@ var CurveModelObserverInCurveModelEventListener = /** @class */ (function (_supe
                 }
             }
         }
-    };
-    CurveModelObserverInCurveModelEventListener.prototype.reset = function (message) {
+    }
+    reset(message) {
         if (message instanceof CurveModel_1.CurveModel) {
-            var curveModel = new CurveModel_1.CurveModel();
+            const curveModel = new CurveModel_1.CurveModel();
             this.listener.curveModel = curveModel;
             this.listener.shapeNavigableCurve.curveCategory.curveModel = curveModel;
         }
         else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
             console.log("something to do there with ClosedCurveModel in CurveModelEventListener");
         }
-    };
-    return CurveModelObserverInCurveModelEventListener;
-}(CurveModelObserver));
-exports.CurveModelObserverInCurveModelEventListener = CurveModelObserverInCurveModelEventListener;
-var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (function (_super) {
-    __extends(CurveModelObserverInShapeSpaceNavigationEventListener, _super);
-    function CurveModelObserverInShapeSpaceNavigationEventListener(listener) {
-        var _this = _super.call(this) || this;
-        _this.listener = listener;
-        _this.navigationState = _this.listener.curveShapeSpaceNavigator.navigationState;
-        return _this;
     }
-    CurveModelObserverInShapeSpaceNavigationEventListener.prototype.update = function (message) {
-        var curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
-        var curveModelChange = curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory.curveModelChange;
-        var navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
-        var shapeSpaceConfigurationChange = curveShapeSpaceNavigator.curveControlState.curveControlParamChange;
+}
+exports.CurveModelObserverInCurveModelEventListener = CurveModelObserverInCurveModelEventListener;
+class CurveModelObserverInShapeSpaceNavigationEventListener extends CurveModelObserver {
+    constructor(listener) {
+        super();
+        this.listener = listener;
+        this.navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
+    }
+    update(message) {
+        const curveShapeSpaceNavigator = this.listener.curveShapeSpaceNavigator;
+        const curveModelChange = curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory.curveModelChange;
+        const navigationStateChange = curveShapeSpaceNavigator.navigationState.navigationStateChange;
+        const shapeSpaceConfigurationChange = curveShapeSpaceNavigator.curveControlState.curveControlParamChange;
         this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveModel = message;
         if (curveModelChange) {
             if (message instanceof CurveModel_1.CurveModel) {
@@ -242,11 +218,11 @@ var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (funct
         else if (shapeSpaceConfigurationChange) {
             // nothing to do there at the moment
         }
-    };
-    CurveModelObserverInShapeSpaceNavigationEventListener.prototype.updateNavigationState = function () {
+    }
+    updateNavigationState() {
         this.navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
-    };
-    CurveModelObserverInShapeSpaceNavigationEventListener.prototype.updateCurveModelMaintainNavigationState = function () {
+    }
+    updateCurveModelMaintainNavigationState() {
         if (this.navigationState instanceof NavigationState_1.OCurveNavigationWithoutShapeSpaceMonitoring
             || this.navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring) {
             this.listener.curveShapeSpaceNavigator.navigationState.setNavigationWithoutShapeSpaceMonitoring();
@@ -259,10 +235,10 @@ var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (funct
             || this.navigationState instanceof NavigationState_1.CCurveNavigationStrictlyInsideShapeSpace) {
             this.listener.curveShapeSpaceNavigator.navigationState.setNavigationStrictlyInsideShapeSpace();
         }
-    };
-    CurveModelObserverInShapeSpaceNavigationEventListener.prototype.reset = function (message) {
+    }
+    reset(message) {
         if (message instanceof CurveModel_1.CurveModel) {
-            var curveModel = new CurveModel_1.CurveModel();
+            const curveModel = new CurveModel_1.CurveModel();
             if (curveModel.hasOwnProperty('curveModel') || this.listener.hasOwnProperty('_curveModel')) {
                 this.listener.curveShapeSpaceNavigator.navigationCurveModel.curveModel = this.listener.curveShapeSpaceNavigator.shapeNavigableCurve.curveCategory.curveModel;
             }
@@ -270,18 +246,15 @@ var CurveModelObserverInShapeSpaceNavigationEventListener = /** @class */ (funct
         else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
             console.log("something to do there with ClosedCurveModel in ShapeSpaceNavigationEventListener");
         }
-    };
-    return CurveModelObserverInShapeSpaceNavigationEventListener;
-}(CurveModelObserver));
+    }
+}
 exports.CurveModelObserverInShapeSpaceNavigationEventListener = CurveModelObserverInShapeSpaceNavigationEventListener;
-var CurveModelObserverInFileEventListener = /** @class */ (function (_super) {
-    __extends(CurveModelObserverInFileEventListener, _super);
-    function CurveModelObserverInFileEventListener(listener) {
-        var _this = _super.call(this) || this;
-        _this.listener = listener;
-        return _this;
+class CurveModelObserverInFileEventListener extends CurveModelObserver {
+    constructor(listener) {
+        super();
+        this.listener = listener;
     }
-    CurveModelObserverInFileEventListener.prototype.update = function (message) {
+    update(message) {
         if (message instanceof CurveModel_1.CurveModel) {
             this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
             console.log("something to do there with CurveModel in FileEventListener");
@@ -290,39 +263,36 @@ var CurveModelObserverInFileEventListener = /** @class */ (function (_super) {
             this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
             console.log("something to do there with ClosedCurveModel in FileEventListener");
         }
-    };
-    CurveModelObserverInFileEventListener.prototype.reset = function (message) {
+    }
+    reset(message) {
         if (message instanceof CurveModel_1.CurveModel) {
             console.log("something to do there with CurveModel in FileEventListener");
         }
         else if (message instanceof ClosedCurveModel_1.ClosedCurveModel) {
             console.log("something to do there with ClosedCurveModel in FileEventListener");
         }
-    };
-    return CurveModelObserverInFileEventListener;
-}(CurveModelObserver));
+    }
+}
 exports.CurveModelObserverInFileEventListener = CurveModelObserverInFileEventListener;
-var CurveModelObserverInCurveSceneController = /** @class */ (function (_super) {
-    __extends(CurveModelObserverInCurveSceneController, _super);
-    function CurveModelObserverInCurveSceneController(listener) {
-        var _this = _super.call(this) || this;
-        _this.listener = listener;
-        return _this;
+class CurveModelObserverInCurveSceneController extends CurveModelObserver {
+    constructor(listener) {
+        super();
+        this.listener = listener;
     }
-    CurveModelObserverInCurveSceneController.prototype.update = function (message) {
+    update(message) {
         this.listener.curveModel = message;
         this.listener.curveModelDifferentialEventsExtractor = this.listener.shapeNavigableCurve.curveCategory.curveModelDifferentialEvents;
         this.listener.curveDiffEventsLocations = this.listener.curveModelDifferentialEventsExtractor.crvDiffEventsLocations;
         if (!this.listener.shapeNavigableCurve.curveCategory.curveModelChange)
             this.listener.removeCurveObservers();
         this.listener.initCurveSceneView();
-        var navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
+        const navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
         this.listener.navigationState = navigationState;
         if (!this.listener.shapeNavigableCurve.curveCategory.curveModelChange) {
             if (navigationState instanceof NavigationState_1.OCurveNavigationWithoutShapeSpaceMonitoring ||
                 navigationState instanceof NavigationState_1.CCurveNavigationWithoutShapeSpaceMonitoring) {
                 if (this.listener.shapeNavigableCurve.controlOfCurveClamping) {
-                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", " incorrect status of control of curve clamping.");
+                    const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "update", " incorrect status of control of curve clamping.");
                     error.logMessage();
                 }
                 this.listener.curveConstraintTransitionTo(new CurveConstraintSelectionState_1.HandleConstraintAtPoint1Point2NoConstraintState(this.listener));
@@ -367,14 +337,13 @@ var CurveModelObserverInCurveSceneController = /** @class */ (function (_super) 
                 this.listener.curveModel = this.listener.shapeNavigableCurve.curveCategory.curveModel;
                 this.listener.removeCurveObservers();
                 this.listener.initCurveSceneView();
-                var navigationState_1 = this.listener.curveShapeSpaceNavigator.navigationState;
-                this.listener.navigationState = navigationState_1;
+                const navigationState = this.listener.curveShapeSpaceNavigator.navigationState;
+                this.listener.navigationState = navigationState;
             }
         }
         this.listener.renderFrame();
-    };
-    CurveModelObserverInCurveSceneController.prototype.reset = function (message) {
-    };
-    return CurveModelObserverInCurveSceneController;
-}(CurveModelObserver));
+    }
+    reset(message) {
+    }
+}
 exports.CurveModelObserverInCurveSceneController = CurveModelObserverInCurveSceneController;

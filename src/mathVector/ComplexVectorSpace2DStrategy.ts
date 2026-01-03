@@ -3,8 +3,8 @@ import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
-import { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
-import { IComplex, ComplexVector, ComplexVector2D, IComplexWeight } from "./VectorSpaceConstructorInterface";
+import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
+import type { IComplex, ComplexVector, ComplexVector2D, IComplexWeight } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

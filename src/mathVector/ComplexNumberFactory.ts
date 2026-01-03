@@ -5,7 +5,7 @@ import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { Complex } from "./Complex";
-import { IComplex, IComplexWeight } from "./VectorSpaceConstructorInterface";
+import type { IComplex, IComplexWeight } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

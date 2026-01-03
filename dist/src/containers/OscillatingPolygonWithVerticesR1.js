@@ -1,113 +1,68 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.extractAdjacentOscillatingPolygons = exports.OscillatingPolygonWithVerticesR1 = void 0;
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var ComparatorOfSequencesDiffEvents_1 = require("../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents");
-var AbstractPolygonWithVerticesR1_1 = require("./AbstractPolygonWithVerticesR1");
-var AdjacentOscillatingPolygons_1 = require("./AdjacentOscillatingPolygons");
-var VertexR1_1 = require("./VertexR1");
-var OscillatingPolygonWithVerticesR1 = /** @class */ (function (_super) {
-    __extends(OscillatingPolygonWithVerticesR1, _super);
-    function OscillatingPolygonWithVerticesR1(polygon) {
-        var _this = _super.call(this) || this;
-        _this._vertices = [];
-        var firstIndex = polygon.getFirstIndex();
-        var upperBound = polygon.getFirstIndex() + polygon.length();
-        for (var vertex = firstIndex; vertex < upperBound; vertex++) {
-            _this._vertices.push(new VertexR1_1.VertexR1(polygon.getVertexAt(vertex).index, polygon.getVertexAt(vertex).value));
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+const ComparatorOfSequencesDiffEvents_1 = require("../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents");
+const AbstractPolygonWithVerticesR1_1 = require("./AbstractPolygonWithVerticesR1");
+const AdjacentOscillatingPolygons_1 = require("./AdjacentOscillatingPolygons");
+const VertexR1_1 = require("./VertexR1");
+class OscillatingPolygonWithVerticesR1 extends AbstractPolygonWithVerticesR1_1.AbstractPolygonWithVerticesR1 {
+    constructor(polygon) {
+        super();
+        this._vertices = [];
+        const firstIndex = polygon.getFirstIndex();
+        const upperBound = polygon.getFirstIndex() + polygon.length();
+        for (let vertex = firstIndex; vertex < upperBound; vertex++) {
+            this._vertices.push(new VertexR1_1.VertexR1(polygon.getVertexAt(vertex).index, polygon.getVertexAt(vertex).value));
         }
-        _this._closestVertexAtBeginning = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
-        _this._closestVertexAtEnd = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
-        _this.checkConsistency();
-        _this.extractControlPtsClosestToZeroAtExtremities();
-        return _this;
+        this._closestVertexAtBeginning = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        this._closestVertexAtEnd = new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
+        this.checkConsistency();
+        this.extractControlPtsClosestToZeroAtExtremities();
     }
-    Object.defineProperty(OscillatingPolygonWithVerticesR1.prototype, "closestVertexAtBeginning", {
-        get: function () {
-            return this._closestVertexAtBeginning;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(OscillatingPolygonWithVerticesR1.prototype, "closestVertexAtEnd", {
-        get: function () {
-            return this._closestVertexAtEnd;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    OscillatingPolygonWithVerticesR1.prototype.checkConsistency = function () {
-        var e_1, _a;
-        var code = 0;
+    get closestVertexAtBeginning() {
+        return this._closestVertexAtBeginning;
+    }
+    get closestVertexAtEnd() {
+        return this._closestVertexAtEnd;
+    }
+    checkConsistency() {
+        let code = 0;
         if (this._vertices.length > 1) {
-            var previousIndex = this._vertices[0].index;
-            var previousValue = this._vertices[0].value;
-            var vertices = this._vertices.slice(1);
-            try {
-                for (var vertices_1 = __values(vertices), vertices_1_1 = vertices_1.next(); !vertices_1_1.done; vertices_1_1 = vertices_1.next()) {
-                    var vertex = vertices_1_1.value;
-                    if ((vertex.index - previousIndex) !== 1) {
-                        var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Inconsistent sequence of indices values.");
-                        error.logMessage();
-                        code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
-                        return code;
-                    }
-                    else if (vertex.value * previousValue > 0) {
-                        var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Vertices values are not oscillating.");
-                        error.logMessage();
-                        code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
-                    }
-                    previousIndex = vertex.index;
-                    previousValue = vertex.value;
+            let previousIndex = this._vertices[0].index;
+            let previousValue = this._vertices[0].value;
+            const vertices = this._vertices.slice(1);
+            for (let vertex of vertices) {
+                if ((vertex.index - previousIndex) !== 1) {
+                    const error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Inconsistent sequence of indices values.");
+                    error.logMessage();
+                    code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
+                    return code;
                 }
-            }
-            catch (e_1_1) { e_1 = { error: e_1_1 }; }
-            finally {
-                try {
-                    if (vertices_1_1 && !vertices_1_1.done && (_a = vertices_1.return)) _a.call(vertices_1);
+                else if (vertex.value * previousValue > 0) {
+                    const error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Vertices values are not oscillating.");
+                    error.logMessage();
+                    code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
                 }
-                finally { if (e_1) throw e_1.error; }
+                previousIndex = vertex.index;
+                previousValue = vertex.value;
             }
         }
         else {
-            var error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Cannot process an oscillating polygon with less than two vertices.");
+            const error = new ErrorLoging_1.WarningLog(this.constructor.name, "checkConsistency", "Cannot process an oscillating polygon with less than two vertices.");
             error.logMessage();
             code = ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE;
         }
         return code;
-    };
-    OscillatingPolygonWithVerticesR1.prototype.extractControlPtClosestToZeroAtExtremityEvenNbEdges = function (index) {
+    }
+    extractControlPtClosestToZeroAtExtremityEvenNbEdges(index) {
         if (index !== this.getFirstIndex() && index !== this.getVertexAt(this.getFirstIndex() + this.length() - 1).index) {
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractControlPtClosestToZeroAtExtremityEvenNbEdges", "Current vertex index is not at an extremity of the polygon.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "extractControlPtClosestToZeroAtExtremityEvenNbEdges", "Current vertex index is not at an extremity of the polygon.");
             error.logMessage();
             return new VertexR1_1.VertexR1(ComparatorOfSequencesDiffEvents_1.RETURN_ERROR_CODE, 0.0);
         }
-        var vertex1 = this.getVertexAt(index);
-        var vertex2;
+        const vertex1 = this.getVertexAt(index);
+        let vertex2;
         if (index === this.getFirstIndex()) {
             vertex2 = this.getVertexAt(index + 1);
         }
@@ -120,22 +75,22 @@ var OscillatingPolygonWithVerticesR1 = /** @class */ (function (_super) {
         else {
             return vertex1;
         }
-    };
-    OscillatingPolygonWithVerticesR1.prototype.extractControlPtClosestToZeroAtExtremityOddNbEdges = function () {
-        var firstIndex = this.getFirstIndex();
-        var vertex1 = this.getVertexAt(firstIndex);
-        var lastIndex = firstIndex + this.length() - 1;
-        var vertex2 = this.getVertexAt(lastIndex);
+    }
+    extractControlPtClosestToZeroAtExtremityOddNbEdges() {
+        const firstIndex = this.getFirstIndex();
+        const vertex1 = this.getVertexAt(firstIndex);
+        const lastIndex = firstIndex + this.length() - 1;
+        const vertex2 = this.getVertexAt(lastIndex);
         if (Math.pow(vertex1.value, 2) > Math.pow(vertex2.value, 2)) {
             this._closestVertexAtEnd = vertex2;
         }
         else {
             this._closestVertexAtBeginning = vertex1;
         }
-    };
-    OscillatingPolygonWithVerticesR1.prototype.extractControlPtsClosestToZeroAtExtremities = function () {
-        var firstIndex = this.getFirstIndex();
-        var lastIndex = firstIndex + this.length() - 1;
+    }
+    extractControlPtsClosestToZeroAtExtremities() {
+        const firstIndex = this.getFirstIndex();
+        const lastIndex = firstIndex + this.length() - 1;
         if ((this.length() - 1) % 2 === 0) {
             this._closestVertexAtBeginning = this.extractControlPtClosestToZeroAtExtremityEvenNbEdges(firstIndex);
             this._closestVertexAtEnd = this.extractControlPtClosestToZeroAtExtremityEvenNbEdges(lastIndex);
@@ -143,14 +98,13 @@ var OscillatingPolygonWithVerticesR1 = /** @class */ (function (_super) {
         else {
             this.extractControlPtClosestToZeroAtExtremityOddNbEdges();
         }
-    };
-    return OscillatingPolygonWithVerticesR1;
-}(AbstractPolygonWithVerticesR1_1.AbstractPolygonWithVerticesR1));
+    }
+}
 exports.OscillatingPolygonWithVerticesR1 = OscillatingPolygonWithVerticesR1;
 function extractAdjacentOscillatingPolygons(oscillatingPolygons) {
-    var adjacentPolygons = [];
-    for (var i = 0; i < oscillatingPolygons.length; i++) {
-        var polygons = [];
+    let adjacentPolygons = [];
+    for (let i = 0; i < oscillatingPolygons.length; i++) {
+        let polygons = [];
         if ((i + 1) < oscillatingPolygons.length) {
             if (oscillatingPolygons[i].vertices[oscillatingPolygons[i].vertices.length - 1].index + 1 === oscillatingPolygons[i + 1].vertices[0].index) {
                 polygons.push(oscillatingPolygons[i]);

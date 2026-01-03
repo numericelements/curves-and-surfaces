@@ -2,10 +2,10 @@ import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPAT
 import { REALVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
-import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IProjectiveVector } from "./Vector";
-import { RealVector1D } from "./VectorSpaceConstructorInterface";
+import type { IProjectiveVector } from "./Vector";
+import type { RealVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 1;
@@ -28,7 +28,11 @@ export class Vector1DTypeReal extends AbstractRealVector {
             if(vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
             } else {
-                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<1>;
+                try{
+                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<1>;
+                } catch(error) {
+                    this._vectorSpace = new RealVectorSpace(this.dimension, true) as RealVectorSpace<1>;
+                }
             }
         }
     }
@@ -84,7 +88,10 @@ export class Vector1DTypeReal extends AbstractRealVector {
     isOrthogonal(other: Vector1DTypeReal, angularTolerance?: number): boolean {
         return super.isOrthogonal(other, angularTolerance);
     }
-    
+
+    createVectorFromRaw(raw: number): Vector1DTypeReal {
+        return new Vector1DTypeReal(raw, this.vectorSpace);
+    }
     // Factory methods
     // static fromRaw(raw: RealVector1D, vectorSpace?: RealVectorSpace<1>): Vector1DTypeReal {
     //     return new Vector1DTypeReal(raw, vectorSpace);

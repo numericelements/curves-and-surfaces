@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT = exports.EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT = exports.EM_PROJECTIVEVECTOR_WEIGHT_OUT_WEIGHTMANAGER_RANGE = exports.EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE = exports.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE = exports.EM_PROJECTIVEVECTORS_DIFFERENT_DIM = exports.EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
+exports.EM_PROJECTIVEVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
+exports.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE = "Projective vectors don't belong to the current vector space. Dimensions are incompatible.";
+exports.EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE = 'Vector dimension is out of projective vector space dimension range. Cannot proceed.';
+exports.EM_PROJECTIVEVECTOR_WEIGHT_OUT_WEIGHTMANAGER_RANGE = 'Weight is NULL and out of weight manager range. Change weight manager.';
+exports.EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT = "Projective vector has a negative weight. Cannot proceed.";
+exports.EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT = "Projective vector has a null weight while weights must be strictly positive. Cannot proceed.";

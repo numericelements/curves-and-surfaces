@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-describe('ShapeNavigationParameters', function () {
+describe('ShapeNavigationParameters', () => {
     /*     it('can instantiate a ShapeNavigationParameters object', () => {
             const navParam = new ShapeSpaceDiffEventsStructure();
             expect(navParam.curvatureExtremaControl, 'curvatureExtremaControl: ').to.eql(false);

@@ -1,5 +1,5 @@
-import { ComplexVector1D, IComplex, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, Real } from "../../VectorSpaceConstructorInterface";
-import { WeightManager } from "../../WeightManager";
+import type { ComplexVector1D, IComplex, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, Real } from "../../VectorSpaceConstructorInterface";
+import type { WeightManager } from "../../WeightManager";
 
 export interface IProjectiveComplexVectorSpaceStrategy<D extends number> {
     getWeight(v: ProjectiveComplexVector): IComplexWeight;

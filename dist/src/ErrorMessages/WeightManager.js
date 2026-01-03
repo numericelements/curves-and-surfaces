@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EM_WEIGHT_MANAGEMENT_UNKOWN = exports.EM_TOGGLE_STATUS_INCOMPATIBLE = exports.EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT = exports.EM_SCALE_FACTOR_NULL = exports.EM_SCALE_FACTOR_STRICTLY_NEGATIVE = exports.EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS = exports.EM_WEIGHT_SUBTRACTION_ERROR = exports.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT = exports.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT = void 0;
+const ProjectiveVectorSpace_1 = require("../namedConstants/ProjectiveVectorSpace");
+exports.EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT = "Weight status is incompatible because it is assigned the possibility to be positive whereas the weight manager is set to strictly positive weight management.";
+exports.EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT = "The weight status is incompatible because it is assigned the possibility to be strictly positive whereas the weight manager is set to positive weight management.";
+exports.EM_WEIGHT_SUBTRACTION_ERROR = "Weight subtraction produces a negative weight. Cannot proceed.";
+exports.EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS = `Subtracting strictly positive weights produced a null weight or negative weight within the tolerance ${ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE}. Cannot proceed.`;
+exports.EM_SCALE_FACTOR_STRICTLY_NEGATIVE = "Scale factor is strictly negative while weights must stay positive. Cannot proceed.";
+exports.EM_SCALE_FACTOR_NULL = "Scale factor is null and produces a null weight, while weights must be strictly positive. Cannot proceed.";
+exports.EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT = "Forcing a null weight is incompatible with strictly positive weight management. Cannot proceed.";
+exports.EM_TOGGLE_STATUS_INCOMPATIBLE = "Changing the weight status is incompatible with the weight management. Cannot proceed.";
+exports.EM_WEIGHT_MANAGEMENT_UNKOWN = "The weight management type is unknown. Cannot proceed.";

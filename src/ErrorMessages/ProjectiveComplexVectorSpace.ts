@@ -7,3 +7,4 @@ export const EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS = 'Complex we
 export const EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS = 'Complex weight management is restricted to positive weights but a current complex weight is strictly positive. This is incompatible, please check the strictlyPositive property of each weight.';
 export const EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = "Projective complex vectors don't belong to the current vector space. Dimensions are incompatible.";
 export const EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = "Projective complex vector has some negative real or imaginary weights. Cannot proceed.";
+export const EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION = 'No default projective complex vector space found for the specified dimension.';

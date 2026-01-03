@@ -1,11 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HighlightedControlPolygonView = void 0;
-var LineSegmentShader_1 = require("../2DgraphicsItems/LineSegmentShader");
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var HighlightedControlPolygonView = /** @class */ (function () {
-    function HighlightedControlPolygonView(spline, gl, closed) {
-        if (closed === void 0) { closed = false; }
+const LineSegmentShader_1 = require("../2DgraphicsItems/LineSegmentShader");
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+class HighlightedControlPolygonView {
+    constructor(spline, gl, closed = false) {
         this.closed = closed;
         this.Z = 0;
         this.THICKNESS = 0.003;
@@ -27,16 +26,16 @@ var HighlightedControlPolygonView = /** @class */ (function () {
         this.a_Position = -1;
         this.fColorLocation = -1;
         // Write the positions of vertices to a vertex shader
-        var check = this.initVertexBuffers();
+        const check = this.initVertexBuffers();
         if (check < 0) {
             console.log('Failed to set the positions of the vertices');
         }
     }
-    HighlightedControlPolygonView.prototype.updateVerticesAndIndices = function () {
+    updateVerticesAndIndices() {
         this.vertices = new Float32Array(this.controlPoints.length * 12);
         this.indices = new Uint8Array(this.controlPoints.length * 6);
-        for (var i = 0; i < this.controlPoints.length - 1; i += 1) {
-            var normal = this.controlPoints[i + 1].substract(this.controlPoints[i]).normalize().rotate90degrees();
+        for (let i = 0; i < this.controlPoints.length - 1; i += 1) {
+            const normal = this.controlPoints[i + 1].substract(this.controlPoints[i]).normalize().rotate90degrees();
             this.vertices[12 * i] = this.controlPoints[i].x - this.THICKNESS * normal.x;
             this.vertices[12 * i + 1] = this.controlPoints[i].y - this.THICKNESS * normal.y;
             this.vertices[12 * i + 2] = this.Z;
@@ -56,27 +55,27 @@ var HighlightedControlPolygonView = /** @class */ (function () {
             this.indices[6 * i + 4] = 4 * i + 2;
             this.indices[6 * i + 5] = 4 * i + 3;
         }
-    };
-    HighlightedControlPolygonView.prototype.initAttribLocation = function () {
+    }
+    initAttribLocation() {
         this.a_Position = this.gl.getAttribLocation(this.lineSegmentShader.program, 'a_Position');
         this.fColorLocation = this.gl.getUniformLocation(this.lineSegmentShader.program, "fColor");
         if (this.a_Position < 0) {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
+            const warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initAttribLocation", 'Failed to get the storage location of a_Position.');
             warning.logMessage();
         }
-    };
-    HighlightedControlPolygonView.prototype.assignVertexAttrib = function () {
+    }
+    assignVertexAttrib() {
         // Assign the buffer object to a_Position variable
         this.gl.vertexAttribPointer(this.a_Position, 3, this.gl.FLOAT, false, 0, 0);
         // Enable the assignment to a_Position variable
         this.gl.enableVertexAttribArray(this.a_Position);
-    };
-    HighlightedControlPolygonView.prototype.initVertexBuffers = function () {
+    }
+    initVertexBuffers() {
         this.updateVerticesAndIndices();
         // Create a buffer object
         this.vertexBuffer = this.gl.createBuffer();
         if (!this.vertexBuffer) {
-            var warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
+            const warning = new ErrorLoging_1.WarningLog(this.constructor.name, "initVertexBuffers", 'Failed to create the vertex buffer object.');
             warning.logMessage();
             return -1;
         }
@@ -97,8 +96,8 @@ var HighlightedControlPolygonView = /** @class */ (function () {
         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         return this.indices.length;
-    };
-    HighlightedControlPolygonView.prototype.renderFrame = function () {
+    }
+    renderFrame() {
         this.initAttribLocation();
         this.gl.useProgram(this.lineSegmentShader.program);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
@@ -109,8 +108,8 @@ var HighlightedControlPolygonView = /** @class */ (function () {
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.useProgram(null);
-    };
-    HighlightedControlPolygonView.prototype.update = function (message) {
+    }
+    update(message) {
         this.controlPoints = message.controlPoints;
         // this.controlPoints = message.visibleControlPoints();
         if (this.closed) {
@@ -118,17 +117,16 @@ var HighlightedControlPolygonView = /** @class */ (function () {
         }
         this.updateVerticesAndIndices();
         this.updateBuffers();
-    };
-    HighlightedControlPolygonView.prototype.reset = function (message) {
-    };
-    HighlightedControlPolygonView.prototype.updateBuffers = function () {
+    }
+    reset(message) {
+    }
+    updateBuffers() {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
-    };
-    return HighlightedControlPolygonView;
-}());
+    }
+}
 exports.HighlightedControlPolygonView = HighlightedControlPolygonView;

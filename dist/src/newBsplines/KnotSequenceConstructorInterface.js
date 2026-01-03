@@ -7,7 +7,7 @@ exports.STRICTLYINCREASINGPERIODICKNOTSEQUENCE = exports.INCREASINGPERIODICKNOTS
 /**
  * Identifies an open knot sequence dedicated to increasing and strictly increasing sequences describing open curves.
  *
- * @constant {string} NO_KNOT_OPEN_CURVE
+ * @constant {No_Knot_OpenCurve} NO_KNOT_OPEN_CURVE
  * @description
  * Used to specify a knot sequence where:
  * - There are only two knots at positions 0 and 1
@@ -24,7 +24,7 @@ exports.NO_KNOT_OPEN_CURVE = 'No_Knot_OpenCurve';
 /**
  * Identifies an open knot sequence dedicated to increasing and strictly increasing sequence describing closed curves.
  *
- * @constant {string} NO_KNOT_CLOSED_CURVE
+ * @constant {No_Knot_ClosedCurve} NO_KNOT_CLOSED_CURVE
  * @description
  * Used to specify a knot sequence where:
  * - All knots are uniformly spaced
@@ -42,7 +42,7 @@ exports.NO_KNOT_CLOSED_CURVE = 'No_Knot_ClosedCurve';
 /**
  * Identifies a uniform open knot sequence type that can be applied to open or closed curves.
  *
- * @constant {string} UNIFORM_OPENKNOTSEQUENCE
+ * @constant {Uniform_OpenKnotSequence} UNIFORM_OPENKNOTSEQUENCE
  * @description
  * Used to specify an open knot sequence that can be increaing or stricly increasing where:
  * - All knots are uniformly spaced
@@ -61,7 +61,7 @@ exports.UNIFORM_OPENKNOTSEQUENCE = 'Uniform_OpenKnotSequence';
 /**
  * Identifies an open knot sequence with uniformly spread interior knots and non uniform multiplicity of the extreme knots.
  *
- * @constant {string} UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE
+ * @constant {UniformlySpreadInterKnots_OpenKnotSequence} UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE
  * @description
  * Used to specify a knot sequence where:
  * - End knots have multiplicity equal to maxMultiplicityOrder
@@ -80,7 +80,7 @@ exports.UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = 'UniformlySpreadInterKnots_
 /**
  * Identifies an increasing open knot sequence type to describe open curves or surfaces.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCE
+ * @constant {IncreasingOpenKnotSequence} INCREASINGOPENKNOTSEQUENCE
  * @description
  * Used to specify an increasing open knot sequence where:
  * - Knots form a non-decreasing sequence
@@ -101,7 +101,7 @@ exports.INCREASINGOPENKNOTSEQUENCE = 'IncreasingOpenKnotSequence';
 /**
  * Identifies an increasing open knot sequence type to describe open curves or surfaces and may contain internal C0 discontinuities.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
+ * @constant {IncreasingOpenKnotSequenceUpToC0Discontinuity} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
  * @description
  * Used to specify an increasing open knot sequence where:
  * - Knots form a non-decreasing sequence
@@ -127,7 +127,7 @@ exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'IncreasingOpenKnotSequ
 /**
  * Identifies an increasing open knot sequence type for closed curves or surfaces with periodic knots specified only.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCECLOSEDCURVE
+ * @constant {IncreasingOpenKnotSequenceClosedCurve} INCREASINGOPENKNOTSEQUENCECLOSEDCURVE
  * @description
  * Used to specify an increasing open knot sequence where:
  * - Knots form a non-decreasing sequence
@@ -156,7 +156,7 @@ exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'IncreasingOpenKnotSequenceClose
 /**
  * Identifies an increasing open knot sequence type for closed curves with all knots specified.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
+ * @constant {IncreasingOpenKnotSequenceClosedCurve_allKnots} INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
  * @description
  * Used to specify an increasing open knot sequence for closed curves where:
  * - Knots form a non-decreasing sequence
@@ -182,7 +182,7 @@ exports.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'IncreasingOpenKnotSeque
 /**
  * Identifies an increasing open knot sequence type for closed curves/surface with all knots specified and possible C0 discontinuities internal to the normalized basis interval.
  *
- * @constant {string} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
+ * @constant {IncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots} INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
  * @description
  * Represents an open knot sequence type for closed curves that:
  * - Knots form a non-decreasing sequence
@@ -210,7 +210,7 @@ exports.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS = 'In
 /**
  * Identifies a strictly increasing open knot sequence type that describes open curves/surfaces.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCE
+ * @constant {StrictlyIncreasingOpenKnotSequence} STRICTLYINCREASINGOPENKNOTSEQUENCE
  * @description
  * Used to specify a strictly open knot sequence where:
  * - Knots form a strictly increasing sequence (No repeated knot abscissa allowed)
@@ -241,7 +241,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCE = 'StrictlyIncreasingOpenKnotSequence
 /**
  * Identifies a strictly increasing open knot sequence type to describe open curves/surfaces and may contain internal C0 discontinuities.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
+ * @constant {StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY
  * @description
  * Used to specify a strictly increasing knot sequence where:
  * - Knots form a strictly increasing sequence
@@ -273,7 +273,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'StrictlyIncrea
 /**
  * Identifies a strictly increasing open knot sequence type for closed curves or surfaces with periodic knots only.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE
+ * @constant {StrictlyIncreasingOpenKnotSequenceClosedCurve} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE
  * @description
  * Used to specify a knot sequence where:
  * - Knots form a strictly increasing sequence
@@ -305,7 +305,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'StrictlyIncreasingOpenK
 /**
  * Identifies a strictly increasing open knot sequence type for closed curves/surfaces with all knots specified and possible C0 discontinuities internal to the normalized basis interval.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
+ * @constant {StrictlyIncreasingOpenKnotSequenceClosedCurve_allKnots} STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
  * @description
  * Used to specify a strictly increasing knot sequence type for closed curves where:
  * - Knots form a strictly increasing sequence
@@ -333,7 +333,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'StrictlyIncreas
 /**
  * Identifies a strictly increasing open knot sequence type for closed curves/surfaces with all knots specified and possible C0 discontinuities internal to the normalized basis interval.
  *
- * @constant {string} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
+ * @constant {StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityClosedCurve_allKnots} STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS
  * @description
  * Used to specify a strictly increasing knot sequence type for closed curves where:
  * - Knots form a strictly increasing sequence
@@ -361,7 +361,7 @@ exports.STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNO
 /**
  * Identifies a periodic knot sequence dedicated to increasing and strictly increasing sequences describing closed curves.
  *
- * @constant {string} NO_KNOT_PERIODIC_CURVE
+ * @constant {No_Knot_PeriodicCurve} NO_KNOT_PERIODIC_CURVE
  * @description
  * Used to specify a periodic knot sequence where:
  * - Knots abscissa are spread with uniform spacing across the normalized basis interval
@@ -384,7 +384,7 @@ exports.NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve';
 /**
  * Identifies a uniform periodic knot sequence type that can be applied to closed curves. The knot sequence is of increasing type.
  *
- * @constant {string} UNIFORM_PERIODICKNOTSEQUENCE
+ * @constant {Uniform_PeriodicKnotSequence} UNIFORM_PERIODICKNOTSEQUENCE
  * @description
  * Used to specify an periodic knot sequence that is increaing where:
  * - All knots are uniformly spaced
@@ -404,7 +404,7 @@ exports.UNIFORM_PERIODICKNOTSEQUENCE = 'Uniform_PeriodicKnotSequence';
 /**
  * Identifies an increasing periodic knot sequence type to describe closed curves or surfaces.
  *
- * @constant {string} INCREASINGPERIODICKNOTSEQUENCE
+ * @constant {IncreasingPeriodicKnotSequence} INCREASINGPERIODICKNOTSEQUENCE
  * @description
  * Used to specify an increasing periodic knot sequence where:
  * - Knots form a non-decreasing sequence
@@ -430,7 +430,7 @@ exports.INCREASINGPERIODICKNOTSEQUENCE = 'IncreasingPeriodicKnotSequence';
 /**
  * Identifies a strictly increasing periodic knot sequence type that describes closed curves/surfaces.
  *
- * @constant {string} STRICTLYINCREASINGPERIODICKNOTSEQUENCE
+ * @constant {StrictIncreasingPeriodicKnotSequence} STRICTLYINCREASINGPERIODICKNOTSEQUENCE
  * @description
  * Used to specify a strictly periodic knot sequence where:
  * - Knots form a strictly increasing sequence (No repeated knot abscissa allowed)

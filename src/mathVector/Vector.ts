@@ -1,14 +1,14 @@
 
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { Complex } from "./Complex";
-import { ComplexVectorSpace } from "./ComplexVectorSpace";
-import { ComplexWeight } from "./ComplexWeight";
-import { IdentifiableVectorSpace } from "./IVectorSpace";
-import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
-import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
-import { RealVectorSpace } from "./RealVectorSpace";
-import { IComplex, ComplexVector, ProjectiveVector, RealVector, Scalar, Vector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
-import { Weight } from "./Weight";
+import type { Complex } from "./Complex";
+import type { ComplexVectorSpace } from "./ComplexVectorSpace";
+import type { ComplexWeight } from "./ComplexWeight";
+import type { IdentifiableVectorSpace } from "./IVectorSpace";
+import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
+import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import type { RealVectorSpace } from "./RealVectorSpace";
+import type { IComplex, ComplexVector, ProjectiveVector, RealVector, Scalar, Vector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { Weight } from "./Weight";
 
 
 /**

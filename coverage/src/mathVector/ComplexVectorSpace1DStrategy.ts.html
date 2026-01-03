@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">89.47% </span>
+                <span class="strong">96.49% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>102/114</span>
+                <span class='fraction'>110/114</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">94.28% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>33/35</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
-                <span class="quiet">Branches</span>
-                <span class='fraction'>31/31</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">83.33% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>10/12</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">89.47% </span>
+                <span class="strong">96.49% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>102/114</span>
+                <span class='fraction'>110/114</span>
             </div>
         
             
@@ -201,9 +201,9 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -219,20 +219,20 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -294,12 +294,12 @@ import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
-import { ComplexVectorSpaceStrategy } from "./ComplexVectorSpace";
-import { IComplex, ComplexVector, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
+import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
+import type { IComplex, ComplexVector, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 &nbsp;
-export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy&lt;1&gt; {
+export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy&lt;1&gt; {
 &nbsp;
     // Implementation for 1D vectors
 &nbsp;
@@ -323,7 +323,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy&
         return nullComplex;
     }
 &nbsp;
-    addRaw(a: ComplexVector, b: ComplexVector): ComplexVector1D {
+    addDescriptors(a: ComplexVector, b: ComplexVector): ComplexVector1D {
         if (isVector1D(a) &amp;&amp; isVector1D(b)) {
             return addComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
@@ -331,26 +331,26 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy&
         }
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    normRaw(vector: ComplexVector): number {</span>
-<span class="cstat-no" title="statement not covered" >        if(isVector1D(vector)) {</span>
-<span class="cstat-no" title="statement not covered" >            return Math.sqrt(vector.real * vector.real + vector.imaginary * vector.imaginary);</span>
-<span class="cstat-no" title="statement not covered" >        } else {</span>
+    normDescriptor(vector: ComplexVector): number {
+        if(isVector1D(vector)) {
+            return Math.sqrt(vector.real * vector.real + vector.imaginary * vector.imaginary);
+        }<span class="branch-0 cbranch-no" title="branch not covered" > else {</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+    }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    dotRaw(a: ComplexVector, b: ComplexVector): number {</span>
-<span class="cstat-no" title="statement not covered" >        if(isVector1D(a) &amp;&amp; isVector1D(b)) {</span>
-<span class="cstat-no" title="statement not covered" >            return a.real * b.real + a.imaginary * b.imaginary;</span>
-<span class="cstat-no" title="statement not covered" >        } else {</span>
+    dotDescriptors(a: ComplexVector, b: ComplexVector): number {
+        if(isVector1D(a) &amp;&amp; isVector1D(b)) {
+            return a.real * b.real + a.imaginary * b.imaginary;
+        }<span class="branch-0 cbranch-no" title="branch not covered" > else {</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+    }
 &nbsp;
     // Overloaded scale method
-    scaleRaw(scaleFactor: IComplex, vector: ComplexVector): ComplexVector1D;
-    scaleRaw(scaleFactor: number, vector: ComplexVector): ComplexVector1D;
-    scaleRaw(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector1D {
+    scaleDescriptor(scaleFactor: IComplex, vector: ComplexVector): ComplexVector1D;
+    scaleDescriptor(scaleFactor: number, vector: ComplexVector): ComplexVector1D;
+    scaleDescriptor(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector1D {
         if (typeof scaleFactor === 'number') {
             if(isVector1D(vector)) {
                 return {type: COMPLEX, real: scaleFactor * vector.real, imaginary: scaleFactor * vector.imaginary};
@@ -368,7 +368,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy&
         }
     }
 &nbsp;
-    subtractRaw(a: ComplexVector, b: ComplexVector): ComplexVector1D {
+    subtractDescriptors(a: ComplexVector, b: ComplexVector): ComplexVector1D {
         if (isVector1D(a) &amp;&amp; isVector1D(b)) {
             return subtractComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
@@ -376,7 +376,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy&
         }
     }
 &nbsp;
-    cloneRaw(vector: ComplexVector): ComplexVector1D {
+    cloneVector(vector: ComplexVector): ComplexVector1D {
         if(isVector1D(vector)) {
             return {type: COMPLEX, real: vector.real, imaginary: vector.imaginary};
         } else {
@@ -409,7 +409,7 @@ export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy&
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-16T10:14:15.944Z
+                at 2026-01-03T15:41:12.728Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

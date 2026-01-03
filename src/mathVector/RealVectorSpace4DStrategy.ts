@@ -1,7 +1,7 @@
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../ErrorMessages/RealVectorSpace";
 import { REALVECTOR4D } from "../namedConstants/VectorTypeTags";
-import { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import { Real, RealVector, RealVector4D } from "./VectorSpaceConstructorInterface";
+import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
+import type { Real, RealVector, RealVector4D } from "./VectorSpaceConstructorInterface";
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4 = exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1 = exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE = exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE = exports.EM_REALVECTOR_NOT_IN_VECTORSPACE = exports.EM_REALVECTORS_NOT_IN_VECTORSPACE = exports.EM_REALVECTORS_DIFFERENT_DIM = exports.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
+exports.EM_REALVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
+exports.EM_REALVECTORS_NOT_IN_VECTORSPACE = "Real vectors don't belong to the current vector space. Dimensions are incompatible.";
+exports.EM_REALVECTOR_NOT_IN_VECTORSPACE = 'Real vector does not belong to the current vector space. Check dimensions.';
+exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE = 'Real vector dimension is not compatible with the projective vector space dimensions available.';
+exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE = 'Real vector dimension is not compatible with the complex vector space dimensions available.';
+exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1 = 'Cannot apply cross product with vectors of dimension 1.';
+exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4 = 'Cannot apply cross product with vectors of dimension 4.';

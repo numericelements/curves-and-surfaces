@@ -1,11 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CurveAnalyzerEventsNotSlidingOfInterval = exports.CurveAnalyzerEventsNotSlidingOnTheRightOfInterval = exports.CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval = exports.CurveAnalyzerEventsSlidingOutOfInterval = void 0;
-var CurveAnalyzerEventsSlidingOutOfInterval = /** @class */ (function () {
-    function CurveAnalyzerEventsSlidingOutOfInterval() {
-    }
-    CurveAnalyzerEventsSlidingOutOfInterval.prototype.getCurvatureCrtlPtsClosestToZero = function (curveAnalyzer) {
-        for (var i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
+class CurveAnalyzerEventsSlidingOutOfInterval {
+    getCurvatureCrtlPtsClosestToZero(curveAnalyzer) {
+        for (let i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i] + 1], 2)) {
                 if (curveAnalyzer.curvatureCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureSignChanges[i]) === -1)
                     curveAnalyzer.curvatureCrtlPtsClosestToZero.push(curveAnalyzer.curvatureSignChanges[i]);
@@ -15,9 +13,9 @@ var CurveAnalyzerEventsSlidingOutOfInterval = /** @class */ (function () {
                     curveAnalyzer.curvatureCrtlPtsClosestToZero.push(curveAnalyzer.curvatureSignChanges[i] + 1);
             }
         }
-    };
-    CurveAnalyzerEventsSlidingOutOfInterval.prototype.getCurvatureDerivCrtlPtsClosestToZero = function (curveAnalyzer) {
-        for (var i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
+    }
+    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer) {
+        for (let i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i] + 1], 2)) {
                 if (curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureDerivativeSignChanges[i]) === -1)
                     curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.push(curveAnalyzer.curvatureDerivativeSignChanges[i]);
@@ -27,15 +25,12 @@ var CurveAnalyzerEventsSlidingOutOfInterval = /** @class */ (function () {
                     curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.push(curveAnalyzer.curvatureDerivativeSignChanges[i] + 1);
             }
         }
-    };
-    return CurveAnalyzerEventsSlidingOutOfInterval;
-}());
-exports.CurveAnalyzerEventsSlidingOutOfInterval = CurveAnalyzerEventsSlidingOutOfInterval;
-var CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval = /** @class */ (function () {
-    function CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval() {
     }
-    CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval.prototype.getCurvatureCrtlPtsClosestToZero = function (curveAnalyzer) {
-        for (var i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
+}
+exports.CurveAnalyzerEventsSlidingOutOfInterval = CurveAnalyzerEventsSlidingOutOfInterval;
+class CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval {
+    getCurvatureCrtlPtsClosestToZero(curveAnalyzer) {
+        for (let i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i] + 1], 2)) {
                 if (curveAnalyzer.curvatureSignChanges[i] > 0 && curveAnalyzer.curvatureCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureSignChanges[i]) === -1) {
                     curveAnalyzer.curvatureCrtlPtsClosestToZero.push(curveAnalyzer.curvatureSignChanges[i]);
@@ -50,9 +45,9 @@ var CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval = /** @class */ (function (
                     curveAnalyzer.curvatureCrtlPtsClosestToZero.push(curveAnalyzer.curvatureSignChanges[i] + 1);
             }
         }
-    };
-    CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval.prototype.getCurvatureDerivCrtlPtsClosestToZero = function (curveAnalyzer) {
-        for (var i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
+    }
+    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer) {
+        for (let i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i] + 1], 2)) {
                 if (curveAnalyzer.curvatureDerivativeSignChanges[i] > 0 && curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureDerivativeSignChanges[i]) === -1) {
                     curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.push(curveAnalyzer.curvatureDerivativeSignChanges[i]);
@@ -67,15 +62,12 @@ var CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval = /** @class */ (function (
                     curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.push(curveAnalyzer.curvatureDerivativeSignChanges[i] + 1);
             }
         }
-    };
-    return CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval;
-}());
-exports.CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval = CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval;
-var CurveAnalyzerEventsNotSlidingOnTheRightOfInterval = /** @class */ (function () {
-    function CurveAnalyzerEventsNotSlidingOnTheRightOfInterval() {
     }
-    CurveAnalyzerEventsNotSlidingOnTheRightOfInterval.prototype.getCurvatureCrtlPtsClosestToZero = function (curveAnalyzer) {
-        for (var i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
+}
+exports.CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval = CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval;
+class CurveAnalyzerEventsNotSlidingOnTheRightOfInterval {
+    getCurvatureCrtlPtsClosestToZero(curveAnalyzer) {
+        for (let i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i] + 1], 2)) {
                 if (curveAnalyzer.curvatureSignChanges[i] === (curveAnalyzer.curveCurvatureCntrlPolygon.length - 2) && curveAnalyzer.curvatureCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureSignChanges[i]) === -1) {
                     curveAnalyzer.curvatureCrtlPtsClosestToZero.push(curveAnalyzer.curvatureSignChanges[i]);
@@ -90,9 +82,9 @@ var CurveAnalyzerEventsNotSlidingOnTheRightOfInterval = /** @class */ (function 
                 }
             }
         }
-    };
-    CurveAnalyzerEventsNotSlidingOnTheRightOfInterval.prototype.getCurvatureDerivCrtlPtsClosestToZero = function (curveAnalyzer) {
-        for (var i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
+    }
+    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer) {
+        for (let i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i] + 1], 2)) {
                 if (curveAnalyzer.curvatureDerivativeSignChanges[i] === (curveAnalyzer.curveCurvatureDerivativeCntrlPolygon.length - 2) && curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureDerivativeSignChanges[i]) === -1) {
                     // Verifier le fonctionnement de curvatureExtremumMonitoringAtCurveExtremities
@@ -108,15 +100,12 @@ var CurveAnalyzerEventsNotSlidingOnTheRightOfInterval = /** @class */ (function 
                 }
             }
         }
-    };
-    return CurveAnalyzerEventsNotSlidingOnTheRightOfInterval;
-}());
-exports.CurveAnalyzerEventsNotSlidingOnTheRightOfInterval = CurveAnalyzerEventsNotSlidingOnTheRightOfInterval;
-var CurveAnalyzerEventsNotSlidingOfInterval = /** @class */ (function () {
-    function CurveAnalyzerEventsNotSlidingOfInterval() {
     }
-    CurveAnalyzerEventsNotSlidingOfInterval.prototype.getCurvatureCrtlPtsClosestToZero = function (curveAnalyzer) {
-        for (var i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
+}
+exports.CurveAnalyzerEventsNotSlidingOnTheRightOfInterval = CurveAnalyzerEventsNotSlidingOnTheRightOfInterval;
+class CurveAnalyzerEventsNotSlidingOfInterval {
+    getCurvatureCrtlPtsClosestToZero(curveAnalyzer) {
+        for (let i = 0, n = curveAnalyzer.curvatureSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureCntrlPolygon[curveAnalyzer.curvatureSignChanges[i] + 1], 2)) {
                 if (curveAnalyzer.curvatureSignChanges[i] > 0 && curveAnalyzer.curvatureCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureSignChanges[i]) === -1) {
                     curveAnalyzer.curvatureCrtlPtsClosestToZero.push(curveAnalyzer.curvatureSignChanges[i]);
@@ -136,9 +125,9 @@ var CurveAnalyzerEventsNotSlidingOfInterval = /** @class */ (function () {
                 }
             }
         }
-    };
-    CurveAnalyzerEventsNotSlidingOfInterval.prototype.getCurvatureDerivCrtlPtsClosestToZero = function (curveAnalyzer) {
-        for (var i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
+    }
+    getCurvatureDerivCrtlPtsClosestToZero(curveAnalyzer) {
+        for (let i = 0, n = curveAnalyzer.curvatureDerivativeSignChanges.length; i < n; i += 1) {
             if (Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i]], 2) < Math.pow(curveAnalyzer.curveCurvatureDerivativeCntrlPolygon[curveAnalyzer.curvatureDerivativeSignChanges[i] + 1], 2)) {
                 if (curveAnalyzer.curvatureDerivativeSignChanges[i] > 0 && curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.indexOf(curveAnalyzer.curvatureDerivativeSignChanges[i]) === -1) {
                     curveAnalyzer.curvatureDerivCrtlPtsClosestToZero.push(curveAnalyzer.curvatureDerivativeSignChanges[i]);
@@ -159,7 +148,6 @@ var CurveAnalyzerEventsNotSlidingOfInterval = /** @class */ (function () {
                 }
             }
         }
-    };
-    return CurveAnalyzerEventsNotSlidingOfInterval;
-}());
+    }
+}
 exports.CurveAnalyzerEventsNotSlidingOfInterval = CurveAnalyzerEventsNotSlidingOfInterval;

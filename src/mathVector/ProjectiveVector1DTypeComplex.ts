@@ -31,7 +31,15 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
     constructor(vectorSpace: ProjectiveComplexVectorSpace<2>);
     constructor(realOrComplexOrVectorSpace?: number | Complex | ProjectiveComplexVectorSpace<2>, imaginaryOrComplexWeightOrVectorSpace?: number | ComplexWeight | ProjectiveComplexVectorSpace<2>, realWeightOrVectorSpace?: Weight | ProjectiveComplexVectorSpace<2>, imaginaryWeight?: Weight, vectorSpace?: ProjectiveComplexVectorSpace<2>) {
         super();
-        this._vectorSpace = vectorSpace ?? getDefaultVectorSpace(VectorSpaceType.PROJECTIVECOMPLEX, SPACE_DIMENSION);
+        if(vectorSpace !== undefined) {
+            this._vectorSpace = vectorSpace;
+        } else {
+            try {
+                this._vectorSpace = getDefaultVectorSpace(VectorSpaceType.PROJECTIVECOMPLEX, SPACE_DIMENSION);
+            } catch(error) {
+                this._vectorSpace = new ProjectiveComplexVectorSpace(SPACE_DIMENSION, true);
+            }
+        }
         this.data = { 
             type: PROJECTIVECOMPLEXVECTOR1D, 
             coordinates: [{ type: COMPLEX, real: 0, imaginary: 0},
@@ -130,7 +138,12 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
 
     private initFromComplexParams(complexCoord: Complex, complexWeight?: ComplexWeight | ProjectiveComplexVectorSpace<2>, complexProjVS?: ProjectiveComplexVectorSpace<2>): void {
         const complex = complexCoord ?? new Complex(0, 0);
-        const vectorSpace = complexProjVS ?? getDefaultVectorSpace(VectorSpaceType.PROJECTIVECOMPLEX, SPACE_DIMENSION);
+        let vectorSpace: ProjectiveComplexVectorSpace<2>;
+        try {
+            vectorSpace = complexProjVS ?? getDefaultVectorSpace(VectorSpaceType.PROJECTIVECOMPLEX, SPACE_DIMENSION);
+        } catch(error) {
+            vectorSpace = new ProjectiveComplexVectorSpace(SPACE_DIMENSION, true);
+        }
         let complexW = new ComplexWeight();
         if(complexWeight instanceof ProjectiveComplexVectorSpace) {
             this._vectorSpace = complexWeight;
@@ -177,7 +190,12 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
     private initFromRealParams(realCoord?: number, imaginaryCoord?: number, realW?: Weight | ProjectiveComplexVectorSpace<2>, imaginaryW?: Weight, vectorSp?: ProjectiveComplexVectorSpace<2>): void {
         const real = realCoord ?? 0;
         const imaginary = imaginaryCoord ?? 0;
-        const vectorSpace = vectorSp ?? getDefaultVectorSpace(VectorSpaceType.PROJECTIVECOMPLEX, SPACE_DIMENSION);
+        let vectorSpace: ProjectiveComplexVectorSpace<2>;
+        try {
+            vectorSpace = vectorSp ?? getDefaultVectorSpace(VectorSpaceType.PROJECTIVECOMPLEX, SPACE_DIMENSION);
+        } catch(error) {
+            vectorSpace = new ProjectiveComplexVectorSpace(SPACE_DIMENSION, true);
+        }
         let complexW = new ComplexWeight();
         if(realW instanceof ProjectiveComplexVectorSpace) {
             this._vectorSpace = realW;
@@ -310,6 +328,10 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
             new Weight(this.weight.imaginary.value, this.weight.imaginary.strictlyPositive),
             this._vectorSpace
         );
+    }
+
+    createVectorFromRaw(raw: ProjectiveComplexVector): ProjectiveVector1DTypeComplex {
+        return new ProjectiveVector1DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary, this.vectorSpace);
     }
 
     static fromRaw(raw: ProjectiveComplexVector): ProjectiveVector1DTypeComplex {

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-describe('CurveControlState', function () {
-    describe('handleInflections', function () {
-        it('process a click to activate/deactivate the control of inflections', function () {
+describe('CurveControlState', () => {
+    describe('handleInflections', () => {
+        it('process a click to activate/deactivate the control of inflections', () => {
             // let document: Document = new Document();
             // const canvas = <HTMLCanvasElement> document.getElementById("webgl");
             //             const gl = WebGLUtils().setupWebGL(canvas);

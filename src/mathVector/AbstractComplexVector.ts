@@ -1,11 +1,11 @@
 import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
-import { ComplexVectorSpace } from "./ComplexVectorSpace";
-import { IComplexVector } from "./Vector";
-import { ComplexVector } from "./VectorSpaceConstructorInterface";
+import type { ComplexVectorSpace } from "./ComplexVectorSpace";
+import type { IComplexVector } from "./Vector";
+import type { ComplexVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Complex } from "./Complex";
+import type { Complex } from "./Complex";
 
 /**
  * Abstract base for complex vectors
@@ -36,9 +36,8 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     scale(scalar: number): IComplexVector;
     scale(scalar: Complex): IComplexVector;
     scale(scalar: number | Complex): IComplexVector {
-        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor) as IComplexVector;
-        return result;
-        // return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
     
     revert(): IComplexVector {
@@ -99,6 +98,8 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         const ratio = Math.abs(dotProduct as number / (thisNorm * otherNorm));
         return ratio <= angularTolerance;
     }
+
+    protected abstract createVectorFromRaw(raw: ComplexVector): IComplexVector;
 
     // protected createVectorFromRaw(raw: Vector): IComplexVector {
     //     return VectorFactory.createComplexVectorFromRaw(raw as ComplexVector, this.vectorSpace);

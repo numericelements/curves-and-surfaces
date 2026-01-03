@@ -1,22 +1,11 @@
 "use strict";
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AbstractKnotSequence = void 0;
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var Knot_1 = require("./Knot");
-var KnotSequenceConstructorInterface_1 = require("./KnotSequenceConstructorInterface");
-var KnotSequences_1 = require("../namedConstants/KnotSequences");
-var KnotSequences_2 = require("../ErrorMessages/KnotSequences");
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+const Knot_1 = require("./Knot");
+const KnotSequenceConstructorInterface_1 = require("./KnotSequenceConstructorInterface");
+const KnotSequences_1 = require("../namedConstants/KnotSequences");
+const KnotSequences_2 = require("../ErrorMessages/KnotSequences");
 /**
  * Abstract base class for knot sequences used in B-spline entities (curves or surfaces).
  *
@@ -30,54 +19,42 @@ var KnotSequences_2 = require("../ErrorMessages/KnotSequences");
  *
  * @abstract
  */
-var AbstractKnotSequence = /** @class */ (function () {
+class AbstractKnotSequence {
     /**
      * Creates a new knot sequence with specified maximum multiplicity order.
      *
      * @param maxMultiplicityOrder - Maximum allowed multiplicity for any knot
      *
      */
-    function AbstractKnotSequence(maxMultiplicityOrder) {
+    constructor(maxMultiplicityOrder) {
         this._maxMultiplicityOrder = maxMultiplicityOrder;
         this._isKnotSpacingUniform = true;
         this._isKnotMultiplicityUniform = true;
     }
-    Object.defineProperty(AbstractKnotSequence.prototype, "maxMultiplicityOrder", {
-        /**
-         * Gets the maximum allowed multiplicity order for knots in the sequence.
-         *
-         * @returns {number} Maximum multiplicity order
-         */
-        get: function () {
-            return this._maxMultiplicityOrder;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(AbstractKnotSequence.prototype, "isKnotSpacingUniform", {
-        /**
-         * Indicates if knot spacing is uniform across the sequence.
-         *
-         * @returns {boolean} True if knot spacing is uniform
-         */
-        get: function () {
-            return this._isKnotSpacingUniform;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(AbstractKnotSequence.prototype, "isKnotMultiplicityUniform", {
-        /**
-         * Indicates if knot multiplicity is uniform across the sequence.
-         *
-         * @returns {boolean} True if knot multiplicity is uniform
-         */
-        get: function () {
-            return this._isKnotMultiplicityUniform;
-        },
-        enumerable: false,
-        configurable: true
-    });
+    /**
+     * Gets the maximum allowed multiplicity order for knots in the sequence.
+     *
+     * @returns {number} Maximum multiplicity order
+     */
+    get maxMultiplicityOrder() {
+        return this._maxMultiplicityOrder;
+    }
+    /**
+     * Indicates if knot spacing is uniform across the sequence.
+     *
+     * @returns {boolean} True if knot spacing is uniform
+     */
+    get isKnotSpacingUniform() {
+        return this._isKnotSpacingUniform;
+    }
+    /**
+     * Indicates if knot multiplicity is uniform across the sequence.
+     *
+     * @returns {boolean} True if knot multiplicity is uniform
+     */
+    get isKnotMultiplicityUniform() {
+        return this._isKnotMultiplicityUniform;
+    }
     /**
      * Generates and throws a RangeError with formatted error message.
      *
@@ -88,12 +65,12 @@ var AbstractKnotSequence = /** @class */ (function () {
      * @example
      * this.throwRangeErrorMessage("constructor", "Invalid multiplicity order");
      */
-    AbstractKnotSequence.prototype.throwRangeErrorMessage = function (functionName, message) {
-        var error = new ErrorLoging_1.ErrorLog(this.constructor.name, functionName);
+    throwRangeErrorMessage(functionName, message) {
+        const error = new ErrorLoging_1.ErrorLog(this.constructor.name, functionName);
         error.addMessage(message);
         console.log(error.generateMessageString());
         throw new RangeError(error.generateMessageString());
-    };
+    }
     /**
      * Validates that the maximum multiplicity order of a knot sequence is greater than or equal to the minimum allowed value.
      *
@@ -103,10 +80,10 @@ var AbstractKnotSequence = /** @class */ (function () {
      * @example
      * this.constructorInputMultOrderAssessment(3);
      */
-    AbstractKnotSequence.prototype.constructorInputMultOrderAssessment = function (minValue) {
+    constructorInputMultOrderAssessment(minValue) {
         if (this._maxMultiplicityOrder < minValue)
             this.throwRangeErrorMessage("constructor", KnotSequences_2.EM_MAXMULTIPLICITY_ORDER_SEQUENCE);
-    };
+    }
     /**
      * Validates that a knot multiplicity does not exceed the maximum multiplicity order assigned to a knot sequence.
      *
@@ -119,10 +96,10 @@ var AbstractKnotSequence = /** @class */ (function () {
      * const methodName = "checkMaxMultiplicityOrderConsistency";
      * this.maxMultiplicityOrderInputParamAssessment(multiplicity, methodName);
      */
-    AbstractKnotSequence.prototype.maxMultiplicityOrderInputParamAssessment = function (multiplicity, methodName) {
+    maxMultiplicityOrderInputParamAssessment(multiplicity, methodName) {
         if (multiplicity > this._maxMultiplicityOrder)
             this.throwRangeErrorMessage(methodName, KnotSequences_2.EM_MAXMULTIPLICITY_ORDER_KNOT);
-    };
+    }
     /**
      * Assesses the input array parameters for the constructor of the `AbstractKnotSequence` class hierarchy.
      *
@@ -141,11 +118,11 @@ var AbstractKnotSequence = /** @class */ (function () {
      * };
      * this.constructorInputArrayAssessment(knotParams);
      */
-    AbstractKnotSequence.prototype.constructorInputArrayAssessment = function (knotParameters) {
-        var message = "";
-        var messageKnots = KnotSequences_2.EM_NULL_KNOT_SEQUENCE;
-        var messageMultiplicities = KnotSequences_2.EM_NULL_MULTIPLICITY_ARRAY;
-        var messageKnotLengthVsMultitplicityLength = KnotSequences_2.EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL;
+    constructorInputArrayAssessment(knotParameters) {
+        let message = "";
+        const messageKnots = KnotSequences_2.EM_NULL_KNOT_SEQUENCE;
+        const messageMultiplicities = KnotSequences_2.EM_NULL_MULTIPLICITY_ARRAY;
+        const messageKnotLengthVsMultitplicityLength = KnotSequences_2.EM_KNOT_SIZE_MULTIPLICITY_SIZE_NOT_EQUAL;
         if (knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCE || knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS
             || knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY || knotParameters.type === KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS) {
             if (knotParameters.knots.length === 0)
@@ -180,7 +157,7 @@ var AbstractKnotSequence = /** @class */ (function () {
         }
         if (message !== "")
             this.throwRangeErrorMessage("constructor", message);
-    };
+    }
     /**
      * Validates B-spline basis size requirements for uniform knot sequences to ensure that a normalized basis exists given the maxMultiplicityOrder assigned to the knot sequence.
      * For open sequences: basis size must be >= maxMultiplicityOrder
@@ -196,7 +173,7 @@ var AbstractKnotSequence = /** @class */ (function () {
      * };
      * this.constructorInputBspBasisSizeAssessment(params);
      */
-    AbstractKnotSequence.prototype.constructorInputBspBasisSizeAssessment = function (knotParameters) {
+    constructorInputBspBasisSizeAssessment(knotParameters) {
         if (knotParameters.type === KnotSequenceConstructorInterface_1.UNIFORM_OPENKNOTSEQUENCE || knotParameters.type === KnotSequenceConstructorInterface_1.UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE) {
             if (knotParameters.BsplBasisSize < this._maxMultiplicityOrder)
                 this.throwRangeErrorMessage("constructor", KnotSequences_2.EM_SIZENORMALIZED_BSPLINEBASIS);
@@ -205,7 +182,7 @@ var AbstractKnotSequence = /** @class */ (function () {
             if (knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 1))
                 this.throwRangeErrorMessage("constructor", KnotSequences_2.EM_SIZENORMALIZED_BSPLINEBASIS);
         }
-    };
+    }
     /**
      * Validates that a knot index is within valid bounds of the sequence.
      *
@@ -217,10 +194,10 @@ var AbstractKnotSequence = /** @class */ (function () {
      * const index = new KnotIndexStrictlyIncreasingSequence(1);
      * this.strictlyIncKnotIndexInputParamAssessment(index, "knotMultiplicity");
      */
-    AbstractKnotSequence.prototype.strictlyIncKnotIndexInputParamAssessment = function (index, methodName) {
+    strictlyIncKnotIndexInputParamAssessment(index, methodName) {
         if (index.knotIndex < 0 || index.knotIndex > this.knotSequence.length - 1)
             this.throwRangeErrorMessage(methodName, KnotSequences_2.EM_KNOTINDEX_STRICTLY_INCREASING_SEQ_OUT_RANGE);
-    };
+    }
     /**
      * Finds a span in an increasing knot sequence where the abscissa is distinct from knots.
      *
@@ -247,16 +224,15 @@ var AbstractKnotSequence = /** @class */ (function () {
      * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(4.999);
      * // Returns 7 (span between knots at indices 7 and 8)
      */
-    AbstractKnotSequence.prototype.findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence = function (u, targetIndex) {
-        if (targetIndex === void 0) { targetIndex = this.knotSequence.length - 1; }
-        var knotIndex = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, targetIndex);
-        var indexSeq = 0;
-        for (var i = 0; i < (knotIndex + 1); i++) {
+    findSpanWithAbscissaDistinctFromKnotIncreasingKnotSequence(u, targetIndex = this.knotSequence.length - 1) {
+        let knotIndex = this.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, targetIndex);
+        let indexSeq = 0;
+        for (let i = 0; i < (knotIndex + 1); i++) {
             indexSeq += this.knotSequence[i].multiplicity;
         }
         knotIndex = indexSeq - 1;
         return knotIndex;
-    };
+    }
     /**
      * Finds a span in a strictly increasing knot sequence where the abscissa is distinct from knots.
      *
@@ -281,11 +257,10 @@ var AbstractKnotSequence = /** @class */ (function () {
      * const span = knotSequence.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(2.999, 5);
      * // Returns 4 (span between knots at indices 4 and 5)
      */
-    AbstractKnotSequence.prototype.findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence = function (u, targetIndex) {
-        if (targetIndex === void 0) { targetIndex = this.knotSequence.length - 1; }
+    findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence(u, targetIndex = this.knotSequence.length - 1) {
         // Do binary search
-        var low = this._indexKnotOrigin.knotIndex;
-        var knotIndex = Math.floor((low + targetIndex) / 2);
+        let low = this._indexKnotOrigin.knotIndex;
+        let knotIndex = Math.floor((low + targetIndex) / 2);
         while (!(this.knotSequence[knotIndex].abscissa < u && u < this.knotSequence[knotIndex + 1].abscissa)) {
             if (u < this.knotSequence[knotIndex].abscissa) {
                 targetIndex = knotIndex;
@@ -296,7 +271,7 @@ var AbstractKnotSequence = /** @class */ (function () {
             knotIndex = Math.floor((low + targetIndex) / 2);
         }
         return knotIndex;
-    };
+    }
     /**
      * Returns an array containing the distinct abscissa values of all knots in the knot sequence.
      *
@@ -305,24 +280,13 @@ var AbstractKnotSequence = /** @class */ (function () {
      * @example
      * const abscissae = knotSequence.distinctAbscissae(); // [0, 1, 2, 3]
      */
-    AbstractKnotSequence.prototype.distinctAbscissae = function () {
-        var e_1, _a;
-        var abscissae = [];
-        try {
-            for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var knot = _c.value;
-                abscissae.push(knot.abscissa);
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_1) throw e_1.error; }
+    distinctAbscissae() {
+        let abscissae = [];
+        for (const knot of this.knotSequence) {
+            abscissae.push(knot.abscissa);
         }
         return abscissae;
-    };
+    }
     /**
      * Returns an array containing the multiplicities of all knots in the knot sequence.
      *
@@ -331,24 +295,13 @@ var AbstractKnotSequence = /** @class */ (function () {
      * @example
      * const multiplicities = knotSequence.multiplicities(); // [3, 1, 1, 3]
      */
-    AbstractKnotSequence.prototype.multiplicities = function () {
-        var e_2, _a;
-        var multiplicities = [];
-        try {
-            for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var knot = _c.value;
-                multiplicities.push(knot.multiplicity);
-            }
-        }
-        catch (e_2_1) { e_2 = { error: e_2_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_2) throw e_2.error; }
+    multiplicities() {
+        let multiplicities = [];
+        for (const knot of this.knotSequence) {
+            multiplicities.push(knot.multiplicity);
         }
         return multiplicities;
-    };
+    }
     /**
      * Verifies that no knot multiplicity exceeds the maximum multiplicity order
      * assigned to the knot sequence.
@@ -358,103 +311,81 @@ var AbstractKnotSequence = /** @class */ (function () {
      * @example
      * knotSequence.checkMaxMultiplicityOrderConsistency(); // Validates all knot multiplicities
      */
-    AbstractKnotSequence.prototype.checkMaxMultiplicityOrderConsistency = function () {
-        var e_3, _a;
-        try {
-            for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var knot = _c.value;
-                this.maxMultiplicityOrderInputParamAssessment(knot.multiplicity, "checkMaxMultiplicityOrderConsistency");
-            }
+    checkMaxMultiplicityOrderConsistency() {
+        for (const knot of this.knotSequence) {
+            this.maxMultiplicityOrderInputParamAssessment(knot.multiplicity, "checkMaxMultiplicityOrderConsistency");
         }
-        catch (e_3_1) { e_3 = { error: e_3_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_3) throw e_3.error; }
-        }
-    };
+    }
     /**
      * Checks uniformity of knot spacing in the sequence.
      * Updates isKnotSpacingUniform property.
      */
-    AbstractKnotSequence.prototype.checkUniformityOfKnotSpacing = function () {
+    checkUniformityOfKnotSpacing() {
         this._isKnotSpacingUniform = true;
         if (this.knotSequence.length > 1) {
-            var spacing = this.knotSequence[1].abscissa - this.knotSequence[0].abscissa;
-            for (var i = 1; i < (this.knotSequence.length - 1); i++) {
-                var spacingAdjKnots = this.knotSequence[i + 1].abscissa - this.knotSequence[i].abscissa;
+            const spacing = this.knotSequence[1].abscissa - this.knotSequence[0].abscissa;
+            for (let i = 1; i < (this.knotSequence.length - 1); i++) {
+                const spacingAdjKnots = this.knotSequence[i + 1].abscissa - this.knotSequence[i].abscissa;
                 if (spacingAdjKnots > (spacing + KnotSequences_1.KNOT_COINCIDENCE_TOLERANCE) || spacingAdjKnots < (spacing - KnotSequences_1.KNOT_COINCIDENCE_TOLERANCE))
                     this._isKnotSpacingUniform = false;
             }
         }
         return;
-    };
+    }
     /**
      * Checks uniformity of knot multiplicity in the sequence.
      * Updates isKnotMultiplicityUniform property.
      */
-    AbstractKnotSequence.prototype.checkUniformityOfKnotMultiplicity = function () {
-        var e_4, _a;
+    checkUniformityOfKnotMultiplicity() {
         this._isKnotMultiplicityUniform = true;
-        try {
-            for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var knot = _c.value;
-                if (knot !== undefined && knot.multiplicity !== 1)
-                    this._isKnotMultiplicityUniform = false;
-            }
-        }
-        catch (e_4_1) { e_4 = { error: e_4_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_4) throw e_4.error; }
+        for (const knot of this.knotSequence) {
+            if (knot !== undefined && knot.multiplicity !== 1)
+                this._isKnotMultiplicityUniform = false;
         }
         return;
-    };
+    }
     /**
      * Verifies that intermediate knots don't exceed maximum multiplicity order assigned to the knot sequence.
      *
      * @throws {RangeError} If any intermediate knot exceeds max multiplicity
      */
-    AbstractKnotSequence.prototype.checkMaxKnotMultiplicityAtIntermediateKnots = function () {
-        var maxMultiplicityOrderReached = false;
-        for (var knot = 1; knot < (this.knotSequence.length - 1); knot++) {
+    checkMaxKnotMultiplicityAtIntermediateKnots() {
+        let maxMultiplicityOrderReached = false;
+        for (let knot = 1; knot < (this.knotSequence.length - 1); knot++) {
             if (this.knotSequence[knot].multiplicity === this._maxMultiplicityOrder)
                 maxMultiplicityOrderReached = true;
         }
         if (maxMultiplicityOrderReached)
             this.throwRangeErrorMessage("checkMaxKnotMultiplicityAtIntermediateKnots", KnotSequences_2.EM_MAXMULTIPLICITY_ORDER_INTERMEDIATE_KNOT);
-    };
+    }
     /**
      * Verifies that knot values of the iterated knot sequence are in increasing order.
      *
      * @param knots - Array of knot values to check
      * @throws {RangeError} If knots are not in increasing order
      */
-    AbstractKnotSequence.prototype.checkKnotIncreasingValues = function (knots) {
+    checkKnotIncreasingValues(knots) {
         if (knots.length > 1) {
-            for (var i = 1; i < knots.length; i++) {
+            for (let i = 1; i < knots.length; i++) {
                 if (knots[i] < knots[i - 1])
                     this.throwRangeErrorMessage("checkKnotIncreasingValues", KnotSequences_2.EM_NON_INCREASING_KNOT_VALUES);
             }
         }
-    };
+    }
     /**
      * Verifies that knot values of the iterated knot sequence are in strictly increasing order.
      *
      * @param knots - Array of knot values to check
      * @throws {RangeError} If knots are not in strictly increasing order
      */
-    AbstractKnotSequence.prototype.checkKnotStrictlyIncreasingValues = function (knots) {
+    checkKnotStrictlyIncreasingValues(knots) {
         if (knots.length > 1) {
-            for (var i = 1; i < knots.length; i++) {
+            for (let i = 1; i < knots.length; i++) {
                 if (knots[i] <= knots[i - 1])
                     this.throwRangeErrorMessage("checkKnotStrictlyIncreasingValues", KnotSequences_2.EM_NON_STRICTLY_INCREASING_VALUES);
             }
         }
-    };
+    }
     /**
      * Checks if a given abscissa value coincides with any knot in the sequence within the KNOT_COINCIDENCE_TOLERANCE tolerance.
      *
@@ -464,25 +395,14 @@ var AbstractKnotSequence = /** @class */ (function () {
      * @example
      * const coincides = knotSequence.isAbscissaCoincidingWithKnot(1.0);
      */
-    AbstractKnotSequence.prototype.isAbscissaCoincidingWithKnot = function (abscissa) {
-        var e_5, _a;
-        var coincident = false;
-        try {
-            for (var _b = __values(this.knotSequence), _c = _b.next(); !_c.done; _c = _b.next()) {
-                var knot = _c.value;
-                if (Math.abs(abscissa - knot.abscissa) < KnotSequences_1.KNOT_COINCIDENCE_TOLERANCE)
-                    coincident = true;
-            }
-        }
-        catch (e_5_1) { e_5 = { error: e_5_1 }; }
-        finally {
-            try {
-                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-            }
-            finally { if (e_5) throw e_5.error; }
+    isAbscissaCoincidingWithKnot(abscissa) {
+        let coincident = false;
+        for (const knot of this.knotSequence) {
+            if (Math.abs(abscissa - knot.abscissa) < KnotSequences_1.KNOT_COINCIDENCE_TOLERANCE)
+                coincident = true;
         }
         return coincident;
-    };
+    }
     /**
      * Checks if a given knot abscissa has zero multiplicity (no coincident knot).
      *
@@ -492,12 +412,12 @@ var AbstractKnotSequence = /** @class */ (function () {
      * @example
      * const isZero = knotSequence.isKnotlMultiplicityZero(1.5);
      */
-    AbstractKnotSequence.prototype.isKnotlMultiplicityZero = function (abscissa) {
-        var multiplicityZero = true;
+    isKnotlMultiplicityZero(abscissa) {
+        let multiplicityZero = true;
         if (this.isAbscissaCoincidingWithKnot(abscissa))
             multiplicityZero = false;
         return multiplicityZero;
-    };
+    }
     /**
      * Gets the multiplicity of knot at specified index.
      *
@@ -507,11 +427,11 @@ var AbstractKnotSequence = /** @class */ (function () {
      * @example
      * const mult = knotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(1));
      */
-    AbstractKnotSequence.prototype.knotMultiplicity = function (index) {
+    knotMultiplicity(index) {
         this.strictlyIncKnotIndexInputParamAssessment(index, "knotMultiplicity");
-        var result = this.knotSequence[index.knotIndex].multiplicity;
+        const result = this.knotSequence[index.knotIndex].multiplicity;
         return result;
-    };
+    }
     /**
      * Reverses the knot spacing distribution in the sequence while preserving multiplicities and the origin of the knot sequence.
      *
@@ -519,41 +439,19 @@ var AbstractKnotSequence = /** @class */ (function () {
      * knotSequence.revertKnotSpacing(); // [0,0,1,3,3] becomes [0,0,2,3,3] for an increasing open knot sequence describing an open curve
      * knotSequence.revertKnotSpacing(); // [0,1,1.5,3] becomes [0,1.5,2,3] for an increasing periodic knot sequence describing a closed curve
      */
-    AbstractKnotSequence.prototype.revertKnotSpacing = function () {
-        var e_6, _a, e_7, _b;
-        var sequence = [];
-        try {
-            for (var _c = __values(this.knotSequence), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var knot = _d.value;
-                sequence.push(new Knot_1.Knot(0.0));
-            }
+    revertKnotSpacing() {
+        const sequence = [];
+        for (const knot of this.knotSequence) {
+            sequence.push(new Knot_1.Knot(0.0));
         }
-        catch (e_6_1) { e_6 = { error: e_6_1 }; }
-        finally {
-            try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-            }
-            finally { if (e_6) throw e_6.error; }
-        }
-        var i = 0;
-        try {
-            for (var _e = __values(this.knotSequence), _f = _e.next(); !_f.done; _f = _e.next()) {
-                var knot = _f.value;
-                sequence[this.knotSequence.length - i - 1].abscissa = this.knotSequence[this.knotSequence.length - 1].abscissa - (knot.abscissa - this.knotSequence[0].abscissa);
-                sequence[this.knotSequence.length - i - 1].multiplicity = knot.multiplicity;
-                i++;
-            }
-        }
-        catch (e_7_1) { e_7 = { error: e_7_1 }; }
-        finally {
-            try {
-                if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-            }
-            finally { if (e_7) throw e_7.error; }
+        let i = 0;
+        for (const knot of this.knotSequence) {
+            sequence[this.knotSequence.length - i - 1].abscissa = this.knotSequence[this.knotSequence.length - 1].abscissa - (knot.abscissa - this.knotSequence[0].abscissa);
+            sequence[this.knotSequence.length - i - 1].multiplicity = knot.multiplicity;
+            i++;
         }
         this.knotSequence = sequence.slice();
         return;
-    };
-    return AbstractKnotSequence;
-}());
+    }
+}
 exports.AbstractKnotSequence = AbstractKnotSequence;

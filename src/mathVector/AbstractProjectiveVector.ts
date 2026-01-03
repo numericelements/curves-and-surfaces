@@ -3,11 +3,11 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
-import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
-import { IProjectiveVector } from "./Vector";
-import { ProjectiveVector } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import type { IProjectiveVector } from "./Vector";
+import type { ProjectiveVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
+import type { Weight } from "./Weight";
 
 /**
  * Abstract base for projective vectors
@@ -77,9 +77,8 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
     }
 
     scale(scalar: number): IProjectiveVector {
-        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor) as IProjectiveVector;
-        return result;
-        // return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
+        return this.createVectorFromRaw(result);
     }
 
     revert(): IProjectiveVector {
@@ -126,6 +125,8 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
         const ratio = Math.abs(dotProduct as number / (thisNorm * otherNorm));
         return ratio <= angularTolerance;
     }
+
+    protected abstract createVectorFromRaw(raw: ProjectiveVector): IProjectiveVector;
 
     // protected createVectorFromRaw(raw: Vector): IProjectiveVector {
     //     return VectorFactory.createProjectiveVectorFromRaw(raw as ProjectiveVector, this.vectorSpace);

@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.LineSegmentShader = void 0;
-var cuon_utils_1 = require("../webgl/cuon-utils");
-var LineSegmentShader = /** @class */ (function () {
-    function LineSegmentShader(gl) {
+const cuon_utils_1 = require("../webgl/cuon-utils");
+class LineSegmentShader {
+    constructor(gl) {
         // Vertex shader program
         this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
             'void main() {\n' +
@@ -19,16 +19,15 @@ var LineSegmentShader = /** @class */ (function () {
             /*'     gl_FragColor = vec4(216.0/255.0, 216.0/255.0, 216.0/255.0, 0.05); \n' +  */
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
         this.gl.useProgram(this.program);
     }
-    LineSegmentShader.prototype.renderFrame = function (numberOfElements) {
+    renderFrame(numberOfElements) {
         this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
-    };
-    return LineSegmentShader;
-}());
+    }
+}
 exports.LineSegmentShader = LineSegmentShader;
 ;

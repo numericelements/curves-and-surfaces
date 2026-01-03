@@ -23,7 +23,7 @@ describe('Resolvers for default vector space generation associated with a vector
 
     it(`can generate a default real vector space of dimensions ranging from ${MIN_DIMENSION_REALVECTORSPACE} to ${MAX_DIMENSION_REALVECTORSPACE}`, () => {
         for (let i = MIN_DIMENSION_REALVECTORSPACE; i <= MAX_DIMENSION_REALVECTORSPACE; i++) {
-            const realVectorSpace = getDefaultRealVectorSpace(i);
+            const realVectorSpace = new RealVectorSpace(i, true);
             expect(realVectorSpace.isDefault).to.eql(true);
             expect(realVectorSpace.dimension()).to.eql(i);
             expect(realVectorSpace.spaceType).to.eql(VectorSpaceType.REAL);
@@ -38,7 +38,7 @@ describe('Resolvers for default vector space generation associated with a vector
 
     it(`can generate a default complex vector space of dimensions ranging from ${MIN_DIMENSION_COMPLEXVECTORSPACE} to ${MAX_DIMENSION_COMPLEXVECTORSPACE}`, () => {
         for (let i = MIN_DIMENSION_COMPLEXVECTORSPACE; i <= MAX_DIMENSION_COMPLEXVECTORSPACE; i++) {
-            const complexVectorSpace = getDefaultComplexVectorSpace(i);
+            const complexVectorSpace = new ComplexVectorSpace(i, true);
             expect(complexVectorSpace.isDefault).to.eql(true);
             expect(complexVectorSpace.dimension()).to.eql(i);
             expect(complexVectorSpace.spaceType).to.eql(VectorSpaceType.COMPLEX);
@@ -53,7 +53,7 @@ describe('Resolvers for default vector space generation associated with a vector
 
     it(`can generate a default projective real vector space of dimensions ranging from ${MIN_DIMENSION_PROJECTIVEVECTORSPACE} to ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
         for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
-            const projectiveRealVectorSpace = getDefaultProjectiveRealVectorSpace(i);
+            const projectiveRealVectorSpace = new ProjectiveVectorSpace(i, true);
             expect(projectiveRealVectorSpace.isDefault).to.eql(true);
             expect(projectiveRealVectorSpace.dimension()).to.eql(i);
             expect(projectiveRealVectorSpace.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
@@ -68,7 +68,7 @@ describe('Resolvers for default vector space generation associated with a vector
 
     it(`can generate a default projective complex vector space of dimensions ranging from ${MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE} to ${MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}`, () => {
         for (let i = MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i++) {
-            const projectiveComplexVectorSpace = getDefaultProjectiveComplexVectorSpace(i);
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(i, true);
             expect(projectiveComplexVectorSpace.isDefault).to.eql(true);
             expect(projectiveComplexVectorSpace.dimension()).to.eql(i);
             expect(projectiveComplexVectorSpace.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
@@ -127,7 +127,7 @@ describe('Resolvers for default vector space generation associated with a vector
 
     it(`cannot resolve the default vector space for any real vector space when a default real vector space of same dimension already exists`, () => {
         const dimension = 2;
-        const realVectorSpace = getDefaultRealVectorSpace(dimension);
+        const realVectorSpace = new RealVectorSpace(dimension, true);
         expect(realVectorSpace.id.includes(DEFAULT + `${realVectorSpace.spaceType}_${realVectorSpace.dimension()}_` + VECTOR_SPACE)).to.eql(true);
         const mockVectorSpace = {
             dimension: () => dimension,
@@ -141,7 +141,7 @@ describe('Resolvers for default vector space generation associated with a vector
 
     it(`cannot resolve the default vector space for any complex vector space when a default complex vector space of same dimension already exists`, () => {
         const dimension = 1;
-        const complexVectorSpace = getDefaultComplexVectorSpace(dimension);
+        const complexVectorSpace = new ComplexVectorSpace(dimension, true);
         expect(complexVectorSpace.id.includes(DEFAULT + `${complexVectorSpace.spaceType}_${complexVectorSpace.dimension()}_` + VECTOR_SPACE)).to.eql(true);
         const mockVectorSpace = {
             dimension: () => dimension,
@@ -155,7 +155,7 @@ describe('Resolvers for default vector space generation associated with a vector
 
     it(`cannot resolve the default vector space for any projective real vector space when a default projective vector space of same dimension already exists`, () => {
         const dimension = 3;
-        const projectiveVectorSpace = getDefaultProjectiveRealVectorSpace(dimension);
+        const projectiveVectorSpace = new ProjectiveVectorSpace(dimension, true);
         expect(projectiveVectorSpace.id.includes(DEFAULT + `${projectiveVectorSpace.spaceType}_${projectiveVectorSpace.dimension()}_` + VECTOR_SPACE)).to.eql(true);
         const mockVectorSpace = {
             dimension: () => dimension,
@@ -169,7 +169,7 @@ describe('Resolvers for default vector space generation associated with a vector
 
     it(`can resolve the default vector space for any projective complex vector space when a default projective complex vector space of same dimension already exists`, () => {
         const dimension = 2;
-        const projectiveComplexVectorSpace = getDefaultProjectiveComplexVectorSpace(dimension);
+        const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(dimension, true);
         expect(projectiveComplexVectorSpace.id.includes(DEFAULT + `${projectiveComplexVectorSpace.spaceType}_${projectiveComplexVectorSpace.dimension()}_` + VECTOR_SPACE)).to.eql(true);
         const mockVectorSpace = {
             dimension: () => dimension,
@@ -185,7 +185,7 @@ describe('Resolvers for default vector space generation associated with a vector
         const existingDefVS = DefaultVectorSpaces.getInstance().getAllDefaultSpaces();
         expect(existingDefVS.length).to.eql(0);
         for (let i = MIN_DIMENSION_REALVECTORSPACE; i <= MAX_DIMENSION_REALVECTORSPACE; i++) {
-            const realVectorSpace = getDefaultVectorSpace(VectorSpaceType.REAL, i);
+            const realVectorSpace = new RealVectorSpace(i, true);
             expect(realVectorSpace.isDefault).to.eql(true);
             expect(realVectorSpace.dimension()).to.eql(i);
             expect(realVectorSpace.spaceType).to.eql(VectorSpaceType.REAL);
@@ -205,7 +205,7 @@ describe('Resolvers for default vector space generation associated with a vector
         const existingDefVS = DefaultVectorSpaces.getInstance().getAllDefaultSpaces();
         expect(existingDefVS.length).to.eql(0);
         for (let i = MIN_DIMENSION_COMPLEXVECTORSPACE; i <= MAX_DIMENSION_COMPLEXVECTORSPACE; i++) {
-            const complexVectorSpace = getDefaultVectorSpace(VectorSpaceType.COMPLEX, i);
+            const complexVectorSpace = new ComplexVectorSpace(i, true);
             expect(complexVectorSpace.isDefault).to.eql(true);
             expect(complexVectorSpace.dimension()).to.eql(i);
             expect(complexVectorSpace.spaceType).to.eql(VectorSpaceType.COMPLEX);
@@ -225,7 +225,7 @@ describe('Resolvers for default vector space generation associated with a vector
         const existingDefVS = DefaultVectorSpaces.getInstance().getAllDefaultSpaces();
         expect(existingDefVS.length).to.eql(0);
         for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
-            const projectiveRealVectorSpace = getDefaultVectorSpace(VectorSpaceType.PROJECTIVE, i);
+            const projectiveRealVectorSpace = new ProjectiveVectorSpace(i, true);
             expect(projectiveRealVectorSpace.isDefault).to.eql(true);
             expect(projectiveRealVectorSpace.dimension()).to.eql(i);
             expect(projectiveRealVectorSpace.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
@@ -245,7 +245,7 @@ describe('Resolvers for default vector space generation associated with a vector
         const existingDefVS = DefaultVectorSpaces.getInstance().getAllDefaultSpaces();
         expect(existingDefVS.length).to.eql(0);
         for (let i = MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i++) {
-            const projectiveComplexVectorSpace = getDefaultVectorSpace(VectorSpaceType.PROJECTIVECOMPLEX, i);
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(i, true);
             expect(projectiveComplexVectorSpace.isDefault).to.eql(true);
             expect(projectiveComplexVectorSpace.dimension()).to.eql(i);
             expect(projectiveComplexVectorSpace.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);

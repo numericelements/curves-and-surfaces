@@ -8,3 +8,4 @@ export const EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = "Complex vectors don't belon
 export const EM_REALWEIGHT_NEGATIVE = "Real weight must be positive or null. Cannot proceed.";
 export const EM_IMAGINARYWEIGHT_NEGATIVE = "Imaginary weight must be positive or null. Cannot proceed.";
 export const EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = 'Cannot apply dot product with complex vectors of dimension 2.';
+export const EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION = 'No default complex vector space found for the specified dimension.';

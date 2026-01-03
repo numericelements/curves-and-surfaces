@@ -2,7 +2,7 @@ import { EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_NULL
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE } from "../WarningMessages/WeightManager";
 import { ComplexWeight } from "./ComplexWeight";
-import { Real } from "./VectorSpaceConstructorInterface";
+import type { Real } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

@@ -1,21 +1,8 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.KnotIndexIncreasingSequence = void 0;
-var AbstractKnotIndex_1 = require("./AbstractKnotIndex");
-var KnotIndexConstructorInterface_1 = require("./KnotIndexConstructorInterface");
+const AbstractKnotIndex_1 = require("./AbstractKnotIndex");
+const KnotIndexConstructorInterface_1 = require("./KnotIndexConstructorInterface");
 /**
  * Represents a knot index in an increasing sequence
  *
@@ -26,18 +13,15 @@ var KnotIndexConstructorInterface_1 = require("./KnotIndexConstructorInterface")
  *
  * @extends AbstractKnotIndex
  */
-var KnotIndexIncreasingSequence = /** @class */ (function (_super) {
-    __extends(KnotIndexIncreasingSequence, _super);
+class KnotIndexIncreasingSequence extends AbstractKnotIndex_1.AbstractKnotIndex {
     /**
      * Creates a new increasing knot index
      * @param value - The initial index value
      * @throws {RangeError} If value is negative
      */
-    function KnotIndexIncreasingSequence(value) {
-        var _this = _super.call(this, value) || this;
-        _this._knotIndex = { type: KnotIndexConstructorInterface_1.KNOT_INDEX_INCREASING_SEQUENCE, index: value };
-        return _this;
+    constructor(value) {
+        super(value);
+        this._knotIndex = { type: KnotIndexConstructorInterface_1.KNOT_INDEX_INCREASING_SEQUENCE, index: value };
     }
-    return KnotIndexIncreasingSequence;
-}(AbstractKnotIndex_1.AbstractKnotIndex));
+}
 exports.KnotIndexIncreasingSequence = KnotIndexIncreasingSequence;

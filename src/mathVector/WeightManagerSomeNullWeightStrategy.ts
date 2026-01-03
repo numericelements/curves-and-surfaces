@@ -1,7 +1,7 @@
 import { EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
 import { ComplexWeight } from "./ComplexWeight";
-import { Real } from "./VectorSpaceConstructorInterface";
+import type { Real } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

@@ -7,11 +7,15 @@ import { ProjectiveComplexVectorSpace } from "../../../src/mathVector/Projective
 import { DEFAULT, INITIAL_VECTOR_SPACE_ID, VECTOR_SPACE } from "../../../src/namedConstants/VectorSpaceIdentifierManager";
 import { VectorSpaceType } from "../../../src/namedConstants/BSplineR1toRn";
 import { EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE, EM_INVALID_DEFAULT_VECTOR_SPACE_ID_STRUCTURE, EM_INVALID_VECTOR_SPACE_TYPE } from "../../../src/ErrorMessages/DefaultSpaceResolvers";
-import { DEFAULT_VSPACE_INDEX_INITIAL_VALUE } from "../../../src/namedConstants/DefaultVectorSpaces";
+import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME, DEFAULT_REAL_VECTOR_SPACE_NAME, DEFAULT_VSPACE_INDEX_INITIAL_VALUE } from "../../../src/namedConstants/DefaultVectorSpaces";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../../src/namedConstants/RealVectorSpace";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../../src/namedConstants/ComplexVectorSpace";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE } from "../../../src/namedConstants/ProjectiveVectorSpace";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../../src/namedConstants/ProjectiveComplexVectorSpace";
+import { EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/RealVectorSpace";
+import { EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ComplexVectorSpace";
+import { EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ProjectiveVectorSpace";
+import { EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ProjectiveComplexVectorSpace";
 
 describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring their uniqueness and distinguishing default vector spaces from others', () => {
     
@@ -107,7 +111,7 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
         expect(dateNow1 >= dateNow).to.eql(true); // Check if the third part is strictly increasing
     });
 
-    it(`can get the index of a real vector space if the index is not undefined`, () => {
+    it(`can get the index of a projective real vector space if the index is not undefined`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
         const projectiveVS = new ProjectiveVectorSpace(3, true);
         const vsIndex = vectorSpace.getVectorSpaceIndex(projectiveVS);
@@ -309,50 +313,100 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
         expect(() => vectorSpace.getProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE + 1)).to.throw(RangeError);
     });
 
-    it(`can get a real vector space for a space dimension within the interval [${MIN_DIMENSION_REALVECTORSPACE}, ${MAX_DIMENSION_REALVECTORSPACE}]`, () => {
+    it(`cannot get a real vector space for a space dimension within the interval [${MIN_DIMENSION_REALVECTORSPACE}, ${MAX_DIMENSION_REALVECTORSPACE}]`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
+        const allVectorSpaces = vectorSpace.getAllDefaultSpaces();
+        const realVectorSpaces = allVectorSpaces[0];
+        expect(realVectorSpaces).to.eql(undefined);
         for(let dimension = MIN_DIMENSION_REALVECTORSPACE; dimension <= MAX_DIMENSION_REALVECTORSPACE; dimension++) {
-            const realVS = vectorSpace.getRealVectorSpace(dimension);
-            expect(realVS).to.not.eql(undefined);
-            expect(realVS.dimension()).to.eql(dimension);
-            expect(realVS.spaceType).to.eql(VectorSpaceType.REAL);
-            expect(vectorSpace.isDefaultSpace(realVS)).to.eql(true);
-            expect(vectorSpace.getVectorSpaceIndex(realVS)).to.eql(DEFAULT_VSPACE_INDEX_INITIAL_VALUE + dimension - MIN_DIMENSION_REALVECTORSPACE);
+            expect(() => vectorSpace.getRealVectorSpace(dimension)).to.throw(EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION);
+            // const realVS = vectorSpace.getRealVectorSpace(dimension);
+            // expect(realVS).to.not.eql(undefined);
+            // expect(realVS.dimension()).to.eql(dimension);
+            // expect(realVS.isDefault).to.eql(true);
+            // expect(realVS.name).to.eql(DEFAULT_REAL_VECTOR_SPACE_NAME + dimension);
+            // expect(realVS.spaceType).to.eql(VectorSpaceType.REAL);
+            // expect(vectorSpace.isDefaultSpace(realVS)).to.eql(true);
+            // expect(vectorSpace.getVectorSpaceIndex(realVS)).to.eql(DEFAULT_VSPACE_INDEX_INITIAL_VALUE + dimension - MIN_DIMENSION_REALVECTORSPACE);
+            // const allVectorSpaces1 = vectorSpace.getAllDefaultSpaces();
+            // expect(allVectorSpaces1.length).to.eql(dimension);
+            // const realVectorSpaces1 = allVectorSpaces1[allVectorSpaces1.length - 1] as RealVectorSpace;
+            // expect(realVectorSpaces1.isDefault).to.eql(true);
+            // expect(realVectorSpaces1.name).to.eql(DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString());
+            // expect(realVectorSpaces1.dimension()).to.eql(realVS.dimension());
+            // expect(realVectorSpaces1).to.eql(realVS);
         }
     });
 
-    it(`can get a complex vector space for a space dimension within the interval [${MIN_DIMENSION_COMPLEXVECTORSPACE}, ${MAX_DIMENSION_COMPLEXVECTORSPACE}]`, () => {  
+    it(`cannot get a complex vector space for a space dimension within the interval [${MIN_DIMENSION_COMPLEXVECTORSPACE}, ${MAX_DIMENSION_COMPLEXVECTORSPACE}]`, () => {  
         const vectorSpace = DefaultVectorSpaces.getInstance();
+        const allVectorSpaces = vectorSpace.getAllDefaultSpaces();
+        const complexVectorSpaces = allVectorSpaces[0];
+        expect(complexVectorSpaces).to.eql(undefined);
         for(let dimension = MIN_DIMENSION_COMPLEXVECTORSPACE; dimension <= MAX_DIMENSION_COMPLEXVECTORSPACE; dimension++) {
-            const complexVS = vectorSpace.getComplexVectorSpace(dimension);
-            expect(complexVS).to.not.eql(undefined);
-            expect(complexVS.dimension()).to.eql(dimension);
-            expect(complexVS.spaceType).to.eql(VectorSpaceType.COMPLEX);
-            expect(vectorSpace.isDefaultSpace(complexVS)).to.eql(true);
-            expect(vectorSpace.getVectorSpaceIndex(complexVS)).to.eql(DEFAULT_VSPACE_INDEX_INITIAL_VALUE + dimension - MIN_DIMENSION_COMPLEXVECTORSPACE);
+            expect(() => vectorSpace.getComplexVectorSpace(dimension)).to.throw(EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION);
+            // const complexVS = vectorSpace.getComplexVectorSpace(dimension);
+            // expect(complexVS).to.not.eql(undefined);
+            // expect(complexVS.dimension()).to.eql(dimension);
+            // expect(complexVS.isDefault).to.eql(true);
+            // expect(complexVS.name).to.eql(DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension);
+            // expect(complexVS.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            // expect(vectorSpace.isDefaultSpace(complexVS)).to.eql(true);
+            // expect(vectorSpace.getVectorSpaceIndex(complexVS)).to.eql(DEFAULT_VSPACE_INDEX_INITIAL_VALUE + dimension - MIN_DIMENSION_COMPLEXVECTORSPACE);
+            // const allVectorSpaces1 = vectorSpace.getAllDefaultSpaces();
+            // expect(allVectorSpaces1.length).to.eql(dimension);
+            // const complexVectorSpaces1 = allVectorSpaces1[allVectorSpaces1.length - 1] as ComplexVectorSpace;
+            // expect(complexVectorSpaces1.isDefault).to.eql(true);
+            // expect(complexVectorSpaces1.name).to.eql(DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString());
+            // expect(complexVectorSpaces1.dimension()).to.eql(complexVS.dimension());
+            // expect(complexVectorSpaces1).to.eql(complexVS);
         }
     });
-    it(`can get a projective real vector space for a space dimension within the interval [${MIN_DIMENSION_PROJECTIVEVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}]`, () => {
+    it(`cannot get a projective real vector space for a space dimension within the interval [${MIN_DIMENSION_PROJECTIVEVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}]`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
+        const allVectorSpaces = vectorSpace.getAllDefaultSpaces();
+        const projectiveRealVectorSpaces = allVectorSpaces[0];
+        expect(projectiveRealVectorSpaces).to.eql(undefined);
         for(let dimension = MIN_DIMENSION_PROJECTIVEVECTORSPACE; dimension <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; dimension++) {
-            const projectiveVS = vectorSpace.getProjectiveVectorSpace(dimension);
-            expect(projectiveVS).to.not.eql(undefined);
-            expect(projectiveVS.dimension()).to.eql(dimension);
-            expect(projectiveVS.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
-            expect(vectorSpace.isDefaultSpace(projectiveVS)).to.eql(true);
-            expect(vectorSpace.getVectorSpaceIndex(projectiveVS)).to.eql(DEFAULT_VSPACE_INDEX_INITIAL_VALUE + dimension - MIN_DIMENSION_PROJECTIVEVECTORSPACE);
+            expect(() => vectorSpace.getProjectiveVectorSpace(dimension)).to.throw(EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION);
         }
     });
 
-    it(`can get a projective complex vector space for a space dimension within the interval [${MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}]`, () => {
+    it(`cannot get a projective complex vector space for a space dimension within the interval [${MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}]`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
+        const allVectorSpaces = vectorSpace.getAllDefaultSpaces();
+        const projectiveComplexVectorSpaces = allVectorSpaces[0];
+        expect(projectiveComplexVectorSpaces).to.eql(undefined);
         for(let dimension = MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; dimension <= MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; dimension++) {
-            const projectiveComplexVS = vectorSpace.getProjectiveComplexVectorSpace(dimension);
-            expect(projectiveComplexVS).to.not.eql(undefined);
-            expect(projectiveComplexVS.dimension()).to.eql(dimension);
-            expect(projectiveComplexVS.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(() => vectorSpace.getProjectiveComplexVectorSpace(dimension)).to.throw(EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION);
+        }
+    });
+
+    it(`all vector spaces contained into DefaultVectorSpaces are default ones`, () => {
+        const vectorSpace = DefaultVectorSpaces.getInstance();
+        for (let i = MIN_DIMENSION_REALVECTORSPACE; i <= MAX_DIMENSION_REALVECTORSPACE; i++) {
+            const realVS = new RealVectorSpace(i, true);
+            expect(vectorSpace.isDefaultSpace(realVS)).to.eql(true);
+            const defVectorSpace = vectorSpace.getRealVectorSpace(i);
+        }
+        for (let i = MIN_DIMENSION_COMPLEXVECTORSPACE; i <= MAX_DIMENSION_COMPLEXVECTORSPACE; i++) {
+            const complexVS = new ComplexVectorSpace(i, true);
+            expect(vectorSpace.isDefaultSpace(complexVS)).to.eql(true);
+            const defVectorSpace = vectorSpace.getComplexVectorSpace(i);
+        }
+        for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
+            const projectiveVS = new ProjectiveVectorSpace(i, true);
+            expect(vectorSpace.isDefaultSpace(projectiveVS)).to.eql(true);
+            const defVectorSpace = vectorSpace.getProjectiveVectorSpace(i);
+        }
+        for (let i = MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i++) {
+            const projectiveComplexVS = new ProjectiveComplexVectorSpace(i, true);
             expect(vectorSpace.isDefaultSpace(projectiveComplexVS)).to.eql(true);
-            expect(vectorSpace.getVectorSpaceIndex(projectiveComplexVS)).to.eql(DEFAULT_VSPACE_INDEX_INITIAL_VALUE + dimension - MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
+            const defVectorSpace = vectorSpace.getProjectiveComplexVectorSpace(i);
+        }
+        const allVectorSpaces = vectorSpace.getAllDefaultSpaces();
+        for (const vSpace of allVectorSpaces) {
+            expect(vectorSpace.isDefaultSpace(vSpace)).to.eql(true);
         }
     });
 });

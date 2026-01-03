@@ -38451,7 +38451,7 @@ exports.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY = 'The subtraction of 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = exports.EM_IMAGINARYWEIGHT_NEGATIVE = exports.EM_REALWEIGHT_NEGATIVE = exports.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_TRANSFORMATION_NOT_AVAILABLE = exports.EM_INPUT_ARRAY_INCONSISTENT_LENGTH = exports.EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR = exports.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_COMPLEXVECTORS_DIFFERENT_DIM = exports.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION = exports.EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = exports.EM_IMAGINARYWEIGHT_NEGATIVE = exports.EM_REALWEIGHT_NEGATIVE = exports.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_TRANSFORMATION_NOT_AVAILABLE = exports.EM_INPUT_ARRAY_INCONSISTENT_LENGTH = exports.EM_COMPLEX_SCALE_FACTOR_TYPE_ERROR = exports.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_COMPLEXVECTORS_DIFFERENT_DIM = exports.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
 exports.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
 exports.EM_COMPLEXVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
 exports.EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE = 'Vector dimension is out of complex vector space dimension range. Cannot proceed.';
@@ -38462,6 +38462,7 @@ exports.EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE = "Complex vectors don't belong to 
 exports.EM_REALWEIGHT_NEGATIVE = "Real weight must be positive or null. Cannot proceed.";
 exports.EM_IMAGINARYWEIGHT_NEGATIVE = "Imaginary weight must be positive or null. Cannot proceed.";
 exports.EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = 'Cannot apply dot product with complex vectors of dimension 2.';
+exports.EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION = 'No default complex vector space found for the specified dimension.';
 
 
 /***/ }),
@@ -38646,7 +38647,7 @@ exports.EM_KNOT_INCREMENT_DECREMENT = "Knot multiplicity cannot be incremented/d
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = exports.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS = exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS = exports.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM = exports.EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION = exports.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = exports.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS = exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS = exports.EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_INCOMPATIBLE = exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE = exports.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM = exports.EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
 exports.EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
 exports.EM_PROJECTIVECOMPLEXVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
 exports.EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE = 'Vector dimension is out of projective complex vector space dimension range. Cannot proceed.';
@@ -38656,6 +38657,7 @@ exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS = 'Complex weight 
 exports.EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS = 'Complex weight management is restricted to positive weights but a current complex weight is strictly positive. This is incompatible, please check the strictlyPositive property of each weight.';
 exports.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE = "Projective complex vectors don't belong to the current vector space. Dimensions are incompatible.";
 exports.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = "Projective complex vector has some negative real or imaginary weights. Cannot proceed.";
+exports.EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION = 'No default projective complex vector space found for the specified dimension.';
 
 
 /***/ }),
@@ -38669,7 +38671,7 @@ exports.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = "Projective complex ve
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT = exports.EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT = exports.EM_PROJECTIVEVECTOR_WEIGHT_OUT_WEIGHTMANAGER_RANGE = exports.EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE = exports.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE = exports.EM_PROJECTIVEVECTORS_DIFFERENT_DIM = exports.EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION = exports.EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT = exports.EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT = exports.EM_PROJECTIVEVECTOR_WEIGHT_OUT_WEIGHTMANAGER_RANGE = exports.EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE = exports.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE = exports.EM_PROJECTIVEVECTORS_DIFFERENT_DIM = exports.EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
 exports.EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
 exports.EM_PROJECTIVEVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
 exports.EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE = "Projective vectors don't belong to the current vector space. Dimensions are incompatible.";
@@ -38677,6 +38679,7 @@ exports.EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE = 'Vector dimension is out of pr
 exports.EM_PROJECTIVEVECTOR_WEIGHT_OUT_WEIGHTMANAGER_RANGE = 'Weight is NULL and out of weight manager range. Change weight manager.';
 exports.EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT = "Projective vector has a negative weight. Cannot proceed.";
 exports.EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT = "Projective vector has a null weight while weights must be strictly positive. Cannot proceed.";
+exports.EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION = 'No default projective vector space found for the specified dimension.';
 
 
 /***/ }),
@@ -38690,7 +38693,7 @@ exports.EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT = "Projective vector has a null wei
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4 = exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1 = exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE = exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE = exports.EM_REALVECTOR_NOT_IN_VECTORSPACE = exports.EM_REALVECTORS_NOT_IN_VECTORSPACE = exports.EM_REALVECTORS_DIFFERENT_DIM = exports.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
+exports.EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION = exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4 = exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1 = exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE = exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE = exports.EM_REALVECTOR_NOT_IN_VECTORSPACE = exports.EM_REALVECTORS_NOT_IN_VECTORSPACE = exports.EM_REALVECTORS_DIFFERENT_DIM = exports.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE = void 0;
 exports.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE = 'Vector space dimension not supported.';
 exports.EM_REALVECTORS_DIFFERENT_DIM = 'Vectors have different dimensions. Cannot proceed.';
 exports.EM_REALVECTORS_NOT_IN_VECTORSPACE = "Real vectors don't belong to the current vector space. Dimensions are incompatible.";
@@ -38699,6 +38702,7 @@ exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE = 'Real vector dimension 
 exports.EM_REALVECTOR_DIMENSION_INCOMPATIBLE = 'Real vector dimension is not compatible with the complex vector space dimensions available.';
 exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1 = 'Cannot apply cross product with vectors of dimension 1.';
 exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4 = 'Cannot apply cross product with vectors of dimension 4.';
+exports.EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION = 'No default real vector space found for the specified dimension.';
 
 
 /***/ }),
@@ -51520,6 +51524,7 @@ const WeightTypeTags_1 = __webpack_require__(/*! ../namedConstants/WeightTypeTag
 const ComplexVectorSpace1DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace1DStrategy */ "./src/mathVector/ComplexVectorSpace1DStrategy.ts");
 const ComplexVectorSpace2DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace2DStrategy */ "./src/mathVector/ComplexVectorSpace2DStrategy.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
+// import { DefaultVectorSpaces } from "./internal/DefaultVectorSpaces";
 const VectorSpaceResolvers_2 = __webpack_require__(/*! ./internal/VectorSpaceResolvers */ "./src/mathVector/internal/VectorSpaceResolvers.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_2 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
@@ -51700,6 +51705,7 @@ class ComplexVectorSpace {
     }
 }
 exports.ComplexVectorSpace = ComplexVectorSpace;
+// DefaultVectorSpaces.getInstance().registerProjectiveComplexVectorSpaceFactory(2, () => new ComplexVectorSpace(2, true, DEFAULT_COMPLEX_VECTOR_SPACE_NAME + 2));
 
 
 /***/ }),
@@ -55068,18 +55074,18 @@ exports.resolveDefaultVectorSpace = resolveDefaultVectorSpace;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.DefaultVectorSpaces = void 0;
+const ComplexVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/ComplexVectorSpace */ "./src/ErrorMessages/ComplexVectorSpace.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ../../ErrorMessages/DefaultSpaceResolvers */ "./src/ErrorMessages/DefaultSpaceResolvers.ts");
+const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/ProjectiveComplexVectorSpace */ "./src/ErrorMessages/ProjectiveComplexVectorSpace.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/ProjectiveVectorSpace */ "./src/ErrorMessages/ProjectiveVectorSpace.ts");
+const RealVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/RealVectorSpace */ "./src/ErrorMessages/RealVectorSpace.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
-const ComplexVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/ComplexVectorSpace */ "./src/namedConstants/ComplexVectorSpace.ts");
+const ComplexVectorSpace_2 = __webpack_require__(/*! ../../namedConstants/ComplexVectorSpace */ "./src/namedConstants/ComplexVectorSpace.ts");
 const DefaultVectorSpaces_1 = __webpack_require__(/*! ../../namedConstants/DefaultVectorSpaces */ "./src/namedConstants/DefaultVectorSpaces.ts");
-const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/ProjectiveComplexVectorSpace */ "./src/namedConstants/ProjectiveComplexVectorSpace.ts");
-const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
-const RealVectorSpace_1 = __webpack_require__(/*! ../../namedConstants/RealVectorSpace */ "./src/namedConstants/RealVectorSpace.ts");
+const ProjectiveComplexVectorSpace_2 = __webpack_require__(/*! ../../namedConstants/ProjectiveComplexVectorSpace */ "./src/namedConstants/ProjectiveComplexVectorSpace.ts");
+const ProjectiveVectorSpace_2 = __webpack_require__(/*! ../../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const RealVectorSpace_2 = __webpack_require__(/*! ../../namedConstants/RealVectorSpace */ "./src/namedConstants/RealVectorSpace.ts");
 const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ../../namedConstants/VectorSpaceIdentifierManager */ "./src/namedConstants/VectorSpaceIdentifierManager.ts");
-const ComplexVectorSpace_2 = __webpack_require__(/*! ../ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
-const ProjectiveComplexVectorSpace_2 = __webpack_require__(/*! ../ProjectiveComplexVectorSpace */ "./src/mathVector/ProjectiveComplexVectorSpace.ts");
-const ProjectiveVectorSpace_2 = __webpack_require__(/*! ../ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
-const RealVectorSpace_2 = __webpack_require__(/*! ../RealVectorSpace */ "./src/mathVector/RealVectorSpace.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ../VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 /**
  * Singleton manager for default vector spaces
@@ -55091,6 +55097,11 @@ class DefaultVectorSpaces {
         this.complexSpaces = new Map();
         this.projectiveRealSpaces = new Map();
         this.projectiveComplexSpaces = new Map();
+        // factories to create default instances (register from concrete modules)
+        this.realFactories = new Map();
+        this.complexFactories = new Map();
+        this.projectiveRealFactories = new Map();
+        this.projectiveComplexFactories = new Map();
     }
     static getInstance() {
         if (!DefaultVectorSpaces.instance) {
@@ -55108,6 +55119,117 @@ class DefaultVectorSpaces {
     static hasInstance() {
         return DefaultVectorSpaces.instance !== null;
     }
+    // Factory registration API (called by concrete VectorSpace modules)
+    // registerRealVectorSpaceFactory(dimension: number, factory: () => any): void {
+    //     this.realFactories.set(dimension, factory);
+    // }
+    // registerComplexVectorSpaceFactory(dimension: number, factory: () => any): void {
+    //     this.complexFactories.set(dimension, factory);
+    // }
+    // registerProjectiveRealVectorSpaceFactory(dimension: number, factory: () => any): void {
+    //     this.projectiveRealFactories.set(dimension, factory);
+    // }
+    // registerProjectiveComplexVectorSpaceFactory(dimension: number, factory: () => any): void {
+    //     this.projectiveComplexFactories.set(dimension, factory);
+    // }
+    // Backwards-compatible instance registration
+    // registerVectorSpace1(vectorSpace: IdentifiableVectorSpace<any, any>): boolean {
+    //     let registered = true;
+    //     switch(vectorSpace.spaceType) {
+    //         case VectorSpaceType.REAL:
+    //             if(this.realSpaces.has(vectorSpace.dimension())) {
+    //                 registered = false;
+    //             } else {
+    //                 this.realSpaces.set(vectorSpace.dimension(), vectorSpace as RealVectorSpace<any>);
+    //             }
+    //             return registered;
+    //         case VectorSpaceType.COMPLEX:
+    //             if(this.complexSpaces.has(vectorSpace.dimension())) {
+    //                 registered = false;
+    //             } else {
+    //                 this.complexSpaces.set(vectorSpace.dimension(), vectorSpace as ComplexVectorSpace<any>);
+    //             }
+    //             return registered;
+    //         case VectorSpaceType.PROJECTIVE:
+    //             if(this.projectiveRealSpaces.has(vectorSpace.dimension())) {
+    //                 registered = false;
+    //             } else {
+    //                 this.projectiveRealSpaces.set(vectorSpace.dimension(), vectorSpace as ProjectiveVectorSpace<any>);
+    //             }
+    //             return registered;
+    //         case VectorSpaceType.PROJECTIVECOMPLEX:
+    //             if(this.projectiveComplexSpaces.has(vectorSpace.dimension())) {
+    //                 registered = false;
+    //             } else {
+    //                 this.projectiveComplexSpaces.set(vectorSpace.dimension(), vectorSpace as ProjectiveComplexVectorSpace<any>);
+    //             }
+    //             return registered;
+    //         default:
+    //             const error = sendRangeErrorMessage(this.constructor.name, 'registerVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
+    //             throw new RangeError(error.generateMessageString());
+    //     }
+    // }
+    // get methods now create instances using registered factories when needed
+    // getRealVectorSpace1<D extends number>(dimension: D): any {
+    //     if (dimension < MIN_DIMENSION_REALVECTORSPACE || dimension > MAX_DIMENSION_REALVECTORSPACE) {
+    //         throw new RangeError();
+    //     }
+    //     if (!this.realSpaces.has(dimension)) {
+    //         const factory = this.realFactories.get(dimension);
+    //         if (!factory) {
+    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getRealVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
+    //             throw new RangeError(errorMessage.generateMessageString());
+    //         }
+    //         const defaultSpace = factory();
+    //         this.realSpaces.set(dimension, defaultSpace);
+    //     }
+    //     return this.realSpaces.get(dimension);
+    // }
+    // getComplexVectorSpace1<D extends number>(dimension: D): any {
+    //     if (dimension < MIN_DIMENSION_COMPLEXVECTORSPACE || dimension > MAX_DIMENSION_COMPLEXVECTORSPACE) {
+    //         throw new RangeError();
+    //     }
+    //     if (!this.complexSpaces.has(dimension)) {
+    //         const factory = this.complexFactories.get(dimension);
+    //         if (!factory) {
+    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getComplexVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
+    //             throw new RangeError(errorMessage.generateMessageString());
+    //         }
+    //         const defaultSpace = factory();
+    //         this.complexSpaces.set(dimension, defaultSpace);
+    //     }
+    //     return this.complexSpaces.get(dimension);
+    // }
+    // getProjectiveVectorSpace1<D extends number>(dimension: D): any {
+    //     if (dimension < MIN_DIMENSION_PROJECTIVEVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVEVECTORSPACE) {
+    //         throw new RangeError();
+    //     }
+    //     if (!this.projectiveRealSpaces.has(dimension)) {
+    //         const factory = this.projectiveRealFactories.get(dimension);
+    //         if (!factory) {
+    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getProjectiveVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
+    //             throw new RangeError(errorMessage.generateMessageString());
+    //         }
+    //         const defaultSpace = factory();
+    //         this.projectiveRealSpaces.set(dimension, defaultSpace);
+    //     }
+    //     return this.projectiveRealSpaces.get(dimension);
+    // }
+    // getProjectiveComplexVectorSpace1<D extends number>(dimension: D): any {
+    //     if (dimension < MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {
+    //         throw new RangeError();
+    //     }
+    //     if (!this.projectiveComplexSpaces.has(dimension)) {
+    //         const factory = this.projectiveComplexFactories.get(dimension);
+    //         if (!factory) {
+    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getProjectiveComplexVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
+    //             throw new RangeError(errorMessage.generateMessageString());
+    //         }
+    //         const defaultSpace = factory();
+    //         this.projectiveComplexSpaces.set(dimension, defaultSpace);
+    //     }
+    //     return this.projectiveComplexSpaces.get(dimension);
+    // }
     /**
      * Generate a unique identifier for a default vector space
      */
@@ -55175,7 +55297,7 @@ class DefaultVectorSpaces {
         const vsIndex = this.getVectorSpaceIndex(realVS);
         let registered = false;
         if ((vsIndex === undefined || !this.realSpaces.has(realVS.dimension())) &&
-            (realVS.dimension() >= RealVectorSpace_1.MIN_DIMENSION_REALVECTORSPACE && realVS.dimension() <= RealVectorSpace_1.MAX_DIMENSION_REALVECTORSPACE)) {
+            (realVS.dimension() >= RealVectorSpace_2.MIN_DIMENSION_REALVECTORSPACE && realVS.dimension() <= RealVectorSpace_2.MAX_DIMENSION_REALVECTORSPACE)) {
             this.realSpaces.set(realVS.dimension(), realVS);
             registered = true;
         }
@@ -55185,7 +55307,7 @@ class DefaultVectorSpaces {
         const vsIndex = this.getVectorSpaceIndex(complexVS);
         let registered = false;
         if ((vsIndex === undefined || !this.complexSpaces.has(complexVS.dimension())) &&
-            (complexVS.dimension() >= ComplexVectorSpace_1.MIN_DIMENSION_COMPLEXVECTORSPACE && complexVS.dimension() <= ComplexVectorSpace_1.MAX_DIMENSION_COMPLEXVECTORSPACE)) {
+            (complexVS.dimension() >= ComplexVectorSpace_2.MIN_DIMENSION_COMPLEXVECTORSPACE && complexVS.dimension() <= ComplexVectorSpace_2.MAX_DIMENSION_COMPLEXVECTORSPACE)) {
             this.complexSpaces.set(complexVS.dimension(), complexVS);
             registered = true;
         }
@@ -55195,7 +55317,7 @@ class DefaultVectorSpaces {
         const vsIndex = this.getVectorSpaceIndex(projectiveVS);
         let registered = false;
         if ((vsIndex === undefined || !this.projectiveRealSpaces.has(projectiveVS.dimension())) &&
-            (projectiveVS.dimension() >= ProjectiveVectorSpace_1.MIN_DIMENSION_PROJECTIVEVECTORSPACE && projectiveVS.dimension() <= ProjectiveVectorSpace_1.MAX_DIMENSION_PROJECTIVEVECTORSPACE)) {
+            (projectiveVS.dimension() >= ProjectiveVectorSpace_2.MIN_DIMENSION_PROJECTIVEVECTORSPACE && projectiveVS.dimension() <= ProjectiveVectorSpace_2.MAX_DIMENSION_PROJECTIVEVECTORSPACE)) {
             this.projectiveRealSpaces.set(projectiveVS.dimension(), projectiveVS);
             registered = true;
         }
@@ -55205,45 +55327,49 @@ class DefaultVectorSpaces {
         const vsIndex = this.getVectorSpaceIndex(projectiveComplexVS);
         let registered = false;
         if ((vsIndex === undefined || !this.projectiveComplexSpaces.has(projectiveComplexVS.dimension())) &&
-            (projectiveComplexVS.dimension() >= ProjectiveComplexVectorSpace_1.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE && projectiveComplexVS.dimension() <= ProjectiveComplexVectorSpace_1.MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)) {
+            (projectiveComplexVS.dimension() >= ProjectiveComplexVectorSpace_2.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE && projectiveComplexVS.dimension() <= ProjectiveComplexVectorSpace_2.MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)) {
             this.projectiveComplexSpaces.set(projectiveComplexVS.dimension(), projectiveComplexVS);
             registered = true;
         }
         return registered;
     }
     getRealVectorSpace(dimension) {
-        if (dimension < RealVectorSpace_1.MIN_DIMENSION_REALVECTORSPACE || dimension > RealVectorSpace_1.MAX_DIMENSION_REALVECTORSPACE) {
+        if (dimension < RealVectorSpace_2.MIN_DIMENSION_REALVECTORSPACE || dimension > RealVectorSpace_2.MAX_DIMENSION_REALVECTORSPACE) {
             throw new RangeError();
         }
         if (!this.realSpaces.has(dimension)) {
-            const defaultSpace = new RealVectorSpace_2.RealVectorSpace(dimension, true, DefaultVectorSpaces_1.DEFAULT_REAL_VECTOR_SPACE_NAME + dimension);
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getRealVectorSpace', RealVectorSpace_1.EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION);
+            throw new RangeError(error.generateMessageString());
         }
         return this.realSpaces.get(dimension);
     }
     getComplexVectorSpace(dimension) {
-        if (dimension < ComplexVectorSpace_1.MIN_DIMENSION_COMPLEXVECTORSPACE || dimension > ComplexVectorSpace_1.MAX_DIMENSION_COMPLEXVECTORSPACE) {
+        if (dimension < ComplexVectorSpace_2.MIN_DIMENSION_COMPLEXVECTORSPACE || dimension > ComplexVectorSpace_2.MAX_DIMENSION_COMPLEXVECTORSPACE) {
             throw new RangeError();
         }
         if (!this.complexSpaces.has(dimension)) {
-            const defaultSpace = new ComplexVectorSpace_2.ComplexVectorSpace(dimension, true, DefaultVectorSpaces_1.DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension);
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getComplexVectorSpace', ComplexVectorSpace_1.EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION);
+            throw new RangeError(error.generateMessageString());
         }
         return this.complexSpaces.get(dimension);
     }
     getProjectiveVectorSpace(dimension) {
-        if (dimension < ProjectiveVectorSpace_1.MIN_DIMENSION_PROJECTIVEVECTORSPACE || dimension > ProjectiveVectorSpace_1.MAX_DIMENSION_PROJECTIVEVECTORSPACE) {
+        if (dimension < ProjectiveVectorSpace_2.MIN_DIMENSION_PROJECTIVEVECTORSPACE || dimension > ProjectiveVectorSpace_2.MAX_DIMENSION_PROJECTIVEVECTORSPACE) {
             throw new RangeError();
         }
         if (!this.projectiveRealSpaces.has(dimension)) {
-            const defaultSpace = new ProjectiveVectorSpace_2.ProjectiveVectorSpace(dimension, ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights, true, DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension);
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getProjectiveVectorSpace', ProjectiveVectorSpace_1.EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION);
+            throw new RangeError(error.generateMessageString());
         }
         return this.projectiveRealSpaces.get(dimension);
     }
     getProjectiveComplexVectorSpace(dimension) {
-        if (dimension < ProjectiveComplexVectorSpace_1.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE || dimension > ProjectiveComplexVectorSpace_1.MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {
+        if (dimension < ProjectiveComplexVectorSpace_2.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE || dimension > ProjectiveComplexVectorSpace_2.MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {
             throw new RangeError();
         }
         if (!this.projectiveComplexSpaces.has(dimension)) {
-            const defaultSpace = new ProjectiveComplexVectorSpace_2.ProjectiveComplexVectorSpace(dimension, ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights, true, DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension);
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'getProjectiveComplexVectorSpace', ProjectiveComplexVectorSpace_1.EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION);
+            throw new RangeError(error.generateMessageString());
         }
         return this.projectiveComplexSpaces.get(dimension);
     }

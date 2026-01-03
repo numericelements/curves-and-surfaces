@@ -6,3 +6,4 @@ export const EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE = 'Real vector dimen
 export const EM_REALVECTOR_DIMENSION_INCOMPATIBLE = 'Real vector dimension is not compatible with the complex vector space dimensions available.';
 export const EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1 = 'Cannot apply cross product with vectors of dimension 1.';
 export const EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4 = 'Cannot apply cross product with vectors of dimension 4.';
+export const EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION = 'No default real vector space found for the specified dimension.';

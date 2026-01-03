@@ -13,7 +13,7 @@ import { VectorSpaceType } from '../../namedConstants/BSplineR1toRn';
 import { sendErrorMessage, sendRangeErrorMessage } from '../VectorSpaceUtilities';
 import { EM_INVALID_VECTOR_SPACE_TYPE } from '../../ErrorMessages/DefaultSpaceResolvers';
 import { EM_VECTOR_SPACE_ALREADY_REGISTERED } from '../../ErrorMessages/VectorSpaceResolvers';
-import { IdentifiableVectorSpace } from '../IVectorSpace';
+import type { IdentifiableVectorSpace } from '../IVectorSpace';
 
 /**
  * Register a real vector space for given dimension if not already registered

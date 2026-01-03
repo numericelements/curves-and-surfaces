@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.InsertKnotButtonDialogShader = void 0;
-var cuon_utils_1 = require("../webgl/cuon-utils");
-var InsertKnotButtonDialogShader = /** @class */ (function () {
-    function InsertKnotButtonDialogShader(gl) {
+const cuon_utils_1 = require("../webgl/cuon-utils");
+class InsertKnotButtonDialogShader {
+    constructor(gl) {
         // Vertex shader program
         this.VSHADER_SOURCE = 'attribute vec3 a_Position; \n' +
             'attribute vec2 a_Texture; \n' +
@@ -40,18 +40,17 @@ var InsertKnotButtonDialogShader = /** @class */ (function () {
             '     gl_FragColor = vec4(v_Color, 1.0); } \n' +
             '}\n';
         this.gl = gl;
-        this.program = cuon_utils_1.createProgram(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
+        this.program = (0, cuon_utils_1.createProgram)(this.gl, this.VSHADER_SOURCE, this.FSHADER_SOURCE);
         if (!this.program) {
             console.log('Failed to create program');
         }
         this.gl.useProgram(this.program);
     }
-    InsertKnotButtonDialogShader.prototype.renderFrame = function (numberOfElements) {
+    renderFrame(numberOfElements) {
         if (this.program) {
             this.gl.drawElements(this.gl.TRIANGLES, numberOfElements, this.gl.UNSIGNED_BYTE, 0);
         }
-    };
-    return InsertKnotButtonDialogShader;
-}());
+    }
+}
 exports.InsertKnotButtonDialogShader = InsertKnotButtonDialogShader;
 ;

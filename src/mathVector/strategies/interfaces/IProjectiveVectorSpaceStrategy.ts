@@ -1,5 +1,5 @@
-import { ProjectiveComplexVector, ProjectiveVector, ProjectiveVectorOfDimension, Real, RealVector } from "../../VectorSpaceConstructorInterface";
-import { WeightManager } from "../../WeightManager";
+import type { ProjectiveComplexVector, ProjectiveVector, ProjectiveVectorOfDimension, Real, RealVector } from "../../VectorSpaceConstructorInterface";
+import type { WeightManager } from "../../WeightManager";
 
 export interface IProjectiveVectorSpaceStrategy<D extends number> {
     getWeight(v: ProjectiveVector): Real;

@@ -7,7 +7,7 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR1D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, UNDEFINED_VECTORTYPE } from "../namedConstants/VectorTypeTags";
 import { COMPLEXWEIGHT, WEIGHT } from "../namedConstants/WeightTypeTags";
-import { Weight } from "./Weight";
+import type { Weight } from "./Weight";
 
 // ------------ Type Definitions ------------
 

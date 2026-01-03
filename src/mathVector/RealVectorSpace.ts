@@ -6,14 +6,14 @@ import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifier
 import { REAL_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import { IdentifiableVectorSpace } from "./IVectorSpace";
+import type { IdentifiableVectorSpace } from "./IVectorSpace";
 import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
 import { RealVectorSpace2DStrategy } from "./RealVectorSpace2DStrategy";
 import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
 import { RealVectorSpace4DStrategy } from "./RealVectorSpace4DStrategy";
-import { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import { IVector } from "./Vector";
-import { ComplexVector, ProjectiveVector, Real, RealVector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
+import type { IVector } from "./Vector";
+import type { ComplexVector, ProjectiveVector, Real, RealVector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

@@ -7,7 +7,7 @@ import { AbstractComplexVector } from "./AbstractComplexVector";
 import { Complex } from "./Complex";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
-import { IComplex, ComplexVector2D } from "./VectorSpaceConstructorInterface";
+import type { IComplex, ComplexVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 2;
@@ -39,7 +39,11 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
             } else if (vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
             } else {
-                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<2>;
+                try {
+                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<2>;
+                } catch(error) {
+                    this._vectorSpace = new ComplexVectorSpace(this.dimension, true) as ComplexVectorSpace<2>;
+                }
             }
             return;
         } else if (realOrComplexOrVectorSpace instanceof Complex) {
@@ -58,7 +62,11 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
                 } else if (vectorSpace !== undefined) {
                     this._vectorSpace = vectorSpace;
                 } else {
-                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<2>;
+                    try {
+                        this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<2>;
+                    } catch(error) {
+                        this._vectorSpace = new ComplexVectorSpace(this.dimension, true) as ComplexVectorSpace<2>;
+                    }
                 }
                 return;
             } else {
@@ -84,7 +92,11 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
         if(vectorSpace !== undefined) {
             this._vectorSpace = vectorSpace;
         } else {
-            this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<2>;
+            try {
+                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<2>;
+            } catch(error) {
+                this._vectorSpace = new ComplexVectorSpace(this.dimension, true) as ComplexVectorSpace<2>;
+            }
         }
     }
     
@@ -142,6 +154,10 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
 
     clone(): Vector2DTypeComplex {
         return new Vector2DTypeComplex(this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.data.coordinates[1].real, this.data.coordinates[1].imaginary, this.vectorSpace);
+    }
+
+    createVectorFromRaw(raw: ComplexVector2D): Vector2DTypeComplex {
+        return new Vector2DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary, this.vectorSpace);
     }
     
     static fromRaw(raw: ComplexVector2D): Vector2DTypeComplex {

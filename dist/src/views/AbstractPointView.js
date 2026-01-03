@@ -1,43 +1,28 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AbstractPointView = void 0;
-var AbstractGraphicalEntityView_1 = require("./AbstractGraphicalEntityView");
-var AbstractPointView = /** @class */ (function (_super) {
-    __extends(AbstractPointView, _super);
-    function AbstractPointView(gl) {
-        var _this = _super.call(this, gl) || this;
-        _this.Z = 0;
-        _this.DOT_SIZE = 0;
-        _this.RED_COLOR = 0;
-        _this.GREEN_COLOR = 0;
-        _this.BLUE_COLOR = 0;
-        _this.ALPHA = 1;
-        _this.vertexBuffer = null;
-        _this.indexBuffer = null;
-        _this.vertices = new Float32Array([]);
-        _this.indices = new Uint8Array([]);
-        _this.pointSequenceToDisplay = [];
-        return _this;
+const AbstractGraphicalEntityView_1 = require("./AbstractGraphicalEntityView");
+class AbstractPointView extends AbstractGraphicalEntityView_1.AbstractGraphicalEntityView {
+    constructor(gl) {
+        super(gl);
+        this.Z = 0;
+        this.DOT_SIZE = 0;
+        this.RED_COLOR = 0;
+        this.GREEN_COLOR = 0;
+        this.BLUE_COLOR = 0;
+        this.ALPHA = 1;
+        this.vertexBuffer = null;
+        this.indexBuffer = null;
+        this.vertices = new Float32Array([]);
+        this.indices = new Uint8Array([]);
+        this.pointSequenceToDisplay = [];
     }
-    AbstractPointView.prototype.updateVerticesAndIndices = function () {
+    updateVerticesAndIndices() {
         this.vertices = new Float32Array(this.pointSequenceToDisplay.length * 32);
         this.indices = new Uint8Array(this.pointSequenceToDisplay.length * 6);
-        for (var i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
-            var x = this.pointSequenceToDisplay[i].x;
-            var y = this.pointSequenceToDisplay[i].y;
+        for (let i = 0; i < this.pointSequenceToDisplay.length; i += 1) {
+            const x = this.pointSequenceToDisplay[i].x;
+            const y = this.pointSequenceToDisplay[i].y;
             this.vertices[32 * i] = x - this.DOT_SIZE;
             this.vertices[32 * i + 1] = y - this.DOT_SIZE;
             this.vertices[32 * i + 2] = this.Z;
@@ -77,15 +62,14 @@ var AbstractPointView = /** @class */ (function (_super) {
             this.indices[6 * i + 4] = 4 * i + 2;
             this.indices[6 * i + 5] = 4 * i + 3;
         }
-    };
-    AbstractPointView.prototype.updateBuffers = function () {
+    }
+    updateBuffers() {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
         this.gl.bufferData(this.gl.ARRAY_BUFFER, this.vertices, this.gl.DYNAMIC_DRAW);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, this.indices, this.gl.DYNAMIC_DRAW);
         this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
-    };
-    return AbstractPointView;
-}(AbstractGraphicalEntityView_1.AbstractGraphicalEntityView));
+    }
+}
 exports.AbstractPointView = AbstractPointView;

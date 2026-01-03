@@ -14,18 +14,18 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShapeSpaceDiffEventsStructure = exports.EventMgmtState = void 0;
-var CurveCategory_1 = require("../shapeNavigableCurve/CurveCategory");
-var ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
-var ClosedCurveModel_1 = require("../newModels/ClosedCurveModel");
+const CurveCategory_1 = require("../shapeNavigableCurve/CurveCategory");
+const ErrorLoging_1 = require("../errorProcessing/ErrorLoging");
+const ClosedCurveModel_1 = require("../newModels/ClosedCurveModel");
 var EventMgmtState;
 (function (EventMgmtState) {
     EventMgmtState[EventMgmtState["Active"] = 0] = "Active";
     EventMgmtState[EventMgmtState["Inactive"] = 1] = "Inactive";
     EventMgmtState[EventMgmtState["NotApplicable"] = 2] = "NotApplicable";
 })(EventMgmtState = exports.EventMgmtState || (exports.EventMgmtState = {}));
-var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
-    function ShapeSpaceDiffEventsStructure(shapeNavigableCurve, curveShapeSpaceNavigator) {
-        var warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
+class ShapeSpaceDiffEventsStructure {
+    constructor(shapeNavigableCurve, curveShapeSpaceNavigator) {
+        const warning = new ErrorLoging_1.WarningLog(this.constructor.name, 'constructor', 'start constructor.');
         warning.logMessage();
         this._curveCategory = shapeNavigableCurve.curveCategory;
         this._curveShapeSpaceNavigator = curveShapeSpaceNavigator;
@@ -47,115 +47,86 @@ var ShapeSpaceDiffEventsStructure = /** @class */ (function () {
         }
         else {
             this._managementOfEventsAtExtremities = EventMgmtState.NotApplicable;
-            var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "Curve category type unknown.");
+            const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "constructor", "Curve category type unknown.");
             error.logMessage();
         }
     }
-    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "activeControlInflections", {
-        get: function () {
-            return this._activeControlInflections;
-        },
-        set: function (controlOfInflections) {
-            this._activeControlInflections = controlOfInflections;
-            if (this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) {
-                this._activeNavigationWithOptimizer = false;
+    set activeControlInflections(controlOfInflections) {
+        this._activeControlInflections = controlOfInflections;
+        if (!this._activeControlInflections && !this._activeControlCurvatureExtrema) {
+            this._activeNavigationWithOptimizer = false;
+        }
+        else {
+            this._activeNavigationWithOptimizer = true;
+        }
+    }
+    set activeControlCurvatureExtrema(controlOfCurvatureExtrema) {
+        this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
+        if (!this._activeControlInflections && !this._activeControlCurvatureExtrema) {
+            this._activeNavigationWithOptimizer = false;
+        }
+        else {
+            this._activeNavigationWithOptimizer = true;
+        }
+    }
+    set slidingDifferentialEvents(slidingDiffEvents) {
+        this._slidingDifferentialEvents = slidingDiffEvents;
+    }
+    set activeNavigationWithOptimizer(activeNavigation) {
+        this._activeNavigationWithOptimizer = activeNavigation;
+    }
+    set managementOfEventsAtExtremities(managementOfEventsAtExtremities) {
+        if (this._curveCategory instanceof CurveCategory_1.OpenPlanarCurve) {
+            if (managementOfEventsAtExtremities === EventMgmtState.NotApplicable && this._slidingDifferentialEvents) {
+                const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the open curve category");
+                error.logMessage();
             }
             else {
-                this._activeNavigationWithOptimizer = true;
+                this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
             }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "activeControlCurvatureExtrema", {
-        get: function () {
-            return this._activeControlCurvatureExtrema;
-        },
-        set: function (controlOfCurvatureExtrema) {
-            this._activeControlCurvatureExtrema = controlOfCurvatureExtrema;
-            if (this._activeControlInflections === false && this._activeControlCurvatureExtrema === false) {
-                this._activeNavigationWithOptimizer = false;
+        }
+        else if (this._curveCategory instanceof ClosedCurveModel_1.ClosedCurveModel) {
+            if (managementOfEventsAtExtremities !== EventMgmtState.NotApplicable) {
+                const error = new ErrorLoging_1.ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the closed curve category");
+                error.logMessage();
             }
             else {
-                this._activeNavigationWithOptimizer = true;
+                this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
             }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "slidingDifferentialEvents", {
-        get: function () {
-            return this._slidingDifferentialEvents;
-        },
-        set: function (slidingDiffEvents) {
-            this._slidingDifferentialEvents = slidingDiffEvents;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "activeNavigationWithOptimizer", {
-        get: function () {
-            return this._activeNavigationWithOptimizer;
-        },
-        set: function (activeNavigation) {
-            this._activeNavigationWithOptimizer = activeNavigation;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "managementOfEventsAtExtremities", {
-        get: function () {
-            return this._managementOfEventsAtExtremities;
-        },
-        set: function (managementOfEventsAtExtremities) {
-            if (this._curveCategory instanceof CurveCategory_1.OpenPlanarCurve) {
-                if (managementOfEventsAtExtremities === EventMgmtState.NotApplicable && this._slidingDifferentialEvents) {
-                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the open curve category");
-                    error.logMessage();
-                }
-                else {
-                    this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
-                }
-            }
-            else if (this._curveCategory instanceof ClosedCurveModel_1.ClosedCurveModel) {
-                if (managementOfEventsAtExtremities !== EventMgmtState.NotApplicable) {
-                    var error = new ErrorLoging_1.ErrorLog(this.constructor.name, "managementOfEventsAtExtremities", "Event management state incompatible with the closed curve category");
-                    error.logMessage();
-                }
-                else {
-                    this._managementOfEventsAtExtremities = managementOfEventsAtExtremities;
-                }
-            }
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "curveCategory", {
-        get: function () {
-            return this._curveCategory;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(ShapeSpaceDiffEventsStructure.prototype, "curveShapeSpaceNavigator", {
-        get: function () {
-            return this._curveShapeSpaceNavigator;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    ShapeSpaceDiffEventsStructure.prototype.reset = function () {
+        }
+    }
+    get activeControlInflections() {
+        return this._activeControlInflections;
+    }
+    get activeControlCurvatureExtrema() {
+        return this._activeControlCurvatureExtrema;
+    }
+    get slidingDifferentialEvents() {
+        return this._slidingDifferentialEvents;
+    }
+    get activeNavigationWithOptimizer() {
+        return this._activeNavigationWithOptimizer;
+    }
+    get curveCategory() {
+        return this._curveCategory;
+    }
+    get managementOfEventsAtExtremities() {
+        return this._managementOfEventsAtExtremities;
+    }
+    get curveShapeSpaceNavigator() {
+        return this._curveShapeSpaceNavigator;
+    }
+    reset() {
         this._activeNavigationWithOptimizer = false;
         // this._activeControlInflections = false;
         // this._activeControlCurvatureExtrema = false;
         // this._slidingDifferentialEvents = false;
-    };
-    ShapeSpaceDiffEventsStructure.prototype.stop = function () {
+    }
+    stop() {
         this._activeNavigationWithOptimizer = false;
-    };
-    ShapeSpaceDiffEventsStructure.prototype.restart = function () {
+    }
+    restart() {
         this._activeNavigationWithOptimizer = true;
-    };
-    return ShapeSpaceDiffEventsStructure;
-}());
+    }
+}
 exports.ShapeSpaceDiffEventsStructure = ShapeSpaceDiffEventsStructure;

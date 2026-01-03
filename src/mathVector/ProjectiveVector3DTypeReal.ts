@@ -7,7 +7,7 @@ import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
-import { ProjectiveVector3D } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -49,7 +49,11 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
             if(vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
             } else {
-                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveVectorSpace<4>;
+                try {
+                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveVectorSpace<4>;
+                } catch(error) {
+                    this._vectorSpace = new ProjectiveVectorSpace(this.dimension, true) as ProjectiveVectorSpace<4>;
+                }
             }
         }
     }
@@ -146,6 +150,10 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
         );
     }
 
+    createVectorFromRaw(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
+        return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].weight, this.vectorSpace);
+    }
+    
     // static fromRaw(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
     //     return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].weight);
     // }

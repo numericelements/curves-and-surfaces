@@ -2,11 +2,11 @@ import { EM_INVALID_VECTOR_SPACE_TYPE } from "../../ErrorMessages/DefaultSpaceRe
 import { EM_INVALID_VECTOR_SPACE_ID_STRUCTURE, EM_INVALID_VECTOR_SPACE_INDEX_VALUE } from "../../ErrorMessages/VectorSpaceIdentifierManager";
 import { VectorSpaceType } from "../../namedConstants/BSplineR1toRn";
 import { INITIAL_VECTOR_SPACE_ID, LOCATION_INDEX_INTO_VECTOR_SPACE_ID, VECTOR_SPACE, VSPACE_INDEX_INITIAL_VALUE } from "../../namedConstants/VectorSpaceIdentifierManager";
-import { ComplexVectorSpace } from "../ComplexVectorSpace";
-import { IdentifiableVectorSpace } from "../IVectorSpace";
-import { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
-import { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
-import { RealVectorSpace } from "../RealVectorSpace";
+import type { ComplexVectorSpace } from "../ComplexVectorSpace";
+import type { IdentifiableVectorSpace } from "../IVectorSpace";
+import type { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
+import type { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
+import type { RealVectorSpace } from "../RealVectorSpace";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 
 

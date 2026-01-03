@@ -4,10 +4,10 @@ import { REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
-import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IProjectiveVector, IRealVector } from "./Vector";
-import { RealVector2D } from "./VectorSpaceConstructorInterface";
+import type { IProjectiveVector } from "./Vector";
+import type { RealVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -31,7 +31,11 @@ export class Vector2DTypeReal extends AbstractRealVector {
             if(vectorSpace !== undefined) {
                 this._vectorSpace = vectorSpace;
             } else {
-                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<2>;
+                try{
+                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<2>;
+                } catch(error) {
+                    this._vectorSpace = new RealVectorSpace(this.dimension, true) as RealVectorSpace<2>;
+                }
             }
         }
     }
@@ -91,6 +95,10 @@ export class Vector2DTypeReal extends AbstractRealVector {
     
     clone(): Vector2DTypeReal {
         return new Vector2DTypeReal(this.x!, this.y!, this.vectorSpace);
+    }
+
+    createVectorFromRaw(raw: RealVector2D): Vector2DTypeReal {
+        return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], this.vectorSpace);
     }
     
     // static fromRaw(raw: RealVector2D, vectorSpace?: RealVectorSpace<2>): Vector2DTypeReal {

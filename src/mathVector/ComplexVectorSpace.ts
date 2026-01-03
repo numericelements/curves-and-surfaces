@@ -10,10 +10,11 @@ import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+// import { DefaultVectorSpaces } from "./internal/DefaultVectorSpaces";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import { IdentifiableVectorSpace } from "./IVectorSpace";
-import { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
-import { IComplex, ComplexVector, ComplexVectorOfDimension, IComplexWeight, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
+import type { IdentifiableVectorSpace } from "./IVectorSpace";
+import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
+import type { IComplex, ComplexVector, ComplexVectorOfDimension, IComplexWeight, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -235,3 +236,5 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
     //     }
     // }
 }
+
+// DefaultVectorSpaces.getInstance().registerProjectiveComplexVectorSpaceFactory(2, () => new ComplexVectorSpace(2, true, DEFAULT_COMPLEX_VECTOR_SPACE_NAME + 2));
