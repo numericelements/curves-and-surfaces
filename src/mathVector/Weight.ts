@@ -7,7 +7,7 @@ export class Weight {
 
     private readonly _type: typeof WEIGHT;
     private readonly _strictlyPositive: boolean;
-    protected _value: number;
+    protected readonly _value: number;
 
     constructor(weight?: number, strictlyPositive: boolean = true) {
         this._type = WEIGHT;

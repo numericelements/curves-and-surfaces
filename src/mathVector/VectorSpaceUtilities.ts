@@ -2,7 +2,7 @@ import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
-import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, Scalar, Vector, Vector2D, Vector3D, Vector4D, VECTOR_TYPE_INFO } from "./VectorSpaceConstructorInterface";
+import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, Vector, Vector1D, Vector2D, Vector3D, Vector4D, VECTOR_TYPE_INFO } from "./VectorSpaceConstructorInterface";
 
 // ------------ Type Guards ------------
 
@@ -11,7 +11,7 @@ import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, S
  * @param v Vector to check
  * @returns True if vector is 1D (Real or Complex)
  */
-export function isVector1D(v: Vector): v is Scalar {
+export function isVector1D(v: Vector): v is Vector1D {
     return typeof v === 'number' || v.type === COMPLEX};
 
 /**

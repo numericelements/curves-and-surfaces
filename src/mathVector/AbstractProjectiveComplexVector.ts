@@ -1,12 +1,11 @@
 import { EM_REVERT_NOT_APPLICABLE_PROJECTIVE_COMPLEX } from "../ErrorMessages/ProjectiveComplexVectors";
 import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
-import type { Complex } from "./Complex";
+import { Complex } from "./Complex";
 import type { ComplexWeight } from "./ComplexWeight";
 import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { IComplexVector, IProjectiveComplexVector } from "./Vector";
-// import { VectorFactory } from "./VectorFromDescriptorFactory";
-import type { IComplex, ProjectiveComplexVector, Vector } from "./VectorSpaceConstructorInterface";
+import type { IComplex, ProjectiveComplexVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 /**
@@ -34,8 +33,14 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
     scale(scalar: number): IProjectiveComplexVector;
     scale(scalar: Complex): IProjectiveComplexVector;
     scale(scalar: number | Complex): IProjectiveComplexVector {
-        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
-        return this.createVectorFromRaw(result);
+        let result: ProjectiveComplexVector;
+        if(scalar instanceof Complex) {
+            const scalarDescriptor = scalar.toDescriptor();
+            result = this._vectorSpace.scaleDescriptor(scalarDescriptor, this.descriptor);
+        } else {
+            result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
+        }
+        return this.createVectorFromDescriptor(result);
     }
 
     revert(): IProjectiveComplexVector {
@@ -85,9 +90,5 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
         return ratio <= angularTolerance;
     }
 
-    protected abstract createVectorFromRaw(raw: ProjectiveComplexVector): IProjectiveComplexVector;
-
-    // protected createVectorFromRaw(raw: Vector): IProjectiveComplexVector {
-    //     return VectorFactory.createProjectiveComplexVectorFromRaw(raw as ProjectiveComplexVector, this.vectorSpace);
-    // }
+    protected abstract createVectorFromDescriptor(descriptor: ProjectiveComplexVector): IProjectiveComplexVector;
 }

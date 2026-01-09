@@ -1,4 +1,4 @@
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { findSpan, basisFunctions } from "./Piegl_Tiller_NURBS_Book";
 import { BSplineR1toR2 } from "./BSplineR1toR2";
 

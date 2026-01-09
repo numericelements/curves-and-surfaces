@@ -1,5 +1,5 @@
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2"
-import { Vector2d } from "../mathVector/Vector2d"
+import { Vector2d } from "../mathVectorOld/Vector2d"
 // import { Optimizer } from "../optimizers/Optimizer"
 import { AbstractCurveModel } from "./AbstractCurveModel"
 // import { OptimizationProblemBSplineR1toR2QuasiNewton } from "../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2QuasiNewton"

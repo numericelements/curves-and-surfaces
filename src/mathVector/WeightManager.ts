@@ -21,8 +21,8 @@ export interface WeightManagerStrategy {
 }
 
 export class WeightManager {
-    protected _weightManagement: WeightManagement;
-    protected strategy: WeightManagerStrategy;
+    protected readonly _weightManagement: WeightManagement;
+    protected readonly strategy: WeightManagerStrategy;
 
     constructor(weightManagement: WeightManagement) {
         this._weightManagement = weightManagement;

@@ -13,7 +13,7 @@ import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
 import { RealVectorSpace4DStrategy } from "./RealVectorSpace4DStrategy";
 import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
 import type { IVector } from "./Vector";
-import type { ComplexVector, ProjectiveVector, Real, RealVector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector, ProjectiveVector, Real, RealVector, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -21,12 +21,12 @@ import { Weight } from "./Weight";
  * Implementation of a real vector space
  */
 
-export class RealVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Real, RealVectorOfDimension<D>> {
+export class RealVectorSpace<D extends number = number> implements IdentifiableVectorSpace<RealVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
     protected readonly dim: D;
-    protected strategy: IRealVectorSpaceStrategy<D>;
+    protected readonly strategy: IRealVectorSpaceStrategy<D>;
     
     constructor(dimension: D, isDefault: boolean = false, name?: string) {
         this.dim = dimension;
@@ -34,12 +34,9 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
         this._id = INITIAL_VECTOR_SPACE_ID;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
-        } else {
-            this._id = resolveVectorSpace(this);
-        }
-        if(this._isDefault) {
             this._name = DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString();
         } else {
+            this._id = resolveVectorSpace(this);
             this._name = name || REAL_VECTOR_SPACE_NAME + dimension.toString();
         }
         switch(this.dim) {
@@ -68,11 +65,11 @@ export class RealVectorSpace<D extends number = number> implements IdentifiableV
 
 
     // Identity methods
-    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean {
+    isSameSpace(other: IdentifiableVectorSpace<Vector>): boolean {
         return this._id === other.id;
     }
 
-    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean {
+    isIsomorphicTo(other: IdentifiableVectorSpace<Vector>): boolean {
         return this.spaceType === other.spaceType && 
                this.dimension() === other.dimension();
     }

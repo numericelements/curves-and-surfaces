@@ -1,5 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { AbstractBSplineR1toR1 } from "./AbstractBSplineR1toR1";
 import { BernsteinDecompositionR1toR1 } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR1 } from "./BSplineR1toR1";

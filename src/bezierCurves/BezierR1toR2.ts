@@ -1,5 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { deepCopyControlPoints } from "../newBsplines/AbstractBSplineR1toR2"
 
 export class BezierR1toR2 {

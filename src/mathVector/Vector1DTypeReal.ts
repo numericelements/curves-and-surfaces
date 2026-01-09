@@ -12,8 +12,8 @@ const SPACE_DIMENSION = 1;
 
 export class Vector1DTypeReal extends AbstractRealVector {
 
-    private value: number;
-    protected _vectorSpace: RealVectorSpace<1>;
+    private readonly value: number;
+    protected readonly _vectorSpace: RealVectorSpace<1>;
 
     constructor();
     constructor(value: number, vectorSpace?: RealVectorSpace<1>);
@@ -89,7 +89,7 @@ export class Vector1DTypeReal extends AbstractRealVector {
         return super.isOrthogonal(other, angularTolerance);
     }
 
-    createVectorFromRaw(raw: number): Vector1DTypeReal {
+    createVectorFromDescriptor(raw: number): Vector1DTypeReal {
         return new Vector1DTypeReal(raw, this.vectorSpace);
     }
     // Factory methods

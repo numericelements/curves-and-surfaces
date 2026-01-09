@@ -7,6 +7,7 @@ import type { IdentifiableVectorSpace } from "../IVectorSpace";
 import type { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
 import type { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
 import type { RealVectorSpace } from "../RealVectorSpace";
+import { Vector } from "../VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 
 
@@ -50,7 +51,7 @@ export class VectorSpaceIdentifierManager {
         return VECTOR_SPACE + `${vsId}_${Date.now()}`;
     }
 
-    getVectorSpaceIndex(vectorSpace: IdentifiableVectorSpace<any, any>): number | undefined{
+    getVectorSpaceIndex(vectorSpace: IdentifiableVectorSpace<Vector>): number | undefined{
         const vsId = vectorSpace.id;
         if(vsId === INITIAL_VECTOR_SPACE_ID) return undefined;
         const decomposedId = vsId.split('_');
@@ -66,7 +67,7 @@ export class VectorSpaceIdentifierManager {
         return index;
     }
 
-    registerVectorSpace(vectorSpace: IdentifiableVectorSpace<any, any>): void {
+    registerVectorSpace(vectorSpace: IdentifiableVectorSpace<Vector>): void {
         switch(vectorSpace.spaceType) {
             case VectorSpaceType.REAL:
                 this.registerRealVectorSpace(vectorSpace as RealVectorSpace);
@@ -80,10 +81,11 @@ export class VectorSpaceIdentifierManager {
             case VectorSpaceType.PROJECTIVECOMPLEX:
                 this.registerProjectiveComplexVectorSpace(vectorSpace as ProjectiveComplexVectorSpace);
                 return;
-            default:
+            default: {
                 const error = sendRangeErrorMessage(this.constructor.name, 'registerVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
                 throw new RangeError(error.generateMessageString());
-        } 
+            }
+        }
     }
 
     registerRealVectorSpace<D extends number>(realVS: RealVectorSpace<D>): boolean {
@@ -137,7 +139,7 @@ export class VectorSpaceIdentifierManager {
     /**
      * Get all default spaces (for debugging/testing)
      */
-    getAllVectorSpaces(): IdentifiableVectorSpace<any, any>[] {
+    getAllVectorSpaces(): IdentifiableVectorSpace<Vector>[] {
         return [
             ...Array.from(this.realSpaces.values()),
             ...Array.from(this.complexSpaces.values()),
@@ -149,7 +151,7 @@ export class VectorSpaceIdentifierManager {
     /**
      * Check if a vector space is registered and managed by this singleton
      */
-    isARegisteredVectorSpace(space: IdentifiableVectorSpace<any, any>): boolean {
+    isARegisteredVectorSpace(space: IdentifiableVectorSpace<Vector>): boolean {
         return (!space.isDefault) && this.getAllVectorSpaces().some(s => s.isSameSpace(space));
     }
 }

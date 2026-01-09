@@ -6,7 +6,7 @@ import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPAC
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { ProjectiveVectorSpace3DStrategy } from "./ProjectiveVectorSpace3DStrategy";
 import { ProjectiveVectorSpace4DStrategy } from "./ProjectiveVectorSpace4DStrategy";
-import type { ProjectiveComplexVector, ProjectiveVector, ProjectiveVectorOfDimension, Real, RealVector } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveComplexVector, ProjectiveVector, ProjectiveVectorOfDimension, Real, RealVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
@@ -20,15 +20,15 @@ import type { IdentifiableVectorSpace } from "./IVectorSpace";
  * Implementation of a projective vector space
  */
 
-export class ProjectiveVectorSpace<D extends number = number> implements IdentifiableVectorSpace<Real, ProjectiveVectorOfDimension<D>> {
+export class ProjectiveVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ProjectiveVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
-    
-    private dim: D;
-    protected strategy: IProjectiveVectorSpaceStrategy<D>;
-    protected _weightManagement: WeightManagement;
-    private weightManager: WeightManager;
+    private readonly dim: D;
+    private readonly weightManager: WeightManager;
+    protected readonly strategy: IProjectiveVectorSpaceStrategy<D>;
+    protected readonly _weightManagement: WeightManagement;
+
     
     constructor(dimension: D);
     constructor(dimension: D, isDefault: boolean);
@@ -51,12 +51,9 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         this._id = INITIAL_VECTOR_SPACE_ID;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
-        } else {
-            this._id = resolveVectorSpace(this);
-        }
-        if(this._isDefault) {
             this._name = DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
         } else {
+            this._id = resolveVectorSpace(this);
             this._name = name || PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
         }
         switch(this.dim) {
@@ -85,11 +82,11 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
     }
 
     // Identity methods
-    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean {
+    isSameSpace(other: IdentifiableVectorSpace<Vector>): boolean {
         return this._id === other.id;
     }
 
-    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean {
+    isIsomorphicTo(other: IdentifiableVectorSpace<Vector>): boolean {
         return this.spaceType === other.spaceType && 
                this.dimension() === other.dimension();
     }

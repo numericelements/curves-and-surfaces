@@ -1,6 +1,6 @@
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface"
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2"
-import { Vector2d } from "../mathVector/Vector2d"
+import { Vector2d } from "../mathVectorOld/Vector2d"
 import { CurveModelInterface } from "./CurveModelInterface"
 import { AbstractCurveModel } from "./AbstractCurveModel"
 

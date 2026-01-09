@@ -1,6 +1,6 @@
 
 import { BSplineR1toR3 } from "../newBsplines/BSplineR1toR3";
-import { Vector3d } from "../mathVector/Vector3d";
+import { Vector3d } from "../mathVectorOld/Vector3d";
 
 
 

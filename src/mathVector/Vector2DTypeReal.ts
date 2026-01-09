@@ -14,8 +14,8 @@ import { Weight } from "./Weight";
 const SPACE_DIMENSION = 2;
 
 export class Vector2DTypeReal extends AbstractRealVector {
-    private data: RealVector2D;
-    protected _vectorSpace: RealVectorSpace<2>;
+    private readonly data: RealVector2D;
+    protected readonly _vectorSpace: RealVectorSpace<2>;
     
     constructor();
     constructor(x: number, y: number, vectorSpace?: RealVectorSpace<2>);
@@ -97,7 +97,7 @@ export class Vector2DTypeReal extends AbstractRealVector {
         return new Vector2DTypeReal(this.x!, this.y!, this.vectorSpace);
     }
 
-    createVectorFromRaw(raw: RealVector2D): Vector2DTypeReal {
+    createVectorFromDescriptor(raw: RealVector2D): Vector2DTypeReal {
         return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], this.vectorSpace);
     }
     

@@ -1,7 +1,7 @@
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";
 import { CurveConstraintInterface } from "../designPatterns/CurveConstraintInterface";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { toVector2d, Vector2d } from "../mathVector/Vector2d";
+import { toVector2d, Vector2d } from "../mathVectorOld/Vector2d";
 import { ConstraintType, CurveConstraints } from "./CurveConstraints";
 import { CurveShapeSpaceNavigator } from "./CurveShapeSpaceNavigator";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";

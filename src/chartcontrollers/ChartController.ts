@@ -1,5 +1,5 @@
 import { Chart } from "chart.js";
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { CHART_AXIS_SCALE, CHART_X_AXIS_NAME, DATASET_NAMES } from "./ChartSceneController";
 
 export class ChartController {

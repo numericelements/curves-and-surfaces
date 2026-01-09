@@ -1,5 +1,5 @@
 import { findSpan, clampingFindSpan, basisFunctions, basisFunctionsFromSequence } from "./Piegl_Tiller_NURBS_Book"
-import { Vector2d } from "../mathVector/Vector2d"
+import { Vector2d } from "../mathVectorOld/Vector2d"
 import { BSplineR1toR2Interface as BSplineR1toR2Interface } from "./BSplineR1toR2Interface"
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
 import { RETURN_ERROR_CODE } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";

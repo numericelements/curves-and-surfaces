@@ -1,11 +1,11 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import type { Scalar, Vector } from "./VectorSpaceConstructorInterface";
+import type { IComplex, Vector } from "./VectorSpaceConstructorInterface";
 
 /**
  * Vector Space interface following mathematical axioms
  * V is a vector space over field K if it satisfies the vector space axioms
  */
-export interface VectorSpace<K extends Scalar, V extends Vector> {
+export interface VectorSpace<V extends Vector> {
     /** Additive identity element (zero vector) */
     defaultVect(): V;
     
@@ -13,7 +13,8 @@ export interface VectorSpace<K extends Scalar, V extends Vector> {
     addDescriptors(a: V, b: V): V;
     
     /** Scalar multiplication */
-    scaleDescriptor(scalar: K, v: V): V;
+    // scaleDescriptor(scalar: K, v: V): V;
+    scaleDescriptor(scalar: number | IComplex, v: V): V;
     
     /** Vector subtraction (derived operation) */
     subtractDescriptors(a: V, b: V): V;
@@ -23,14 +24,12 @@ export interface VectorSpace<K extends Scalar, V extends Vector> {
 
     /** Duplicate vector */
     cloneVector(v: V): V;
-
-    // addVectors(v1: IVector, v2: IVector): IVector;
 }
 
 /**
  * Enhanced Vector Space Interface with Identity
  */
-export interface IdentifiableVectorSpace<K extends Scalar, V extends Vector> extends VectorSpace<K, V> {
+export interface IdentifiableVectorSpace<V extends Vector> extends VectorSpace<V> {
     /** Unique identifier for this vector space instance */
     readonly id: string;
     
@@ -44,8 +43,8 @@ export interface IdentifiableVectorSpace<K extends Scalar, V extends Vector> ext
     readonly spaceType: VectorSpaceType;
     
     /** Check if this vector space is the same as another */
-    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean;
+    isSameSpace(other: IdentifiableVectorSpace<V>): boolean;
     
     /** Check if this vector space is isomorphic to another */
-    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean;
+    isIsomorphicTo(other: IdentifiableVectorSpace<V>): boolean;
 }

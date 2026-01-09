@@ -13,6 +13,10 @@ import { ComplexVectorSpace } from "../../../src/mathVector/ComplexVectorSpace";
 import { ProjectiveVectorSpace } from "../../../src/mathVector/ProjectiveVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../../../src/mathVector/ProjectiveComplexVectorSpace";
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED, EM_INVALID_VECTOR_SPACE_DIMENSION, EM_INVALID_VECTOR_SPACE_TYPE } from "../../../src/ErrorMessages/DefaultSpaceResolvers";
+import { EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/RealVectorSpace";
+import { EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ComplexVectorSpace";
+import { EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ProjectiveVectorSpace";
+import { EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ProjectiveComplexVectorSpace";
 
 describe('Resolvers for default vector space generation associated with a vector', () => {
 
@@ -21,7 +25,7 @@ describe('Resolvers for default vector space generation associated with a vector
         DefaultVectorSpaces.reset();
     });
 
-    it(`can generate a default real vector space of dimensions ranging from ${MIN_DIMENSION_REALVECTORSPACE} to ${MAX_DIMENSION_REALVECTORSPACE}`, () => {
+    it(`can get a default real vector space of dimensions ranging from ${MIN_DIMENSION_REALVECTORSPACE} to ${MAX_DIMENSION_REALVECTORSPACE}`, () => {
         for (let i = MIN_DIMENSION_REALVECTORSPACE; i <= MAX_DIMENSION_REALVECTORSPACE; i++) {
             const realVectorSpace = new RealVectorSpace(i, true);
             expect(realVectorSpace.isDefault).to.eql(true);
@@ -36,7 +40,7 @@ describe('Resolvers for default vector space generation associated with a vector
         }
     });
 
-    it(`can generate a default complex vector space of dimensions ranging from ${MIN_DIMENSION_COMPLEXVECTORSPACE} to ${MAX_DIMENSION_COMPLEXVECTORSPACE}`, () => {
+    it(`can get a default complex vector space of dimensions ranging from ${MIN_DIMENSION_COMPLEXVECTORSPACE} to ${MAX_DIMENSION_COMPLEXVECTORSPACE}`, () => {
         for (let i = MIN_DIMENSION_COMPLEXVECTORSPACE; i <= MAX_DIMENSION_COMPLEXVECTORSPACE; i++) {
             const complexVectorSpace = new ComplexVectorSpace(i, true);
             expect(complexVectorSpace.isDefault).to.eql(true);
@@ -51,7 +55,7 @@ describe('Resolvers for default vector space generation associated with a vector
         }
     });
 
-    it(`can generate a default projective real vector space of dimensions ranging from ${MIN_DIMENSION_PROJECTIVEVECTORSPACE} to ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
+    it(`can get a default projective real vector space of dimensions ranging from ${MIN_DIMENSION_PROJECTIVEVECTORSPACE} to ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
         for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
             const projectiveRealVectorSpace = new ProjectiveVectorSpace(i, true);
             expect(projectiveRealVectorSpace.isDefault).to.eql(true);
@@ -66,7 +70,7 @@ describe('Resolvers for default vector space generation associated with a vector
         }
     });
 
-    it(`can generate a default projective complex vector space of dimensions ranging from ${MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE} to ${MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}`, () => {
+    it(`can get a default projective complex vector space of dimensions ranging from ${MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE} to ${MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}`, () => {
         for (let i = MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i++) {
             const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(i, true);
             expect(projectiveComplexVectorSpace.isDefault).to.eql(true);
@@ -79,6 +83,11 @@ describe('Resolvers for default vector space generation associated with a vector
             expect(projectiveComplexVectorSpace.id).to.eql(projectiveComplexVectorSpace1.id);
             expect(projectiveComplexVectorSpace).to.eql(projectiveComplexVectorSpace1);
         }
+    });
+
+    it('cannot get a vector space of unknown type', () => {
+        expect(() => getDefaultVectorSpace(VectorSpaceType.UNKNOWN_VECTORSPACE, 2)).to.throw(RangeError);
+        expect(() => getDefaultVectorSpace(VectorSpaceType.UNKNOWN_VECTORSPACE, 2)).to.throw(EM_INVALID_VECTOR_SPACE_TYPE);
     });
 
     it(`can resolve the default vector space for any real vector space and generate its id`, () => {
@@ -274,11 +283,19 @@ describe('Resolvers for default vector space generation associated with a vector
         expect(() => getDefaultRealVectorSpace(dimensionMax)).to.throw(EM_INVALID_VECTOR_SPACE_DIMENSION);
     });
 
+    it(`cannot get a default real vector space if there is no such vector space of dimension within the range ${MIN_DIMENSION_REALVECTORSPACE}, ${MAX_DIMENSION_REALVECTORSPACE}`, () => {
+        expect(() => getDefaultRealVectorSpace(MIN_DIMENSION_REALVECTORSPACE)).to.throw(EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION);
+    });
+
     it(`cannot get a default complex vector space for a vector space dimension outside the range ${MIN_DIMENSION_COMPLEXVECTORSPACE}, ${MAX_DIMENSION_COMPLEXVECTORSPACE}`, () => {
         const dimensionMin = MIN_DIMENSION_COMPLEXVECTORSPACE - 1;
         expect(() => getDefaultComplexVectorSpace(dimensionMin)).to.throw(EM_INVALID_VECTOR_SPACE_DIMENSION);
         const dimensionMax = MAX_DIMENSION_COMPLEXVECTORSPACE + 1;
         expect(() => getDefaultComplexVectorSpace(dimensionMax)).to.throw(EM_INVALID_VECTOR_SPACE_DIMENSION);
+    });
+
+    it(`cannot get a default complex vector space if there is no such vector space of dimension within the range ${MIN_DIMENSION_COMPLEXVECTORSPACE}, ${MAX_DIMENSION_COMPLEXVECTORSPACE}`, () => {
+        expect(() => getDefaultComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE)).to.throw(EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION);
     });
 
     it(`cannot get a default projective real vector space for a vector space dimension outside the range ${MIN_DIMENSION_PROJECTIVEVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
@@ -288,10 +305,18 @@ describe('Resolvers for default vector space generation associated with a vector
         expect(() => getDefaultProjectiveRealVectorSpace(dimensionMax)).to.throw(EM_INVALID_VECTOR_SPACE_DIMENSION);
     });
 
+    it(`cannot get a default projective real vector space if there is no such vector space of dimension within the range ${MIN_DIMENSION_PROJECTIVEVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
+        expect(() => getDefaultProjectiveRealVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE)).to.throw(EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION);
+    });
+
     it(`cannot get a default projective complex vector space for a vector space dimension outside the range ${MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}`, () => {
         const dimensionMin = MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE - 1;
         expect(() => getDefaultProjectiveComplexVectorSpace(dimensionMin)).to.throw(EM_INVALID_VECTOR_SPACE_DIMENSION);
         const dimensionMax = MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE + 1;
         expect(() => getDefaultProjectiveComplexVectorSpace(dimensionMax)).to.throw(EM_INVALID_VECTOR_SPACE_DIMENSION);
+    });
+
+    it(`cannot get a default projective complex vector space if there is no such vector space of dimension within the range ${MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}`, () => {
+        expect(() => getDefaultProjectiveComplexVectorSpace(MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE)).to.throw(EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION);
     });
 });

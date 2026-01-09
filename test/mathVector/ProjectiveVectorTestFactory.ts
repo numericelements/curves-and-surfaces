@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { IProjectiveVector } from "../../src/mathVector/Vector";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
-import { EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE } from "../../src/namedConstants/Vectors";
+import { EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
@@ -698,6 +698,41 @@ export function createCommonProjectiveVectorTests(
                 expect(result.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
                 expect(result.vectorSpace.isDefault).to.eql(false);
                 expect(result.weight.strictlyPositive).to.eql(true);
+            });
+
+            it(`cannot check the parallelism of vectors belonging to different vector spaces`, () => {
+                const coordinates = [1, 3, 5, 7];
+                const vSpace = new ProjectiveVectorSpace(dimension);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates);
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                const projRealVector2 = createTestProjectiveVector(dimension, undefined, coordinates);
+                expect(() => projRealVector1.isParallel(projRealVector2)).to.throw(EM_VECTORS_NOT_IN_SAME_VECTORSPACE);
+            });
+
+            it(`cannot check the parallelism of vectors if the first one has a norm smaller than the linear tolerance`, () => {
+                const coordinates = [LINEAR_TOL_VECTOR / COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, 0, 0, 0];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                const coordinates2 = [1, 3, 5, 7];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2);
+                expect(() => projRealVector1.isParallel(projRealVector2)).to.throw(EM_VECTOR_NORM_TOO_SMALL);
+            });
+
+            it(`cannot check the parallelism of vectors if the second one has a norm smaller than the linear tolerance`, () => {
+                const coordinates = [1, 3, 5, 7];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates);
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                const coordinates2 = [LINEAR_TOL_VECTOR / COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, 0, 0, 0];
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates2, new Weight(coordinates2[dimension - 1], false));
+                expect(() => projRealVector1.isParallel(projRealVector2)).to.throw(EM_VECTOR_NORM_TOO_SMALL);
             });
 
             it(`cannot check the equality of vectors belonging to different vector spaces of same type `, () => {

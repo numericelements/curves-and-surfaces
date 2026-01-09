@@ -5,7 +5,7 @@
 
 import { VectorSpaceIdentifierManager } from './VectorSpaceIdentifierManager';
 import type { RealVectorSpace } from '../RealVectorSpace';
-import { Scalar, Vector } from '../VectorSpaceConstructorInterface';
+import type { Vector } from '../VectorSpaceConstructorInterface';
 import type { ComplexVectorSpace } from '../ComplexVectorSpace';
 import type { ProjectiveVectorSpace } from '../ProjectiveVectorSpace';
 import type { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
@@ -59,8 +59,8 @@ export function isRegisteredVectorSpace<D extends number>(vectorSpace: ComplexVe
 export function isRegisteredVectorSpace<D extends number>(vectorSpace: RealVectorSpace<D>): boolean;
 export function isRegisteredVectorSpace<D extends number>(vectorSpace: ProjectiveVectorSpace<D>): boolean;
 export function isRegisteredVectorSpace<D extends number>(vectorSpace: ProjectiveComplexVectorSpace<D>): boolean;
-export function isRegisteredVectorSpace<K extends Scalar, V extends Vector>(vectorSpace: IdentifiableVectorSpace<K, V>): boolean;
-export function isRegisteredVectorSpace(vectorSpace: IdentifiableVectorSpace<any, any>): boolean {
+export function isRegisteredVectorSpace<V extends Vector>(vectorSpace: IdentifiableVectorSpace<V>): boolean;
+export function isRegisteredVectorSpace(vectorSpace: IdentifiableVectorSpace<Vector>): boolean {
     switch (vectorSpace.spaceType) {
         case VectorSpaceType.REAL:
             return isRegisteredRealVectorSpace(vectorSpace as RealVectorSpace);
@@ -70,9 +70,10 @@ export function isRegisteredVectorSpace(vectorSpace: IdentifiableVectorSpace<any
             return isRegisteredProjectiveRealVectorSpace(vectorSpace as ProjectiveVectorSpace);
         case VectorSpaceType.PROJECTIVECOMPLEX:
             return isRegisteredProjectiveComplexVectorSpace(vectorSpace as ProjectiveComplexVectorSpace);
-        default:
+        default: {
             const error = sendRangeErrorMessage('getDefaultVectorSpace', 'getDefaultVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
             throw new RangeError(error.generateMessageString());
+        }
     }
 }
 
@@ -84,8 +85,8 @@ export function resolveVectorSpace<D extends number>(vectorSpace: ComplexVectorS
 export function resolveVectorSpace<D extends number>(vectorSpace: RealVectorSpace<D>): string;
 export function resolveVectorSpace<D extends number>(vectorSpace: ProjectiveVectorSpace<D>): string;
 export function resolveVectorSpace<D extends number>(vectorSpace: ProjectiveComplexVectorSpace<D>): string;
-export function resolveVectorSpace<K extends Scalar, V extends Vector>(vectorSpace: IdentifiableVectorSpace<K, V>): string;
-export function resolveVectorSpace(vectorSpace: IdentifiableVectorSpace<any, any>): string {
+export function resolveVectorSpace<V extends Vector>(vectorSpace: IdentifiableVectorSpace<V>): string;
+export function resolveVectorSpace(vectorSpace: IdentifiableVectorSpace<Vector>): string {
     let vsId = "";
     const idManager = VectorSpaceIdentifierManager.getInstance();
     if(isRegisteredVectorSpace(vectorSpace)) {

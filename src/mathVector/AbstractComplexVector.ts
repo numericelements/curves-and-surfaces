@@ -5,7 +5,7 @@ import type { ComplexVectorSpace } from "./ComplexVectorSpace";
 import type { IComplexVector } from "./Vector";
 import type { ComplexVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import type { Complex } from "./Complex";
+import { Complex } from "./Complex";
 
 /**
  * Abstract base for complex vectors
@@ -36,8 +36,14 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     scale(scalar: number): IComplexVector;
     scale(scalar: Complex): IComplexVector;
     scale(scalar: number | Complex): IComplexVector {
-        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
-        return this.createVectorFromRaw(result);
+        let result: ComplexVector;
+        if(scalar instanceof Complex) {
+            const scalarDescriptor = scalar.toDescriptor();
+            result = this._vectorSpace.scaleDescriptor(scalarDescriptor, this.descriptor);
+        } else {
+            result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
+        }
+        return this.createVectorFromDescriptor(result);
     }
     
     revert(): IComplexVector {
@@ -99,9 +105,5 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
         return ratio <= angularTolerance;
     }
 
-    protected abstract createVectorFromRaw(raw: ComplexVector): IComplexVector;
-
-    // protected createVectorFromRaw(raw: Vector): IComplexVector {
-    //     return VectorFactory.createComplexVectorFromRaw(raw as ComplexVector, this.vectorSpace);
-    // }
+    protected abstract createVectorFromDescriptor(descriptor: ComplexVector): IComplexVector;
 }

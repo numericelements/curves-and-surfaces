@@ -6,7 +6,7 @@ import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzer
 import { CurveAnalyzerEventsSlidingOutOfInterval } from "../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties";
 import { SlidingEventsAtExtremities } from "../designPatterns/SlidingEventsAtExtremities";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { BSplineR1toR2 } from "../newBsplines/BSplineR1toR2";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";

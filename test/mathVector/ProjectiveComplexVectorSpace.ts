@@ -181,26 +181,6 @@ describe('ProjectiveComplexVectorSpace', () => {
             const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
         });
-
-        it('can set the weight management type of a ProjectiveComplexVectorSpace to ' + WeightManagement.AllPositiveWeights, () => {
-            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
-            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
-            projectiveComplexVectorSpace.weightManagement = WeightManagement.AllPositiveWeights;
-            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights)
-        });
-
-        it('can set the weight management type of a ProjectiveComplexVectorSpace to ' + WeightManagement.SomeNullWeights, () => {
-            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
-            projectiveComplexVectorSpace.weightManagement = WeightManagement.SomeNullWeights;
-            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights)
-        });
-
-        it('can set the weight management type of a ProjectiveComplexVectorSpace to ' + WeightManagement.AllStrictlyPositiveWeights, () => {
-            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.SomeNullWeights);
-            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights)
-            projectiveComplexVectorSpace.weightManagement = WeightManagement.AllStrictlyPositiveWeights;
-            expect(projectiveComplexVectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights)
-        });
     });
 
     describe('Methods', () => {

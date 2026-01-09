@@ -1,5 +1,5 @@
 import { clampingFindSpan, findSpan, resetKnotAbscissaeToOrigin } from "./Piegl_Tiller_NURBS_Book"
-import { Vector2d } from "../mathVector/Vector2d"
+import { Vector2d } from "../mathVectorOld/Vector2d"
 import { AbstractBSplineR1toR2, TOL_KNOT_COINCIDENCE, curveSegment, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
 import { BSplineR1toR1, KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1"

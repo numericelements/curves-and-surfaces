@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/136</span>
+                <span class='fraction'>0/128</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/136</span>
+                <span class='fraction'>0/128</span>
             </div>
         
             
@@ -190,23 +190,7 @@
 <a name='L125'></a><a href='#L125'>125</a>
 <a name='L126'></a><a href='#L126'>126</a>
 <a name='L127'></a><a href='#L127'>127</a>
-<a name='L128'></a><a href='#L128'>128</a>
-<a name='L129'></a><a href='#L129'>129</a>
-<a name='L130'></a><a href='#L130'>130</a>
-<a name='L131'></a><a href='#L131'>131</a>
-<a name='L132'></a><a href='#L132'>132</a>
-<a name='L133'></a><a href='#L133'>133</a>
-<a name='L134'></a><a href='#L134'>134</a>
-<a name='L135'></a><a href='#L135'>135</a>
-<a name='L136'></a><a href='#L136'>136</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L128'></a><a href='#L128'>128</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -342,7 +326,7 @@
 <span class="cstat-no" title="statement not covered" >import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";</span>
 <span class="cstat-no" title="statement not covered" >import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";</span>
 <span class="cstat-no" title="statement not covered" >import type { RealVectorSpace } from "./RealVectorSpace";</span>
-<span class="cstat-no" title="statement not covered" >import type { IComplex, ComplexVector, ProjectiveVector, RealVector, Scalar, Vector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";</span>
+<span class="cstat-no" title="statement not covered" >import type { IComplex, ComplexVector, ProjectiveVector, RealVector, Vector } from "./VectorSpaceConstructorInterface";</span>
 <span class="cstat-no" title="statement not covered" >import type { Weight } from "./Weight";</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -354,8 +338,8 @@
 <span class="cstat-no" title="statement not covered" >    readonly dimension: number;</span>
 <span class="cstat-no" title="statement not covered" >    readonly vectorType: string;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType;</span>
-<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: IdentifiableVectorSpace&lt;any, any&gt;; // The vector space this vector belongs to</span>
-<span class="cstat-no" title="statement not covered" >    </span>
+<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: IdentifiableVectorSpace&lt;any&gt;; // The vector space this vector belongs to</span>
+<span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    // Coordinate access</span>
 <span class="cstat-no" title="statement not covered" >    getCoordinate(index: number): number | Complex;</span>
 <span class="cstat-no" title="statement not covered" >    readonly coordinates: (number | Complex)[];</span>
@@ -368,7 +352,7 @@
 <span class="cstat-no" title="statement not covered" >    equals(other: IVector): boolean;</span>
 <span class="cstat-no" title="statement not covered" >    add(other: IVector): IVector;</span>
 <span class="cstat-no" title="statement not covered" >    subtract(other: IVector): IVector;</span>
-<span class="cstat-no" title="statement not covered" >    scale(scalar: Scalar | Complex): IVector;</span>
+<span class="cstat-no" title="statement not covered" >    scale(scalar: number | Complex): IVector;</span>
 <span class="cstat-no" title="statement not covered" >    revert(): IVector;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    // Vector space operations</span>
@@ -388,10 +372,9 @@
 <span class="cstat-no" title="statement not covered" > * Real vector specific interface</span>
 <span class="cstat-no" title="statement not covered" > */</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface IRealVector extends IVector {</span>
-<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: RealVectorSpace&lt;any&gt;;</span>
+<span class="cstat-no" title="statement not covered" >export interface IRealVector&lt;D extends number = number&gt; extends IVector {</span>
+<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: RealVectorSpace&lt;D&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    getCoordinate(index: number): number;</span>
-<span class="cstat-no" title="statement not covered" >    // setCoordinate(index: number, value: number): void;</span>
 <span class="cstat-no" title="statement not covered" >    readonly coordinates: number[];</span>
 <span class="cstat-no" title="statement not covered" >    readonly descriptor: RealVector;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
@@ -411,37 +394,31 @@
 <span class="cstat-no" title="statement not covered" > * Complex vector specific interface</span>
 <span class="cstat-no" title="statement not covered" > */</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface IComplexVector extends IVector {</span>
-<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ComplexVectorSpace&lt;any&gt;;</span>
+<span class="cstat-no" title="statement not covered" >export interface IComplexVector&lt;D extends number = number&gt; extends IVector {</span>
+<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ComplexVectorSpace&lt;D&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    getCoordinate(index: number): Complex;</span>
-<span class="cstat-no" title="statement not covered" >    // setCoordinate(index: number, value: Complex): void;</span>
-<span class="cstat-no" title="statement not covered" >    // readonly coordinates: Complex[];</span>
 <span class="cstat-no" title="statement not covered" >    readonly coordinates: Complex[];</span>
 <span class="cstat-no" title="statement not covered" >    readonly descriptor: ComplexVector;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    add(other: IComplexVector): IComplexVector;</span>
 <span class="cstat-no" title="statement not covered" >    subtract(other: IComplexVector): IComplexVector;</span>
-<span class="cstat-no" title="statement not covered" >    // scale(scalar: number): IComplexVector;</span>
-<span class="cstat-no" title="statement not covered" >    // scale(scalar: Complex): IComplexVector;</span>
 <span class="cstat-no" title="statement not covered" >    scale(scalar: number | Complex): IComplexVector;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    // Complex-specific methods</span>
 <span class="cstat-no" title="statement not covered" >    getReal(index: number): number;</span>
 <span class="cstat-no" title="statement not covered" >    getImaginary(index: number): number;</span>
-<span class="cstat-no" title="statement not covered" >    // setReal(index: number, value: number): void;</span>
-<span class="cstat-no" title="statement not covered" >    // setImaginary(index: number, value: number): void;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >/**</span>
 <span class="cstat-no" title="statement not covered" > * Projective vector specific interface</span>
 <span class="cstat-no" title="statement not covered" > */</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface IProjectiveVector extends IVector {</span>
-<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveVectorSpace&lt;any&gt;;</span>
+<span class="cstat-no" title="statement not covered" >export interface IProjectiveVector&lt;D extends number = number&gt; extends IVector {</span>
+<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveVectorSpace&lt;D&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly weight: Weight;</span>
 <span class="cstat-no" title="statement not covered" >    readonly descriptor: ProjectiveVector;</span>
 <span class="cstat-no" title="statement not covered" >    readonly coordinates: number[];</span>
-<span class="cstat-no" title="statement not covered" >    readonly homogeneousCoordinates: (number | IComplex)[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly homogeneousCoordinates: number[];</span>
 <span class="cstat-no" title="statement not covered" >    getCoordinate(index: number): number;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    add(other: IProjectiveVector): IProjectiveVector;</span>
@@ -454,12 +431,11 @@
 <span class="cstat-no" title="statement not covered" >    // toRealVector(realVectorSpace?: RealVectorSpace&lt;any&gt;): IRealVector;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface IProjectiveComplexVector extends IVector {</span>
-<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveComplexVectorSpace&lt;any&gt;;</span>
+<span class="cstat-no" title="statement not covered" >export interface IProjectiveComplexVector&lt;D extends number = number&gt; extends IVector {</span>
+<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveComplexVectorSpace&lt;D&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly weight: ComplexWeight;</span>
 <span class="cstat-no" title="statement not covered" >    readonly homogeneousCoordinates: (number | IComplex)[];</span>
 <span class="cstat-no" title="statement not covered" >    getCoordinate(index: number): Complex;</span>
-<span class="cstat-no" title="statement not covered" >    // setCoordinate(index: number, value: Complex): void;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    add(other: IProjectiveComplexVector): IProjectiveComplexVector;</span>
 <span class="cstat-no" title="statement not covered" >    subtract(other: IProjectiveComplexVector): IProjectiveComplexVector;</span>
@@ -475,7 +451,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-03T15:41:11.644Z
+                at 2026-01-09T08:31:28.425Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

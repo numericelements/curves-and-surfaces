@@ -1,5 +1,5 @@
-import { Vector2d } from "../mathVector/Vector2d"
-import { Vector3d } from "../mathVector/Vector3d"
+import { Vector2d } from "../mathVectorOld/Vector2d"
+import { Vector3d } from "../mathVectorOld/Vector3d"
 import { BSplineR1toR3 } from "./BSplineR1toR3"
 
 export class RationalBSplineR1toR2 extends BSplineR1toR3 {

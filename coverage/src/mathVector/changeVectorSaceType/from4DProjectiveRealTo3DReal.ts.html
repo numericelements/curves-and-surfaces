@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/28</span>
+                <span class='fraction'>28/28</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/28</span>
+                <span class='fraction'>28/28</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -90,68 +90,68 @@
 <a name='L25'></a><a href='#L25'>25</a>
 <a name='L26'></a><a href='#L26'>26</a>
 <a name='L27'></a><a href='#L27'>27</a>
-<a name='L28'></a><a href='#L28'>28</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { EM_WEIGHT_TOO_SMALL } from "../../ErrorMessages/ProjectiveVectors";</span></span></span>
-<span class="cstat-no" title="statement not covered" >import { NULL_WEIGHT_TOLERANCE } from "../../namedConstants/ProjectiveVectorSpace";</span>
-<span class="cstat-no" title="statement not covered" >import { ProjectiveVector3DTypeReal } from "../ProjectiveVector3DTypeReal";</span>
-<span class="cstat-no" title="statement not covered" >import { RealVectorSpace } from "../RealVectorSpace";</span>
-<span class="cstat-no" title="statement not covered" >import { Vector3DTypeReal } from "../Vector3DTypeReal";</span>
-<span class="cstat-no" title="statement not covered" >import { sendRangeErrorMessage } from "../VectorSpaceUtilities";</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >const SPACE_DIMENSION = 4;</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export function from4DProjectiveRealTo3DReal(projectiveVector: ProjectiveVector3DTypeReal, realVSpace?: RealVectorSpace&lt;3&gt;): Vector3DTypeReal {</span>
-<span class="cstat-no" title="statement not covered" >      if(projectiveVector.weight.value &lt; NULL_WEIGHT_TOLERANCE) {</span>
-<span class="cstat-no" title="statement not covered" >            const error = sendRangeErrorMessage('function', 'toVector3DReal', EM_WEIGHT_TOO_SMALL);</span>
-<span class="cstat-no" title="statement not covered" >            throw new RangeError(error.generateMessageString());</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >        if(realVSpace !== undefined) {</span>
-<span class="cstat-no" title="statement not covered" >            return new Vector3DTypeReal(</span>
-<span class="cstat-no" title="statement not covered" >                projectiveVector.coordinates[0] / projectiveVector.coordinates[SPACE_DIMENSION - 1],</span>
-<span class="cstat-no" title="statement not covered" >                projectiveVector.coordinates[1] / projectiveVector.coordinates[SPACE_DIMENSION - 1],</span>
-<span class="cstat-no" title="statement not covered" >                projectiveVector.coordinates[2] / projectiveVector.coordinates[SPACE_DIMENSION - 1],</span>
-<span class="cstat-no" title="statement not covered" >                realVSpace</span>
-<span class="cstat-no" title="statement not covered" >            );</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >        return new Vector3DTypeReal(</span>
-<span class="cstat-no" title="statement not covered" >            projectiveVector.coordinates[0] / projectiveVector.coordinates[SPACE_DIMENSION - 1],</span>
-<span class="cstat-no" title="statement not covered" >            projectiveVector.coordinates[1] / projectiveVector.coordinates[SPACE_DIMENSION - 1],</span>
-<span class="cstat-no" title="statement not covered" >            projectiveVector.coordinates[2] / projectiveVector.coordinates[SPACE_DIMENSION - 1]</span>
-<span class="cstat-no" title="statement not covered" >        );</span>
-<span class="cstat-no" title="statement not covered" >    }</span></pre></td></tr></table></pre>
+<a name='L28'></a><a href='#L28'>28</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { EM_WEIGHT_TOO_SMALL } from "../../ErrorMessages/ProjectiveVectors";
+import { NULL_WEIGHT_TOLERANCE } from "../../namedConstants/ProjectiveVectorSpace";
+import { ProjectiveVector3DTypeReal } from "../ProjectiveVector3DTypeReal";
+import { RealVectorSpace } from "../RealVectorSpace";
+import { Vector3DTypeReal } from "../Vector3DTypeReal";
+import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
+&nbsp;
+const SPACE_DIMENSION = 4;
+&nbsp;
+export function from4DProjectiveRealTo3DReal(projectiveVector: ProjectiveVector3DTypeReal, realVSpace?: RealVectorSpace&lt;3&gt;): Vector3DTypeReal {
+      if(projectiveVector.weight.value &lt; NULL_WEIGHT_TOLERANCE) {
+            const error = sendRangeErrorMessage('function', 'toVector3DReal', EM_WEIGHT_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+        if(realVSpace !== undefined) {
+            return new Vector3DTypeReal(
+                projectiveVector.coordinates[0] / projectiveVector.coordinates[SPACE_DIMENSION - 1],
+                projectiveVector.coordinates[1] / projectiveVector.coordinates[SPACE_DIMENSION - 1],
+                projectiveVector.coordinates[2] / projectiveVector.coordinates[SPACE_DIMENSION - 1],
+                realVSpace
+            );
+        }
+        return new Vector3DTypeReal(
+            projectiveVector.coordinates[0] / projectiveVector.coordinates[SPACE_DIMENSION - 1],
+            projectiveVector.coordinates[1] / projectiveVector.coordinates[SPACE_DIMENSION - 1],
+            projectiveVector.coordinates[2] / projectiveVector.coordinates[SPACE_DIMENSION - 1]
+        );
+    }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-03T15:41:12.728Z
+                at 2026-01-05T08:11:34.803Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

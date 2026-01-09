@@ -2,7 +2,7 @@ import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { EM_NORM_TOO_SMALL, EM_VECTOR_NOT_APPLICABLE_TO_NORM, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import type { IVector } from "./Vector";
-import type { IComplex, Scalar, Vector } from "./VectorSpaceConstructorInterface";
+import type { IComplex, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Complex } from "./Complex";
 import type { IdentifiableVectorSpace } from "./IVectorSpace";
@@ -11,7 +11,7 @@ import type { IdentifiableVectorSpace } from "./IVectorSpace";
  * Base abstract class implementing common IVector functionality
  */
 
-export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any> = IdentifiableVectorSpace<any, any>, V extends Vector = Vector, S extends Scalar = Scalar> implements IVector {
+export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = IdentifiableVectorSpace<any>, V extends Vector = Vector> implements IVector {
     
     protected abstract _vectorSpace: VS;
 
@@ -29,28 +29,24 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
         return this._vectorSpace;
     }
 
-    // Vector operations using the vector space
     add(other: IVector): IVector {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.addDescriptors(this.descriptor, other.descriptor as V);
-        return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.addDescriptors(this.descriptor, other. descriptor as V);
+        return this.createVectorFromDescriptor(result);
     }
 
     subtract(other: IVector): IVector {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.subtractDescriptors(this.descriptor, other.descriptor as V);
-        return this.createVectorFromRaw(result);
+        const result = this._vectorSpace.subtractDescriptors(this.descriptor, other. descriptor as V);
+        return this.createVectorFromDescriptor(result);
     }
 
-    abstract scale(scalar: S | Complex): IVector;
-    // scale(scalar: S): IVector {
-    //     const result = this._vectorSpace.scaleRaw(scalar, this.descriptor);
-    //     return this.createVectorFromRaw(result);
-    // }
+    abstract scale(scalar: number | Complex): IVector;
 
     revert(): IVector {
-        const result = this._vectorSpace.scaleDescriptor(-1, this.descriptor);
-        return this.createVectorFromRaw(result);
+        const scale = -1;
+        const result = this._vectorSpace.scaleDescriptor(scale, this.descriptor);
+        return this.createVectorFromDescriptor(result);
     }
 
     norm(tolerance?: number): number {
@@ -74,7 +70,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
             const error = sendRangeErrorMessage(this.constructor.name, 'normalize', EM_NORM_TOO_SMALL);
             throw new RangeError(error.generateMessageString());
         }
-        return this.scale((1 / currentNorm) as S);
+        return this.scale(1 / currentNorm);
     }
 
     dot(other: IVector): number | IComplex {
@@ -119,7 +115,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
             throw new RangeError(error.generateMessageString());
         }
         // Check if vectors belong to the same vector space instance
-        if (!this._vectorSpace.isSameSpace(other.vectorSpace as IdentifiableVectorSpace<any, any>)) {
+        if (!this._vectorSpace.isSameSpace(other.vectorSpace as IdentifiableVectorSpace<any>)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'validateCompatibility', EM_VECTORS_NOT_IN_SAME_VECTORSPACE);
             throw new RangeError(error.generateMessageString());
         }
@@ -139,5 +135,5 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<any, any
     //     }
     // }
 
-    protected abstract createVectorFromRaw(raw: Vector): IVector;
+    protected abstract createVectorFromDescriptor(descriptor: Vector): IVector;
 }

@@ -78,7 +78,7 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
 
     scale(scalar: number): IProjectiveVector {
         const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
-        return this.createVectorFromRaw(result);
+        return this.createVectorFromDescriptor(result);
     }
 
     revert(): IProjectiveVector {
@@ -98,17 +98,18 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
         return super.equals(other, tolerance);
     }
 
-    isParallel(other: IProjectiveVector, tolerance?: number): boolean {
+    isParallel(other: IProjectiveVector, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
-        if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
+        if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();
         const otherNorm = other.norm();
-        if (thisNorm === 0 || otherNorm === 0) {
-            return true; // Zero vectors are colinear
+        if (thisNorm < LINEAR_TOL_VECTOR || otherNorm < LINEAR_TOL_VECTOR) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'isParallel', EM_VECTOR_NORM_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
         }
         const dotProduct = this.dot(other);
-        const ratio = Math.abs(dotProduct as number / (thisNorm * otherNorm));
-        return ratio >= 1 - tolerance;
+        const angle = Math.acos(Math.abs(dotProduct as number / (thisNorm * otherNorm)));
+        return angle <= angularTolerance;
     }
 
     isOrthogonal(other: IProjectiveVector, angularTolerance?: number): boolean {
@@ -126,9 +127,5 @@ export abstract class AbstractProjectiveVector extends AbstractVector implements
         return ratio <= angularTolerance;
     }
 
-    protected abstract createVectorFromRaw(raw: ProjectiveVector): IProjectiveVector;
-
-    // protected createVectorFromRaw(raw: Vector): IProjectiveVector {
-    //     return VectorFactory.createProjectiveVectorFromRaw(raw as ProjectiveVector, this.vectorSpace);
-    // }
+    protected abstract createVectorFromDescriptor(descriptor: ProjectiveVector): IProjectiveVector;
 }

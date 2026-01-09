@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { PeriodicBSplineR1toR2withOpenKnotSequence } from "../../src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence";
-import { Vector2d } from "../../src/mathVector/Vector2d";
+import { Vector2d } from "../../src/mathVectorOld/Vector2d";
 import { TOL_COMPARISON_CONTROLPTS_BSPL_R1TOR2 } from "../namedConstants/Curves";
 
 describe('PeriodicBSplineR1toR2withOpenKnotSequence', () => {

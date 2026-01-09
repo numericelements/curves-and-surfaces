@@ -7,7 +7,7 @@ import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOM
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { ProjectiveComplexVectorSpace2DStrategy } from "./ProjectiveComplexVectorSpace2DStrategy";
-import type { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, Real } from "./VectorSpaceConstructorInterface";
+import type { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, Real, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
@@ -22,15 +22,14 @@ import type { IProjectiveComplexVectorSpaceStrategy } from "./strategies/interfa
 import type { IdentifiableVectorSpace } from "./IVectorSpace";
 
 
-export class ProjectiveComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<IComplex, ProjectiveComplexVectorOfDimension<D>> {
+export class ProjectiveComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ProjectiveComplexVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
-
+    private readonly weightManager: WeightManager;
     private readonly dim: D;
-    protected strategy: IProjectiveComplexVectorSpaceStrategy<D>;
-    protected _weightManagement: WeightManagement;
-    private weightManager: WeightManager;
+    protected readonly strategy: IProjectiveComplexVectorSpaceStrategy<D>;
+    protected readonly _weightManagement: WeightManagement;
 
     constructor(dimension: D);
     constructor(dimension: D, isDefault: boolean);
@@ -47,19 +46,15 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         } else {
             this._weightManagement = WeightManagement.AllStrictlyPositiveWeights;
         }
-        // this._weightManagement = weightManagement;
         if(isDefault === undefined) isDefault = false;
         this.weightManager = new WeightManager(this._weightManagement);
         this._isDefault = isDefault;
         this._id = INITIAL_VECTOR_SPACE_ID;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
-        } else {
-            this._id = resolveVectorSpace(this);
-        }
-        if(this._isDefault) {
             this._name = DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         } else {
+            this._id = resolveVectorSpace(this);
             this._name = name || PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
         switch (this.dim) {
@@ -82,21 +77,17 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
     get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVECOMPLEX; }
 
     // Identity methods
-    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean {
+    isSameSpace(other: IdentifiableVectorSpace<Vector>): boolean {
         return this._id === other.id;
     }
 
-    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean {
+    isIsomorphicTo(other: IdentifiableVectorSpace<Vector>): boolean {
         return this.spaceType === other.spaceType && 
                this.dimension() === other.dimension();
     }
 
     get weightManagement(): WeightManagement {
         return this._weightManagement;
-    }
-
-    set weightManagement(weightManagement: WeightManagement) {
-        this._weightManagement = weightManagement;
     }
 
     dimension() {
@@ -342,20 +333,4 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
             throw new RangeError(error.generateMessageString());
         }
     }
-
-    // Enhanced methods working with IVector
-    // addVectors(a: IVector, b: IVector): IVector {
-    //     if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
-    //         throw new Error('Vector dimensions or types do not match');
-    //     }
-    //     const rawA = a.descriptor as ProjectiveComplexVector;
-    //     const rawB = b.descriptor as ProjectiveComplexVector;
-    //     const result = this.addRaw(rawA, rawB);
-        
-    //     return this.createVectorInstance(result);
-    // }
-    
-    // createVectorInstance(raw: ProjectiveComplexVector): IVector {
-    //     return ProjectiveVector1DTypeComplex.fromRaw(raw as ProjectiveComplexVector);
-    // }
 }

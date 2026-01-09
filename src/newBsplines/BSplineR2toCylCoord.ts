@@ -1,6 +1,6 @@
-import { CylindricalCoordinates } from "../mathVector/CylindricalCoordinates";
+import { CylindricalCoordinates } from "../mathVectorOld/CylindricalCoordinates";
 import { findSpan, basisFunctions } from "./Piegl_Tiller_NURBS_Book";
-import { Vector3d } from "../mathVector/Vector3d";
+import { Vector3d } from "../mathVectorOld/Vector3d";
 
 /**
  * A B-Spline function from a two dimensional real space to a three dimensional real space

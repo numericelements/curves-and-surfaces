@@ -1,6 +1,6 @@
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { ChartController } from "./ChartController";
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { CHART_AXES_NAMES, CHART_AXIS_SCALE, CHART_TITLES, DATASET_NAMES } from "./ChartSceneController";
 import { IObserver } from "../newDesignPatterns/Observer";
 

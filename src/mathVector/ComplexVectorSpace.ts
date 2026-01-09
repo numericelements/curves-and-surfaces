@@ -10,22 +10,20 @@ import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
-// import { DefaultVectorSpaces } from "./internal/DefaultVectorSpaces";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import type { IdentifiableVectorSpace } from "./IVectorSpace";
 import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
-import type { IComplex, ComplexVector, ComplexVectorOfDimension, IComplexWeight, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
+import type { IComplex, ComplexVector, ComplexVectorOfDimension, IComplexWeight, ProjectiveComplexVector, RealVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<IComplex, ComplexVectorOfDimension<D>> {
+export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ComplexVectorOfDimension<D>> {
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
-    
     protected readonly dim: D;
-    protected strategy: IComplexVectorSpaceStrategy<D>;
+    protected readonly strategy: IComplexVectorSpaceStrategy<D>;
 
     constructor(dimension: D, isDefault: boolean = false, name?: string) {
         this.dim = dimension;
@@ -33,12 +31,9 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         this._id = INITIAL_VECTOR_SPACE_ID;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
-        } else {
-            this._id = resolveVectorSpace(this);
-        }
-        if(this._isDefault) {
             this._name = DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         } else {
+            this._id = resolveVectorSpace(this);
             this._name = name || COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
         switch (this.dim) {
@@ -60,11 +55,11 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
     get spaceType(): VectorSpaceType { return VectorSpaceType.COMPLEX; }
 
     // Identity methods
-    isSameSpace(other: IdentifiableVectorSpace<any, any>): boolean {
+    isSameSpace(other: IdentifiableVectorSpace<Vector>): boolean {
         return this._id === other.id;
     }
 
-    isIsomorphicTo(other: IdentifiableVectorSpace<any, any>): boolean {
+    isIsomorphicTo(other: IdentifiableVectorSpace<Vector>): boolean {
         return this.spaceType === other.spaceType && 
                this.dimension() === other.dimension();
     }

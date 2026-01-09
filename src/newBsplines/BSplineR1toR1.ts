@@ -1,5 +1,5 @@
 import { decomposeFunction, findSpan } from "./Piegl_Tiller_NURBS_Book"
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { AbstractBSplineR1toR1 } from "./AbstractBSplineR1toR1";
 import { BernsteinDecompositionR1toR1, splineRecomposition } from "./BernsteinDecompositionR1toR1";
 import { BSplineR1toR2 } from "./BSplineR1toR2";

@@ -1,9 +1,9 @@
-import { ANGULAR_TOL_VECTOR, EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { RealVectorSpace } from "./RealVectorSpace";
 import type { IProjectiveVector, IRealVector } from "./Vector";
-import type { RealVector, Vector } from "./VectorSpaceConstructorInterface";
+import type { RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 
@@ -25,7 +25,6 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
     abstract getCoordinate(index: number): number;
     abstract clone(): IRealVector;
     
-    // Override with more specific types
     add(other: IRealVector): IRealVector {
         return super.add(other) as IRealVector;
     }
@@ -36,7 +35,7 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
 
     scale(scalar: number): IRealVector {
         const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
-        return this.createVectorFromRaw(result);
+        return this.createVectorFromDescriptor(result);
     }
 
     dot(other: IRealVector): number {
@@ -93,10 +92,5 @@ export abstract class AbstractRealVector extends AbstractVector implements IReal
         return (halfPi - angle) <= angularTolerance;
     }
 
-
-
-    // protected createVectorFromRaw(raw: Vector): IRealVector {
-    //     return VectorFactory.createRealVectorFromRaw(raw as RealVector, this.vectorSpace);
-    // }
-    protected abstract createVectorFromRaw(raw: RealVector): IRealVector;
+    protected abstract createVectorFromDescriptor(descriptor: RealVector): IRealVector;
 }

@@ -1,4 +1,4 @@
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { BSplineR1toR1Interface } from "./BSplineR1toR1Interface";
 
 export interface BSplineR1toR2DifferentialPropertiesInterface {

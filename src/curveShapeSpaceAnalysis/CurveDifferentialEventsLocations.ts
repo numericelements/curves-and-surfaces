@@ -1,4 +1,4 @@
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 
 export class CurveDifferentialEventsLocations {
 

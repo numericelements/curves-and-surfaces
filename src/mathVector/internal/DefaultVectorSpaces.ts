@@ -5,9 +5,9 @@ import { EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION } from "../../ErrorMe
 import { EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION } from "../../ErrorMessages/RealVectorSpace";
 import { VectorSpaceType } from "../../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../namedConstants/ComplexVectorSpace";
-import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME, DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME, DEFAULT_REAL_VECTOR_SPACE_NAME, DEFAULT_VSPACE_INDEX_INITIAL_VALUE, LOCATION_INDEX_INTO_DEFAULT_VECTOR_SPACE_ID } from "../../namedConstants/DefaultVectorSpaces";
+import { DEFAULT_VSPACE_INDEX_INITIAL_VALUE, LOCATION_INDEX_INTO_DEFAULT_VECTOR_SPACE_ID } from "../../namedConstants/DefaultVectorSpaces";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../namedConstants/ProjectiveComplexVectorSpace";
-import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE, WeightManagement } from "../../namedConstants/ProjectiveVectorSpace";
+import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE } from "../../namedConstants/ProjectiveVectorSpace";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../namedConstants/RealVectorSpace";
 import { INITIAL_VECTOR_SPACE_ID, VECTOR_SPACE } from "../../namedConstants/VectorSpaceIdentifierManager";
 import type { ComplexVectorSpace } from "../ComplexVectorSpace";
@@ -15,6 +15,7 @@ import type { IdentifiableVectorSpace } from "../IVectorSpace";
 import type { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
 import type { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
 import type { RealVectorSpace } from "../RealVectorSpace";
+import { Vector } from "../VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 
 /**
@@ -28,13 +29,6 @@ export class DefaultVectorSpaces {
     private complexSpaces: Map<number, ComplexVectorSpace<any>> = new Map();
     private projectiveRealSpaces: Map<number, ProjectiveVectorSpace<any>> = new Map();
     private projectiveComplexSpaces: Map<number, ProjectiveComplexVectorSpace<any>> = new Map();
-
-
-    // factories to create default instances (register from concrete modules)
-    private realFactories: Map<number, () => any> = new Map();
-    private complexFactories: Map<number, () => any> = new Map();
-    private projectiveRealFactories: Map<number, () => any> = new Map();
-    private projectiveComplexFactories: Map<number, () => any> = new Map();
 
     private constructor() {}
 
@@ -57,124 +51,6 @@ export class DefaultVectorSpaces {
         return DefaultVectorSpaces.instance !== null;
     }
 
-    // Factory registration API (called by concrete VectorSpace modules)
-    // registerRealVectorSpaceFactory(dimension: number, factory: () => any): void {
-    //     this.realFactories.set(dimension, factory);
-    // }
-    // registerComplexVectorSpaceFactory(dimension: number, factory: () => any): void {
-    //     this.complexFactories.set(dimension, factory);
-    // }
-    // registerProjectiveRealVectorSpaceFactory(dimension: number, factory: () => any): void {
-    //     this.projectiveRealFactories.set(dimension, factory);
-    // }
-    // registerProjectiveComplexVectorSpaceFactory(dimension: number, factory: () => any): void {
-    //     this.projectiveComplexFactories.set(dimension, factory);
-    // }
-
-
-    // Backwards-compatible instance registration
-    // registerVectorSpace1(vectorSpace: IdentifiableVectorSpace<any, any>): boolean {
-    //     let registered = true;
-    //     switch(vectorSpace.spaceType) {
-    //         case VectorSpaceType.REAL:
-    //             if(this.realSpaces.has(vectorSpace.dimension())) {
-    //                 registered = false;
-    //             } else {
-    //                 this.realSpaces.set(vectorSpace.dimension(), vectorSpace as RealVectorSpace<any>);
-    //             }
-    //             return registered;
-    //         case VectorSpaceType.COMPLEX:
-    //             if(this.complexSpaces.has(vectorSpace.dimension())) {
-    //                 registered = false;
-    //             } else {
-    //                 this.complexSpaces.set(vectorSpace.dimension(), vectorSpace as ComplexVectorSpace<any>);
-    //             }
-    //             return registered;
-    //         case VectorSpaceType.PROJECTIVE:
-    //             if(this.projectiveRealSpaces.has(vectorSpace.dimension())) {
-    //                 registered = false;
-    //             } else {
-    //                 this.projectiveRealSpaces.set(vectorSpace.dimension(), vectorSpace as ProjectiveVectorSpace<any>);
-    //             }
-    //             return registered;
-    //         case VectorSpaceType.PROJECTIVECOMPLEX:
-    //             if(this.projectiveComplexSpaces.has(vectorSpace.dimension())) {
-    //                 registered = false;
-    //             } else {
-    //                 this.projectiveComplexSpaces.set(vectorSpace.dimension(), vectorSpace as ProjectiveComplexVectorSpace<any>);
-    //             }
-    //             return registered;
-    //         default:
-    //             const error = sendRangeErrorMessage(this.constructor.name, 'registerVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
-    //             throw new RangeError(error.generateMessageString());
-    //     }
-    // }
-
-        // get methods now create instances using registered factories when needed
-    // getRealVectorSpace1<D extends number>(dimension: D): any {
-    //     if (dimension < MIN_DIMENSION_REALVECTORSPACE || dimension > MAX_DIMENSION_REALVECTORSPACE) {
-    //         throw new RangeError();
-    //     }
-    //     if (!this.realSpaces.has(dimension)) {
-    //         const factory = this.realFactories.get(dimension);
-    //         if (!factory) {
-    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getRealVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
-    //             throw new RangeError(errorMessage.generateMessageString());
-    //         }
-    //         const defaultSpace = factory();
-    //         this.realSpaces.set(dimension, defaultSpace);
-    //     }
-    //     return this.realSpaces.get(dimension);
-    // }
-
-    // getComplexVectorSpace1<D extends number>(dimension: D): any {
-    //     if (dimension < MIN_DIMENSION_COMPLEXVECTORSPACE || dimension > MAX_DIMENSION_COMPLEXVECTORSPACE) {
-    //         throw new RangeError();
-    //     }
-    //     if (!this.complexSpaces.has(dimension)) {
-    //         const factory = this.complexFactories.get(dimension);
-    //         if (!factory) {
-    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getComplexVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
-    //             throw new RangeError(errorMessage.generateMessageString());
-    //         }
-    //         const defaultSpace = factory();
-    //         this.complexSpaces.set(dimension, defaultSpace);
-    //     }
-    //     return this.complexSpaces.get(dimension);
-    // }
-
-    // getProjectiveVectorSpace1<D extends number>(dimension: D): any {
-    //     if (dimension < MIN_DIMENSION_PROJECTIVEVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVEVECTORSPACE) {
-    //         throw new RangeError();
-    //     }
-    //     if (!this.projectiveRealSpaces.has(dimension)) {
-    //         const factory = this.projectiveRealFactories.get(dimension);
-    //         if (!factory) {
-    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getProjectiveVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
-    //             throw new RangeError(errorMessage.generateMessageString());
-    //         }
-    //         const defaultSpace = factory();
-    //         this.projectiveRealSpaces.set(dimension, defaultSpace);
-    //     }
-    //     return this.projectiveRealSpaces.get(dimension);
-    // }
-
-    // getProjectiveComplexVectorSpace1<D extends number>(dimension: D): any {
-    //     if (dimension < MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {
-    //         throw new RangeError();
-    //     }
-    //     if (!this.projectiveComplexSpaces.has(dimension)) {
-    //         const factory = this.projectiveComplexFactories.get(dimension);
-    //         if (!factory) {
-    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getProjectiveComplexVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
-    //             throw new RangeError(errorMessage.generateMessageString());
-    //         }
-    //         const defaultSpace = factory();
-    //         this.projectiveComplexSpaces.set(dimension, defaultSpace);
-    //     }
-    //     return this.projectiveComplexSpaces.get(dimension);
-    // }
-
     /**
      * Generate a unique identifier for a default vector space
      */
@@ -183,7 +59,7 @@ export class DefaultVectorSpaces {
         return VECTOR_SPACE + `${vsId}_${Date.now()}`;
     }
 
-    getVectorSpaceIndex(vectorSpace: IdentifiableVectorSpace<any, any>): number | undefined{
+    getVectorSpaceIndex(vectorSpace: IdentifiableVectorSpace<Vector>): number | undefined{
         const vsId = vectorSpace.id;
         if(vsId === INITIAL_VECTOR_SPACE_ID) return undefined;
         const decomposedId = vsId.split('_');
@@ -199,7 +75,7 @@ export class DefaultVectorSpaces {
         return index;
     }
 
-    registerVectorSpace(vectorSpace: IdentifiableVectorSpace<any, any>): boolean {
+    registerVectorSpace(vectorSpace: IdentifiableVectorSpace<Vector>): boolean {
         let registered = true;
         switch(vectorSpace.spaceType) {
             case VectorSpaceType.REAL:
@@ -230,9 +106,10 @@ export class DefaultVectorSpaces {
                     this.registerProjectiveComplexVectorSpace(vectorSpace as ProjectiveComplexVectorSpace);
                 }
                 return registered;
-            default:
+            default: {
                 const error = sendRangeErrorMessage(this.constructor.name, 'registerVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
                 throw new RangeError(error.generateMessageString());
+            }
         } 
     }
 
@@ -327,7 +204,7 @@ export class DefaultVectorSpaces {
     /**
      * Get all default spaces (for debugging/testing)
      */
-    getAllDefaultSpaces(): IdentifiableVectorSpace<any, any>[] {
+    getAllDefaultSpaces(): IdentifiableVectorSpace<Vector>[] {
         return [
             ...Array.from(this.realSpaces.values()),
             ...Array.from(this.complexSpaces.values()),
@@ -339,7 +216,7 @@ export class DefaultVectorSpaces {
     /**
      * Check if a vector space is managed by this singleton
      */
-    isDefaultSpace(space: IdentifiableVectorSpace<any, any>): boolean {
+    isDefaultSpace(space: IdentifiableVectorSpace<Vector>): boolean {
         return space.isDefault && this.getAllDefaultSpaces().some(s => s.isSameSpace(space));
     }
 }

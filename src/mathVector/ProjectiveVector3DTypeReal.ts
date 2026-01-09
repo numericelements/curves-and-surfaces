@@ -14,8 +14,8 @@ import { Weight } from "./Weight";
 const SPACE_DIMENSION = 4;
 
 export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
-    private data: ProjectiveVector3D;
-    protected _vectorSpace: ProjectiveVectorSpace<4>;
+    private readonly data: ProjectiveVector3D;
+    protected readonly _vectorSpace: ProjectiveVectorSpace<4>;
     
     constructor();
     constructor(x: number, y: number, z: number);
@@ -150,7 +150,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
         );
     }
 
-    createVectorFromRaw(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
+    createVectorFromDescriptor(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
         return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].weight, this.vectorSpace);
     }
     

@@ -1,5 +1,5 @@
 import { PeriodicBSplineR1toR2withOpenKnotSequence, create_PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence"
-import { Vector2d } from "../mathVector/Vector2d"
+import { Vector2d } from "../mathVectorOld/Vector2d"
 // import { Optimizer } from "../optimizers/Optimizer"
 import { AbstractCurveModel } from "./AbstractCurveModel"
 // import { OptimizationProblemPeriodicBSplineR1toR2QuasiNewton } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2QuasiNewton"

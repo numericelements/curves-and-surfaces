@@ -1,5 +1,5 @@
 import { clampingFindSpan } from "./Piegl_Tiller_NURBS_Book"
-import { Vector3d } from "../mathVector/Vector3d"
+import { Vector3d } from "../mathVectorOld/Vector3d"
 import { AbstractBSplineR1toR3, deepCopyControlPoints } from "./AbstractBSplineR1toR3"
 
 

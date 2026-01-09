@@ -5,7 +5,7 @@ import { DenseMatrix } from "../linearAlgebra/DenseMatrix";
 import { identityMatrix } from "../linearAlgebra/DiagonalMatrix";
 import { SymmetricMatrixInterface} from "../linearAlgebra/MatrixInterfaces";
 import { SymmetricMatrix } from "../linearAlgebra/SymmetricMatrix";
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { OpBSplineR1toR2Interface } from "./IOpBSplineR1toR2";
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { ShapeSpaceDiffEventsStructure } from "../curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure";

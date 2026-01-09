@@ -2,7 +2,7 @@ import { BSplineR1toR2, create_BSplineR1toR2, create_BSplineR1toR2V2d } from "..
 import { CurveSceneController } from "../controllers/CurveSceneController";
 import { IObservable, IObserver } from "../newDesignPatterns/Observer";
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { CurveModelInterface } from "../newModels/CurveModelInterface";
 import { saveAs } from "file-saver";
 import { ShapeNavigableCurve } from "../shapeNavigableCurve/ShapeNavigableCurve";

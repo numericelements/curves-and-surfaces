@@ -17,24 +17,20 @@ export type Real = number;
 /** Complex numbers (ℂ) represented as [real, imaginary] */
 export interface IComplex {
     readonly type: typeof COMPLEX;
-    real: number;
-    imaginary: number;
+    readonly real: number;
+    readonly imaginary: number;
 }
 
 export interface IWeight {
     readonly type: typeof WEIGHT;
-    weight: Weight;
+    readonly weight: Weight;
 }
 
 export interface IComplexWeight {
     readonly type: typeof COMPLEXWEIGHT;
-    real: Weight;
-    imaginary: Weight;
+    readonly real: Weight;
+    readonly imaginary: Weight;
 }
-
-
-/** Scalar types supported in calculations */
-export type Scalar = Real | IComplex;
 
 /** Generic vector type for n-dimensional space */
 export type RealVector = RealVector1D | RealVector2D | RealVector3D | RealVector4D;
@@ -44,14 +40,9 @@ export type ProjectiveComplexVector = ProjectiveComplexVector1D;
 export type Vector = RealVector | ComplexVector | ProjectiveVector | ProjectiveComplexVector;
 
 /** Specific vector type */
-export type Vector1D = Scalar;
+export type Vector1D = Real | IComplex;;
 
 export type RealVector1D = Real;
-
-// export interface RealVector1D {
-//     readonly type: typeof REALVECTOR1D;  // Add this constant
-//     coordinates: Real;
-// }
 
 export interface UndefinedVectorType {
     readonly type: typeof UNDEFINED_VECTORTYPE;
@@ -61,29 +52,29 @@ export type Vector2D = RealVector2D | ComplexVector2D | ProjectiveComplexVector1
 
 export interface RealVector2D {
     readonly type: typeof REALVECTOR2D;
-    coordinates: [Real, Real];
+    readonly coordinates: [Real, Real];
 }
 
 export interface ProjectiveVector2D {
     readonly type: typeof PROJECTIVEVECTOR2D;
-    coordinates: [Real, Real, IWeight];
+    readonly coordinates: [Real, Real, IWeight];
 }
 
 export type Vector3D = RealVector3D | ProjectiveVector2D;
 
 export interface RealVector3D {
     readonly type: typeof REALVECTOR3D;
-    coordinates: [Real, Real, Real];
+    readonly coordinates: [Real, Real, Real];
 }
 
 export interface ProjectiveVector3D {
     readonly type: typeof PROJECTIVEVECTOR3D;
-    coordinates: [Real, Real, Real, IWeight];
+    readonly coordinates: [Real, Real, Real, IWeight];
 }
 
 export interface RealVector4D {
     readonly type: typeof REALVECTOR4D;
-    coordinates: [Real, Real, Real, Real];
+    readonly coordinates: [Real, Real, Real, Real];
 }
 
 export type Vector4D = RealVector4D | ProjectiveVector3D;
@@ -92,12 +83,12 @@ export type ComplexVector1D = IComplex;
 
 export interface ComplexVector2D {
     readonly type: typeof COMPLEXVECTOR2D;
-    coordinates: [IComplex, IComplex];
+    readonly coordinates: [IComplex, IComplex];
 }
 
 export interface ProjectiveComplexVector1D {
     readonly type: typeof PROJECTIVECOMPLEXVECTOR1D;
-    coordinates: [IComplex, IComplexWeight];
+    readonly coordinates: [IComplex, IComplexWeight];
 }
 
 export type VectorTypeForSpace<VS extends VectorSpaceType, D extends number> =

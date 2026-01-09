@@ -1,4 +1,4 @@
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { PeriodicBSplineR1toR2withOpenKnotSequence, create_PeriodicBSplineR1toR2 } from "../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence"
 // import { OptimizationProblemPeriodicBSplineR1toR2 } from "../bsplinesOptimizationProblems/OptimizationProblemPeriodicBSplineR1toR2"
 // import { Optimizer } from "../optimizers/Optimizer"

@@ -1,6 +1,6 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { Vector2d } from "../mathVector/Vector2d"
-import { Vector3d } from "../mathVector/Vector3d"
+import { Vector2d } from "../mathVectorOld/Vector2d"
+import { Vector3d } from "../mathVectorOld/Vector3d"
 import { BSplineR1toR2Interface } from "./BSplineR1toR2Interface"
 import { findSpan } from "./Piegl_Tiller_NURBS_Book";
 import { RationalBSplineR1toR2 } from "./RationalBSplineR1toR2"

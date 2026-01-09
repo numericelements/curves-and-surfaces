@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">70.96% </span>
+                <span class="strong">64.89% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>66/93</span>
+                <span class='fraction'>61/94</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">70.96% </span>
+                <span class="strong">64.89% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>66/93</span>
+                <span class='fraction'>61/94</span>
             </div>
         
             
@@ -155,8 +155,8 @@
 <a name='L90'></a><a href='#L90'>90</a>
 <a name='L91'></a><a href='#L91'>91</a>
 <a name='L92'></a><a href='#L92'>92</a>
-<a name='L93'></a><a href='#L93'>93</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -194,6 +194,12 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -241,21 +247,16 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { EM_REVERT_NOT_APPLICABLE_PROJECTIVE_COMPLEX } from "../ErrorMessages/ProjectiveComplexVectors";
 import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
-import type { Complex } from "./Complex";
+import { Complex } from "./Complex";
 import type { ComplexWeight } from "./ComplexWeight";
 import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { IComplexVector, IProjectiveComplexVector } from "./Vector";
-// import { VectorFactory } from "./VectorFromDescriptorFactory";
-import type { IComplex, ProjectiveComplexVector, Vector } from "./VectorSpaceConstructorInterface";
+import type { IComplex, ProjectiveComplexVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 &nbsp;
 /**
@@ -283,8 +284,14 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
     scale(scalar: number): IProjectiveComplexVector;
     scale(scalar: Complex): IProjectiveComplexVector;
 <span class="fstat-no" title="function not covered" >    scale(scalar: number | Complex): IProjectiveComplexVector {</span>
-<span class="cstat-no" title="statement not covered" >        const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);</span>
-<span class="cstat-no" title="statement not covered" >        return this.createVectorFromRaw(result);</span>
+<span class="cstat-no" title="statement not covered" >        let result: ProjectiveComplexVector;</span>
+<span class="cstat-no" title="statement not covered" >        if(scalar instanceof Complex) {</span>
+<span class="cstat-no" title="statement not covered" >            const scalarDescriptor = scalar.toDescriptor();</span>
+<span class="cstat-no" title="statement not covered" >            result = this._vectorSpace.scaleDescriptor(scalarDescriptor, this.descriptor);</span>
+<span class="cstat-no" title="statement not covered" >        } else {</span>
+<span class="cstat-no" title="statement not covered" >            result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);</span>
+<span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >        return this.createVectorFromDescriptor(result);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
     revert(): IProjectiveComplexVector {
@@ -334,11 +341,7 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
 <span class="cstat-no" title="statement not covered" >        return ratio &lt;= angularTolerance;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-    protected abstract createVectorFromRaw(raw: ProjectiveComplexVector): IProjectiveComplexVector;
-&nbsp;
-    // protected createVectorFromRaw(raw: Vector): IProjectiveComplexVector {
-    //     return VectorFactory.createProjectiveComplexVectorFromRaw(raw as ProjectiveComplexVector, this.vectorSpace);
-    // }
+    protected abstract createVectorFromDescriptor(descriptor: ProjectiveComplexVector): IProjectiveComplexVector;
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -346,7 +349,7 @@ export abstract class AbstractProjectiveComplexVector extends AbstractVector imp
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-03T15:41:11.644Z
+                at 2026-01-09T08:31:28.425Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

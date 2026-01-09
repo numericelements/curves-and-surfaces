@@ -1,5 +1,5 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { Vector2d } from "../mathVector/Vector2d"
+import { Vector2d } from "../mathVectorOld/Vector2d"
 import { AbstractBSplineR1toR2, deepCopyControlPoints } from "./AbstractBSplineR1toR2"
 import { splineRecomposition } from "./BernsteinDecompositionR1toR1";
 import { KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1";

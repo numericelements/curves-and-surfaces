@@ -4,8 +4,8 @@ import type { IComplex } from "./VectorSpaceConstructorInterface";
 
 export class Complex {
 
-    private _real: number;
-    private _imaginary: number;
+    private readonly _real: number;
+    private readonly _imaginary: number;
 
     constructor(real: number = 0, imaginary: number = 0) {
         this._real = real;

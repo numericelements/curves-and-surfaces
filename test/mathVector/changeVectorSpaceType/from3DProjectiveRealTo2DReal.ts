@@ -5,11 +5,11 @@ import { VectorSpaceType } from "../../../src/namedConstants/BSplineR1toRn";
 import { Weight } from "../../../src/mathVector/Weight";
 import { ProjectiveVectorSpace } from "../../../src/mathVector/ProjectiveVectorSpace";
 import { ProjectiveVector2DTypeReal } from "../../../src/mathVector/ProjectiveVector2DTypeReal";
-import { from3DProjectiveRealTo2DReal } from "../../../src/mathVector/changeVectorSaceType/from3DProjectiveRealTo2DReal";
+import { from3DProjectiveRealTo2DReal } from "../../../src/mathVector/changeVectorSpaceType/from3DProjectiveRealTo2DReal";
 import { RealVectorSpace } from "../../../src/mathVector/RealVectorSpace";
 import { EM_WEIGHT_TOO_SMALL } from "../../../src/ErrorMessages/ProjectiveVectors";
 
-describe('Projective vector 2D in real vector space: generation and operators in this vector space', () => {
+describe('Transformation from projective 3D vector into a 2D real vector', () => {
     const dimension = 3;
 
     beforeEach(() => {

@@ -38829,7 +38829,7 @@ exports.deepCopyAnalyticHighOrderCurveDerivatives = exports.convertStepToVector2
 const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ../newBsplines/BernsteinDecompositionR1toR1 */ "./src/newBsplines/BernsteinDecompositionR1toR1.ts");
 const DenseMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DenseMatrix */ "./src/linearAlgebra/DenseMatrix.ts");
 const DiagonalMatrix_1 = __webpack_require__(/*! ../linearAlgebra/DiagonalMatrix */ "./src/linearAlgebra/DiagonalMatrix.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 var ConstraintType;
 (function (ConstraintType) {
@@ -42862,7 +42862,7 @@ exports.FunctionBSceneControllerSqrtScaled = FunctionBSceneControllerSqrtScaled;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NoFunctionSceneController = void 0;
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const ChartSceneController_1 = __webpack_require__(/*! ./ChartSceneController */ "./src/chartcontrollers/ChartSceneController.ts");
 class NoFunctionSceneController {
     constructor(chartController) {
@@ -47326,7 +47326,7 @@ exports.OpenCurveDifferentialEventsExtractorWithoutSequence = OpenCurveDifferent
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CurveConstraintClampedFirstAndLastControlPoint = exports.CurveConstraintClampedLastControlPoint = exports.CurveConstraintClampedFirstControlPoint = exports.CurveConstraintNoConstraint = exports.CurveConstraintStrategy = exports.TOL_LOCATION_CURVE_REFERENCE_POINTS = void 0;
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const CurveConstraints_1 = __webpack_require__(/*! ./CurveConstraints */ "./src/curveShapeSpaceNavigation/CurveConstraints.ts");
 const SquareMatrix_1 = __webpack_require__(/*! ../linearAlgebra/SquareMatrix */ "./src/linearAlgebra/SquareMatrix.ts");
 const AbstractBSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/AbstractBSplineR1toR2 */ "./src/newBsplines/AbstractBSplineR1toR2.ts");
@@ -48421,7 +48421,7 @@ const OptimizationProblemCtrlParameters_1 = __webpack_require__(/*! ../bsplineOp
 const CurveShapeMonitoringStrategy_1 = __webpack_require__(/*! ../controllers/CurveShapeMonitoringStrategy */ "./src/controllers/CurveShapeMonitoringStrategy.ts");
 const ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties */ "./src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts");
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const ClosedCurveModel_1 = __webpack_require__(/*! ../newModels/ClosedCurveModel */ "./src/newModels/ClosedCurveModel.ts");
 const CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 const NeighboringEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/NeighboringEvents */ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts");
@@ -48807,7 +48807,7 @@ const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ 
 const CurveShapeSpaceNavigator_1 = __webpack_require__(/*! ./CurveShapeSpaceNavigator */ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts");
 const ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 const CurveAnalyzer_1 = __webpack_require__(/*! ../curveShapeSpaceAnalysis/CurveAnalyzer */ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 const CurveModel_1 = __webpack_require__(/*! ../newModels/CurveModel */ "./src/newModels/CurveModel.ts");
 const PeriodicBSplineR1toR2withOpenKnotSequence_1 = __webpack_require__(/*! ../newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence */ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts");
@@ -50285,7 +50285,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FileController = void 0;
 const BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const file_saver_1 = __webpack_require__(/*! file-saver */ "./node_modules/file-saver/dist/FileSaver.min.js");
 class FileController {
     constructor(curveModeler, curveSceneController) {
@@ -51524,7 +51524,6 @@ const WeightTypeTags_1 = __webpack_require__(/*! ../namedConstants/WeightTypeTag
 const ComplexVectorSpace1DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace1DStrategy */ "./src/mathVector/ComplexVectorSpace1DStrategy.ts");
 const ComplexVectorSpace2DStrategy_1 = __webpack_require__(/*! ./ComplexVectorSpace2DStrategy */ "./src/mathVector/ComplexVectorSpace2DStrategy.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceResolvers */ "./src/mathVector/internal/DefaultSpaceResolvers.ts");
-// import { DefaultVectorSpaces } from "./internal/DefaultVectorSpaces";
 const VectorSpaceResolvers_2 = __webpack_require__(/*! ./internal/VectorSpaceResolvers */ "./src/mathVector/internal/VectorSpaceResolvers.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_2 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
@@ -51535,14 +51534,10 @@ class ComplexVectorSpace {
         this._id = VectorSpaceIdentifierManager_1.INITIAL_VECTOR_SPACE_ID;
         if (this._isDefault) {
             this._id = (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this);
-        }
-        else {
-            this._id = (0, VectorSpaceResolvers_2.resolveVectorSpace)(this);
-        }
-        if (this._isDefault) {
             this._name = DefaultVectorSpaces_1.DEFAULT_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
         else {
+            this._id = (0, VectorSpaceResolvers_2.resolveVectorSpace)(this);
             this._name = name || VectorSpaceResolvers_1.COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
         switch (this.dim) {
@@ -52062,7 +52057,6 @@ class ProjectiveComplexVectorSpace {
         else {
             this._weightManagement = ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights;
         }
-        // this._weightManagement = weightManagement;
         if (isDefault === undefined)
             isDefault = false;
         this.weightManager = new WeightManager_2.WeightManager(this._weightManagement);
@@ -52070,14 +52064,10 @@ class ProjectiveComplexVectorSpace {
         this._id = VectorSpaceIdentifierManager_1.INITIAL_VECTOR_SPACE_ID;
         if (this._isDefault) {
             this._id = (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this);
-        }
-        else {
-            this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this);
-        }
-        if (this._isDefault) {
             this._name = DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
         else {
+            this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this);
             this._name = name || VectorSpaceResolvers_2.PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
         switch (this.dim) {
@@ -52107,9 +52097,6 @@ class ProjectiveComplexVectorSpace {
     }
     get weightManagement() {
         return this._weightManagement;
-    }
-    set weightManagement(weightManagement) {
-        this._weightManagement = weightManagement;
     }
     dimension() {
         return this.dim;
@@ -52438,30 +52425,6 @@ class ProjectiveComplexVectorSpace2DStrategy {
                     { type: WeightTypeTags_1.COMPLEXWEIGHT, real: sumWeights.real, imaginary: sumWeights.imaginary }
                 ]
             };
-            // if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
-            //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-            //         addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-            //         addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1])]
-            //     };
-            // } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
-            //     const complexWeight = addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
-            //     complexWeight.real = new Weight(complexWeight.real.value, false);
-            //     complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
-            //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-            //         addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-            //         complexWeight]
-            //     };
-            // } else if(weightManager.weightManagement === WeightManagement.SomeNullWeights) {
-            //     const complexWeight = addComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
-            //     if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
-            //         complexWeight.real = new Weight(complexWeight.real.value, false);
-            //     } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
-            //         complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
-            //     }
-            //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-            //         addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-            //         complexWeight]
-            //     };
         }
         else {
             throw new RangeError();
@@ -52496,9 +52459,10 @@ class ProjectiveComplexVectorSpace2DStrategy {
             }
         }
         else {
-            const scaledWeight = (0, ComplexNumberFactory_1.multiplyComplexWeightsUsingDescriptors)(scaleFactor, vector.coordinates[1]);
+            let scaledWeight = (0, ComplexNumberFactory_1.multiplyComplexWeightsUsingDescriptors)(scaleFactor, vector.coordinates[1]);
             if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights && (!scaledWeight.real.strictlyPositive && scaledWeight.imaginary.strictlyPositive)) {
-                scaledWeight.imaginary = new Weight_2.Weight(scaledWeight.imaginary.value, false);
+                scaledWeight = { type: WeightTypeTags_1.COMPLEXWEIGHT, real: scaledWeight.real, imaginary: new Weight_2.Weight(scaledWeight.imaginary.value, false) };
+                // scaledWeight.imaginary = new Weight(scaledWeight.imaginary.value, false);
             }
             else if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllStrictlyPositiveWeights) {
                 if (!scaledWeight.real.strictlyPositive || !scaledWeight.imaginary.strictlyPositive) {
@@ -52519,22 +52483,6 @@ class ProjectiveComplexVectorSpace2DStrategy {
                     { type: WeightTypeTags_1.COMPLEXWEIGHT, real: sumWeights.real, imaginary: sumWeights.imaginary }
                 ]
             };
-            // if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights && a.coordinates[1].real.strictlyPositive && b.coordinates[1].real.strictlyPositive) {
-            //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-            //         subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-            //         subtractComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1])]
-            //     };
-            // } else if(weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
-            //     const complexWeight = subtractComplexWeightsUsingDescriptors(a.coordinates[1], b.coordinates[1]);
-            //     if(complexWeight.real.strictlyPositive && !complexWeight.imaginary.strictlyPositive) {
-            //         complexWeight.real = new Weight(complexWeight.real.value, false);
-            //     } else if(!complexWeight.real.strictlyPositive && complexWeight.imaginary.strictlyPositive) {
-            //         complexWeight.imaginary = new Weight(complexWeight.imaginary.value, false);
-            //     }
-            //     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-            //         subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-            //         complexWeight]
-            //     };
         }
         else {
             throw new RangeError();
@@ -52622,14 +52570,10 @@ class ProjectiveVectorSpace {
         this._id = VectorSpaceIdentifierManager_1.INITIAL_VECTOR_SPACE_ID;
         if (this._isDefault) {
             this._id = (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this);
-        }
-        else {
-            this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this);
-        }
-        if (this._isDefault) {
             this._name = DefaultVectorSpaces_1.DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
         }
         else {
+            this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this);
             this._name = name || VectorSpaceResolvers_2.PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
         }
         switch (this.dim) {
@@ -53160,14 +53104,10 @@ class RealVectorSpace {
         this._id = VectorSpaceIdentifierManager_1.INITIAL_VECTOR_SPACE_ID;
         if (this._isDefault) {
             this._id = (0, DefaultSpaceResolvers_1.resolveDefaultVectorSpace)(this);
-        }
-        else {
-            this._id = (0, VectorSpaceResolvers_2.resolveVectorSpace)(this);
-        }
-        if (this._isDefault) {
             this._name = DefaultVectorSpaces_1.DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString();
         }
         else {
+            this._id = (0, VectorSpaceResolvers_2.resolveVectorSpace)(this);
             this._name = name || VectorSpaceResolvers_1.REAL_VECTOR_SPACE_NAME + dimension.toString();
         }
         switch (this.dim) {
@@ -53826,120 +53766,6 @@ exports.RealVectorSpace4DStrategy = RealVectorSpace4DStrategy;
 
 /***/ }),
 
-/***/ "./src/mathVector/Vector2d.ts":
-/*!************************************!*\
-  !*** ./src/mathVector/Vector2d.ts ***!
-  \************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.scaleY = exports.scaleX = exports.scale = exports.toVector2d = exports.Vector2d = void 0;
-const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-/**
- * A two dimensional vector
- */
-class Vector2d {
-    constructor(x = 0, y = 0) {
-        this._x = x;
-        this._y = y;
-    }
-    get x() {
-        return this._x;
-    }
-    get y() {
-        return this._y;
-    }
-    set x(x) {
-        this._x = x;
-    }
-    set y(y) {
-        this._y = y;
-    }
-    negative() {
-        return new Vector2d(-this._x, -this._y);
-    }
-    add(v) {
-        return new Vector2d(this._x + v.x, this._y + v.y);
-    }
-    multiply(value) {
-        return new Vector2d(this._x * value, this._y * value);
-    }
-    substract(v) {
-        return new Vector2d(this._x - v.x, this._y - v.y);
-    }
-    rotate90degrees() {
-        return new Vector2d(-this._y, this._x);
-    }
-    normalize() {
-        let norm = Math.sqrt(this._x * this._x + this._y * this._y);
-        let x = this._x / norm;
-        let y = this._y / norm;
-        return new Vector2d(x, y);
-    }
-    dot(v) {
-        return this._x * v.x + this._y * v.y;
-    }
-    crossPoduct(v) {
-        return this._x * v.y - this._y * v.x;
-    }
-    distance(v) {
-        return Math.sqrt(Math.pow(this._x - v.x, 2) + Math.pow(this._y - v.y, 2));
-    }
-    norm() {
-        return Math.sqrt(Math.pow(this._x, 2) + Math.pow(this._y, 2));
-    }
-    clone() {
-        return new Vector2d(this._x, this._y);
-    }
-    toArray() {
-        let result = [this._x, this._y];
-        return result;
-    }
-}
-exports.Vector2d = Vector2d;
-function toVector2d(v) {
-    let result = new Vector2d;
-    if (v.length !== 2) {
-        const error = new ErrorLoging_1.ErrorLog("function", "toVector2d", "Incorrect length of array to convert to Vector2d object.");
-        error.logMessage();
-    }
-    else {
-        result.x = v[0];
-        result.y = v[1];
-    }
-    return result;
-}
-exports.toVector2d = toVector2d;
-function scale(factor, v) {
-    let result = [];
-    v.forEach(element => {
-        result.push(element.multiply(factor));
-    });
-    return result;
-}
-exports.scale = scale;
-function scaleX(factor, v) {
-    let result = [];
-    v.forEach(element => {
-        v.push(new Vector2d(element.x * factor, element.y));
-    });
-    return result;
-}
-exports.scaleX = scaleX;
-function scaleY(factor, v) {
-    let result = [];
-    v.forEach(element => {
-        v.push(new Vector2d(element.x, element.y * factor));
-    });
-    return result;
-}
-exports.scaleY = scaleY;
-
-
-/***/ }),
-
 /***/ "./src/mathVector/VectorCollection1D.ts":
 /*!**********************************************!*\
   !*** ./src/mathVector/VectorCollection1D.ts ***!
@@ -54118,6 +53944,7 @@ exports.VECTOR_TYPE_INFO = void 0;
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ComplexTypeTag_1 = __webpack_require__(/*! ../namedConstants/ComplexTypeTag */ "./src/namedConstants/ComplexTypeTag.ts");
 const VectorTypeTags_1 = __webpack_require__(/*! ../namedConstants/VectorTypeTags */ "./src/namedConstants/VectorTypeTags.ts");
+;
 // never;
 exports.VECTOR_TYPE_INFO = {
     UndefinedVectorType: {
@@ -54975,6 +54802,10 @@ const BSplineR1toRn_1 = __webpack_require__(/*! ../../namedConstants/BSplineR1to
 const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ../../namedConstants/VectorSpaceIdentifierManager */ "./src/namedConstants/VectorSpaceIdentifierManager.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ../VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const DefaultSpaceResolvers_1 = __webpack_require__(/*! ../../ErrorMessages/DefaultSpaceResolvers */ "./src/ErrorMessages/DefaultSpaceResolvers.ts");
+const ComplexVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/ComplexVectorSpace */ "./src/ErrorMessages/ComplexVectorSpace.ts");
+const RealVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/RealVectorSpace */ "./src/ErrorMessages/RealVectorSpace.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/ProjectiveVectorSpace */ "./src/ErrorMessages/ProjectiveVectorSpace.ts");
+const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/ProjectiveComplexVectorSpace */ "./src/ErrorMessages/ProjectiveComplexVectorSpace.ts");
 /**
  * Get default real vector space for given dimension
  * @internal
@@ -54984,6 +54815,10 @@ function getDefaultRealVectorSpace(dimension) {
         return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getRealVectorSpace(dimension);
     }
     catch (error) {
+        if (error instanceof RangeError && error.message.includes(RealVectorSpace_1.EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION)) {
+            const errorMessage = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultRealVectorSpace', 'getDefaultRealVectorSpace', RealVectorSpace_1.EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION);
+            throw new RangeError(errorMessage.generateMessageString());
+        }
         const errorMessage = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultRealVectorSpace', 'getDefaultRealVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_DIMENSION);
         throw new RangeError(errorMessage.generateMessageString());
     }
@@ -54998,6 +54833,10 @@ function getDefaultComplexVectorSpace(dimension) {
         return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension);
     }
     catch (error) {
+        if (error instanceof RangeError && error.message.includes(ComplexVectorSpace_1.EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION)) {
+            const errorMessage = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultComplexVectorSpace', 'getDefaultComplexVectorSpace', ComplexVectorSpace_1.EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION);
+            throw new RangeError(errorMessage.generateMessageString());
+        }
         const errorMessage = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultComplexVectorSpace', 'getDefaultComplexVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_DIMENSION);
         throw new RangeError(errorMessage.generateMessageString());
     }
@@ -55012,6 +54851,10 @@ function getDefaultProjectiveRealVectorSpace(dimension) {
         return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(dimension);
     }
     catch (error) {
+        if (error instanceof RangeError && error.message.includes(ProjectiveVectorSpace_1.EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION)) {
+            const errorMessage = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultProjectiveRealVectorSpace', 'getDefaultProjectiveRealVectorSpace', ProjectiveVectorSpace_1.EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION);
+            throw new RangeError(errorMessage.generateMessageString());
+        }
         const errorMessage = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultProjectiveRealVectorSpace', 'getDefaultProjectiveRealVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_DIMENSION);
         throw new RangeError(errorMessage.generateMessageString());
     }
@@ -55026,6 +54869,10 @@ function getDefaultProjectiveComplexVectorSpace(dimension) {
         return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(dimension);
     }
     catch (error) {
+        if (error instanceof RangeError && error.message.includes(ProjectiveComplexVectorSpace_1.EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION)) {
+            const errorMessage = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultProjectiveComplexVectorSpace', 'getDefaultProjectiveComplexVectorSpace', ProjectiveComplexVectorSpace_1.EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION);
+            throw new RangeError(errorMessage.generateMessageString());
+        }
         const errorMessage = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultProjectiveComplexVectorSpace', 'getDefaultProjectiveComplexVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_DIMENSION);
         throw new RangeError(errorMessage.generateMessageString());
     }
@@ -55041,9 +54888,10 @@ function getDefaultVectorSpace(spaceType, dimension) {
             return getDefaultProjectiveRealVectorSpace(dimension);
         case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
             return getDefaultProjectiveComplexVectorSpace(dimension);
-        default:
+        default: {
             const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultVectorSpace', 'getDefaultVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_TYPE);
             throw new RangeError(error.generateMessageString());
+        }
     }
 }
 exports.getDefaultVectorSpace = getDefaultVectorSpace;
@@ -55097,11 +54945,6 @@ class DefaultVectorSpaces {
         this.complexSpaces = new Map();
         this.projectiveRealSpaces = new Map();
         this.projectiveComplexSpaces = new Map();
-        // factories to create default instances (register from concrete modules)
-        this.realFactories = new Map();
-        this.complexFactories = new Map();
-        this.projectiveRealFactories = new Map();
-        this.projectiveComplexFactories = new Map();
     }
     static getInstance() {
         if (!DefaultVectorSpaces.instance) {
@@ -55119,117 +54962,6 @@ class DefaultVectorSpaces {
     static hasInstance() {
         return DefaultVectorSpaces.instance !== null;
     }
-    // Factory registration API (called by concrete VectorSpace modules)
-    // registerRealVectorSpaceFactory(dimension: number, factory: () => any): void {
-    //     this.realFactories.set(dimension, factory);
-    // }
-    // registerComplexVectorSpaceFactory(dimension: number, factory: () => any): void {
-    //     this.complexFactories.set(dimension, factory);
-    // }
-    // registerProjectiveRealVectorSpaceFactory(dimension: number, factory: () => any): void {
-    //     this.projectiveRealFactories.set(dimension, factory);
-    // }
-    // registerProjectiveComplexVectorSpaceFactory(dimension: number, factory: () => any): void {
-    //     this.projectiveComplexFactories.set(dimension, factory);
-    // }
-    // Backwards-compatible instance registration
-    // registerVectorSpace1(vectorSpace: IdentifiableVectorSpace<any, any>): boolean {
-    //     let registered = true;
-    //     switch(vectorSpace.spaceType) {
-    //         case VectorSpaceType.REAL:
-    //             if(this.realSpaces.has(vectorSpace.dimension())) {
-    //                 registered = false;
-    //             } else {
-    //                 this.realSpaces.set(vectorSpace.dimension(), vectorSpace as RealVectorSpace<any>);
-    //             }
-    //             return registered;
-    //         case VectorSpaceType.COMPLEX:
-    //             if(this.complexSpaces.has(vectorSpace.dimension())) {
-    //                 registered = false;
-    //             } else {
-    //                 this.complexSpaces.set(vectorSpace.dimension(), vectorSpace as ComplexVectorSpace<any>);
-    //             }
-    //             return registered;
-    //         case VectorSpaceType.PROJECTIVE:
-    //             if(this.projectiveRealSpaces.has(vectorSpace.dimension())) {
-    //                 registered = false;
-    //             } else {
-    //                 this.projectiveRealSpaces.set(vectorSpace.dimension(), vectorSpace as ProjectiveVectorSpace<any>);
-    //             }
-    //             return registered;
-    //         case VectorSpaceType.PROJECTIVECOMPLEX:
-    //             if(this.projectiveComplexSpaces.has(vectorSpace.dimension())) {
-    //                 registered = false;
-    //             } else {
-    //                 this.projectiveComplexSpaces.set(vectorSpace.dimension(), vectorSpace as ProjectiveComplexVectorSpace<any>);
-    //             }
-    //             return registered;
-    //         default:
-    //             const error = sendRangeErrorMessage(this.constructor.name, 'registerVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
-    //             throw new RangeError(error.generateMessageString());
-    //     }
-    // }
-    // get methods now create instances using registered factories when needed
-    // getRealVectorSpace1<D extends number>(dimension: D): any {
-    //     if (dimension < MIN_DIMENSION_REALVECTORSPACE || dimension > MAX_DIMENSION_REALVECTORSPACE) {
-    //         throw new RangeError();
-    //     }
-    //     if (!this.realSpaces.has(dimension)) {
-    //         const factory = this.realFactories.get(dimension);
-    //         if (!factory) {
-    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getRealVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
-    //             throw new RangeError(errorMessage.generateMessageString());
-    //         }
-    //         const defaultSpace = factory();
-    //         this.realSpaces.set(dimension, defaultSpace);
-    //     }
-    //     return this.realSpaces.get(dimension);
-    // }
-    // getComplexVectorSpace1<D extends number>(dimension: D): any {
-    //     if (dimension < MIN_DIMENSION_COMPLEXVECTORSPACE || dimension > MAX_DIMENSION_COMPLEXVECTORSPACE) {
-    //         throw new RangeError();
-    //     }
-    //     if (!this.complexSpaces.has(dimension)) {
-    //         const factory = this.complexFactories.get(dimension);
-    //         if (!factory) {
-    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getComplexVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
-    //             throw new RangeError(errorMessage.generateMessageString());
-    //         }
-    //         const defaultSpace = factory();
-    //         this.complexSpaces.set(dimension, defaultSpace);
-    //     }
-    //     return this.complexSpaces.get(dimension);
-    // }
-    // getProjectiveVectorSpace1<D extends number>(dimension: D): any {
-    //     if (dimension < MIN_DIMENSION_PROJECTIVEVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVEVECTORSPACE) {
-    //         throw new RangeError();
-    //     }
-    //     if (!this.projectiveRealSpaces.has(dimension)) {
-    //         const factory = this.projectiveRealFactories.get(dimension);
-    //         if (!factory) {
-    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getProjectiveVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
-    //             throw new RangeError(errorMessage.generateMessageString());
-    //         }
-    //         const defaultSpace = factory();
-    //         this.projectiveRealSpaces.set(dimension, defaultSpace);
-    //     }
-    //     return this.projectiveRealSpaces.get(dimension);
-    // }
-    // getProjectiveComplexVectorSpace1<D extends number>(dimension: D): any {
-    //     if (dimension < MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {
-    //         throw new RangeError();
-    //     }
-    //     if (!this.projectiveComplexSpaces.has(dimension)) {
-    //         const factory = this.projectiveComplexFactories.get(dimension);
-    //         if (!factory) {
-    //             const errorMessage = sendRangeErrorMessage(this.constructor.name, 'getProjectiveComplexVectorSpace', EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
-    //             throw new RangeError(errorMessage.generateMessageString());
-    //         }
-    //         const defaultSpace = factory();
-    //         this.projectiveComplexSpaces.set(dimension, defaultSpace);
-    //     }
-    //     return this.projectiveComplexSpaces.get(dimension);
-    // }
     /**
      * Generate a unique identifier for a default vector space
      */
@@ -55288,9 +55020,10 @@ class DefaultVectorSpaces {
                     this.registerProjectiveComplexVectorSpace(vectorSpace);
                 }
                 return registered;
-            default:
+            default: {
                 const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'registerVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_TYPE);
                 throw new RangeError(error.generateMessageString());
+            }
         }
     }
     registerRealVectorSpace(realVS) {
@@ -55476,9 +55209,10 @@ class VectorSpaceIdentifierManager {
             case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
                 this.registerProjectiveComplexVectorSpace(vectorSpace);
                 return;
-            default:
+            default: {
                 const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'registerVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_TYPE);
                 throw new RangeError(error.generateMessageString());
+            }
         }
     }
     registerRealVectorSpace(realVS) {
@@ -55613,9 +55347,10 @@ function isRegisteredVectorSpace(vectorSpace) {
             return isRegisteredProjectiveRealVectorSpace(vectorSpace);
         case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
             return isRegisteredProjectiveComplexVectorSpace(vectorSpace);
-        default:
+        default: {
             const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultVectorSpace', 'getDefaultVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_TYPE);
             throw new RangeError(error.generateMessageString());
+        }
     }
 }
 exports.isRegisteredVectorSpace = isRegisteredVectorSpace;
@@ -55632,6 +55367,120 @@ function resolveVectorSpace(vectorSpace) {
     return vsId;
 }
 exports.resolveVectorSpace = resolveVectorSpace;
+
+
+/***/ }),
+
+/***/ "./src/mathVectorOld/Vector2d.ts":
+/*!***************************************!*\
+  !*** ./src/mathVectorOld/Vector2d.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.scaleY = exports.scaleX = exports.scale = exports.toVector2d = exports.Vector2d = void 0;
+const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
+/**
+ * A two dimensional vector
+ */
+class Vector2d {
+    constructor(x = 0, y = 0) {
+        this._x = x;
+        this._y = y;
+    }
+    get x() {
+        return this._x;
+    }
+    get y() {
+        return this._y;
+    }
+    set x(x) {
+        this._x = x;
+    }
+    set y(y) {
+        this._y = y;
+    }
+    negative() {
+        return new Vector2d(-this._x, -this._y);
+    }
+    add(v) {
+        return new Vector2d(this._x + v.x, this._y + v.y);
+    }
+    multiply(value) {
+        return new Vector2d(this._x * value, this._y * value);
+    }
+    substract(v) {
+        return new Vector2d(this._x - v.x, this._y - v.y);
+    }
+    rotate90degrees() {
+        return new Vector2d(-this._y, this._x);
+    }
+    normalize() {
+        let norm = Math.sqrt(this._x * this._x + this._y * this._y);
+        let x = this._x / norm;
+        let y = this._y / norm;
+        return new Vector2d(x, y);
+    }
+    dot(v) {
+        return this._x * v.x + this._y * v.y;
+    }
+    crossPoduct(v) {
+        return this._x * v.y - this._y * v.x;
+    }
+    distance(v) {
+        return Math.sqrt(Math.pow(this._x - v.x, 2) + Math.pow(this._y - v.y, 2));
+    }
+    norm() {
+        return Math.sqrt(Math.pow(this._x, 2) + Math.pow(this._y, 2));
+    }
+    clone() {
+        return new Vector2d(this._x, this._y);
+    }
+    toArray() {
+        let result = [this._x, this._y];
+        return result;
+    }
+}
+exports.Vector2d = Vector2d;
+function toVector2d(v) {
+    let result = new Vector2d;
+    if (v.length !== 2) {
+        const error = new ErrorLoging_1.ErrorLog("function", "toVector2d", "Incorrect length of array to convert to Vector2d object.");
+        error.logMessage();
+    }
+    else {
+        result.x = v[0];
+        result.y = v[1];
+    }
+    return result;
+}
+exports.toVector2d = toVector2d;
+function scale(factor, v) {
+    let result = [];
+    v.forEach(element => {
+        result.push(element.multiply(factor));
+    });
+    return result;
+}
+exports.scale = scale;
+function scaleX(factor, v) {
+    let result = [];
+    v.forEach(element => {
+        v.push(new Vector2d(element.x * factor, element.y));
+    });
+    return result;
+}
+exports.scaleX = scaleX;
+function scaleY(factor, v) {
+    let result = [];
+    v.forEach(element => {
+        v.push(new Vector2d(element.x, element.y * factor));
+    });
+    return result;
+}
+exports.scaleY = scaleY;
 
 
 /***/ }),
@@ -57573,7 +57422,7 @@ function findControlPointsFollowingSignChanges(spline) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deepCopyControlPoints = exports.AbstractBSplineR1toR2 = exports.TOL_KNOT_COINCIDENCE = exports.curveSegment = void 0;
 const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/newBsplines/Piegl_Tiller_NURBS_Book.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 const ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ./KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
@@ -60236,7 +60085,7 @@ AlgorithmBootstrap.isInitialized = false;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.BSplineR1toR1 = exports.KNOT_REMOVAL_TOLERANCE = void 0;
 const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/newBsplines/Piegl_Tiller_NURBS_Book.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const AbstractBSplineR1toR1_1 = __webpack_require__(/*! ./AbstractBSplineR1toR1 */ "./src/newBsplines/AbstractBSplineR1toR1.ts");
 const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/newBsplines/BernsteinDecompositionR1toR1.ts");
 const BSplineR1toR2_1 = __webpack_require__(/*! ./BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
@@ -60657,7 +60506,7 @@ exports.BSplineR1toR1 = BSplineR1toR1;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.create_BSplineR1toR2V2d = exports.create_BSplineR1toR2 = exports.BSplineR1toR2 = void 0;
 const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ./Piegl_Tiller_NURBS_Book */ "./src/newBsplines/Piegl_Tiller_NURBS_Book.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const AbstractBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2 */ "./src/newBsplines/AbstractBSplineR1toR2.ts");
 const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
 const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/newBsplines/BernsteinDecompositionR1toR1.ts");
@@ -64083,7 +63932,7 @@ exports.OpenBSplineR1toRnRealVectorStrategy = OpenBSplineR1toRnRealVectorStrateg
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PeriodicBSplineR1toR1 = void 0;
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const AbstractBSplineR1toR1_1 = __webpack_require__(/*! ./AbstractBSplineR1toR1 */ "./src/newBsplines/AbstractBSplineR1toR1.ts");
 const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/newBsplines/BernsteinDecompositionR1toR1.ts");
 const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
@@ -64203,7 +64052,7 @@ exports.PeriodicBSplineR1toR1 = PeriodicBSplineR1toR1;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.PeriodicBSplineR1toR2 = void 0;
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 const AbstractBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2 */ "./src/newBsplines/AbstractBSplineR1toR2.ts");
 const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
@@ -65124,7 +64973,7 @@ exports.PeriodicBSplineR1toR2DifferentialProperties = PeriodicBSplineR1toR2Diffe
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.create_PeriodicBSplineR1toR2 = exports.PeriodicBSplineR1toR2withOpenKnotSequence = void 0;
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const AbstractBSplineR1toR2_1 = __webpack_require__(/*! ./AbstractBSplineR1toR2 */ "./src/newBsplines/AbstractBSplineR1toR2.ts");
 const BernsteinDecompositionR1toR1_1 = __webpack_require__(/*! ./BernsteinDecompositionR1toR1 */ "./src/newBsplines/BernsteinDecompositionR1toR1.ts");
 const BSplineR1toR1_1 = __webpack_require__(/*! ./BSplineR1toR1 */ "./src/newBsplines/BSplineR1toR1.ts");
@@ -66575,7 +66424,7 @@ exports.StrictlyIncreasingPeriodicKnotSequenceClosedCurve = StrictlyIncreasingPe
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbstractCurveModel = exports.DEFAULT_CURVE_DEGREE = void 0;
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 // import { Optimizer } from "../optimizers/Optimizer"
 // import { ActiveControl } from "../bsplinesOptimizationProblems/AbstractOptimizationProblemBSplineR1toR2"
@@ -66788,7 +66637,7 @@ exports.ClosedCurveModel = ClosedCurveModel;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.CurveModel = void 0;
 const BSplineR1toR2_1 = __webpack_require__(/*! ../newBsplines/BSplineR1toR2 */ "./src/newBsplines/BSplineR1toR2.ts");
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 // import { OptimizationProblemBSplineR1toR2 } from "../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2"
 // import { Optimizer } from "../optimizers/Optimizer"
 const AbstractCurveModel_1 = __webpack_require__(/*! ./AbstractCurveModel */ "./src/newModels/AbstractCurveModel.ts");
@@ -67878,7 +67727,7 @@ exports.CurvatureExtremumEvent = CurvatureExtremumEvent;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deepCopyDifferentialEventVariation = exports.DiffrentialEventVariation = void 0;
-const Vector2d_1 = __webpack_require__(/*! ../mathVector/Vector2d */ "./src/mathVector/Vector2d.ts");
+const Vector2d_1 = __webpack_require__(/*! ../mathVectorOld/Vector2d */ "./src/mathVectorOld/Vector2d.ts");
 const Piegl_Tiller_NURBS_Book_1 = __webpack_require__(/*! ../newBsplines/Piegl_Tiller_NURBS_Book */ "./src/newBsplines/Piegl_Tiller_NURBS_Book.ts");
 const ComparatorOfSequencesDiffEvents_1 = __webpack_require__(/*! ./ComparatorOfSequencesDiffEvents */ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts");
 class DiffrentialEventVariation {

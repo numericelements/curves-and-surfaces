@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { BSplineR1toR2 } from '../../src/newBsplines/BSplineR1toR2';
 import { create_BSplineR1toR2V2d } from '../../src/newBsplines/BSplineR1toR2';
-import { Vector2d } from '../../src/mathVector/Vector2d';
+import { Vector2d } from '../../src/mathVectorOld/Vector2d';
 import { curveSegment } from '../../src/newBsplines/AbstractBSplineR1toR2';
 import { TOL_COMPARISON_PT_CRV_BSPL_R1TOR1 } from '../namedConstants/Curves';
 import { KnotIndexIncreasingSequence } from '../../src/newBsplines/KnotIndexIncreasingSequence';

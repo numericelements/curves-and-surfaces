@@ -1,5 +1,5 @@
 import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { LOWER_BOUND_CURVE_INTERVAL } from "../sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents";
 import { AbstractBSplineR1toR2, TOL_KNOT_COINCIDENCE, deepCopyControlPoints } from "./AbstractBSplineR1toR2";
 import { KNOT_REMOVAL_TOLERANCE } from "./BSplineR1toR1";

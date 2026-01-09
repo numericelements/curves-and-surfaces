@@ -330,7 +330,7 @@ export class ProjectiveVector1DTypeComplex  extends AbstractProjectiveComplexVec
         );
     }
 
-    createVectorFromRaw(raw: ProjectiveComplexVector): ProjectiveVector1DTypeComplex {
+    createVectorFromDescriptor(raw: ProjectiveComplexVector): ProjectiveVector1DTypeComplex {
         return new ProjectiveVector1DTypeComplex(raw.coordinates[0].real, raw.coordinates[0].imaginary, raw.coordinates[1].real, raw.coordinates[1].imaginary, this.vectorSpace);
     }
 

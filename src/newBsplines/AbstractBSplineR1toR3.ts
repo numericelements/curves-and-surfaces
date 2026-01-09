@@ -1,7 +1,7 @@
 import { findSpan, clampingFindSpan, basisFunctions } from "./Piegl_Tiller_NURBS_Book"
 import { BSplineR1toRxInterface } from "./BSplineR1toRxInterface"
-import { Vector3d } from "../mathVector/Vector3d"
-import { VectorInterface } from "../mathVector/VectorInterface"
+import { Vector3d } from "../mathVectorOld/Vector3d"
+import { VectorInterface } from "../mathVectorOld/VectorInterface"
 
 
 /**

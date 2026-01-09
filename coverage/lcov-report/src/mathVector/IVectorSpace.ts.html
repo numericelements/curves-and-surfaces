@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/51</span>
+                <span class='fraction'>0/50</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/51</span>
+                <span class='fraction'>0/50</span>
             </div>
         
             
@@ -112,9 +112,7 @@
 <a name='L47'></a><a href='#L47'>47</a>
 <a name='L48'></a><a href='#L48'>48</a>
 <a name='L49'></a><a href='#L49'>49</a>
-<a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L50'></a><a href='#L50'>50</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -164,13 +162,13 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";</span></span></span>
-<span class="cstat-no" title="statement not covered" >import type { Scalar, Vector } from "./VectorSpaceConstructorInterface";</span>
+<span class="cstat-no" title="statement not covered" >import type { IComplex, Vector } from "./VectorSpaceConstructorInterface";</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >/**</span>
 <span class="cstat-no" title="statement not covered" > * Vector Space interface following mathematical axioms</span>
 <span class="cstat-no" title="statement not covered" > * V is a vector space over field K if it satisfies the vector space axioms</span>
 <span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" >export interface VectorSpace&lt;K extends Scalar, V extends Vector&gt; {</span>
+<span class="cstat-no" title="statement not covered" >export interface VectorSpace&lt;V extends Vector&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    /** Additive identity element (zero vector) */</span>
 <span class="cstat-no" title="statement not covered" >    defaultVect(): V;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
@@ -178,7 +176,8 @@
 <span class="cstat-no" title="statement not covered" >    addDescriptors(a: V, b: V): V;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    /** Scalar multiplication */</span>
-<span class="cstat-no" title="statement not covered" >    scaleDescriptor(scalar: K, v: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    // scaleDescriptor(scalar: K, v: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    scaleDescriptor(scalar: number | IComplex, v: V): V;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    /** Vector subtraction (derived operation) */</span>
 <span class="cstat-no" title="statement not covered" >    subtractDescriptors(a: V, b: V): V;</span>
@@ -188,14 +187,12 @@
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    /** Duplicate vector */</span>
 <span class="cstat-no" title="statement not covered" >    cloneVector(v: V): V;</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    // addVectors(v1: IVector, v2: IVector): IVector;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >/**</span>
 <span class="cstat-no" title="statement not covered" > * Enhanced Vector Space Interface with Identity</span>
 <span class="cstat-no" title="statement not covered" > */</span>
-<span class="cstat-no" title="statement not covered" >export interface IdentifiableVectorSpace&lt;K extends Scalar, V extends Vector&gt; extends VectorSpace&lt;K, V&gt; {</span>
+<span class="cstat-no" title="statement not covered" >export interface IdentifiableVectorSpace&lt;V extends Vector&gt; extends VectorSpace&lt;V&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    /** Unique identifier for this vector space instance */</span>
 <span class="cstat-no" title="statement not covered" >    readonly id: string;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
@@ -209,10 +206,10 @@
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    /** Check if this vector space is the same as another */</span>
-<span class="cstat-no" title="statement not covered" >    isSameSpace(other: IdentifiableVectorSpace&lt;any, any&gt;): boolean;</span>
+<span class="cstat-no" title="statement not covered" >    isSameSpace(other: IdentifiableVectorSpace&lt;V&gt;): boolean;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    /** Check if this vector space is isomorphic to another */</span>
-<span class="cstat-no" title="statement not covered" >    isIsomorphicTo(other: IdentifiableVectorSpace&lt;any, any&gt;): boolean;</span>
+<span class="cstat-no" title="statement not covered" >    isIsomorphicTo(other: IdentifiableVectorSpace&lt;V&gt;): boolean;</span>
 <span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -220,7 +217,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-03T15:41:11.644Z
+                at 2026-01-09T08:31:28.425Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

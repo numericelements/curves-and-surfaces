@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>204/204</span>
+                <span class='fraction'>195/195</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>204/204</span>
+                <span class='fraction'>195/195</span>
             </div>
         
             
@@ -259,25 +259,7 @@
 <a name='L194'></a><a href='#L194'>194</a>
 <a name='L195'></a><a href='#L195'>195</a>
 <a name='L196'></a><a href='#L196'>196</a>
-<a name='L197'></a><a href='#L197'>197</a>
-<a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a>
-<a name='L200'></a><a href='#L200'>200</a>
-<a name='L201'></a><a href='#L201'>201</a>
-<a name='L202'></a><a href='#L202'>202</a>
-<a name='L203'></a><a href='#L203'>203</a>
-<a name='L204'></a><a href='#L204'>204</a>
-<a name='L205'></a><a href='#L205'>205</a>
-<a name='L206'></a><a href='#L206'>206</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L197'></a><a href='#L197'>197</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -492,24 +474,20 @@ export type Real = number;
 /** Complex numbers (ℂ) represented as [real, imaginary] */
 export interface IComplex {
     readonly type: typeof COMPLEX;
-    real: number;
-    imaginary: number;
+    readonly real: number;
+    readonly imaginary: number;
 }
 &nbsp;
 export interface IWeight {
     readonly type: typeof WEIGHT;
-    weight: Weight;
+    readonly weight: Weight;
 }
 &nbsp;
 export interface IComplexWeight {
     readonly type: typeof COMPLEXWEIGHT;
-    real: Weight;
-    imaginary: Weight;
+    readonly real: Weight;
+    readonly imaginary: Weight;
 }
-&nbsp;
-&nbsp;
-/** Scalar types supported in calculations */
-export type Scalar = Real | IComplex;
 &nbsp;
 /** Generic vector type for n-dimensional space */
 export type RealVector = RealVector1D | RealVector2D | RealVector3D | RealVector4D;
@@ -519,14 +497,9 @@ export type ProjectiveComplexVector = ProjectiveComplexVector1D;
 export type Vector = RealVector | ComplexVector | ProjectiveVector | ProjectiveComplexVector;
 &nbsp;
 /** Specific vector type */
-export type Vector1D = Scalar;
+export type Vector1D = Real | IComplex;;
 &nbsp;
 export type RealVector1D = Real;
-&nbsp;
-// export interface RealVector1D {
-//     readonly type: typeof REALVECTOR1D;  // Add this constant
-//     coordinates: Real;
-// }
 &nbsp;
 export interface UndefinedVectorType {
     readonly type: typeof UNDEFINED_VECTORTYPE;
@@ -536,29 +509,29 @@ export type Vector2D = RealVector2D | ComplexVector2D | ProjectiveComplexVector1
 &nbsp;
 export interface RealVector2D {
     readonly type: typeof REALVECTOR2D;
-    coordinates: [Real, Real];
+    readonly coordinates: [Real, Real];
 }
 &nbsp;
 export interface ProjectiveVector2D {
     readonly type: typeof PROJECTIVEVECTOR2D;
-    coordinates: [Real, Real, IWeight];
+    readonly coordinates: [Real, Real, IWeight];
 }
 &nbsp;
 export type Vector3D = RealVector3D | ProjectiveVector2D;
 &nbsp;
 export interface RealVector3D {
     readonly type: typeof REALVECTOR3D;
-    coordinates: [Real, Real, Real];
+    readonly coordinates: [Real, Real, Real];
 }
 &nbsp;
 export interface ProjectiveVector3D {
     readonly type: typeof PROJECTIVEVECTOR3D;
-    coordinates: [Real, Real, Real, IWeight];
+    readonly coordinates: [Real, Real, Real, IWeight];
 }
 &nbsp;
 export interface RealVector4D {
     readonly type: typeof REALVECTOR4D;
-    coordinates: [Real, Real, Real, Real];
+    readonly coordinates: [Real, Real, Real, Real];
 }
 &nbsp;
 export type Vector4D = RealVector4D | ProjectiveVector3D;
@@ -567,12 +540,12 @@ export type ComplexVector1D = IComplex;
 &nbsp;
 export interface ComplexVector2D {
     readonly type: typeof COMPLEXVECTOR2D;
-    coordinates: [IComplex, IComplex];
+    readonly coordinates: [IComplex, IComplex];
 }
 &nbsp;
 export interface ProjectiveComplexVector1D {
     readonly type: typeof PROJECTIVECOMPLEXVECTOR1D;
-    coordinates: [IComplex, IComplexWeight];
+    readonly coordinates: [IComplex, IComplexWeight];
 }
 &nbsp;
 export type VectorTypeForSpace&lt;VS extends VectorSpaceType, D extends number&gt; =
@@ -685,7 +658,7 @@ export const VECTOR_TYPE_INFO = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-03T15:41:11.644Z
+                at 2026-01-09T08:31:28.425Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

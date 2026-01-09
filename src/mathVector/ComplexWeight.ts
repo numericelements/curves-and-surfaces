@@ -7,8 +7,8 @@ import { Weight } from "./Weight";
 export class ComplexWeight {
 
     private readonly _type: typeof COMPLEXWEIGHT;
-    private _real: Weight;
-    private _imaginary: Weight;
+    private readonly _real: Weight;
+    private readonly _imaginary: Weight;
 
     constructor();
     constructor(real: Weight);

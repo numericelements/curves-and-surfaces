@@ -1,4 +1,4 @@
-import type { RealVectorSpace } from './RealVectorSpace';
+import { RealVectorSpace } from './RealVectorSpace';
 import type { ComplexVectorSpace } from './ComplexVectorSpace';
 import { VectorSpaceType } from '../namedConstants/BSplineR1toRn';
 import type { IComplex } from './VectorSpaceConstructorInterface';
@@ -14,8 +14,16 @@ import { Vector2DTypeComplex } from './Vector2DTypeComplex';
  */
 
 // Real vectors
-export function realVector1D(x: number = 0, vectorSpace?: RealVectorSpace<1>) {
-    return new Vector1DTypeReal( x, vectorSpace);
+export function realVector1D(): Vector1DTypeReal;
+export function realVector1D(x: number, vectorSpace?: RealVectorSpace<1>): Vector1DTypeReal;
+export function realVector1D(vectorSpace: RealVectorSpace<1>): Vector1DTypeReal;
+export function realVector1D(xOrVectorSpace?: number | RealVectorSpace<1>, vectorSpace?: RealVectorSpace<1>): Vector1DTypeReal {
+    if(xOrVectorSpace instanceof RealVectorSpace) {
+        return new Vector1DTypeReal(xOrVectorSpace);
+    } else {
+        const x = xOrVectorSpace ?? 0;
+        return new Vector1DTypeReal(x, vectorSpace);
+    }
 }
 
 export function realVector2D(x: number = 0, y: number = 0, vectorSpace?: RealVectorSpace<2>) {

@@ -1,4 +1,4 @@
-import { VectorInterface } from "../mathVector/VectorInterface";
+import { VectorInterface } from "../mathVectorOld/VectorInterface";
 
 export interface BSplineR1toRxInterface<T> {
 

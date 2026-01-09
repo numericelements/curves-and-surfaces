@@ -4,15 +4,15 @@ import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import type { IProjectiveVector, IRealVector } from "./Vector";
-import type { RealVector, RealVector4D } from "./VectorSpaceConstructorInterface";
+import type { IProjectiveVector } from "./Vector";
+import type { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 4;
 
 export class Vector4DTypeReal extends AbstractRealVector {
-    private data: RealVector4D;
-    protected _vectorSpace: RealVectorSpace<4>;
+    private readonly data: RealVector4D;
+    protected readonly _vectorSpace: RealVectorSpace<4>;
     
     constructor();
     constructor(x: number, y: number, z: number, t: number, vectorSpace?: RealVectorSpace<4>);
@@ -91,7 +91,7 @@ export class Vector4DTypeReal extends AbstractRealVector {
         return new Vector4DTypeReal(this.x!, this.y!, this.z!, this.t!, this.vectorSpace);
     }
 
-    createVectorFromRaw(raw: RealVector4D): Vector4DTypeReal {
+    createVectorFromDescriptor(raw: RealVector4D): Vector4DTypeReal {
         return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3], this.vectorSpace);
     }
     

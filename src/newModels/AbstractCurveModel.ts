@@ -1,7 +1,7 @@
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface"
 // import { OptimizationProblemBSplineR1toR2Interface } from "../bsplinesOptimizationProblems/OptimizationProblemBSplineR1toR2Interface"
 import { IObserver } from "../newDesignPatterns/Observer"
-import { Vector2d } from "../mathVector/Vector2d"
+import { Vector2d } from "../mathVectorOld/Vector2d"
 import { CurveModelInterface, KindOfObservers } from "./CurveModelInterface"
 import { CurveAnalyzerEventsNotSlidingOnTheLeftOfInterval } from "../curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";

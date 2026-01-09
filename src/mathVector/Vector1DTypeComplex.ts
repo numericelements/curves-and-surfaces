@@ -1,3 +1,4 @@
+import { EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES } from "../ErrorMessages/ComplexVectors";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { COMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
@@ -12,11 +13,15 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 const SPACE_DIMENSION = 1;
 
 export class Vector1DTypeComplex extends AbstractComplexVector {
-    private data: IComplex;
-    protected _vectorSpace: ComplexVectorSpace<1>;
+    private readonly data: IComplex;
+    protected readonly _vectorSpace: ComplexVectorSpace<1>;
     
     constructor();
     constructor(real: number, imaginary: number, vectorSpace?: ComplexVectorSpace<1>);
+
+    // Constructor overload for complex number and number not supported by the API
+    constructor(complex: Complex, _unsupported?: number, vectorSpace?: ComplexVectorSpace<1>);
+
     constructor(complex: Complex, vectorSpace?: ComplexVectorSpace<1>);
     constructor(vectorSpace: ComplexVectorSpace<1>);
     constructor(realOrComplexOrVectorSpace?: number | Complex | ComplexVectorSpace<1>, imaginaryOrVectorSpace?: number | ComplexVectorSpace<1>, vectorSpace?: ComplexVectorSpace<1>) {
@@ -31,7 +36,8 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
             if (imaginaryOrVectorSpace instanceof ComplexVectorSpace) {
                 this._vectorSpace = imaginaryOrVectorSpace;
             } else if (vectorSpace !== undefined) {
-                this._vectorSpace = vectorSpace;
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES);
+                throw new RangeError(error.generateMessageString());
             } else {
                 try {
                     this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
@@ -106,11 +112,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
         return new Vector1DTypeComplex(this.data.real, this.data.imaginary, this.vectorSpace);
     }
 
-    createVectorFromRaw(raw: ComplexVector1D): Vector1DTypeComplex {
-        return new Vector1DTypeComplex(raw.real, raw.imaginary, this.vectorSpace);
-    }
-    
-    static fromRaw(raw: ComplexVector1D, vectorSpace?: ComplexVectorSpace<1>): Vector1DTypeComplex {
-        return new Vector1DTypeComplex(raw.real, raw.imaginary, vectorSpace);
+    createVectorFromDescriptor(vectorDescriptor: ComplexVector1D): Vector1DTypeComplex {
+        return new Vector1DTypeComplex(vectorDescriptor.real, vectorDescriptor.imaginary, this.vectorSpace);
     }
 }

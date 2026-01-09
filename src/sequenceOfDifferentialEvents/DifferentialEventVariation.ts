@@ -1,5 +1,5 @@
 import { CurveAnalyzerInterface } from "../curveShapeSpaceAnalysis/CurveAnalyzerInterface";
-import { Vector2d } from "../mathVector/Vector2d";
+import { Vector2d } from "../mathVectorOld/Vector2d";
 import { BSplineR1toR1Interface } from "../newBsplines/BSplineR1toR1Interface";
 import { BSplineR1toR2Interface } from "../newBsplines/BSplineR1toR2Interface";
 import { findSpan } from "../newBsplines/Piegl_Tiller_NURBS_Book";
