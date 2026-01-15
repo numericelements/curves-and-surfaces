@@ -1,4 +1,3 @@
-import { EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES } from "../ErrorMessages/ComplexVectors";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { COMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
@@ -17,50 +16,54 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
     protected readonly _vectorSpace: ComplexVectorSpace<1>;
     
     constructor();
+    constructor(vectorSpace: ComplexVectorSpace<1>);
+    constructor(complex: Complex, vectorSpace?: ComplexVectorSpace<1>);
     constructor(real: number, imaginary: number, vectorSpace?: ComplexVectorSpace<1>);
 
-    // Constructor overload for complex number and number not supported by the API
-    constructor(complex: Complex, _unsupported?: number, vectorSpace?: ComplexVectorSpace<1>);
-
-    constructor(complex: Complex, vectorSpace?: ComplexVectorSpace<1>);
-    constructor(vectorSpace: ComplexVectorSpace<1>);
     constructor(realOrComplexOrVectorSpace?: number | Complex | ComplexVectorSpace<1>, imaginaryOrVectorSpace?: number | ComplexVectorSpace<1>, vectorSpace?: ComplexVectorSpace<1>) {
         super();
+        // Case 1: no arguments
+        if(realOrComplexOrVectorSpace === undefined) {
+            this.data = { type: COMPLEX, real: 0, imaginary: 0 };
+            this._vectorSpace = this.getDefaultVectorSpace();
+            return;
+        }
+
+        // Case 2: vectorSpace only
         if (realOrComplexOrVectorSpace instanceof ComplexVectorSpace) {
             this._vectorSpace = realOrComplexOrVectorSpace;
             this.data = { type: COMPLEX, real: 0, imaginary: 0 };
             return;
-        } else if (realOrComplexOrVectorSpace instanceof Complex) {
+        }
+        
+        // Case 3: coordinates as complex number with optional vectorSpace
+        if (realOrComplexOrVectorSpace instanceof Complex) {
             const complex = realOrComplexOrVectorSpace;
             this.data = { type: COMPLEX, real: complex.real, imaginary: complex.imaginary };
-            if (imaginaryOrVectorSpace instanceof ComplexVectorSpace) {
-                this._vectorSpace = imaginaryOrVectorSpace;
-            } else if (vectorSpace !== undefined) {
-                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES);
-                throw new RangeError(error.generateMessageString());
-            } else {
-                try {
-                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
-                } catch(error) {
-                    this._vectorSpace = new ComplexVectorSpace(this.dimension, true) as ComplexVectorSpace<1>;
-                }
-            }
+            this._vectorSpace = (imaginaryOrVectorSpace instanceof ComplexVectorSpace) 
+                ? imaginaryOrVectorSpace 
+                : this.getDefaultVectorSpace();
             return;
         }
-        const real = realOrComplexOrVectorSpace ?? 0;
-        if (typeof imaginaryOrVectorSpace === 'number') {
-            this.data = { type: COMPLEX, real: real, imaginary: imaginaryOrVectorSpace };
+
+        // Case 4: coordinates as real and imaginary parts with optional vectorSpace
+        // At this point: realOrComplexOrVectorSpace is number (guaranteed by overload)
+        // imaginaryOrVectorSpace is either number or ComplexVectorSpace (not undefined, by overload)
+        if (imaginaryOrVectorSpace instanceof ComplexVectorSpace) {
+            // cannot be reached with overloads, but added for type safety -> not covered by istanbul ignore
+            throw new RangeError();
         } else {
-            this.data = { type: COMPLEX, real: real, imaginary: 0 };
+            // imaginaryOrVectorSpace is number (guaranteed by overload)
+            this.data = { type: COMPLEX, real: realOrComplexOrVectorSpace, imaginary: imaginaryOrVectorSpace! };
+            this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
         }
-        if(vectorSpace !== undefined) {
-            this._vectorSpace = vectorSpace;
-        } else {
-            try {
-                this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
-            } catch(error) {
-                this._vectorSpace = new ComplexVectorSpace(this.dimension, true) as ComplexVectorSpace<1>;
-            }
+    }
+
+    private getDefaultVectorSpace(): ComplexVectorSpace<1> {
+        try{
+            return getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<1>;
+        } catch(error) {
+            return new ComplexVectorSpace(this.dimension, true) as ComplexVectorSpace<1>;
         }
     }
     

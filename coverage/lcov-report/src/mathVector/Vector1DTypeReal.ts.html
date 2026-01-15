@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>109/109</span>
+                <span class='fraction'>120/120</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>25/25</span>
+                <span class='fraction'>26/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>16/16</span>
+                <span class='fraction'>17/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>109/109</span>
+                <span class='fraction'>120/120</span>
             </div>
         
             
@@ -171,7 +171,18 @@
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
 <a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -192,23 +203,34 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">92x</span>
 <span class="cline-any cline-yes">92x</span>
 <span class="cline-any cline-yes">92x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">90x</span>
+<span class="cline-any cline-yes">90x</span>
 <span class="cline-any cline-yes">92x</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">67x</span>
-<span class="cline-any cline-yes">90x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">88x</span>
+<span class="cline-any cline-yes">88x</span>
+<span class="cline-any cline-yes">88x</span>
+<span class="cline-any cline-yes">92x</span>
+<span class="cline-any cline-yes">92x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">23x</span>
 <span class="cline-any cline-yes">23x</span>
 <span class="cline-any cline-yes">23x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">23x</span>
-<span class="cline-any cline-yes">90x</span>
-<span class="cline-any cline-yes">92x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -297,24 +319,35 @@ export class Vector1DTypeReal extends AbstractRealVector {
     protected readonly _vectorSpace: RealVectorSpace&lt;1&gt;;
 &nbsp;
     constructor();
-    constructor(value: number, vectorSpace?: RealVectorSpace&lt;1&gt;);
     constructor(vectorSpace: RealVectorSpace&lt;1&gt;); 
+    constructor(value: number, vectorSpace?: RealVectorSpace&lt;1&gt;);
+&nbsp;
     constructor(xOrVectorSpace?: number | RealVectorSpace&lt;1&gt;, vectorSpace?: RealVectorSpace&lt;1&gt;) {
         super();
-        if(xOrVectorSpace instanceof RealVectorSpace) {
-            this._vectorSpace = xOrVectorSpace;
+        // Case 1: no arguments
+        if(xOrVectorSpace === undefined) {
             this.value = 0;
-        } else {
-            this.value = xOrVectorSpace ?? 0;
-            if(vectorSpace !== undefined) {
-                this._vectorSpace = vectorSpace;
-            } else {
-                try{
-                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace&lt;1&gt;;
-                } catch(error) {
-                    this._vectorSpace = new RealVectorSpace(this.dimension, true) as RealVectorSpace&lt;1&gt;;
-                }
-            }
+            this._vectorSpace = this.getDefaultVectorSpace();
+            return;
+        }
+&nbsp;
+        // Case 2: vectorSpace only
+        if(xOrVectorSpace instanceof RealVectorSpace) {
+            this.value = 0;
+            this._vectorSpace = xOrVectorSpace;
+            return;
+        }
+        
+        // Case 3: value with optional vectorSpace
+        this.value = xOrVectorSpace;
+        this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
+    }
+    
+    private getDefaultVectorSpace(): RealVectorSpace&lt;1&gt; {
+        try{
+            return getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace&lt;1&gt;;
+        } catch(error) {
+            return new RealVectorSpace(this.dimension, true) as RealVectorSpace&lt;1&gt;;
         }
     }
 &nbsp;
@@ -394,7 +427,7 @@ export class Vector1DTypeReal extends AbstractRealVector {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-09T08:31:28.425Z
+                at 2026-01-15T17:39:01.698Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -18,43 +18,53 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector {
     protected readonly _vectorSpace: ProjectiveVectorSpace<3>;
     
     constructor();
-    constructor(x: number, y: number);
+    constructor(vectorSpace: ProjectiveVectorSpace<3>);
     constructor(x: number, y: number, weight: Weight, vectorSpace?: ProjectiveVectorSpace<3>);
     constructor(x: number, y: number, vectorSpace?: ProjectiveVectorSpace<3>);
-    constructor(vectorSpace: ProjectiveVectorSpace<3>);
+
     constructor(xOrVectorSpace?: number | ProjectiveVectorSpace<3>, y?: number, weightOrVSpace?: Weight | ProjectiveVectorSpace<3>, vectorSpace?: ProjectiveVectorSpace<3>) {
         super();
         let strictlyPosWeight = true;
+        // Case 1: no arguments
+        if(xOrVectorSpace === undefined) {
+            this.data = { type: PROJECTIVEVECTOR2D, coordinates: [0, 0,  { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
+            this._vectorSpace = this.getDefaultVectorSpace();
+            return;
+        }
+
+        // Case 2: vectorSpace only
         if(xOrVectorSpace instanceof ProjectiveVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
             if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
             this.data = { type: PROJECTIVEVECTOR2D, coordinates: [0, 0, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
             return;
-        } else if (weightOrVSpace instanceof ProjectiveVectorSpace) {
-            this._vectorSpace = weightOrVSpace;
-            if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
-            const x = xOrVectorSpace ?? 0;
-            this.data = { 
-                type: PROJECTIVEVECTOR2D, 
-                coordinates: [x, y ?? 0, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
-            };
-            return;
-        } else {
+        }
+
+        // Case 3: all coordinates and weight with optional vectorSpace
+        if (weightOrVSpace instanceof Weight) {
             strictlyPosWeight = this.checkValidityWeightStatus(weightOrVSpace as Weight, vectorSpace as ProjectiveVectorSpace<3>);
-            const x = xOrVectorSpace ?? 0;
             this.data = { 
                 type: PROJECTIVEVECTOR2D, 
-                coordinates: [x, y ?? 0, { type: WEIGHT, weight: weightOrVSpace ?? new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
+                coordinates: [xOrVectorSpace, y!, { type: WEIGHT, weight: weightOrVSpace }] 
             };
-            if(vectorSpace !== undefined) {
-                this._vectorSpace = vectorSpace;
-            } else {
-                try {
-                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveVectorSpace<3>;
-                } catch(error) {
-                    this._vectorSpace = new ProjectiveVectorSpace(this.dimension, true) as ProjectiveVectorSpace<3>;
-                }
-            }
+            this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
+            return;
+        }
+        
+        // Case 4: all coordinates with optional vectorSpace
+        this._vectorSpace = weightOrVSpace ?? this.getDefaultVectorSpace();;
+        if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
+        this.data = { 
+            type: PROJECTIVEVECTOR2D, 
+            coordinates: [xOrVectorSpace, y!, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
+        };
+    }
+
+    private getDefaultVectorSpace(): ProjectiveVectorSpace<3> {
+        try{
+            return getDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveVectorSpace<3>;
+        } catch(error) {
+            return new ProjectiveVectorSpace(this.dimension, true) as ProjectiveVectorSpace<3>;
         }
     }
     

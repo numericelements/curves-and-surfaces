@@ -25,7 +25,7 @@ export interface IVector {
     getCoordinate(index: number): number | Complex;
     readonly coordinates: (number | Complex)[];
     
-    // Raw data access for interoperability
+    // Descriptor data access for interoperability
     readonly descriptor: Vector;
     
     // Basic operations - now can be performed directly on vectors

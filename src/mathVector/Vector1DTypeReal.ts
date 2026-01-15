@@ -16,24 +16,35 @@ export class Vector1DTypeReal extends AbstractRealVector {
     protected readonly _vectorSpace: RealVectorSpace<1>;
 
     constructor();
-    constructor(value: number, vectorSpace?: RealVectorSpace<1>);
     constructor(vectorSpace: RealVectorSpace<1>); 
+    constructor(value: number, vectorSpace?: RealVectorSpace<1>);
+
     constructor(xOrVectorSpace?: number | RealVectorSpace<1>, vectorSpace?: RealVectorSpace<1>) {
         super();
-        if(xOrVectorSpace instanceof RealVectorSpace) {
-            this._vectorSpace = xOrVectorSpace;
+        // Case 1: no arguments
+        if(xOrVectorSpace === undefined) {
             this.value = 0;
-        } else {
-            this.value = xOrVectorSpace ?? 0;
-            if(vectorSpace !== undefined) {
-                this._vectorSpace = vectorSpace;
-            } else {
-                try{
-                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<1>;
-                } catch(error) {
-                    this._vectorSpace = new RealVectorSpace(this.dimension, true) as RealVectorSpace<1>;
-                }
-            }
+            this._vectorSpace = this.getDefaultVectorSpace();
+            return;
+        }
+
+        // Case 2: vectorSpace only
+        if(xOrVectorSpace instanceof RealVectorSpace) {
+            this.value = 0;
+            this._vectorSpace = xOrVectorSpace;
+            return;
+        }
+        
+        // Case 3: value with optional vectorSpace
+        this.value = xOrVectorSpace;
+        this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
+    }
+    
+    private getDefaultVectorSpace(): RealVectorSpace<1> {
+        try{
+            return getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<1>;
+        } catch(error) {
+            return new RealVectorSpace(this.dimension, true) as RealVectorSpace<1>;
         }
     }
 

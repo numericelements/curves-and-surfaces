@@ -8,7 +8,6 @@ import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
-import { EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES } from "../../src/ErrorMessages/ComplexVectors";
 
 describe('Vector 1D in complex vector space: generation and operators in this vector space', () => {
     const dimension = 1;
@@ -93,13 +92,6 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector.vectorSpace.isDefault).to.eql(false);
             expect(complexVector.vectorSpace).to.eql(vSpace);
-        });
-
-        it(`cannot generate an arbitrary complex vector using complex and real coordinates at the same time`, () => {
-            const vSpace = new ComplexVectorSpace(dimension);
-            const complex = new Complex(1, -2);
-            expect(() => new Vector1DTypeComplex(complex, 0, vSpace)).to.throw(RangeError);
-            expect(() => new Vector1DTypeComplex(complex, 0, vSpace)).to.throw(EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES);
         });
     });
 

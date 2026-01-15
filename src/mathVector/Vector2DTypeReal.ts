@@ -18,25 +18,35 @@ export class Vector2DTypeReal extends AbstractRealVector {
     protected readonly _vectorSpace: RealVectorSpace<2>;
     
     constructor();
-    constructor(x: number, y: number, vectorSpace?: RealVectorSpace<2>);
     constructor(vectorSpace: RealVectorSpace<2>);
+    constructor(x: number, y: number, vectorSpace?: RealVectorSpace<2>);
+
     constructor(xOrVectorSpace?: number | RealVectorSpace<2>, y?: number, vectorSpace?: RealVectorSpace<2>){
         super();
+        // Case 1: no arguments
+        if(xOrVectorSpace === undefined) {
+            this.data = { type: REALVECTOR2D, coordinates: [0, 0] };
+            this._vectorSpace = this.getDefaultVectorSpace();
+            return;
+        }
+
+        // Case 2: vectorSpace only
         if(xOrVectorSpace instanceof RealVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
             this.data = { type: REALVECTOR2D, coordinates: [0, 0] };
-        } else {
-            const x = xOrVectorSpace ?? 0;
-            this.data = { type: REALVECTOR2D, coordinates: [x, y ?? 0] };
-            if(vectorSpace !== undefined) {
-                this._vectorSpace = vectorSpace;
-            } else {
-                try{
-                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<2>;
-                } catch(error) {
-                    this._vectorSpace = new RealVectorSpace(this.dimension, true) as RealVectorSpace<2>;
-                }
-            }
+            return;
+        }
+
+        // Case 3: all coordinates with optional vectorSpace
+        this.data = { type: REALVECTOR2D, coordinates: [xOrVectorSpace, y!] };
+        this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
+    }
+
+    private getDefaultVectorSpace(): RealVectorSpace<2> {
+        try{
+            return getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<2>;
+        } catch(error) {
+            return new RealVectorSpace(this.dimension, true) as RealVectorSpace<2>;
         }
     }
     

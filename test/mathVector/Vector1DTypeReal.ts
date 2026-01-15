@@ -60,7 +60,6 @@ describe('Vector 1D in real vector space: generation and operators in this vecto
             expect(realVector.vectorSpace.isDefault).to.eql(false);
             expect(realVector.vectorSpace).to.eql(vSpace);
         });
-
     });
 
     describe('Accessors', () => {

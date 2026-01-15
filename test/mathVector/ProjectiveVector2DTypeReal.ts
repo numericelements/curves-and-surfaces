@@ -38,15 +38,17 @@ describe('Projective vector 2D in real vector space: generation and operators in
         });
 
         it(`can generate an arbitrary projective real vector with default weight into the default 3D projective vector space`, () => {
-            const projRealVector = new ProjectiveVector2DTypeReal(-1, 2);
+            const x = -1;
+            const y = 2;
+            const projRealVector = new ProjectiveVector2DTypeReal(x, y);
             expect(projRealVector.coordinates.length).to.eql(dimension);
-            expect(projRealVector.coordinates).to.eql([-1, 2, 1]);
+            expect(projRealVector.coordinates).to.eql([x, y, DEFAULT_WEIGHT_VALUE]);
             expect(projRealVector.dimension).to.eql(dimension);
-            expect(projRealVector.getCoordinate(0)).to.eql(-1);
-            expect(projRealVector.getCoordinate(1)).to.eql(2);
-            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
+            expect(projRealVector.getCoordinate(0)).to.eql(x);
+            expect(projRealVector.getCoordinate(1)).to.eql(y);
+            expect(projRealVector.getCoordinate(2)).to.eql(DEFAULT_WEIGHT_VALUE);
             expect(projRealVector.weight.strictlyPositive).to.eql(true);
-            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.weight).to.eql(new Weight());
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projRealVector.vectorSpace.isDefault).to.eql(true);
@@ -102,6 +104,86 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector.vectorSpace).to.eql(vSpace);
         });
 
+        it(`can generate an arbitrary projective real vector with default weight into a user-defined 3D vector space with weight management ${WeightManagement.AllPositiveWeights}`, () => {
+            const x = 4;
+            const y = -2;
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const projRealVector = new ProjectiveVector2DTypeReal(x, y, vSpace);
+            expect(projRealVector.coordinates.length).to.eql(dimension);
+            expect(projRealVector.coordinates).to.eql([x, y, DEFAULT_WEIGHT_VALUE]);
+            expect(projRealVector.dimension).to.eql(dimension);
+            expect(projRealVector.getCoordinate(0)).to.eql(x);
+            expect(projRealVector.getCoordinate(1)).to.eql(y);
+            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
+            expect(projRealVector.weight.strictlyPositive).to.eql(false);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
+            expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projRealVector.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector.vectorSpace).to.eql(vSpace);
+        });
+
+        it(`can generate an arbitrary projective real vector with default weight into a user-defined 3D vector space with weight management ${WeightManagement.SomeNullWeights}`, () => {
+            const x = 4;
+            const y = -2;
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+            const projRealVector = new ProjectiveVector2DTypeReal(x, y, vSpace);
+            expect(projRealVector.coordinates.length).to.eql(dimension);
+            expect(projRealVector.coordinates).to.eql([x, y, DEFAULT_WEIGHT_VALUE]);
+            expect(projRealVector.dimension).to.eql(dimension);
+            expect(projRealVector.getCoordinate(0)).to.eql(x);
+            expect(projRealVector.getCoordinate(1)).to.eql(y);
+            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
+            expect(projRealVector.weight.strictlyPositive).to.eql(true);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
+            expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projRealVector.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector.vectorSpace).to.eql(vSpace);
+        });
+
+        it(`can generate an arbitrary projective real vector with default weight into a default 3D vector space with weight management ${WeightManagement.SomeNullWeights}`, () => {
+            const x = 4;
+            const y = -2;
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights, true);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+            const projRealVector = new ProjectiveVector2DTypeReal(x, y, vSpace);
+            expect(projRealVector.coordinates.length).to.eql(dimension);
+            expect(projRealVector.coordinates).to.eql([x, y, DEFAULT_WEIGHT_VALUE]);
+            expect(projRealVector.dimension).to.eql(dimension);
+            expect(projRealVector.getCoordinate(0)).to.eql(x);
+            expect(projRealVector.getCoordinate(1)).to.eql(y);
+            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
+            expect(projRealVector.weight.strictlyPositive).to.eql(true);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
+            expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projRealVector.vectorSpace.isDefault).to.eql(true);
+            expect(projRealVector.vectorSpace).to.eql(vSpace);
+        });
+
+        it(`can generate an arbitrary projective real vector with default weight into a default 3D vector space with weight management ${WeightManagement.AllPositiveWeights}`, () => {
+            const x = 4;
+            const y = -2;
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const projRealVector = new ProjectiveVector2DTypeReal(x, y, vSpace);
+            expect(projRealVector.coordinates.length).to.eql(dimension);
+            expect(projRealVector.coordinates).to.eql([x, y, DEFAULT_WEIGHT_VALUE]);
+            expect(projRealVector.dimension).to.eql(dimension);
+            expect(projRealVector.getCoordinate(0)).to.eql(x);
+            expect(projRealVector.getCoordinate(1)).to.eql(y);
+            expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
+            expect(projRealVector.weight.strictlyPositive).to.eql(false);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
+            expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projRealVector.vectorSpace.isDefault).to.eql(true);
+            expect(projRealVector.vectorSpace).to.eql(vSpace);
+        });
+
         it(`can generate an arbitrary projective real vector with prescribed weight into a user-defined 3D vector space`, () => {
             const weight = new Weight(2);
             const vSpace = new ProjectiveVectorSpace(dimension);
@@ -140,6 +222,7 @@ describe('Projective vector 2D in real vector space: generation and operators in
 
         it(`can generate a default projective real vector with prescribed weight management ${WeightManagement.AllPositiveWeights} and null weight`, () => {
             const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+            expect(vSpace.isDefault).to.eql(true);
             const projRealVector = new ProjectiveVector2DTypeReal(1, 2, new Weight(0, false), vSpace);
             expect(projRealVector.vectorSpace.isDefault).to.eql(true);
             let weightMgmt = projRealVector.vectorSpace.weightManagement;

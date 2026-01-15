@@ -1,2 +1,1 @@
 export const EM_VECTOR_COORDINATE_TYPE_INCONSISTENT = `Complex vector coordinate(s) type must be identical: number if real and imaginary parts are specified or Complex if complex coordinates are specified. Cannot proceed.`;
-export const EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES = `Constructor overload with both complex and real/imaginary coordinates is not supported by the API. Please use either complex coordinates or real/imaginary coordinates. Cannot proceed.`;

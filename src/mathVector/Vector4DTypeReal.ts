@@ -15,25 +15,35 @@ export class Vector4DTypeReal extends AbstractRealVector {
     protected readonly _vectorSpace: RealVectorSpace<4>;
     
     constructor();
-    constructor(x: number, y: number, z: number, t: number, vectorSpace?: RealVectorSpace<4>);
     constructor(vectorSpace: RealVectorSpace<4>);
+    constructor(x: number, y: number, z: number, t: number, vectorSpace?: RealVectorSpace<4>);
+
     constructor(xOrVectorSpace?: number | RealVectorSpace<4>, y?: number, z?: number, t?: number, vectorSpace?: RealVectorSpace<4>) {
         super();
+        // Case 1: no arguments
+        if(xOrVectorSpace === undefined) {
+            this.data = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
+            this._vectorSpace = this.getDefaultVectorSpace();
+            return;
+        }
+
+        // Case 2: vectorSpace only
         if(xOrVectorSpace instanceof RealVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
             this.data = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
-        } else {
-            const x = xOrVectorSpace ?? 0;
-            this.data = { type: REALVECTOR4D, coordinates: [x, y ?? 0, z ?? 0, t ?? 0] };
-                        if(vectorSpace !== undefined) {
-                this._vectorSpace = vectorSpace;
-            } else {
-                try{
-                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<4>;
-                } catch(error) {
-                    this._vectorSpace = new RealVectorSpace(this.dimension, true) as RealVectorSpace<4>;
-                }
-            }
+            return;
+        }
+
+        // Case 3: all coordinates with optional vectorSpace
+        this.data = { type: REALVECTOR4D, coordinates: [xOrVectorSpace, y!, z!, t!] };
+        this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
+    }
+
+    private getDefaultVectorSpace(): RealVectorSpace<4> {
+        try{
+            return getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<4>;
+        } catch(error) {
+            return new RealVectorSpace(this.dimension, true) as RealVectorSpace<4>;
         }
     }
     
@@ -54,7 +64,6 @@ export class Vector4DTypeReal extends AbstractRealVector {
     }
 
     add(other: Vector4DTypeReal): Vector4DTypeReal {
-        // return super.add(other) as Vector4DTypeReal;
         return new Vector4DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
     }
 
