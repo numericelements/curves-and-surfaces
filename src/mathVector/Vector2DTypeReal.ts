@@ -13,7 +13,7 @@ import { Weight } from "./Weight";
 
 const SPACE_DIMENSION = 2;
 
-export class Vector2DTypeReal extends AbstractRealVector {
+export class Vector2DTypeReal extends AbstractRealVector<2> {
     private readonly data: RealVector2D;
     protected readonly _vectorSpace: RealVectorSpace<2>;
     
@@ -52,6 +52,7 @@ export class Vector2DTypeReal extends AbstractRealVector {
     
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR2D; }
+    get vectorSpace(): RealVectorSpace<2> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this.data.coordinates]; }
     get descriptor(): RealVector2D { return { ...this.data }; }
     get y(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
@@ -65,16 +66,15 @@ export class Vector2DTypeReal extends AbstractRealVector {
     }
 
     add(other: Vector2DTypeReal): Vector2DTypeReal {
-        // return super.add(other) as Vector2DTypeReal;
-        return new Vector2DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], this.vectorSpace) as Vector2DTypeReal;
+        return new Vector2DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], this.vectorSpace);
     }
 
     subtract(other: Vector2DTypeReal): Vector2DTypeReal {
-        return new Vector2DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], this.vectorSpace) as Vector2DTypeReal;
+        return new Vector2DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], this.vectorSpace);
     }
 
     scale(scalar: number): Vector2DTypeReal {
-        return new Vector2DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], this.vectorSpace) as Vector2DTypeReal;
+        return new Vector2DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], this.vectorSpace);
     }
 
     dot(other: Vector2DTypeReal): number {

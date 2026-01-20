@@ -17,8 +17,8 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     get vectorSpace(): ComplexVectorSpace<any> { return this._vectorSpace as ComplexVectorSpace<any>; }
     
     abstract get descriptor(): ComplexVector;
-    abstract getCoordinate(index: number): Complex;
     abstract get coordinates(): Complex[];
+    abstract getCoordinate(index: number): Complex;
     abstract clone(): IComplexVector;
     
     add(other: IComplexVector): IComplexVector {

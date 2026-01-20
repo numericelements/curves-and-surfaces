@@ -9,6 +9,8 @@ import { Weight } from "./Weight";
 
 
 export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
+    readonly dimension = 2 as const;
+
     // Implementation for 2D vectors
 
     areSameDimension(v1: RealVector, v2: RealVector): boolean {
@@ -21,16 +23,15 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         return false;
     }
 
-    createVector(coordinates: Real[]): RealVector2D {
-        let vector: RealVector2D = {type: REALVECTOR2D, coordinates: [coordinates[0], coordinates[1]]};
-        return vector;
-    }
+    createVector(coordinates: [number, number]): RealVector2D {
+    return {type: REALVECTOR2D, coordinates};
+}
 
     defaultVect(): RealVector2D {
         return {type: REALVECTOR2D, coordinates: [0, 0]};
     }
 
-    addDescriptors(a: RealVector, b: RealVector): RealVector2D {
+    addDescriptors(a: RealVector2D, b: RealVector2D): RealVector2D {
         if(isVector2D(a) && isVector2D(b)) {
             return {type: REALVECTOR2D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1]]};
         } else {
@@ -38,7 +39,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    subtractDescriptors(a: RealVector, b: RealVector): RealVector2D {
+    subtractDescriptors(a: RealVector2D, b: RealVector2D): RealVector2D {
         if(isVector2D(a) && isVector2D(b)) {
             return {type: REALVECTOR2D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1]]};
         } else {
@@ -46,7 +47,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    scaleDescriptor(scalar: Real, v: RealVector): RealVector2D {
+    scaleDescriptor(scalar: Real, v: RealVector2D): RealVector2D {
         if(isVector2D(v)) {
             return {type: REALVECTOR2D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1]]};
         } else {
@@ -54,7 +55,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    cloneVector(v: RealVector): RealVector2D {
+    cloneVector(v: RealVector2D): RealVector2D {
         if(isVector2D(v)) {
             return {type: REALVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1]]};
         } else {
@@ -62,7 +63,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    normDescriptor(v: RealVector): number {
+    normDescriptor(v: RealVector2D): number {
         if(isVector2D(v)) {
             let result = 0;
             for(const component of v.coordinates) {
@@ -75,7 +76,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    normalizeRaw(v: RealVector): RealVector2D {
+    normalizeRaw(v: RealVector2D): RealVector2D {
         if(isVector2D(v)) {
             const norm = this.normDescriptor(v);
             return {type: REALVECTOR2D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm]};
@@ -84,7 +85,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    crossProductRaw(a: RealVector, b: RealVector): number {
+    crossProductRaw(a: RealVector2D, b: RealVector2D): number {
         if(isVector2D(a) && isVector2D(b)) {
             return (a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]);
         } else {
@@ -97,7 +98,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    dotDescriptors(a: RealVector, b: RealVector): number {
+    dotDescriptors(a: RealVector2D, b: RealVector2D): number {
         if(isVector2D(a) && isVector2D(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1];
         } else {
@@ -105,7 +106,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight = new Weight()): ProjectiveVector2D {
+    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector2D, weight: Weight = new Weight()): ProjectiveVector2D {
         if(isVector2D(v)) {
             if(weight.value === 0) {
                 return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, weight: weight}]};
@@ -117,7 +118,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    fromRealVectorSpaceToComplexVectorSpace(v: RealVector): ComplexVector {
+    fromRealVectorSpaceToComplexVectorSpace(v: RealVector2D): ComplexVector {
         if(isVector2D(v)) {
             return {type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]};
         } else {

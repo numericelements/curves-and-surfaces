@@ -1,6 +1,6 @@
 import { VectorCollection1D } from "../mathVector/VectorCollection1D";
 import { ComplexVector1D, ComplexVector2D, ProjectiveComplexVector1D, ProjectiveVector2D, ProjectiveVector3D, RealVector1D, RealVector2D, RealVector3D, RealVector4D, Vector } from "../mathVector/VectorSpaceConstructorInterface";
-import { areSameVSpaceAndDimension, getVectorSpaceTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
+import { areSameVSpaceAndDimension, getVectorTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { ControlPolygonComplexProjectiveVectorStrategy } from "./ControlPolygonComplexProjectiveVectorStrategy";
 import { ControlPolygonComplexVectorStrategy } from "./ControlPolygonComplexVectorStrategy";
@@ -22,7 +22,7 @@ export class ControlPolygon <T extends Vector = Vector> extends VectorCollection
 
     constructor(controlPoints: Array<T>) {
         super(controlPoints);
-        const {type: vectorSpace, dimension: spaceDimension} = getVectorSpaceTypeAndDimension(this._vectorCollection[0]);
+        const {type: vectorSpace, dimension: spaceDimension} = getVectorTypeAndDimension(this._vectorCollection[0]);
         this._vectorSpaceType = vectorSpace;
         this._spaceDimension = spaceDimension;
         switch(this._vectorSpaceType) {

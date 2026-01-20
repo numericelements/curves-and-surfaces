@@ -17,6 +17,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
 
     abstract get dimension(): number;
     abstract get vectorType(): string;
+    abstract get vectorSpace(): VS;
     abstract get spaceType(): VectorSpaceType;
     abstract get descriptor(): V;
     abstract get coordinates(): (number | Complex)[];
@@ -24,10 +25,6 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
     abstract getCoordinate(index: number): number | Complex;
     abstract clone(): IVector;
     
-
-    get vectorSpace(): VS {
-        return this._vectorSpace;
-    }
 
     add(other: IVector): IVector {
         this.validateCompatibility(other);
@@ -115,7 +112,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
             throw new RangeError(error.generateMessageString());
         }
         // Check if vectors belong to the same vector space instance
-        if (!this._vectorSpace.isSameSpace(other.vectorSpace as IdentifiableVectorSpace<any>)) {
+        if (!this._vectorSpace.isSameSpace(other.vectorSpace)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'validateCompatibility', EM_VECTORS_NOT_IN_SAME_VECTORSPACE);
             throw new RangeError(error.generateMessageString());
         }

@@ -6,6 +6,9 @@ import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
+
+    readonly dimension = 4 as const;
+
     // Implementation for 4D vectors
 
     areSameDimension(a: RealVector, b: RealVector): boolean {
@@ -18,16 +21,15 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
         return false;
     }
 
-    createVector(coordinates: Real[]): RealVector4D {
-        let vector: RealVector4D = {type: REALVECTOR4D, coordinates: [coordinates[0], coordinates[1], coordinates[2], coordinates[3]]};
-        return vector;
+    createVector(coordinates: [number, number, number, number]): RealVector4D {
+        return {type: REALVECTOR4D, coordinates};
     }
 
     defaultVect(): RealVector4D {
         return {type: REALVECTOR4D, coordinates: [0, 0, 0, 0]};
     }
 
-    addDescriptors(a: RealVector, b: RealVector): RealVector4D {
+    addDescriptors(a: RealVector4D, b: RealVector4D): RealVector4D {
         if(isVector4D(a) && isVector4D(b)) {
             return {type: REALVECTOR4D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], a.coordinates[3] + b.coordinates[3]]};
         } else {
@@ -35,7 +37,7 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
         }
     }
 
-    subtractDescriptors(a: RealVector, b: RealVector): RealVector4D {
+    subtractDescriptors(a: RealVector4D, b: RealVector4D): RealVector4D {
         if(isVector4D(a) && isVector4D(b)) {
             return {type: REALVECTOR4D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2], a.coordinates[3] - b.coordinates[3]]};
         } else {
@@ -43,7 +45,7 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
         }
     }
 
-    scaleDescriptor(scalar: Real, v: RealVector): RealVector4D {
+    scaleDescriptor(scalar: Real, v: RealVector4D): RealVector4D {
         if(isVector4D(v)) {
             return {type: REALVECTOR4D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2], scalar * v.coordinates[3]]};
         } else {
@@ -51,7 +53,7 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
         }
     }
 
-    cloneVector(v: RealVector): RealVector4D {
+    cloneVector(v: RealVector4D): RealVector4D {
         if(isVector4D(v)) {
             return {type: REALVECTOR4D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], v.coordinates[3]]};
         } else {
@@ -59,7 +61,7 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
         }
     }
 
-    normDescriptor(v: RealVector): number {
+    normDescriptor(v: RealVector4D): number {
         if(isVector4D(v)) {
             let result = 0;
             for(const component of v.coordinates) {
@@ -72,7 +74,7 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
         }
     }
 
-    normalizeRaw(v: RealVector): RealVector4D {
+    normalizeRaw(v: RealVector4D): RealVector4D {
         if(isVector4D(v)) {
             const norm = this.normDescriptor(v);
             return {type: REALVECTOR4D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm, v.coordinates[3] / norm]};
@@ -81,12 +83,12 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
         }
     }
 
-    crossProductRaw(a: RealVector, b: RealVector): never {
+    crossProductRaw(a: RealVector4D, b: RealVector4D): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4);
         throw new RangeError(error.generateMessageString());
     }
 
-    dotDescriptors(a: RealVector, b: RealVector): number {
+    dotDescriptors(a: RealVector4D, b: RealVector4D): number {
         if(isVector4D(a) && isVector4D(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1] + a.coordinates[2] * b.coordinates[2] + a.coordinates[3] * b.coordinates[3];
         } else {
@@ -94,12 +96,12 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
         }
     }
 
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight): never {
+    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector4D, weight: Weight): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         throw new RangeError(error.generateMessageString());
     }
 
-    fromRealVectorSpaceToComplexVectorSpace(v: RealVector): never {
+    fromRealVectorSpaceToComplexVectorSpace(v: RealVector4D): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToComplexVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }

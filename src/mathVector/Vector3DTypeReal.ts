@@ -13,7 +13,7 @@ import { Weight } from "./Weight";
 
 const SPACE_DIMENSION = 3;
 
-export class Vector3DTypeReal extends AbstractRealVector {
+export class Vector3DTypeReal extends AbstractRealVector<3> {
     private readonly data: RealVector3D;
     protected readonly _vectorSpace: RealVectorSpace<3>;
     
@@ -52,6 +52,7 @@ export class Vector3DTypeReal extends AbstractRealVector {
     
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR3D; }
+    get vectorSpace(): RealVectorSpace<3> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this.data.coordinates]; }
     get descriptor(): RealVector3D { return { ...this.data }; }
     get y(): number { return this.getCoordinate(1); }
@@ -66,16 +67,15 @@ export class Vector3DTypeReal extends AbstractRealVector {
     }
 
     add(other: Vector3DTypeReal): Vector3DTypeReal {
-        // return super.add(other) as Vector3DTypeReal;
-        return new Vector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], this.vectorSpace) as Vector3DTypeReal;
+        return new Vector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], this.vectorSpace);
     }
 
     subtract(other: Vector3DTypeReal): Vector3DTypeReal {
-        return new Vector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], this.vectorSpace) as Vector3DTypeReal;
+        return new Vector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], this.vectorSpace);
     }
 
     scale(scalar: number): Vector3DTypeReal {
-        return new Vector3DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], this.vectorSpace) as Vector3DTypeReal;
+        return new Vector3DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], this.vectorSpace);
     }
 
     dot(other: Vector3DTypeReal): number {

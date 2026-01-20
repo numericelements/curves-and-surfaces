@@ -6,6 +6,8 @@ import { Weight } from "./Weight";
 
 
 export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
+
+    readonly dimension = 1 as const;
     
     // Implementation for 1D vectors
 
@@ -27,7 +29,7 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
         return 0;
     }
 
-    addDescriptors(a: RealVector, b: RealVector): RealVector1D {
+    addDescriptors(a: RealVector1D, b: RealVector1D): RealVector1D {
         if(isVector1D(a) && isVector1D(b)) {
             return a + b;
         } else {
@@ -35,7 +37,7 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
         }
     }
 
-    scaleDescriptor(scalar: Real, v: RealVector): RealVector1D {
+    scaleDescriptor(scalar: Real, v: RealVector1D): RealVector1D {
         if(isVector1D(v)) {
             return scalar * v;
         } else {
@@ -43,7 +45,7 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
         }
     }
 
-    subtractDescriptors(a: RealVector, b: RealVector): RealVector1D {
+    subtractDescriptors(a: RealVector1D, b: RealVector1D): RealVector1D {
         if(isVector1D(a) && isVector1D(b)) {
             return a - b;
         } else {
@@ -51,7 +53,7 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
         }
     }
 
-    cloneVector(v: RealVector): RealVector1D {
+    cloneVector(v: RealVector1D): RealVector1D {
         if(isVector1D(v)) {
             return v;
         } else {
@@ -59,7 +61,7 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
         }
     }
 
-    normDescriptor(v: RealVector): number {
+    normDescriptor(v: RealVector1D): number {
         if(isVector1D(v)) {
             return Math.abs(v);
         } else {
@@ -67,7 +69,7 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
         }
     }
 
-    normalizeRaw(v: RealVector): RealVector1D {
+    normalizeRaw(v: RealVector1D): RealVector1D {
         if(isVector1D(v)) {
             return v / this.normDescriptor(v);
         } else {
@@ -75,12 +77,12 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
         }
     }
 
-    crossProductRaw(a: RealVector, b: RealVector): never {
+    crossProductRaw(a: RealVector1D, b: RealVector1D): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1);
         throw new RangeError(error.generateMessageString());
     }
 
-    dotDescriptors(a: RealVector, b: RealVector): number {
+    dotDescriptors(a: RealVector1D, b: RealVector1D): number {
         if(isVector1D(a) && isVector1D(b)) {
             return a * b;
         } else {
@@ -88,12 +90,12 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
         }
     }
 
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight): never {
+    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector1D, weight: Weight): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         throw new RangeError(error.generateMessageString());
     }
 
-    fromRealVectorSpaceToComplexVectorSpace(v: RealVector): never {
+    fromRealVectorSpaceToComplexVectorSpace(v: RealVector1D): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToComplexVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }

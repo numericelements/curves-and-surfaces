@@ -10,7 +10,7 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 4;
 
-export class Vector4DTypeReal extends AbstractRealVector {
+export class Vector4DTypeReal extends AbstractRealVector<4> {
     private readonly data: RealVector4D;
     protected readonly _vectorSpace: RealVectorSpace<4>;
     
@@ -49,6 +49,7 @@ export class Vector4DTypeReal extends AbstractRealVector {
     
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR4D; }
+    get vectorSpace(): RealVectorSpace<4> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this.data.coordinates]; }
     get descriptor(): RealVector4D { return { ...this.data }; }
     get y(): number { return this.getCoordinate(1); }
@@ -64,15 +65,15 @@ export class Vector4DTypeReal extends AbstractRealVector {
     }
 
     add(other: Vector4DTypeReal): Vector4DTypeReal {
-        return new Vector4DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
+        return new Vector4DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).coordinates[3], this.vectorSpace);
     }
 
     subtract(other: Vector4DTypeReal): Vector4DTypeReal {
-        return new Vector4DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
+        return new Vector4DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).coordinates[3], this.vectorSpace);
     }
 
     scale(scalar: number): Vector4DTypeReal {
-        return new Vector4DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], super.scale(scalar).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
+        return new Vector4DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], super.scale(scalar).coordinates[3], this.vectorSpace);
     }
 
     dot(other: Vector4DTypeReal): number {

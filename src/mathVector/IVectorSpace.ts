@@ -1,5 +1,5 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import type { IComplex, Vector } from "./VectorSpaceConstructorInterface";
+import type { IComplex, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";
 
 /**
  * Vector Space interface following mathematical axioms
@@ -47,4 +47,18 @@ export interface IdentifiableVectorSpace<V extends Vector> extends VectorSpace<V
     
     /** Check if this vector space is isomorphic to another */
     isIsomorphicTo(other: IdentifiableVectorSpace<V>): boolean;
+}
+
+/**
+ * Real vector space interface with dimension-specific descriptors
+ */
+
+export interface RealVectorSpaceInterface<D extends number>  {
+// export interface RealVectorSpaceInterface<D extends number> 
+//     extends IdentifiableVectorSpace<RealVectorOfDimension<D>> {
+    // readonly dimension: D;
+    // dotDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): number;
+    // normDescriptor(v: RealVectorOfDimension<D>): number;
+
+    addDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
 }

@@ -103,8 +103,7 @@ export type RealVectorOfDimension<D extends number> =
     D extends 2 ? RealVector2D :
     D extends 3 ? RealVector3D :
     D extends 4 ? RealVector4D :
-    RealVector;
-    // never;
+    never;
 
 export type ComplexVectorOfDimension<D extends number> = 
     D extends 1 ? ComplexVector1D :

@@ -121,7 +121,7 @@ export function areSameVSpaceAndDimension(v1: Vector, v2: Vector): boolean {
     } else return false;
 }
 
-export function getVectorSpaceTypeAndDimension(vector: Vector): {type: VectorSpaceType, dimension: number} {
+export function getVectorTypeAndDimension(vector: Vector): {type: VectorSpaceType, dimension: number} {
     if(isRealVector(vector)) {
         const type = VectorSpaceType.REAL;
         if(isVector1D(vector)) {

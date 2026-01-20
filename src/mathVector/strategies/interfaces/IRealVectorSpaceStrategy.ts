@@ -2,18 +2,21 @@ import type { ComplexVector, ProjectiveVector, Real, RealVector, RealVectorOfDim
 import type { Weight } from "../../Weight";
 
 export interface IRealVectorSpaceStrategy<D extends number>  {
+
+    readonly dimension: D;
+
     areSameDimension(v1: RealVector, v2: RealVector): boolean;
     isInVectorSpace(v: RealVector): v is RealVector;
     createVector(coordinates: Real[]): RealVectorOfDimension<D>;
     defaultVect(): RealVectorOfDimension<D>;
-    addDescriptors(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
-    scaleDescriptor(scalar: Real, v: RealVector): RealVectorOfDimension<D>;
-    subtractDescriptors(a: RealVector, b: RealVector): RealVectorOfDimension<D>;
-    cloneVector(v: RealVector): RealVectorOfDimension<D>;
-    normDescriptor(v: RealVector): number;
-    normalizeRaw(v: RealVector): RealVector;
-    crossProductRaw(a: RealVector, b: RealVector): RealVector;
-    dotDescriptors(a: RealVector, b: RealVector): number;
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight): ProjectiveVector;
-    fromRealVectorSpaceToComplexVectorSpace(v: RealVector): ComplexVector
+    addDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
+    scaleDescriptor(scalar: Real, v: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
+    subtractDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
+    cloneVector(v: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
+    normDescriptor(v: RealVectorOfDimension<D>): number;
+    normalizeRaw(v: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
+    crossProductRaw(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVector;
+    dotDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): number;
+    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVectorOfDimension<D>, weight: Weight): ProjectiveVector;
+    fromRealVectorSpaceToComplexVectorSpace(v: RealVectorOfDimension<D>): ComplexVector
 }

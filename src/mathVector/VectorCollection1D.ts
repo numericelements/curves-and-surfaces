@@ -1,6 +1,6 @@
 import { INVALID_VS_DIMENSION, VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { ComplexVector, ComplexVector1D, ComplexVector2D, ProjectiveComplexVector, ProjectiveComplexVector1D, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, UndefinedVectorType, Vector, VECTOR_TYPE_INFO } from "./VectorSpaceConstructorInterface";
-import { getVectorSpaceTypeAndDimension, getVectorTypeInfo } from "./VectorSpaceUtilities";
+import { getVectorTypeAndDimension, getVectorTypeInfo } from "./VectorSpaceUtilities";
 
 
 
@@ -18,7 +18,7 @@ export class VectorCollection1D <T extends Vector = Vector> {
             this._vectorCollection = vectorArray;
             this.checkTypeConsistency();
             this._type = getVectorTypeInfo(this._vectorCollection[0]).typeString;
-            const { type: vectorSpaceType, dimension: spaceDimension } = getVectorSpaceTypeAndDimension(this._vectorCollection[0]);
+            const { type: vectorSpaceType, dimension: spaceDimension } = getVectorTypeAndDimension(this._vectorCollection[0]);
             this._vectorSpaceType = vectorSpaceType;
             this._spaceDimension = spaceDimension;
         } else {

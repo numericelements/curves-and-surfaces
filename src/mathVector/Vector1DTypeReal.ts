@@ -10,7 +10,7 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 1;
 
-export class Vector1DTypeReal extends AbstractRealVector {
+export class Vector1DTypeReal extends AbstractRealVector<1> {
 
     private readonly value: number;
     protected readonly _vectorSpace: RealVectorSpace<1>;
@@ -50,6 +50,7 @@ export class Vector1DTypeReal extends AbstractRealVector {
 
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR1D; }
+    get vectorSpace(): RealVectorSpace<1> { return this._vectorSpace; }
     get coordinates(): number[] { return [this.value]; }
     get descriptor(): RealVector1D { return this.value; }
     
@@ -71,17 +72,15 @@ export class Vector1DTypeReal extends AbstractRealVector {
     }
 
     add(other: Vector1DTypeReal): Vector1DTypeReal {
-        // return super.add(other) as Vector1DTypeReal;
-        return new Vector1DTypeReal(super.add(other).coordinates[0], this.vectorSpace) as Vector1DTypeReal;
+        return new Vector1DTypeReal(super.add(other).coordinates[0], this.vectorSpace);
     }
 
     subtract(other: Vector1DTypeReal): Vector1DTypeReal {
-        // return super.subtract(other) as Vector1DTypeReal;
-        return new Vector1DTypeReal(super.subtract(other).coordinates[0], this.vectorSpace) as Vector1DTypeReal;
+        return new Vector1DTypeReal(super.subtract(other).coordinates[0], this.vectorSpace);
     }
 
     scale(factor: number): Vector1DTypeReal {
-        return new Vector1DTypeReal(super.scale(factor).coordinates[0], this.vectorSpace) as Vector1DTypeReal;
+        return new Vector1DTypeReal(super.scale(factor).coordinates[0], this.vectorSpace);
     }
 
     dot(other: Vector1DTypeReal): number {

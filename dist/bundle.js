@@ -53110,19 +53110,14 @@ class RealVectorSpace {
             this._id = (0, VectorSpaceResolvers_2.resolveVectorSpace)(this);
             this._name = name || VectorSpaceResolvers_1.REAL_VECTOR_SPACE_NAME + dimension.toString();
         }
-        switch (this.dim) {
-            case RealVectorSpace_2.MIN_DIMENSION_REALVECTORSPACE:
-                this.strategy = new RealVectorSpace1DStrategy_1.RealVectorSpace1DStrategy();
-                break;
-            case 2:
-                this.strategy = new RealVectorSpace2DStrategy_1.RealVectorSpace2DStrategy();
-                break;
-            case 3:
-                this.strategy = new RealVectorSpace3DStrategy_1.RealVectorSpace3DStrategy();
-                break;
-            case RealVectorSpace_2.MAX_DIMENSION_REALVECTORSPACE:
-                this.strategy = new RealVectorSpace4DStrategy_1.RealVectorSpace4DStrategy();
-                break;
+        this.strategy = this.createStrategy(dimension);
+    }
+    createStrategy(dimension) {
+        switch (dimension) {
+            case RealVectorSpace_2.MIN_DIMENSION_REALVECTORSPACE: return new RealVectorSpace1DStrategy_1.RealVectorSpace1DStrategy();
+            case 2: return new RealVectorSpace2DStrategy_1.RealVectorSpace2DStrategy();
+            case 3: return new RealVectorSpace3DStrategy_1.RealVectorSpace3DStrategy();
+            case RealVectorSpace_2.MAX_DIMENSION_REALVECTORSPACE: return new RealVectorSpace4DStrategy_1.RealVectorSpace4DStrategy();
             default:
                 const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', RealVectorSpace_1.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
                 throw new RangeError(error.generateMessageString());
@@ -53181,9 +53176,9 @@ class RealVectorSpace {
     toString() {
         return `${this._name} [ID: ${this._id}]`;
     }
-    equals(other) {
-        return other instanceof RealVectorSpace && this.isSameSpace(other);
-    }
+    // equals(other: any): boolean {
+    //     return other instanceof RealVectorSpace && this.isSameSpace(other);
+    // }
     addDescriptors(a, b) {
         try {
             return this.strategy.addDescriptors(a, b);
@@ -53295,6 +53290,9 @@ exports.RealVectorSpace1DStrategy = void 0;
 const RealVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/RealVectorSpace */ "./src/ErrorMessages/RealVectorSpace.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 class RealVectorSpace1DStrategy {
+    constructor() {
+        this.dimension = 1;
+    }
     // Implementation for 1D vectors
     areSameDimension(v1, v2) {
         if ((0, VectorSpaceUtilities_1.isVector1D)(v1) && (0, VectorSpaceUtilities_1.isVector1D)(v2))
@@ -53403,6 +53401,9 @@ const WeightTypeTags_1 = __webpack_require__(/*! ../namedConstants/WeightTypeTag
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 class RealVectorSpace2DStrategy {
+    constructor() {
+        this.dimension = 2;
+    }
     // Implementation for 2D vectors
     areSameDimension(v1, v2) {
         if ((0, VectorSpaceUtilities_1.isVector2D)(v1) && (0, VectorSpaceUtilities_1.isVector2D)(v2))
@@ -53415,8 +53416,7 @@ class RealVectorSpace2DStrategy {
         return false;
     }
     createVector(coordinates) {
-        let vector = { type: VectorTypeTags_1.REALVECTOR2D, coordinates: [coordinates[0], coordinates[1]] };
-        return vector;
+        return { type: VectorTypeTags_1.REALVECTOR2D, coordinates };
     }
     defaultVect() {
         return { type: VectorTypeTags_1.REALVECTOR2D, coordinates: [0, 0] };
@@ -53539,6 +53539,9 @@ const WeightTypeTags_1 = __webpack_require__(/*! ../namedConstants/WeightTypeTag
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 class RealVectorSpace3DStrategy {
+    constructor() {
+        this.dimension = 3;
+    }
     // Implementation for 3D vectors
     areSameDimension(v1, v2) {
         if ((0, VectorSpaceUtilities_1.isVector3D)(v1) && (0, VectorSpaceUtilities_1.isVector3D)(v2))
@@ -53551,8 +53554,7 @@ class RealVectorSpace3DStrategy {
         return false;
     }
     createVector(coordinates) {
-        let vector = { type: VectorTypeTags_1.REALVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2]] };
-        return vector;
+        return { type: VectorTypeTags_1.REALVECTOR3D, coordinates };
     }
     defaultVect() {
         return { type: VectorTypeTags_1.REALVECTOR3D, coordinates: [0, 0, 0] };
@@ -53668,6 +53670,9 @@ const RealVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/RealVectorSpa
 const VectorTypeTags_1 = __webpack_require__(/*! ../namedConstants/VectorTypeTags */ "./src/namedConstants/VectorTypeTags.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 class RealVectorSpace4DStrategy {
+    constructor() {
+        this.dimension = 4;
+    }
     // Implementation for 4D vectors
     areSameDimension(a, b) {
         if ((0, VectorSpaceUtilities_1.isVector4D)(a) && (0, VectorSpaceUtilities_1.isVector4D)(b))
@@ -53680,8 +53685,7 @@ class RealVectorSpace4DStrategy {
         return false;
     }
     createVector(coordinates) {
-        let vector = { type: VectorTypeTags_1.REALVECTOR4D, coordinates: [coordinates[0], coordinates[1], coordinates[2], coordinates[3]] };
-        return vector;
+        return { type: VectorTypeTags_1.REALVECTOR4D, coordinates };
     }
     defaultVect() {
         return { type: VectorTypeTags_1.REALVECTOR4D, coordinates: [0, 0, 0, 0] };
@@ -53786,7 +53790,7 @@ class VectorCollection1D {
             this._vectorCollection = vectorArray;
             this.checkTypeConsistency();
             this._type = (0, VectorSpaceUtilities_1.getVectorTypeInfo)(this._vectorCollection[0]).typeString;
-            const { type: vectorSpaceType, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorSpaceTypeAndDimension)(this._vectorCollection[0]);
+            const { type: vectorSpaceType, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorTypeAndDimension)(this._vectorCollection[0]);
             this._vectorSpaceType = vectorSpaceType;
             this._spaceDimension = spaceDimension;
         }
@@ -54027,7 +54031,7 @@ exports.VECTOR_TYPE_INFO = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getVectorTypeInfo = exports.getVectorSpaceTypeAndDimension = exports.areSameVSpaceAndDimension = exports.sendErrorMessage = exports.sendRangeErrorMessage = exports.isProjectiveComplexVector = exports.isProjectiveVector = exports.isComplexVector = exports.isRealVector = exports.isVector4D = exports.isVector3D = exports.isVector2D = exports.isVector1D = void 0;
+exports.getVectorTypeInfo = exports.getVectorTypeAndDimension = exports.areSameVSpaceAndDimension = exports.sendErrorMessage = exports.sendRangeErrorMessage = exports.isProjectiveComplexVector = exports.isProjectiveVector = exports.isComplexVector = exports.isRealVector = exports.isVector4D = exports.isVector3D = exports.isVector2D = exports.isVector1D = void 0;
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ComplexTypeTag_1 = __webpack_require__(/*! ../namedConstants/ComplexTypeTag */ "./src/namedConstants/ComplexTypeTag.ts");
@@ -54169,7 +54173,7 @@ function areSameVSpaceAndDimension(v1, v2) {
         return false;
 }
 exports.areSameVSpaceAndDimension = areSameVSpaceAndDimension;
-function getVectorSpaceTypeAndDimension(vector) {
+function getVectorTypeAndDimension(vector) {
     if (isRealVector(vector)) {
         const type = BSplineR1toRn_1.VectorSpaceType.REAL;
         if (isVector1D(vector)) {
@@ -54225,7 +54229,7 @@ function getVectorSpaceTypeAndDimension(vector) {
         throw new Error("Unsupported vector space");
     }
 }
-exports.getVectorSpaceTypeAndDimension = getVectorSpaceTypeAndDimension;
+exports.getVectorTypeAndDimension = getVectorTypeAndDimension;
 function getVectorTypeInfo(vector) {
     if (typeof vector === 'number') {
         return VectorSpaceConstructorInterface_1.VECTOR_TYPE_INFO.RealVector1D;
@@ -58011,7 +58015,7 @@ class AbstractBSplineR1toRn {
                 vector = curveParameters.controlPoints[0];
             }
             try {
-                const vSpaceDim = (0, VectorSpaceUtilities_1.getVectorSpaceTypeAndDimension)(vector);
+                const vSpaceDim = (0, VectorSpaceUtilities_1.getVectorTypeAndDimension)(vector);
                 this._vectorSpace = vSpaceDim.type;
                 this._spaceDimension = vSpaceDim.dimension;
             }
@@ -61263,7 +61267,7 @@ const ControlPolygonRealVectorStrategy_1 = __webpack_require__(/*! ./ControlPoly
 class ControlPolygon extends VectorCollection1D_1.VectorCollection1D {
     constructor(controlPoints) {
         super(controlPoints);
-        const { type: vectorSpace, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorSpaceTypeAndDimension)(this._vectorCollection[0]);
+        const { type: vectorSpace, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorTypeAndDimension)(this._vectorCollection[0]);
         this._vectorSpaceType = vectorSpace;
         this._spaceDimension = spaceDimension;
         switch (this._vectorSpaceType) {
@@ -61398,7 +61402,7 @@ class ControlPolygonRealVectorStrategy {
         this.vectorSpace = new RealVectorSpace_1.RealVectorSpace(controlPolygon.spaceDimension);
     }
     moveControlPoint(index, displacement) {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addDescriptors(this.controlPolygon.vectorCollection[index], displacement);
+        // this.controlPolygon.vectorCollection[index] = this.vectorSpace.addDescriptors(this.controlPolygon.vectorCollection[index] as RealVector, displacement);
     }
 }
 exports.ControlPolygonRealVectorStrategy = ControlPolygonRealVectorStrategy;
@@ -63899,7 +63903,7 @@ class OpenBSplineR1toRnRealVectorStrategy extends AbstractOPenBSplineR1toRnStrat
     euclideanDistances() {
         const distances = [];
         for (let i = 0; i < this.openBSplineR1toRn.controlPolygon.length - 1; i += 1) {
-            distances.push(this.vectorSpace.normDescriptor(this.vectorSpace.subtractDescriptors(this.openBSplineR1toRn.controlPolygon.getVector(i + 1), this.openBSplineR1toRn.controlPolygon.getVector(i))));
+            // distances.push(this.vectorSpace.normDescriptor(this.vectorSpace.subtractDescriptors(this.openBSplineR1toRn.controlPolygon.getVector(i + 1) as RealVector, this.openBSplineR1toRn.controlPolygon.getVector(i) as RealVector)));
         }
         return distances;
     }

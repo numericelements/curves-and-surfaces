@@ -1,5 +1,5 @@
 import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
-import { getVectorSpaceTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
+import { getVectorTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type, BSplineR1toR1_type, BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY, ControlPoints } from "./BSplineR1toRnConstructorInterface";
 import { ControlPolygon } from "./ControlPolygon";
@@ -26,7 +26,7 @@ export abstract class AbstractBSplineR1toRn {
                 vector = curveParameters.controlPoints[0]
             }
             try {
-            const vSpaceDim = getVectorSpaceTypeAndDimension(vector);
+            const vSpaceDim = getVectorTypeAndDimension(vector);
             this._vectorSpace = vSpaceDim.type;
             this._spaceDimension = vSpaceDim.dimension;
             } catch(error) {

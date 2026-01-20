@@ -11,14 +11,14 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
  * Abstract base for real vectors
  */
 
-export abstract class AbstractRealVector extends AbstractVector implements IRealVector {
+export abstract class AbstractRealVector<D extends number> extends AbstractVector implements IRealVector {
     
     get spaceType(): VectorSpaceType { return VectorSpaceType.REAL; }
-    get vectorSpace(): RealVectorSpace<any> { return this._vectorSpace as RealVectorSpace<any>; }
     
     // Default implementations for coordinate accessors
     get x(): number { return this.getCoordinate(0) }
 
+    abstract get vectorSpace(): RealVectorSpace<D>;   
     abstract get descriptor(): RealVector;
     abstract get coordinates(): number[];
     abstract toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector;

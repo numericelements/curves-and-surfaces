@@ -8,6 +8,9 @@ import { Weight } from "./Weight";
 
   
 export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
+
+    readonly dimension = 3 as const;
+
     // Implementation for 3D vectors
 
     areSameDimension(v1: RealVector, v2: RealVector): boolean {
@@ -20,16 +23,15 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         return false;
     }
 
-    createVector(coordinates: Real[]): RealVector3D {
-        let vector: RealVector3D = {type: REALVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2]]};
-        return vector;
+    createVector(coordinates: [number, number, number]): RealVector3D {
+        return {type: REALVECTOR3D, coordinates};
     }
 
     defaultVect(): RealVector3D {
         return {type: REALVECTOR3D, coordinates: [0, 0, 0]};
     }
 
-    addDescriptors(a: RealVector, b: RealVector): RealVector3D {
+    addDescriptors(a: RealVector3D, b: RealVector3D): RealVector3D {
         if(isVector3D(a) && isVector3D(b)) {
             return {type: REALVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2]]};
         } else {
@@ -37,7 +39,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    subtractDescriptors(a: RealVector, b: RealVector): RealVector3D {
+    subtractDescriptors(a: RealVector3D, b: RealVector3D): RealVector3D {
         if(isVector3D(a) && isVector3D(b)) {
             return {type: REALVECTOR3D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2]]};
         } else {
@@ -45,7 +47,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    scaleDescriptor(scalar: Real, v: RealVector): RealVector3D {
+    scaleDescriptor(scalar: Real, v: RealVector3D): RealVector3D {
         if(isVector3D(v)) {
             return {type: REALVECTOR3D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2]]};
         } else {
@@ -53,7 +55,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    cloneVector(v: RealVector): RealVector3D {
+    cloneVector(v: RealVector3D): RealVector3D {
         if(isVector3D(v)) {
             return {type: REALVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2]]};
         } else {
@@ -61,7 +63,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    normDescriptor(v: RealVector): number {
+    normDescriptor(v: RealVector3D): number {
         if(isVector3D(v)) {
             let result = 0;
             for(const component of v.coordinates) {
@@ -74,7 +76,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    normalizeRaw(v: RealVector): RealVector3D {
+    normalizeRaw(v: RealVector3D): RealVector3D {
         if(isVector3D(v)) {
             const norm = this.normDescriptor(v);
             return {type: REALVECTOR3D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm]};
@@ -83,7 +85,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    crossProductRaw(a: RealVector, b: RealVector): RealVector3D {
+    crossProductRaw(a: RealVector3D, b: RealVector3D): RealVector3D {
         if(isVector3D(a) && isVector3D(b)) {
             return {type: REALVECTOR3D, coordinates: [a.coordinates[1] * b.coordinates[2] - a.coordinates[2] * b.coordinates[1], a.coordinates[2] * b.coordinates[0] - a.coordinates[0] * b.coordinates[2], a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]]};
         } else {
@@ -96,7 +98,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    dotDescriptors(a: RealVector, b: RealVector): number {
+    dotDescriptors(a: RealVector3D, b: RealVector3D): number {
         if(isVector3D(a) && isVector3D(b)) {
             return a.coordinates[0] * b.coordinates[0] + a.coordinates[1] * b.coordinates[1] + a.coordinates[2] * b.coordinates[2];
         } else {
@@ -104,7 +106,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight = new Weight()): ProjectiveVector3D {
+    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector3D, weight: Weight = new Weight()): ProjectiveVector3D {
         if(isVector3D(v)) {
             if(weight.value === 0) {
                 return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, weight: weight}]};
@@ -116,7 +118,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    fromRealVectorSpaceToComplexVectorSpace(v: RealVector): never {
+    fromRealVectorSpaceToComplexVectorSpace(v: RealVector3D): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToComplexVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
