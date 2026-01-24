@@ -70,7 +70,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
         return this.scale(1 / currentNorm);
     }
 
-    dot(other: IVector): number | IComplex {
+    dot(other: IVector): number {
         this.validateCompatibility(other);
         if ('dotDescriptors' in this._vectorSpace && typeof this._vectorSpace.dotDescriptors === 'function') {
             return (this._vectorSpace as any).dotDescriptors(this.descriptor, other.descriptor);

@@ -57,8 +57,11 @@ export interface RealVectorSpaceInterface<D extends number>  {
 // export interface RealVectorSpaceInterface<D extends number> 
 //     extends IdentifiableVectorSpace<RealVectorOfDimension<D>> {
     // readonly dimension: D;
-    // dotDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): number;
-    // normDescriptor(v: RealVectorOfDimension<D>): number;
 
+    defaultVect(): RealVectorOfDimension<D>;
+    toString(): string
     addDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
+    subtractDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
+    dotDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): number;
+    normDescriptor(v: RealVectorOfDimension<D>): number;
 }

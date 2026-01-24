@@ -59,7 +59,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         }
         switch (this.dim) {
             case MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE:
-                this.strategy = new ProjectiveComplexVectorSpace2DStrategy() as unknown as IProjectiveComplexVectorSpaceStrategy<D>;
+                this.strategy = new ProjectiveComplexVectorSpace2DStrategy();
                 break;
             default:
                 const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);

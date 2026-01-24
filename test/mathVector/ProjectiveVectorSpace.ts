@@ -206,9 +206,8 @@ describe('ProjectiveVectorSpace', () => {
         // 3D ProjectiveVector Space Tests
         describe('3D Vector Space', () => {
             createCommonProjectiveVectorSpaceTests(
-                (weightManagement) => new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, weightManagement),
+                (dim, weightManagement) => new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE, weightManagement),
                 MIN_DIMENSION_PROJECTIVEVECTORSPACE,
-                PROJECTIVEVECTOR2D,
                 2
             );
             
@@ -217,9 +216,8 @@ describe('ProjectiveVectorSpace', () => {
         // 4D ProjectiveVector Space Tests
         describe('4D Vector Space', () => {
             createCommonProjectiveVectorSpaceTests(
-                (weightManagement) => new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE, weightManagement),
+                (dim,weightManagement) => new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE, weightManagement),
                 MAX_DIMENSION_PROJECTIVEVECTORSPACE,
-                PROJECTIVEVECTOR3D,
                 3
             );
             
@@ -245,9 +243,9 @@ describe('ProjectiveVectorSpace', () => {
             let weight2 = vec2.coordinates[3] as IWeight;
             expect(weight1.weight.strictlyPositive).to.eql(true);
             expect(weight2.weight.strictlyPositive).to.eql(true);
-            expect(() => projectiveVectorSpace.shareSameWeightManagement(vec1, vec2)).to.throw(EM_PROJECTIVEVECTORS_DIFFERENT_DIM)
+            expect(() => projectiveVectorSpace.shareSameWeightManagement(vec1 as unknown as ProjectiveVector3D, vec2)).to.throw(EM_PROJECTIVEVECTORS_DIFFERENT_DIM)
             const projectiveVectorSpace1 = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
-            expect(() => projectiveVectorSpace1.shareSameWeightManagement(vec1, vec2)).to.throw(EM_PROJECTIVEVECTORS_DIFFERENT_DIM)
+            expect(() => projectiveVectorSpace1.shareSameWeightManagement(vec1, vec2 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTORS_DIFFERENT_DIM)
         });
 
         it(`cannot check that two vectors share the same weight management status if both vectors are not in the vector space`, () => {
@@ -261,11 +259,11 @@ describe('ProjectiveVectorSpace', () => {
             let weight2 = vec2.coordinates[2] as IWeight;
             expect(weight1.weight.strictlyPositive).to.eql(true);
             expect(weight2.weight.strictlyPositive).to.eql(true);
-            expect(() => projectiveVectorSpace.shareSameWeightManagement(vec1, vec2)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
+            expect(() => projectiveVectorSpace.shareSameWeightManagement(vec1 as unknown as ProjectiveVector3D, vec2 as unknown as ProjectiveVector3D)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
             const projectiveVectorSpace1 = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec3: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 2, {type: WEIGHT, weight: new Weight(2)}]};
             const vec4: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 0, {type: WEIGHT, weight: new Weight(2)}]};
-            expect(() => projectiveVectorSpace1.shareSameWeightManagement(vec3, vec4)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
+            expect(() => projectiveVectorSpace1.shareSameWeightManagement(vec3 as unknown as ProjectiveVector2D, vec4 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
         });
 
         it(`cannot generate a ${ProjectiveVectorSpace} with a dimension lower than ${MIN_DIMENSION_PROJECTIVEVECTORSPACE} or higher than  ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
@@ -302,73 +300,73 @@ describe('ProjectiveVectorSpace', () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector2D = {type: PROJECTIVEVECTOR2D, coordinates: [1, 0, {type: WEIGHT, weight: new Weight(2)}]};
             const vec2: ProjectiveVector2D = {type: PROJECTIVEVECTOR2D, coordinates: [1, 0, {type: WEIGHT, weight: new Weight()}]};
-            expect(() => projectiveVectorSpace.addDescriptors(vec1, vec2)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
+            expect(() => projectiveVectorSpace.addDescriptors(vec1 as unknown as ProjectiveVector3D, vec2 as unknown as ProjectiveVector3D)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
         });
 
         it('cannot substract two ProjectiveVectors not of same dimension', () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector2D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: new Weight(2)}]};
             const vec2: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 0, {type: WEIGHT, weight: new Weight(2)}]};
-            expect(() => projectiveVectorSpace.subtractDescriptors(vec1, vec2)).to.throw(EM_PROJECTIVEVECTORS_DIFFERENT_DIM)
+            expect(() => projectiveVectorSpace.subtractDescriptors(vec1, vec2 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTORS_DIFFERENT_DIM)
 
             const projectiveVectorSpace1 = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
-            expect(() => projectiveVectorSpace1.subtractDescriptors(vec1, vec2)).to.throw(EM_PROJECTIVEVECTORS_DIFFERENT_DIM)
+            expect(() => projectiveVectorSpace1.subtractDescriptors(vec1 as unknown as ProjectiveVector3D, vec2)).to.throw(EM_PROJECTIVEVECTORS_DIFFERENT_DIM)
         });
 
         it('cannot subtract two ProjectiveVectors of same dimension but not in the current Projective vector space', () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector2D = {type: PROJECTIVEVECTOR2D, coordinates: [1, 0, {type: WEIGHT, weight: new Weight(2)}]};
             const vec2: ProjectiveVector2D = {type: PROJECTIVEVECTOR2D, coordinates: [1, 0, {type: WEIGHT, weight: new Weight(3)}]};
-            expect(() => projectiveVectorSpace.subtractDescriptors(vec1, vec2)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
+            expect(() => projectiveVectorSpace.subtractDescriptors(vec1 as unknown as ProjectiveVector3D, vec2 as unknown as ProjectiveVector3D)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
             
             const projectiveVectorSpace1 = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec3: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 2, {type: WEIGHT, weight: new Weight(2)}]};
             const vec4: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 2, {type: WEIGHT, weight: new Weight()}]};
-            expect(() => projectiveVectorSpace1.subtractDescriptors(vec3, vec4)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
+            expect(() => projectiveVectorSpace1.subtractDescriptors(vec3 as unknown as ProjectiveVector2D, vec4 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE)
         });
 
         it(`cannot scale a ProjectiveVector of dimension outside the current Projective vector space ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector2D = {type: PROJECTIVEVECTOR2D, coordinates: [1, 0, {type: WEIGHT, weight: new Weight(2)}]};
             const scale = 2;
-            expect(() => projectiveVectorSpace.scaleDescriptor(scale, vec1)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
+            expect(() => projectiveVectorSpace.scaleDescriptor(scale, vec1 as unknown as ProjectiveVector3D)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
         });
 
         it(`cannot scale a ProjectiveVector of dimension outside the current Projective vector space ${MIN_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 2, {type: WEIGHT, weight: new Weight(2)}]};
             const scale = 2;
-            expect(() => projectiveVectorSpace.scaleDescriptor(scale, vec1)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
+            expect(() => projectiveVectorSpace.scaleDescriptor(scale, vec1 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
         });
 
         it(`cannot clone a ProjectiveVector of dimension outside the current Projective vector space ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector2D = {type: PROJECTIVEVECTOR2D, coordinates: [1, 0, {type: WEIGHT, weight: new Weight(2)}]};
-            expect(() => projectiveVectorSpace.cloneVector(vec1)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
+            expect(() => projectiveVectorSpace.cloneVector(vec1 as unknown as ProjectiveVector3D)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
         });
 
         it(`cannot clone a ProjectiveVector of dimension outside the current Projective vector space ${MIN_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 2, {type: WEIGHT, weight: new Weight(2)}]};
-            expect(() => projectiveVectorSpace.cloneVector(vec1)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
+            expect(() => projectiveVectorSpace.cloneVector(vec1 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
         });
 
         it(`cannot generate a RealVector of dimension outside the Projective vector space ${MIN_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 2, {type: WEIGHT, weight: new Weight(2)}]};
-            expect(() => projectiveVectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(vec1)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
+            expect(() => projectiveVectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(vec1 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
         });
 
         it(`cannot generate a RealVector of dimension outside the Projective vector space ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector2D = {type: PROJECTIVEVECTOR2D, coordinates: [1, 0, {type: WEIGHT, weight: new Weight(2)}]};
-            expect(() => projectiveVectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(vec1)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
+            expect(() => projectiveVectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(vec1 as unknown as ProjectiveVector3D)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
         });
 
         it(`cannot generate a Complex ProjectiveVector of dimension outside the Projective vector space ${MIN_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 2, {type: WEIGHT, weight: new Weight(2)}]};
-            expect(() => projectiveVectorSpace.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(vec1)).to.throw(EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE)
+            expect(() => projectiveVectorSpace.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(vec1 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE)
         });
 
     });

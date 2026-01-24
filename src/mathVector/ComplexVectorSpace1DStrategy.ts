@@ -4,7 +4,7 @@ import { PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../namedConstants/Vecto
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
-import type { IComplex, ComplexVector, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, RealVector } from "./VectorSpaceConstructorInterface";
+import type { IComplex, ComplexVector, ComplexVector1D, IComplexWeight, RealVector2D, ProjectiveComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -32,7 +32,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         return nullComplex;
     }
 
-    addDescriptors(a: ComplexVector, b: ComplexVector): ComplexVector1D {
+    addDescriptors(a: ComplexVector1D, b: ComplexVector1D): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
             return addComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
@@ -40,7 +40,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         }
     }
 
-    normDescriptor(vector: ComplexVector): number {
+    normDescriptor(vector: ComplexVector1D): number {
         if(isVector1D(vector)) {
             return Math.sqrt(vector.real * vector.real + vector.imaginary * vector.imaginary);
         } else {
@@ -48,7 +48,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         }
     }
 
-    dotDescriptors(a: ComplexVector, b: ComplexVector): number {
+    dotDescriptors(a: ComplexVector1D, b: ComplexVector1D): number {
         if(isVector1D(a) && isVector1D(b)) {
             return a.real * b.real + a.imaginary * b.imaginary;
         } else {
@@ -57,9 +57,9 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
     }
 
     // Overloaded scale method
-    scaleDescriptor(scaleFactor: IComplex, vector: ComplexVector): ComplexVector1D;
-    scaleDescriptor(scaleFactor: number, vector: ComplexVector): ComplexVector1D;
-    scaleDescriptor(scaleFactor: IComplex | number, vector: ComplexVector): ComplexVector1D {
+    scaleDescriptor(scaleFactor: IComplex, vector: ComplexVector1D): ComplexVector1D;
+    scaleDescriptor(scaleFactor: number, vector: ComplexVector1D): ComplexVector1D;
+    scaleDescriptor(scaleFactor: IComplex | number, vector: ComplexVector1D): ComplexVector1D {
         if (typeof scaleFactor === 'number') {
             if(isVector1D(vector)) {
                 return {type: COMPLEX, real: scaleFactor * vector.real, imaginary: scaleFactor * vector.imaginary};
@@ -77,7 +77,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         }
     }
 
-    subtractDescriptors(a: ComplexVector, b: ComplexVector): ComplexVector1D {
+    subtractDescriptors(a: ComplexVector1D, b: ComplexVector1D): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
             return subtractComplexUsingDescriptors(a as IComplex, b as IComplex);
         } else {
@@ -85,7 +85,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         }
     }
 
-    cloneVector(vector: ComplexVector): ComplexVector1D {
+    cloneVector(vector: ComplexVector1D): ComplexVector1D {
         if(isVector1D(vector)) {
             return {type: COMPLEX, real: vector.real, imaginary: vector.imaginary};
         } else {
@@ -93,7 +93,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         }
     }
 
-    fromComplexVectorSpaceToRealVectorSpace(vector: ComplexVector): RealVector {
+    fromComplexVectorSpaceToRealVectorSpace(vector: ComplexVector1D): RealVector2D {
         if(isVector1D(vector)) {
             return {type: REALVECTOR2D, coordinates: [vector.real, vector.imaginary]};
         } else {
@@ -102,7 +102,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         }
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector1D, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector1D {
         if(isVector1D(vector)) {
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [vector, weight]};
         } else {

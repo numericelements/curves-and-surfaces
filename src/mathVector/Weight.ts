@@ -2,6 +2,7 @@ import { EM_WEIGHT_VALUE_POSITIVE, EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
+import { IWeight } from "./VectorSpaceConstructorInterface";
 
 export class Weight {
 
@@ -41,6 +42,10 @@ export class Weight {
 
     toString(): string {
         return WEIGHT + `(value: ${this._value}, strictlyPositive: ${this._strictlyPositive})`;
+    }
+
+    toDescriptor(): IWeight {
+        return { type: WEIGHT, weight: this.clone() };
     }
 
     protected assessmentInputWeightValueStrictlyPositive(weight: number): void {

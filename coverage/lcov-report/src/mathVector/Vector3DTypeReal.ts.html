@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>123/123</span>
+                <span class='fraction'>114/114</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>33/33</span>
+                <span class='fraction'>34/34</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>19/19</span>
+                <span class='fraction'>20/20</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>123/123</span>
+                <span class='fraction'>114/114</span>
             </div>
         
             
@@ -176,16 +176,7 @@
 <a name='L111'></a><a href='#L111'>111</a>
 <a name='L112'></a><a href='#L112'>112</a>
 <a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a>
-<a name='L121'></a><a href='#L121'>121</a>
-<a name='L122'></a><a href='#L122'>122</a>
-<a name='L123'></a><a href='#L123'>123</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L114'></a><a href='#L114'>114</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -236,6 +227,7 @@
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">25x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -253,7 +245,6 @@
 <span class="cline-any cline-yes">66x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -298,15 +289,6 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-yes">22x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { REALVECTOR3D } from "../namedConstants/VectorTypeTags";
@@ -322,8 +304,8 @@ import { Weight } from "./Weight";
 &nbsp;
 const SPACE_DIMENSION = 3;
 &nbsp;
-export class Vector3DTypeReal extends AbstractRealVector {
-    private readonly data: RealVector3D;
+export class Vector3DTypeReal extends AbstractRealVector&lt;3&gt; {
+    private readonly _descriptor: RealVector3D;
     protected readonly _vectorSpace: RealVectorSpace&lt;3&gt;;
     
     constructor();
@@ -334,7 +316,7 @@ export class Vector3DTypeReal extends AbstractRealVector {
         super();
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this.data = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
+            this._descriptor = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -342,12 +324,12 @@ export class Vector3DTypeReal extends AbstractRealVector {
         // Case 2: vectorSpace only
         if(xOrVectorSpace instanceof RealVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
-            this.data = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
+            this._descriptor = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
             return;
         }
 &nbsp;
         // Case 3: all coordinates with optional vectorSpace
-        this.data = { type: REALVECTOR3D, coordinates: [xOrVectorSpace, y!, z!] };
+        this._descriptor = { type: REALVECTOR3D, coordinates: [xOrVectorSpace, y!, z!] };
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 &nbsp;
@@ -361,8 +343,9 @@ export class Vector3DTypeReal extends AbstractRealVector {
     
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR3D; }
-    get coordinates(): number[] { return [...this.data.coordinates]; }
-    get descriptor(): RealVector3D { return { ...this.data }; }
+    get vectorSpace(): RealVectorSpace&lt;3&gt; { return this._vectorSpace; }
+    get coordinates(): number[] { return [...this._descriptor.coordinates]; }
+    get descriptor(): RealVector3D { return { ...this._descriptor }; }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
     
@@ -371,20 +354,19 @@ export class Vector3DTypeReal extends AbstractRealVector {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        return this.data.coordinates[index];
+        return this._descriptor.coordinates[index];
     }
 &nbsp;
     add(other: Vector3DTypeReal): Vector3DTypeReal {
-        // return super.add(other) as Vector3DTypeReal;
-        return new Vector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], this.vectorSpace) as Vector3DTypeReal;
+        return new Vector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], this.vectorSpace);
     }
 &nbsp;
     subtract(other: Vector3DTypeReal): Vector3DTypeReal {
-        return new Vector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], this.vectorSpace) as Vector3DTypeReal;
+        return new Vector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], this.vectorSpace);
     }
 &nbsp;
     scale(scalar: number): Vector3DTypeReal {
-        return new Vector3DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], this.vectorSpace) as Vector3DTypeReal;
+        return new Vector3DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], this.vectorSpace);
     }
 &nbsp;
     dot(other: Vector3DTypeReal): number {
@@ -417,18 +399,9 @@ export class Vector3DTypeReal extends AbstractRealVector {
         return new Vector3DTypeReal(this.x!, this.y!, this.z!, this.vectorSpace);
     }
 &nbsp;
-    createVectorFromDescriptor(raw: RealVector3D): Vector3DTypeReal {
-        return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], this.vectorSpace);
+    createVectorFromDescriptor(descriptor: RealVector3D): Vector3DTypeReal {
+        return new Vector3DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], this.vectorSpace);
     }
-    
-    // static fromRaw(raw: RealVector3D): Vector3DTypeReal {
-    //     return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2]);
-    // }
-    
-    // static fromCoordinates(coords: number[]): Vector3DTypeReal {
-    //     if (coords.length !== 3) throw new RangeError('3D vector requires exactly 3 coordinates');
-    //     return new Vector3DTypeReal(coords[0], coords[1], coords[2]);
-    // }
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -436,7 +409,7 @@ export class Vector3DTypeReal extends AbstractRealVector {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T17:39:01.698Z
+                at 2026-01-24T10:53:10.501Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

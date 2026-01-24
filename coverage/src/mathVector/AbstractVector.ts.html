@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.8% </span>
+                <span class="strong">94.11% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>129/139</span>
+                <span class='fraction'>128/136</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">88.88% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>8/9</span>
+                <span class='fraction'>8/8</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.8% </span>
+                <span class="strong">94.11% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>129/139</span>
+                <span class='fraction'>128/136</span>
             </div>
         
             
@@ -199,10 +199,7 @@
 <a name='L134'></a><a href='#L134'>134</a>
 <a name='L135'></a><a href='#L135'>135</a>
 <a name='L136'></a><a href='#L136'>136</a>
-<a name='L137'></a><a href='#L137'>137</a>
-<a name='L138'></a><a href='#L138'>138</a>
-<a name='L139'></a><a href='#L139'>139</a>
-<a name='L140'></a><a href='#L140'>140</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L137'></a><a href='#L137'>137</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -230,20 +227,17 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">88x</span>
+<span class="cline-any cline-yes">88x</span>
+<span class="cline-any cline-yes">88x</span>
+<span class="cline-any cline-yes">88x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">78x</span>
-<span class="cline-any cline-yes">78x</span>
-<span class="cline-any cline-yes">78x</span>
-<span class="cline-any cline-yes">78x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">93x</span>
-<span class="cline-any cline-yes">93x</span>
-<span class="cline-any cline-yes">93x</span>
-<span class="cline-any cline-yes">93x</span>
+<span class="cline-any cline-yes">103x</span>
+<span class="cline-any cline-yes">103x</span>
+<span class="cline-any cline-yes">103x</span>
+<span class="cline-any cline-yes">103x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -314,16 +308,16 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">312x</span>
+<span class="cline-any cline-yes">332x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">312x</span>
-<span class="cline-any cline-yes">312x</span>
+<span class="cline-any cline-yes">332x</span>
+<span class="cline-any cline-yes">332x</span>
 <span class="cline-any cline-yes">39x</span>
 <span class="cline-any cline-yes">39x</span>
 <span class="cline-any cline-yes">39x</span>
-<span class="cline-any cline-yes">312x</span>
+<span class="cline-any cline-yes">332x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -360,6 +354,7 @@ export abstract class AbstractVector&lt;VS extends IdentifiableVectorSpace&lt;V&
 &nbsp;
     abstract get dimension(): number;
     abstract get vectorType(): string;
+    abstract get vectorSpace(): VS;
     abstract get spaceType(): VectorSpaceType;
     abstract get descriptor(): V;
     abstract get coordinates(): (number | Complex)[];
@@ -367,10 +362,6 @@ export abstract class AbstractVector&lt;VS extends IdentifiableVectorSpace&lt;V&
     abstract getCoordinate(index: number): number | Complex;
     abstract clone(): IVector;
     
-&nbsp;
-<span class="fstat-no" title="function not covered" >    get vectorSpace(): VS {</span>
-<span class="cstat-no" title="statement not covered" >        return this._vectorSpace;</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
     add(other: IVector): IVector {
         this.validateCompatibility(other);
@@ -416,7 +407,7 @@ export abstract class AbstractVector&lt;VS extends IdentifiableVectorSpace&lt;V&
         return this.scale(1 / currentNorm);
     }
 &nbsp;
-    dot(other: IVector): number | IComplex {
+    dot(other: IVector): number {
         this.validateCompatibility(other);
         if ('dotDescriptors' in this._vectorSpace &amp;&amp; typeof this._vectorSpace.dotDescriptors === 'function') {
             return (this._vectorSpace as any).dotDescriptors(this.descriptor, other.descriptor);
@@ -458,7 +449,7 @@ export abstract class AbstractVector&lt;VS extends IdentifiableVectorSpace&lt;V&
 <span class="cstat-no" title="statement not covered" >            throw new RangeError(error.generateMessageString());</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
         // Check if vectors belong to the same vector space instance
-        if (!this._vectorSpace.isSameSpace(other.vectorSpace as IdentifiableVectorSpace&lt;any&gt;)) {
+        if (!this._vectorSpace.isSameSpace(other.vectorSpace)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'validateCompatibility', EM_VECTORS_NOT_IN_SAME_VECTORSPACE);
             throw new RangeError(error.generateMessageString());
         }
@@ -487,7 +478,7 @@ export abstract class AbstractVector&lt;VS extends IdentifiableVectorSpace&lt;V&
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T17:39:02.698Z
+                at 2026-01-24T10:53:11.690Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

@@ -3,7 +3,7 @@ import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { PROJECTIVEVECTOR2D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import type { ComplexVector, ProjectiveVector2D, Real, RealVector, RealVector2D } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector, ComplexVector1D, ProjectiveVector2D, Real, RealVector, RealVector2D } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -118,7 +118,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    fromRealVectorSpaceToComplexVectorSpace(v: RealVector2D): ComplexVector {
+    fromRealVectorSpaceToComplexVectorSpace(v: RealVector2D): ComplexVector1D {
         if(isVector2D(v)) {
             return {type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]};
         } else {

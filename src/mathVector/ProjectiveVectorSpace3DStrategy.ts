@@ -5,7 +5,7 @@ import { PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, REALVECTOR2D } from "../
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT, WEIGHT } from "../namedConstants/WeightTypeTags";
 import type { IProjectiveVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveVectorSpaceStrategy";
-import type { IComplexWeight, ProjectiveComplexVector, ProjectiveVector, ProjectiveVector2D, Real, RealVector, IWeight } from "./VectorSpaceConstructorInterface";
+import type { IComplexWeight, ProjectiveVector, ProjectiveVector2D, Real, IWeight, RealVector2D, ProjectiveComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import type { WeightManager } from "./WeightManager";
@@ -63,7 +63,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         return vector;
     }
 
-    add(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector2D {
+    add(a: ProjectiveVector2D, b: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
         if(isVector3D(a) && isVector3D(b)) {
             const sumWeights = weightManager.addWeights(a.coordinates[2].weight, b.coordinates[2].weight);
             return {type: PROJECTIVEVECTOR2D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], {type: WEIGHT, weight: sumWeights}]};
@@ -72,7 +72,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector2D {
+    subtract(a: ProjectiveVector2D, b: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
         if(isVector3D(a) && isVector3D(b)) {
             try {
                 const diffWeights = weightManager.subtractWeights(a.coordinates[2].weight, b.coordinates[2].weight);
@@ -85,7 +85,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    norm(v: ProjectiveVector): number {
+    norm(v: ProjectiveVector2D): number {
         if(isVector3D(v)) {
             let result = 0;
             for(let i = 0; i < v.coordinates.length; i++) {
@@ -105,7 +105,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector2D {
+    scale(scalar: Real, v: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
         if(isVector3D(v)) {
             try{
                 const scaledWeight = weightManager.scaleWeight(v.coordinates[2].weight, scalar);
@@ -118,7 +118,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    clone(v: ProjectiveVector): ProjectiveVector2D {
+    clone(v: ProjectiveVector2D): ProjectiveVector2D {
         if(isVector3D(v)) {
             const clonedWeight = v.coordinates[2].weight.clone();
             return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, weight: clonedWeight}]};
@@ -127,7 +127,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector {
+    fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector2D): RealVector2D {
         if(isVector3D(v)) {
             const result: number[] = [];
             const weight = v.coordinates[2].weight.value;
@@ -144,7 +144,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector): ProjectiveComplexVector {
+    fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector2D): ProjectiveComplexVector1D {
         if(isVector3D(v)) {
             const result: number[] = [];
             const weight = v.coordinates[2].weight;

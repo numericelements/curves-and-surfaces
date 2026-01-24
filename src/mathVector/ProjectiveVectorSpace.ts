@@ -56,15 +56,17 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
             this._id = resolveVectorSpace(this);
             this._name = name || PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
         }
-        switch(this.dim) {
+        this.strategy = this.createStrategy(dimension);
+    }
+
+    private createStrategy(dimension: number): IProjectiveVectorSpaceStrategy<any> {
+        switch(dimension) {
             case MIN_DIMENSION_PROJECTIVEVECTORSPACE:
-                this.strategy = new ProjectiveVectorSpace3DStrategy() as IProjectiveVectorSpaceStrategy<D>;
-                break;
+                return new ProjectiveVectorSpace3DStrategy();
             case MAX_DIMENSION_PROJECTIVEVECTORSPACE:
-                this.strategy = new ProjectiveVectorSpace4DStrategy() as unknown as IProjectiveVectorSpaceStrategy<D>;
-                break;
+                return new ProjectiveVectorSpace4DStrategy();
             default:
-                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
+                const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
                 throw new RangeError(error.generateMessageString());
         }
     }
@@ -91,11 +93,11 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
                this.dimension() === other.dimension();
     }
 
-    getWeight(v: ProjectiveVector): Real {
+    getWeight(v: ProjectiveVectorOfDimension<D>): Real {
         return this.strategy.getWeight(v);
     }
 
-    shareSameWeightManagement(v1: ProjectiveVector, v2: ProjectiveVector): boolean {
+    shareSameWeightManagement(v1: ProjectiveVectorOfDimension<D>, v2: ProjectiveVectorOfDimension<D>): boolean {
         return this.strategy.shareSameWeightManagement(v1, v2, this.weightManager);
     }
 
@@ -135,7 +137,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         return vect;
     }
     
-    addDescriptors(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    addDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
         try { 
             return this.strategy.add(a, b, this.weightManager);
         } catch (error) {
@@ -148,7 +150,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    subtractDescriptors(a: ProjectiveVector, b: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    subtractDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.subtract(a, b, this.weightManager);
         } catch (error) {
@@ -168,7 +170,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    normDescriptor(a: ProjectiveVector): number {
+    normDescriptor(a: ProjectiveVectorOfDimension<D>): number {
         try { 
             return this.strategy.norm(a);
         } catch (error) {
@@ -177,7 +179,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    scaleDescriptor(scalar: Real, v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    scaleDescriptor(scalar: Real, v: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.scale(scalar, v, this.weightManager);
         } catch(error) {
@@ -193,7 +195,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    cloneVector(v: ProjectiveVector): ProjectiveVectorOfDimension<D> {
+    cloneVector(v: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
         try {
             return this.strategy.clone(v);
         } catch (error) {
@@ -206,7 +208,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         return `${this._name} [ID: ${this._id}]`;
     }
 
-    fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector {
+    fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVectorOfDimension<D>): RealVector {
         try {
             return this.strategy.fromProjectiveVectorSpaceToRealVectorSpace(v);
         } catch (error) {
@@ -215,33 +217,9 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
         }
     }
 
-    fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector): ProjectiveComplexVector {
+    fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVectorOfDimension<D>): ProjectiveComplexVector {
       return this.strategy.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v);
     }
-
-    // Enhanced methods working with IVector
-    // addVectors(a: IVector, b: IVector): IVector {
-    //     if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
-    //         throw new Error('Vector dimensions or types do not match');
-    //     }
-    //     const rawA = a.descriptor as ProjectiveVectorOfDimension<D>;
-    //     const rawB = b.descriptor as ProjectiveVectorOfDimension<D>;
-    //     const result = this.addRaw(rawA, rawB);
-        
-    //     return this.createVectorInstance(result);
-    // }
-    
-    // createVectorInstance(raw: ProjectiveVectorOfDimension<D>): IVector {
-    //     // return this.strategy.fromRaw(raw as RealVector1D);
-    //     switch (this.dim) {
-    //         case 3:
-    //             return ProjectiveVector2DTypeReal.fromRaw(raw as ProjectiveVector2D);
-    //         case 4:
-    //             return ProjectiveVector3DTypeReal.fromRaw(raw as ProjectiveVector3D);
-    //         default:
-    //             throw new Error('Unsupported dimension');
-    //     }
-    // }
 }
 
   

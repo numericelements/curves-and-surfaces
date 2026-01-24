@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>115/115</span>
+                <span class='fraction'>107/107</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>30/30</span>
+                <span class='fraction'>31/31</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>20/20</span>
+                <span class='fraction'>21/21</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>115/115</span>
+                <span class='fraction'>107/107</span>
             </div>
         
             
@@ -170,15 +170,7 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -226,6 +218,7 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -284,15 +277,6 @@
 <span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
@@ -305,8 +289,8 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 &nbsp;
 const SPACE_DIMENSION = 4;
 &nbsp;
-export class Vector4DTypeReal extends AbstractRealVector {
-    private readonly data: RealVector4D;
+export class Vector4DTypeReal extends AbstractRealVector&lt;4&gt; {
+    private readonly _descriptor: RealVector4D;
     protected readonly _vectorSpace: RealVectorSpace&lt;4&gt;;
     
     constructor();
@@ -317,7 +301,7 @@ export class Vector4DTypeReal extends AbstractRealVector {
         super();
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this.data = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
+            this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -325,12 +309,12 @@ export class Vector4DTypeReal extends AbstractRealVector {
         // Case 2: vectorSpace only
         if(xOrVectorSpace instanceof RealVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
-            this.data = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
+            this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
             return;
         }
 &nbsp;
         // Case 3: all coordinates with optional vectorSpace
-        this.data = { type: REALVECTOR4D, coordinates: [xOrVectorSpace, y!, z!, t!] };
+        this._descriptor = { type: REALVECTOR4D, coordinates: [xOrVectorSpace, y!, z!, t!] };
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 &nbsp;
@@ -344,8 +328,9 @@ export class Vector4DTypeReal extends AbstractRealVector {
     
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR4D; }
-    get coordinates(): number[] { return [...this.data.coordinates]; }
-    get descriptor(): RealVector4D { return { ...this.data }; }
+    get vectorSpace(): RealVectorSpace&lt;4&gt; { return this._vectorSpace; }
+    get coordinates(): number[] { return [...this._descriptor.coordinates]; }
+    get descriptor(): RealVector4D { return { ...this._descriptor }; }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(2); }
     get t(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
@@ -355,19 +340,19 @@ export class Vector4DTypeReal extends AbstractRealVector {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        return this.data.coordinates[index];
+        return this._descriptor.coordinates[index];
     }
 &nbsp;
     add(other: Vector4DTypeReal): Vector4DTypeReal {
-        return new Vector4DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
+        return new Vector4DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).coordinates[3], this.vectorSpace);
     }
 &nbsp;
     subtract(other: Vector4DTypeReal): Vector4DTypeReal {
-        return new Vector4DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
+        return new Vector4DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).coordinates[3], this.vectorSpace);
     }
 &nbsp;
     scale(scalar: number): Vector4DTypeReal {
-        return new Vector4DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], super.scale(scalar).coordinates[3], this.vectorSpace) as Vector4DTypeReal;
+        return new Vector4DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], super.scale(scalar).coordinates[3], this.vectorSpace);
     }
 &nbsp;
     dot(other: Vector4DTypeReal): number {
@@ -386,7 +371,7 @@ export class Vector4DTypeReal extends AbstractRealVector {
         return super.isOrthogonal(other, angularTolerance);
     }
     
-    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace&lt;any&gt;): IProjectiveVector {
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace&lt;5&gt;): IProjectiveVector {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
@@ -395,18 +380,9 @@ export class Vector4DTypeReal extends AbstractRealVector {
         return new Vector4DTypeReal(this.x!, this.y!, this.z!, this.t!, this.vectorSpace);
     }
 &nbsp;
-    createVectorFromDescriptor(raw: RealVector4D): Vector4DTypeReal {
-        return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3], this.vectorSpace);
+    createVectorFromDescriptor(descriptor: RealVector4D): Vector4DTypeReal {
+        return new Vector4DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], descriptor.coordinates[3], this.vectorSpace);
     }
-    
-    // static fromRaw(raw: RealVector4D): Vector4DTypeReal {
-    //     return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3]);
-    // }
-    
-    // static fromCoordinates(coords: number[]): Vector4DTypeReal {
-    //     if (coords.length !== 4) throw new RangeError('4D vector requires exactly 4 coordinates');
-    //     return new Vector4DTypeReal(coords[0], coords[1], coords[2], coords[3]);
-    // }
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -415,7 +391,7 @@ export class Vector4DTypeReal extends AbstractRealVector {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T17:39:02.698Z
+                at 2026-01-24T10:53:11.690Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

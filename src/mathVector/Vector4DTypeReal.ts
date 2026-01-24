@@ -11,7 +11,7 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 const SPACE_DIMENSION = 4;
 
 export class Vector4DTypeReal extends AbstractRealVector<4> {
-    private readonly data: RealVector4D;
+    private readonly _descriptor: RealVector4D;
     protected readonly _vectorSpace: RealVectorSpace<4>;
     
     constructor();
@@ -22,7 +22,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
         super();
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this.data = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
+            this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -30,12 +30,12 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
         // Case 2: vectorSpace only
         if(xOrVectorSpace instanceof RealVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
-            this.data = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
+            this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
             return;
         }
 
         // Case 3: all coordinates with optional vectorSpace
-        this.data = { type: REALVECTOR4D, coordinates: [xOrVectorSpace, y!, z!, t!] };
+        this._descriptor = { type: REALVECTOR4D, coordinates: [xOrVectorSpace, y!, z!, t!] };
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 
@@ -50,8 +50,8 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR4D; }
     get vectorSpace(): RealVectorSpace<4> { return this._vectorSpace; }
-    get coordinates(): number[] { return [...this.data.coordinates]; }
-    get descriptor(): RealVector4D { return { ...this.data }; }
+    get coordinates(): number[] { return [...this._descriptor.coordinates]; }
+    get descriptor(): RealVector4D { return { ...this._descriptor }; }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(2); }
     get t(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
@@ -61,7 +61,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        return this.data.coordinates[index];
+        return this._descriptor.coordinates[index];
     }
 
     add(other: Vector4DTypeReal): Vector4DTypeReal {
@@ -92,7 +92,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
         return super.isOrthogonal(other, angularTolerance);
     }
     
-    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector {
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<5>): IProjectiveVector {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
@@ -101,16 +101,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
         return new Vector4DTypeReal(this.x!, this.y!, this.z!, this.t!, this.vectorSpace);
     }
 
-    createVectorFromDescriptor(raw: RealVector4D): Vector4DTypeReal {
-        return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3], this.vectorSpace);
+    createVectorFromDescriptor(descriptor: RealVector4D): Vector4DTypeReal {
+        return new Vector4DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], descriptor.coordinates[3], this.vectorSpace);
     }
-    
-    // static fromRaw(raw: RealVector4D): Vector4DTypeReal {
-    //     return new Vector4DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3]);
-    // }
-    
-    // static fromCoordinates(coords: number[]): Vector4DTypeReal {
-    //     if (coords.length !== 4) throw new RangeError('4D vector requires exactly 4 coordinates');
-    //     return new Vector4DTypeReal(coords[0], coords[1], coords[2], coords[3]);
-    // }
 }

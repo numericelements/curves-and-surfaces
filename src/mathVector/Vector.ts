@@ -39,7 +39,7 @@ export interface IVector {
     // Vector space operations
     norm(): number;
     normalize(tolerance?: number): IVector;
-    dot(other: IVector): number | IComplex;
+    dot(other: IVector): number;
     isParallel(other: IVector, tolerance?: number): boolean;
     isOrthogonal(other: IVector, tolerance?: number): boolean;
     

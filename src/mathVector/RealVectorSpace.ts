@@ -211,19 +211,6 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
       return this.strategy.fromRealVectorSpaceToComplexVectorSpace(v);
     }
 
-
-    // Enhanced methods working with IVector
-    // addVectors(a: IVector, b: IVector): IVector {
-    //     if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
-    //         throw new Error('Vector dimensions or types do not match');
-    //     }
-    //     const rawA = a.descriptor as RealVectorOfDimension<D>;
-    //     const rawB = b.descriptor as RealVectorOfDimension<D>;
-    //     const result = this.addRaw(rawA, rawB);
-        
-    //     return this.createVectorInstance(result);
-    // }
-
     // createVectorInstance(raw: RealVectorOfDimension<D>): IVector {
     //     // return this.strategy.fromRaw(raw as RealVector1D);
     //     switch (this.dim) {

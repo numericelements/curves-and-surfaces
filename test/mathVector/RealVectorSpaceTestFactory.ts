@@ -1,12 +1,11 @@
 import { expect } from "chai";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 import { RealVectorOfDimension } from "../../src/mathVector/VectorSpaceConstructorInterface";
-import { WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
 
 
 export function createCommonRealVectorSpaceTests<D extends 1 | 2 | 3 | 4>(
-    createRealVectorSpace: (dimension: D, weightManagement?: WeightManagement) => RealVectorSpace<D>,
+    createRealVectorSpace: (dimension: D) => RealVectorSpace<D>,
     dimension: D
 ) {
     describe('Common RealVector Space Tests', () => {
@@ -94,7 +93,7 @@ export function createTestRealVector<D extends 1 | 2 | 3 | 4>(
                 coordinates: coordinates ? [coordinates[0], coordinates[1]] : [1, 0]
             } as RealVectorOfDimension<D>;
         case 3:
-        return {
+            return {
                 type: REALVECTOR3D, 
                 coordinates: coordinates ? [coordinates[0], coordinates[1], coordinates[2]] : [ 1, 2, 0]
             } as RealVectorOfDimension<D>;

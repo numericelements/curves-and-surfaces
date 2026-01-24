@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>120/120</span>
+                <span class='fraction'>105/105</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>26/26</span>
+                <span class='fraction'>27/27</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>17/17</span>
+                <span class='fraction'>18/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>120/120</span>
+                <span class='fraction'>105/105</span>
             </div>
         
             
@@ -167,22 +167,7 @@
 <a name='L102'></a><a href='#L102'>102</a>
 <a name='L103'></a><a href='#L103'>103</a>
 <a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a>
-<a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a>
-<a name='L112'></a><a href='#L112'>112</a>
-<a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a>
-<a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a>
-<a name='L120'></a><a href='#L120'>120</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L105'></a><a href='#L105'>105</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -231,6 +216,7 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -257,10 +243,8 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -287,20 +271,6 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { REALVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
@@ -313,7 +283,7 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 &nbsp;
 const SPACE_DIMENSION = 1;
 &nbsp;
-export class Vector1DTypeReal extends AbstractRealVector {
+export class Vector1DTypeReal extends AbstractRealVector&lt;1&gt; {
 &nbsp;
     private readonly value: number;
     protected readonly _vectorSpace: RealVectorSpace&lt;1&gt;;
@@ -353,6 +323,7 @@ export class Vector1DTypeReal extends AbstractRealVector {
 &nbsp;
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR1D; }
+    get vectorSpace(): RealVectorSpace&lt;1&gt; { return this._vectorSpace; }
     get coordinates(): number[] { return [this.value]; }
     get descriptor(): RealVector1D { return this.value; }
     
@@ -364,7 +335,7 @@ export class Vector1DTypeReal extends AbstractRealVector {
         return this.value;
     }
     
-    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace&lt;any&gt;): IProjectiveVector {
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace&lt;2&gt;): IProjectiveVector {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
@@ -374,17 +345,15 @@ export class Vector1DTypeReal extends AbstractRealVector {
     }
 &nbsp;
     add(other: Vector1DTypeReal): Vector1DTypeReal {
-        // return super.add(other) as Vector1DTypeReal;
-        return new Vector1DTypeReal(super.add(other).coordinates[0], this.vectorSpace) as Vector1DTypeReal;
+        return new Vector1DTypeReal(super.add(other).coordinates[0], this.vectorSpace);
     }
 &nbsp;
     subtract(other: Vector1DTypeReal): Vector1DTypeReal {
-        // return super.subtract(other) as Vector1DTypeReal;
-        return new Vector1DTypeReal(super.subtract(other).coordinates[0], this.vectorSpace) as Vector1DTypeReal;
+        return new Vector1DTypeReal(super.subtract(other).coordinates[0], this.vectorSpace);
     }
 &nbsp;
     scale(factor: number): Vector1DTypeReal {
-        return new Vector1DTypeReal(super.scale(factor).coordinates[0], this.vectorSpace) as Vector1DTypeReal;
+        return new Vector1DTypeReal(super.scale(factor).coordinates[0], this.vectorSpace);
     }
 &nbsp;
     dot(other: Vector1DTypeReal): number {
@@ -403,23 +372,9 @@ export class Vector1DTypeReal extends AbstractRealVector {
         return super.isOrthogonal(other, angularTolerance);
     }
 &nbsp;
-    createVectorFromDescriptor(raw: number): Vector1DTypeReal {
-        return new Vector1DTypeReal(raw, this.vectorSpace);
+    createVectorFromDescriptor(value: number): Vector1DTypeReal {
+        return new Vector1DTypeReal(value, this.vectorSpace);
     }
-    // Factory methods
-    // static fromRaw(raw: RealVector1D, vectorSpace?: RealVectorSpace&lt;1&gt;): Vector1DTypeReal {
-    //     return new Vector1DTypeReal(raw, vectorSpace);
-    // }
-    
-    // static fromCoordinates(coords: number[], vectorSpace?: RealVectorSpace&lt;1&gt;): Vector1DTypeReal {
-    //     if (coords.length !== 1) throw new RangeError('1D vector requires exactly 1 coordinate');
-    //     return new Vector1DTypeReal(coords[0], vectorSpace);
-    // }
-&nbsp;
-    // Static method to create with default vector space
-    // static create(value: number = 0): Vector1DTypeReal {
-    //     return new Vector1DTypeReal(value);
-    // }
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -427,7 +382,7 @@ export class Vector1DTypeReal extends AbstractRealVector {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T17:39:02.698Z
+                at 2026-01-24T10:53:11.690Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

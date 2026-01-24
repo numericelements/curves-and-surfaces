@@ -2,6 +2,7 @@ import { EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT } from "../ErrorMessages/C
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
+import { IComplexWeight } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
 
 export class ComplexWeight {
@@ -44,6 +45,10 @@ export class ComplexWeight {
 
     toString(): string {
         return COMPLEXWEIGHT + `(real: ${this._real.toString()}, imaginary: ${this._imaginary.toString()})`;
+    }
+
+    toDescriptor(): IComplexWeight {
+        return { type: COMPLEXWEIGHT, real: this._real.clone(), imaginary: this._imaginary.clone() };
     }
 
     clone(): ComplexWeight {

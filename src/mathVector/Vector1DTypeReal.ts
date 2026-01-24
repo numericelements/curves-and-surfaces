@@ -62,7 +62,7 @@ export class Vector1DTypeReal extends AbstractRealVector<1> {
         return this.value;
     }
     
-    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector {
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<2>): IProjectiveVector {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
@@ -99,21 +99,7 @@ export class Vector1DTypeReal extends AbstractRealVector<1> {
         return super.isOrthogonal(other, angularTolerance);
     }
 
-    createVectorFromDescriptor(raw: number): Vector1DTypeReal {
-        return new Vector1DTypeReal(raw, this.vectorSpace);
+    createVectorFromDescriptor(value: number): Vector1DTypeReal {
+        return new Vector1DTypeReal(value, this.vectorSpace);
     }
-    // Factory methods
-    // static fromRaw(raw: RealVector1D, vectorSpace?: RealVectorSpace<1>): Vector1DTypeReal {
-    //     return new Vector1DTypeReal(raw, vectorSpace);
-    // }
-    
-    // static fromCoordinates(coords: number[], vectorSpace?: RealVectorSpace<1>): Vector1DTypeReal {
-    //     if (coords.length !== 1) throw new RangeError('1D vector requires exactly 1 coordinate');
-    //     return new Vector1DTypeReal(coords[0], vectorSpace);
-    // }
-
-    // Static method to create with default vector space
-    // static create(value: number = 0): Vector1DTypeReal {
-    //     return new Vector1DTypeReal(value);
-    // }
 }

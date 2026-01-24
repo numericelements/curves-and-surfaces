@@ -4,7 +4,7 @@ import { PROJECTIVEVECTOR3D, REALVECTOR3D } from "../namedConstants/VectorTypeTa
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import type { IProjectiveVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveVectorSpaceStrategy";
-import type { ProjectiveVector, ProjectiveVector3D, Real, RealVector, IWeight } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveVector, ProjectiveVector3D, Real, IWeight, RealVector3D } from "./VectorSpaceConstructorInterface";
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { WeightManager } from "./WeightManager";
 
@@ -60,7 +60,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         return vector;
     }
 
-    add(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
+    add(a: ProjectiveVector3D, b: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(a) && isVector4D(b)) {
             const sumWeights = weightManager.addWeights(a.coordinates[3].weight, b.coordinates[3].weight);
             return {type: PROJECTIVEVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], {type: WEIGHT, weight: sumWeights}]};
@@ -69,7 +69,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    subtract(a: ProjectiveVector, b: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
+    subtract(a: ProjectiveVector3D, b: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(a) && isVector4D(b)) {
             try {
                 const diffWeights = weightManager.subtractWeights(a.coordinates[3].weight, b.coordinates[3].weight);
@@ -82,7 +82,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    norm(v: ProjectiveVector): number {
+    norm(v: ProjectiveVector3D): number {
         if(isVector4D(v)) {
             let result = 0;
             for(let i = 0; i < v.coordinates.length; i++) {
@@ -102,7 +102,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    scale(scalar: Real, v: ProjectiveVector, weightManager: WeightManager): ProjectiveVector3D {
+    scale(scalar: Real, v: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(v)) {
             try{
                 const scaledWeight = weightManager.scaleWeight(v.coordinates[3].weight, scalar);
@@ -115,7 +115,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    clone(v: ProjectiveVector): ProjectiveVector3D {
+    clone(v: ProjectiveVector3D): ProjectiveVector3D {
         if(isVector4D(v)) {
             const cloneWeight = v.coordinates[3].weight.clone();
             return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, weight: cloneWeight}]};
@@ -124,7 +124,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector): RealVector {
+    fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVector3D): RealVector3D {
         if(isVector4D(v)) {
             const result: number[] = [];
             const weight = v.coordinates[3].weight.value;
@@ -141,7 +141,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector): never {
+    fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVector3D): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveVectorSpaceToProjectiveComplexVectorSpace', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
         throw new RangeError(error.generateMessageString());
     }

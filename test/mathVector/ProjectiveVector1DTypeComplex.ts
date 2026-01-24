@@ -322,18 +322,18 @@ describe('Vector 1D in projective complex vector space: generation and operators
             const vSpace = new ProjectiveComplexVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights, true);
             expect(vSpace.isDefault).to.eql(true);
             expect(vSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
-            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false), vSpace)).to.throw(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
+            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false), vSpace)).to.throw(EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT);
         });
 
         it(`cannot generate a projective complex vector using real weights of diffrent strictly positive status with prescribed weight management ${WeightManagement.AllStrictlyPositiveWeights} into the default projective complex vector space`, () => {
-            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false))).to.throw(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
+            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false))).to.throw(EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT);
         });
 
         it(`cannot generate a projective complex vector using real weights of diffrent strictly positive status with prescribed weight management ${WeightManagement.AllPositiveWeights} into the default projective complex vector space`, () => {
             const vSpace = new ProjectiveComplexVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
             expect(vSpace.isDefault).to.eql(true);
             expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
-            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false), vSpace)).to.throw(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
+            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false), vSpace)).to.throw(EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT);
         });
 
         it(`cannot generate a projective complex vector using real weights of diffrent strictly positive status with prescribed weight management ${WeightManagement.SomeNullWeights} into the default projective complex vector space`, () => {
@@ -347,14 +347,14 @@ describe('Vector 1D in projective complex vector space: generation and operators
             const vSpace = new ProjectiveComplexVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
             expect(vSpace.isDefault).to.eql(false);
             expect(vSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
-            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false), vSpace)).to.throw(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
+            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false), vSpace)).to.throw(EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT);
         });
 
         it(`cannot generate a projective complex vector using real weights of diffrent strictly positive status with prescribed weight management ${WeightManagement.AllPositiveWeights} into a user-defined projective complex vector space`, () => {
             const vSpace = new ProjectiveComplexVectorSpace(dimension, WeightManagement.AllPositiveWeights);
             expect(vSpace.isDefault).to.eql(false);
             expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
-            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false), vSpace)).to.throw(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
+            expect(() => new ProjectiveVector1DTypeComplex(1, -2, new Weight(2), new Weight(3, false), vSpace)).to.throw(EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT);
         });
 
         it(`cannot generate a projective complex vector using real weights of diffrent strictly positive status with prescribed weight management ${WeightManagement.SomeNullWeights} into a user-defined projective complex vector space`, () => {

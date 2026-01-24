@@ -14,9 +14,10 @@ describe('ComplexVectorSpace2DStrategy', () => {
         describe(`ComplexVectorSpace2D `, () => {
 
             const vectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
+            const vectorDim = 2;
 
             it(`can add two ${COMPLEXVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestComplexVector(COMPLEXVECTOR2D, [[2, 3], [4, 5]]);
+                const vec1 = createTestComplexVector(vectorDim, [[2, 3], [4, 5]]);
                 const vec2 = vectorSpace.defaultVect();
                 const result = vectorSpace.addDescriptors(vec1, vec2);
                 // Check coordinates
@@ -29,8 +30,8 @@ describe('ComplexVectorSpace2DStrategy', () => {
             });
 
             it(`can subtract two ${COMPLEXVECTOR2D} vectors and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestComplexVector(COMPLEXVECTOR2D, [[2, 3], [4, 5]]);
-                const vec2 = createTestComplexVector(COMPLEXVECTOR2D, [[4, 5], [6, 7]]);
+                const vec1 = createTestComplexVector(vectorDim, [[2, 3], [4, 5]]);
+                const vec2 = createTestComplexVector(vectorDim, [[4, 5], [6, 7]]);
                 const result = vectorSpace.subtractDescriptors(vec1, vec2);
                 // Check coordinates
                 expect(result.coordinates[0].type).to.eql(COMPLEX);
@@ -42,7 +43,7 @@ describe('ComplexVectorSpace2DStrategy', () => {
             });
 
             it(`can scale a ${COMPLEXVECTOR2D} vector with a scalar and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestComplexVector(COMPLEXVECTOR2D, [[2, 3], [4, 5]]);
+                const vec1 = createTestComplexVector(vectorDim, [[2, 3], [4, 5]]);
                 const scale = 2;
                 const result = vectorSpace.scaleDescriptor(scale, vec1);
                 // Check coordinates
@@ -56,7 +57,7 @@ describe('ComplexVectorSpace2DStrategy', () => {
             });
 
             it(`can scale a ${COMPLEXVECTOR2D} vector with a complex and check the coordinates of the resulting vector`, () => {
-                const vec1 = createTestComplexVector(COMPLEXVECTOR2D, [[2, 3], [4, 5]]);
+                const vec1 = createTestComplexVector(vectorDim, [[2, 3], [4, 5]]);
                 const scale: IComplex = { type: COMPLEX, real: 2, imaginary: 3 };
                 const result = vectorSpace.scaleDescriptor(scale, vec1);
                 // Check coordinates

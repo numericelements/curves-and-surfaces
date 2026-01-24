@@ -11,7 +11,7 @@ import { COMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
 
 let complex1 = new Complex(1, 2);
 let complex2 = new Complex(3, 4);
-let defaultCoordinates = [complex1, complex2];
+const defaultCoordinates = [complex1, complex2];
 
 export function createCommonComplexVectorTests(
     dimension: number

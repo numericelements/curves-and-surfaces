@@ -51540,15 +51540,14 @@ class ComplexVectorSpace {
             this._id = (0, VectorSpaceResolvers_2.resolveVectorSpace)(this);
             this._name = name || VectorSpaceResolvers_1.COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
-        switch (this.dim) {
-            case ComplexVectorSpace_2.MIN_DIMENSION_COMPLEXVECTORSPACE:
-                this.strategy = new ComplexVectorSpace1DStrategy_1.ComplexVectorSpace1DStrategy();
-                break;
-            case ComplexVectorSpace_2.MAX_DIMENSION_COMPLEXVECTORSPACE:
-                this.strategy = new ComplexVectorSpace2DStrategy_1.ComplexVectorSpace2DStrategy();
-                break;
+        this.strategy = this.createStrategy(dimension);
+    }
+    createStrategy(dimension) {
+        switch (dimension) {
+            case ComplexVectorSpace_2.MIN_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace1DStrategy_1.ComplexVectorSpace1DStrategy();
+            case ComplexVectorSpace_2.MAX_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace2DStrategy_1.ComplexVectorSpace2DStrategy();
             default:
-                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', ComplexVectorSpace_1.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
+                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'createStrategy', ComplexVectorSpace_1.EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
                 throw new RangeError(error.generateMessageString());
         }
     }
@@ -51700,7 +51699,6 @@ class ComplexVectorSpace {
     }
 }
 exports.ComplexVectorSpace = ComplexVectorSpace;
-// DefaultVectorSpaces.getInstance().registerProjectiveComplexVectorSpaceFactory(2, () => new ComplexVectorSpace(2, true, DEFAULT_COMPLEX_VECTOR_SPACE_NAME + 2));
 
 
 /***/ }),
@@ -51997,6 +51995,9 @@ class ComplexWeight {
     }
     toString() {
         return WeightTypeTags_1.COMPLEXWEIGHT + `(real: ${this._real.toString()}, imaginary: ${this._imaginary.toString()})`;
+    }
+    toDescriptor() {
+        return { type: WeightTypeTags_1.COMPLEXWEIGHT, real: this._real.clone(), imaginary: this._imaginary.clone() };
     }
     clone() {
         return new ComplexWeight(this._real.clone(), this._imaginary.clone());
@@ -52576,15 +52577,16 @@ class ProjectiveVectorSpace {
             this._id = (0, VectorSpaceResolvers_1.resolveVectorSpace)(this);
             this._name = name || VectorSpaceResolvers_2.PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
         }
-        switch (this.dim) {
+        this.strategy = this.createStrategy(dimension);
+    }
+    createStrategy(dimension) {
+        switch (dimension) {
             case ProjectiveVectorSpace_2.MIN_DIMENSION_PROJECTIVEVECTORSPACE:
-                this.strategy = new ProjectiveVectorSpace3DStrategy_1.ProjectiveVectorSpace3DStrategy();
-                break;
+                return new ProjectiveVectorSpace3DStrategy_1.ProjectiveVectorSpace3DStrategy();
             case ProjectiveVectorSpace_2.MAX_DIMENSION_PROJECTIVEVECTORSPACE:
-                this.strategy = new ProjectiveVectorSpace4DStrategy_1.ProjectiveVectorSpace4DStrategy();
-                break;
+                return new ProjectiveVectorSpace4DStrategy_1.ProjectiveVectorSpace4DStrategy();
             default:
-                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'constructor', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
+                const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'createStrategy', ProjectiveVectorSpace_1.EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
                 throw new RangeError(error.generateMessageString());
         }
     }
@@ -54291,6 +54293,9 @@ class Weight {
     }
     toString() {
         return WeightTypeTags_1.WEIGHT + `(value: ${this._value}, strictlyPositive: ${this._strictlyPositive})`;
+    }
+    toDescriptor() {
+        return { type: WeightTypeTags_1.WEIGHT, weight: this.clone() };
     }
     assessmentInputWeightValueStrictlyPositive(weight) {
         if (weight <= 0) {

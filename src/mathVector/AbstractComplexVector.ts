@@ -11,11 +11,11 @@ import { Complex } from "./Complex";
  * Abstract base for complex vectors
  */
 
-export abstract class AbstractComplexVector extends AbstractVector implements IComplexVector {
+export abstract class AbstractComplexVector<D extends number> extends AbstractVector implements IComplexVector {
 
     get spaceType(): VectorSpaceType { return VectorSpaceType.COMPLEX; }
-    get vectorSpace(): ComplexVectorSpace<any> { return this._vectorSpace as ComplexVectorSpace<any>; }
-    
+
+    abstract get vectorSpace(): ComplexVectorSpace<D>;
     abstract get descriptor(): ComplexVector;
     abstract get coordinates(): Complex[];
     abstract getCoordinate(index: number): Complex;
@@ -30,7 +30,7 @@ export abstract class AbstractComplexVector extends AbstractVector implements IC
     }
 
     dot(other: IComplexVector): number {
-        return super.dot(other) as number;
+        return super.dot(other);
     }
 
     scale(scalar: number): IComplexVector;

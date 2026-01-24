@@ -10,7 +10,7 @@ import { ANGULAR_TOL_VECTOR, EM_NORM_TOO_SMALL, EM_VECTOR_COORDINATE_INDEX_OUT_R
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 
 
-export type vectorTypeReal = Vector1DTypeReal | Vector2DTypeReal | Vector3DTypeReal | Vector4DTypeReal;
+// export type vectorTypeReal = Vector1DTypeReal | Vector2DTypeReal | Vector3DTypeReal | Vector4DTypeReal;
 
 const defaultCoordinates = [1, 2, 3, 4];
 

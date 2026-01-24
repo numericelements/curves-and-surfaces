@@ -14,7 +14,7 @@ import { Weight } from "./Weight";
 const SPACE_DIMENSION = 2;
 
 export class Vector2DTypeReal extends AbstractRealVector<2> {
-    private readonly data: RealVector2D;
+    private readonly _descriptor: RealVector2D;
     protected readonly _vectorSpace: RealVectorSpace<2>;
     
     constructor();
@@ -25,7 +25,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2> {
         super();
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this.data = { type: REALVECTOR2D, coordinates: [0, 0] };
+            this._descriptor = { type: REALVECTOR2D, coordinates: [0, 0] };
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -33,12 +33,12 @@ export class Vector2DTypeReal extends AbstractRealVector<2> {
         // Case 2: vectorSpace only
         if(xOrVectorSpace instanceof RealVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
-            this.data = { type: REALVECTOR2D, coordinates: [0, 0] };
+            this._descriptor = { type: REALVECTOR2D, coordinates: [0, 0] };
             return;
         }
 
         // Case 3: all coordinates with optional vectorSpace
-        this.data = { type: REALVECTOR2D, coordinates: [xOrVectorSpace, y!] };
+        this._descriptor = { type: REALVECTOR2D, coordinates: [xOrVectorSpace, y!] };
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 
@@ -53,8 +53,8 @@ export class Vector2DTypeReal extends AbstractRealVector<2> {
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR2D; }
     get vectorSpace(): RealVectorSpace<2> { return this._vectorSpace; }
-    get coordinates(): number[] { return [...this.data.coordinates]; }
-    get descriptor(): RealVector2D { return { ...this.data }; }
+    get coordinates(): number[] { return [...this._descriptor.coordinates]; }
+    get descriptor(): RealVector2D { return { ...this._descriptor }; }
     get y(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
 
     getCoordinate(index: number): number {
@@ -62,7 +62,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2> {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        return this.data.coordinates[index];
+        return this._descriptor.coordinates[index];
     }
 
     add(other: Vector2DTypeReal): Vector2DTypeReal {
@@ -107,20 +107,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2> {
         return new Vector2DTypeReal(this.x!, this.y!, this.vectorSpace);
     }
 
-    createVectorFromDescriptor(raw: RealVector2D): Vector2DTypeReal {
-        return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], this.vectorSpace);
+    createVectorFromDescriptor(descriptor: RealVector2D): Vector2DTypeReal {
+        return new Vector2DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], this.vectorSpace);
     }
-    
-    // static fromRaw(raw: RealVector2D, vectorSpace?: RealVectorSpace<2>): Vector2DTypeReal {
-    //     return new Vector2DTypeReal(raw.coordinates[0], raw.coordinates[1], vectorSpace);
-    // }
-    
-    // static fromCoordinates(coords: number[], vectorSpace?: RealVectorSpace<2>): Vector2DTypeReal {
-    //     if (coords.length !== 2) throw new RangeError('2D vector requires exactly 2 coordinates');
-    //     return new Vector2DTypeReal(coords[0], coords[1], vectorSpace);
-    // }
-
-    // static create(x: number = 0, y: number = 0): Vector2DTypeReal {
-    //     return new Vector2DTypeReal(x, y);
-    // }
 }

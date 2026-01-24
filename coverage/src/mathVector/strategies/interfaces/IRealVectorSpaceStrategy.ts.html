@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>0/22</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>0/22</span>
             </div>
         
             
@@ -81,7 +81,13 @@
 <a name='L16'></a><a href='#L16'>16</a>
 <a name='L17'></a><a href='#L17'>17</a>
 <a name='L18'></a><a href='#L18'>18</a>
-<a name='L19'></a><a href='#L19'>19</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -103,20 +109,23 @@
 <span class="cstat-no" title="statement not covered" >import type { Weight } from "../../Weight";</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface IRealVectorSpaceStrategy&lt;D extends number&gt;  {</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >    readonly dimension: D;</span>
+<span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    areSameDimension(v1: RealVector, v2: RealVector): boolean;</span>
 <span class="cstat-no" title="statement not covered" >    isInVectorSpace(v: RealVector): v is RealVector;</span>
 <span class="cstat-no" title="statement not covered" >    createVector(coordinates: Real[]): RealVectorOfDimension&lt;D&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    defaultVect(): RealVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    addDescriptors(a: RealVector, b: RealVector): RealVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    scaleDescriptor(scalar: Real, v: RealVector): RealVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    subtractDescriptors(a: RealVector, b: RealVector): RealVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    cloneVector(v: RealVector): RealVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    normDescriptor(v: RealVector): number;</span>
-<span class="cstat-no" title="statement not covered" >    normalizeRaw(v: RealVector): RealVector;</span>
-<span class="cstat-no" title="statement not covered" >    crossProductRaw(a: RealVector, b: RealVector): RealVector;</span>
-<span class="cstat-no" title="statement not covered" >    dotDescriptors(a: RealVector, b: RealVector): number;</span>
-<span class="cstat-no" title="statement not covered" >    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector, weight: Weight): ProjectiveVector;</span>
-<span class="cstat-no" title="statement not covered" >    fromRealVectorSpaceToComplexVectorSpace(v: RealVector): ComplexVector</span>
+<span class="cstat-no" title="statement not covered" >    addDescriptors(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    scaleDescriptor(scalar: Real, v: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    subtractDescriptors(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    cloneVector(v: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    normDescriptor(v: RealVectorOfDimension&lt;D&gt;): number;</span>
+<span class="cstat-no" title="statement not covered" >    normalizeRaw(v: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    crossProductRaw(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): RealVector;</span>
+<span class="cstat-no" title="statement not covered" >    dotDescriptors(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): number;</span>
+<span class="cstat-no" title="statement not covered" >    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVectorOfDimension&lt;D&gt;, weight: Weight): ProjectiveVector;</span>
+<span class="cstat-no" title="statement not covered" >    fromRealVectorSpaceToComplexVectorSpace(v: RealVectorOfDimension&lt;D&gt;): ComplexVector</span>
 <span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -124,7 +133,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T17:39:02.698Z
+                at 2026-01-24T10:53:11.690Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

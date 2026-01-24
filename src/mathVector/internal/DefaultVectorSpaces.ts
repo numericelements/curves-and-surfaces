@@ -14,7 +14,7 @@ import type { ComplexVectorSpace } from "../ComplexVectorSpace";
 import type { IdentifiableVectorSpace } from "../IVectorSpace";
 import type { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
 import type { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
-import type { RealVectorSpace } from "../RealVectorSpace";
+import { RealVectorSpace } from "../RealVectorSpace";
 import { Vector } from "../VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 

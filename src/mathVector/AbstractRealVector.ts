@@ -39,7 +39,7 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
     }
 
     dot(other: IRealVector): number {
-        return super.dot(other) as number;
+        return super.dot(other);
     }
 
     revert(): IRealVector {

@@ -12,10 +12,10 @@ import type { Weight } from "./Weight";
 /**
  * Abstract base for projective vectors
  */
-export abstract class AbstractProjectiveVector extends AbstractVector implements IProjectiveVector {
+export abstract class AbstractProjectiveVector<D extends number> extends AbstractVector implements IProjectiveVector {
 
     get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
-    get vectorSpace(): ProjectiveVectorSpace<any> { return this._vectorSpace as ProjectiveVectorSpace<any>; }
+    abstract get vectorSpace(): ProjectiveVectorSpace<D>;
 
     // Default implementations for coordinate accessors
     get x(): number { return this.getCoordinate(0) };

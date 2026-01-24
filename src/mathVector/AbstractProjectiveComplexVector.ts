@@ -1,4 +1,5 @@
 import { EM_REVERT_NOT_APPLICABLE_PROJECTIVE_COMPLEX } from "../ErrorMessages/ProjectiveComplexVectors";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
 import { Complex } from "./Complex";
@@ -11,13 +12,17 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 /**
  * Abstract base for projective complex vectors
  */
-export abstract class AbstractProjectiveComplexVector extends AbstractVector implements IProjectiveComplexVector {
+export abstract class AbstractProjectiveComplexVector<D extends number> extends AbstractVector implements IProjectiveComplexVector {
 
-    get vectorSpace(): ProjectiveComplexVectorSpace<any> { return this._vectorSpace as ProjectiveComplexVectorSpace<any>; }
+    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVECOMPLEX; }
+    abstract get vectorSpace(): ProjectiveComplexVectorSpace<D>;
 
-    abstract getCoordinate(index: number): Complex;
+    abstract get descriptor(): ProjectiveComplexVector;
+    abstract get coordinates(): Complex[];
     abstract get weight(): ComplexWeight;
     abstract get homogeneousCoordinates(): (number | IComplex)[];
+    abstract getCoordinate(index: number): Complex;
+    abstract clone(): IProjectiveComplexVector;
     abstract normalize(): IProjectiveComplexVector;
     abstract toComplexVector(): IComplexVector;
     abstract toString(): string;

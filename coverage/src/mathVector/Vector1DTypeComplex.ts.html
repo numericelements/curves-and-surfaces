@@ -30,16 +30,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.96% </span>
+                <span class="strong">97.05% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>32/33</span>
+                <span class='fraction'>33/34</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>18/18</span>
+                <span class='fraction'>19/19</span>
             </div>
         
             
@@ -206,38 +206,38 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">102x</span>
+<span class="cline-any cline-yes">102x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">100x</span>
 <span class="cline-any cline-yes">100x</span>
-<span class="cline-any cline-yes">100x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">98x</span>
-<span class="cline-any cline-yes">98x</span>
-<span class="cline-any cline-yes">100x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">96x</span>
-<span class="cline-any cline-yes">100x</span>
-<span class="cline-any cline-yes">39x</span>
-<span class="cline-any cline-yes">39x</span>
-<span class="cline-any cline-yes">39x</span>
-<span class="cline-any cline-yes">39x</span>
-<span class="cline-any cline-yes">39x</span>
-<span class="cline-any cline-yes">39x</span>
-<span class="cline-any cline-yes">39x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">43x</span>
+<span class="cline-any cline-yes">43x</span>
 <span class="cline-any cline-yes">57x</span>
 <span class="cline-any cline-yes">57x</span>
 <span class="cline-any cline-yes">57x</span>
 <span class="cline-any cline-yes">57x</span>
-<span class="cline-any cline-yes">100x</span>
+<span class="cline-any cline-yes">104x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">100x</span>
+<span class="cline-any cline-yes">104x</span>
 <span class="cline-any cline-yes">57x</span>
 <span class="cline-any cline-yes">57x</span>
 <span class="cline-any cline-yes">57x</span>
@@ -316,8 +316,8 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 &nbsp;
 const SPACE_DIMENSION = 1;
 &nbsp;
-export class Vector1DTypeComplex extends AbstractComplexVector {
-    private readonly data: IComplex;
+export class Vector1DTypeComplex extends AbstractComplexVector&lt;1&gt; {
+    private readonly _descriptor: IComplex;
     protected readonly _vectorSpace: ComplexVectorSpace&lt;1&gt;;
     
     constructor();
@@ -329,7 +329,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
         super();
         // Case 1: no arguments
         if(realOrComplexOrVectorSpace === undefined) {
-            this.data = { type: COMPLEX, real: 0, imaginary: 0 };
+            this._descriptor = { type: COMPLEX, real: 0, imaginary: 0 };
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -337,14 +337,14 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
         // Case 2: vectorSpace only
         if (realOrComplexOrVectorSpace instanceof ComplexVectorSpace) {
             this._vectorSpace = realOrComplexOrVectorSpace;
-            this.data = { type: COMPLEX, real: 0, imaginary: 0 };
+            this._descriptor = { type: COMPLEX, real: 0, imaginary: 0 };
             return;
         }
         
         // Case 3: coordinates as complex number with optional vectorSpace
         if (realOrComplexOrVectorSpace instanceof Complex) {
             const complex = realOrComplexOrVectorSpace;
-            this.data = { type: COMPLEX, real: complex.real, imaginary: complex.imaginary };
+            this._descriptor = { type: COMPLEX, real: complex.real, imaginary: complex.imaginary };
             this._vectorSpace = (imaginaryOrVectorSpace instanceof ComplexVectorSpace) 
                 ? imaginaryOrVectorSpace 
                 : this.getDefaultVectorSpace();
@@ -359,7 +359,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
 <span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
         } else {
             // imaginaryOrVectorSpace is number (guaranteed by overload)
-            this.data = { type: COMPLEX, real: realOrComplexOrVectorSpace, imaginary: imaginaryOrVectorSpace! };
+            this._descriptor = { type: COMPLEX, real: realOrComplexOrVectorSpace, imaginary: imaginaryOrVectorSpace! };
             this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
         }
     }
@@ -373,27 +373,27 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
     }
     
     get dimension(): number { return SPACE_DIMENSION; }
+    get vectorSpace(): ComplexVectorSpace&lt;1&gt; { return this._vectorSpace; }
     get vectorType(): string { return COMPLEXVECTOR1D; }
-    get real(): number { return this.data.real; }
-    get imaginary(): number { return this.data.imaginary; }
-        
-    get coordinates(): Complex[] { return [new Complex(this.data.real, this.data.imaginary)]; }
-    get descriptor(): ComplexVector1D { return this.data; }
+    get real(): number { return this._descriptor.real; }
+    get imaginary(): number { return this._descriptor.imaginary; }
+    get coordinates(): Complex[] { return [new Complex(this._descriptor.real, this._descriptor.imaginary)]; }
+    get descriptor(): ComplexVector1D { return this._descriptor; }
     
     getCoordinate(index: number): Complex {
         if (index !== 0) {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        return new Complex(this.data.real, this.data.imaginary);
+        return new Complex(this._descriptor.real, this._descriptor.imaginary);
     }
 &nbsp;
     add(other: Vector1DTypeComplex): Vector1DTypeComplex {
-        return super.add(other) as Vector1DTypeComplex;
+        return new Vector1DTypeComplex(super.add(other).coordinates[0], this.vectorSpace);
     }
 &nbsp;
     subtract(other: Vector1DTypeComplex): Vector1DTypeComplex {
-        return super.subtract(other) as Vector1DTypeComplex;
+        return new Vector1DTypeComplex(super.subtract(other).coordinates[0], this.vectorSpace);
     }
     
     dot(other: Vector1DTypeComplex): number {
@@ -417,7 +417,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
     }
     
     clone(): Vector1DTypeComplex {
-        return new Vector1DTypeComplex(this.data.real, this.data.imaginary, this.vectorSpace);
+        return new Vector1DTypeComplex(this._descriptor.real, this._descriptor.imaginary, this.vectorSpace);
     }
 &nbsp;
     createVectorFromDescriptor(vectorDescriptor: ComplexVector1D): Vector1DTypeComplex {
@@ -430,7 +430,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T17:39:02.698Z
+                at 2026-01-24T10:53:11.690Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

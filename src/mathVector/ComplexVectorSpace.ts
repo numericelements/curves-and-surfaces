@@ -36,16 +36,16 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
             this._id = resolveVectorSpace(this);
             this._name = name || COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
-        switch (this.dim) {
-            case MIN_DIMENSION_COMPLEXVECTORSPACE:
-                this.strategy = new ComplexVectorSpace1DStrategy() as unknown as IComplexVectorSpaceStrategy<D>;
-                break;
-            case MAX_DIMENSION_COMPLEXVECTORSPACE:
-                this.strategy = new ComplexVectorSpace2DStrategy() as unknown as IComplexVectorSpaceStrategy<D>;
-                break;
+        this.strategy = this.createStrategy(dimension);
+    }
+
+    private createStrategy(dimension: number): IComplexVectorSpaceStrategy<any> {
+        switch (dimension) {
+            case MIN_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace1DStrategy();
+            case MAX_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace2DStrategy();
             default:
-            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
-            throw new RangeError(error.generateMessageString());
+                const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
+                throw new RangeError(error.generateMessageString());
         }
     }
 
@@ -64,7 +64,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
                this.dimension() === other.dimension();
     }
 
-    dimension() {
+    dimension(): number {
         return this.dim;
     }
 
@@ -124,7 +124,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         return this.strategy.defaultVect();
     }
 
-    addDescriptors(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
+    addDescriptors(a: ComplexVectorOfDimension<D>, b: ComplexVectorOfDimension<D>): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.addDescriptors(a, b);
         } catch (error) {
@@ -137,7 +137,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    normDescriptor(vector: ComplexVector): number {
+    normDescriptor(vector: ComplexVectorOfDimension<D>): number {
         try {
             return this.strategy.normDescriptor(vector);
         } catch(error) {
@@ -149,9 +149,9 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    scaleDescriptor(scalar: IComplex, vector: ComplexVector): ComplexVectorOfDimension<D>;
-    scaleDescriptor(scalar: number, vector: ComplexVector): ComplexVectorOfDimension<D>;
-    scaleDescriptor(scalar: IComplex | number, vector: ComplexVector): ComplexVectorOfDimension<D> {
+    scaleDescriptor(scalar: IComplex, vector: ComplexVectorOfDimension<D>): ComplexVectorOfDimension<D>;
+    scaleDescriptor(scalar: number, vector: ComplexVectorOfDimension<D>): ComplexVectorOfDimension<D>;
+    scaleDescriptor(scalar: IComplex | number, vector: ComplexVectorOfDimension<D>): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.scaleDescriptor(scalar, vector);
         } catch(error) {
@@ -160,7 +160,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    dotDescriptors(a: ComplexVector, b: ComplexVector): number {
+    dotDescriptors(a: ComplexVectorOfDimension<D>, b: ComplexVectorOfDimension<D>): number {
         try {
             return this.strategy.dotDescriptors(a, b);
         } catch(error) {
@@ -173,7 +173,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    subtractDescriptors(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D> {
+    subtractDescriptors(a: ComplexVectorOfDimension<D>, b: ComplexVectorOfDimension<D>): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.subtractDescriptors(a, b);
         } catch (error) {
@@ -186,7 +186,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         }
     }
 
-    cloneVector(vector: ComplexVector): ComplexVectorOfDimension<D> {
+    cloneVector(vector: ComplexVectorOfDimension<D>): ComplexVectorOfDimension<D> {
         try {
             return this.strategy.cloneVector(vector);
         } catch(error) {
@@ -199,37 +199,11 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
         return `${this._name} [ID: ${this._id}]`;
     }
 
-    fromComplexVectorSpaceToRealVectorSpace(vector: ComplexVector): RealVector {
+    fromComplexVectorSpaceToRealVectorSpace(vector: ComplexVectorOfDimension<D>): RealVector {
         return this.strategy.fromComplexVectorSpaceToRealVectorSpace(vector);
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVectorOfDimension<D>, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
         return this.strategy.fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector, weight);
     }
-
-    // Enhanced methods working with IVector
-    // addVectors(a: IVector, b: IVector): IVector {
-    //     if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
-    //         throw new Error('Vector dimensions or types do not match');
-    //     }
-    //     const rawA = a.descriptor as ComplexVectorOfDimension<D>;
-    //     const rawB = b.descriptor as ComplexVectorOfDimension<D>;
-    //     const result = this.addRaw(rawA, rawB);
-        
-    //     return this.createVectorInstance(result);
-    // }
-
-    // createVectorInstance(raw: ComplexVectorOfDimension<D>): IVector {
-    //     // return this.strategy.fromRaw(raw as RealVector1D);
-    //     switch (this.dim) {
-    //         case 1:
-    //             return Vector1DTypeComplex.fromRaw(raw as ComplexVector1D);
-    //         case 2:
-    //             return Vector2DTypeComplex.fromRaw(raw as ComplexVector2D);
-    //         default:
-    //             throw new Error('Unsupported dimension');
-    //     }
-    // }
 }
-
-// DefaultVectorSpaces.getInstance().registerProjectiveComplexVectorSpaceFactory(2, () => new ComplexVectorSpace(2, true, DEFAULT_COMPLEX_VECTOR_SPACE_NAME + 2));

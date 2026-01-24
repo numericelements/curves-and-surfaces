@@ -14,7 +14,7 @@ import { Weight } from "./Weight";
 const SPACE_DIMENSION = 3;
 
 export class Vector3DTypeReal extends AbstractRealVector<3> {
-    private readonly data: RealVector3D;
+    private readonly _descriptor: RealVector3D;
     protected readonly _vectorSpace: RealVectorSpace<3>;
     
     constructor();
@@ -25,7 +25,7 @@ export class Vector3DTypeReal extends AbstractRealVector<3> {
         super();
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this.data = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
+            this._descriptor = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -33,12 +33,12 @@ export class Vector3DTypeReal extends AbstractRealVector<3> {
         // Case 2: vectorSpace only
         if(xOrVectorSpace instanceof RealVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
-            this.data = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
+            this._descriptor = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
             return;
         }
 
         // Case 3: all coordinates with optional vectorSpace
-        this.data = { type: REALVECTOR3D, coordinates: [xOrVectorSpace, y!, z!] };
+        this._descriptor = { type: REALVECTOR3D, coordinates: [xOrVectorSpace, y!, z!] };
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 
@@ -53,8 +53,8 @@ export class Vector3DTypeReal extends AbstractRealVector<3> {
     get dimension(): number { return SPACE_DIMENSION; }
     get vectorType(): string { return REALVECTOR3D; }
     get vectorSpace(): RealVectorSpace<3> { return this._vectorSpace; }
-    get coordinates(): number[] { return [...this.data.coordinates]; }
-    get descriptor(): RealVector3D { return { ...this.data }; }
+    get coordinates(): number[] { return [...this._descriptor.coordinates]; }
+    get descriptor(): RealVector3D { return { ...this._descriptor }; }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
     
@@ -63,7 +63,7 @@ export class Vector3DTypeReal extends AbstractRealVector<3> {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        return this.data.coordinates[index];
+        return this._descriptor.coordinates[index];
     }
 
     add(other: Vector3DTypeReal): Vector3DTypeReal {
@@ -108,16 +108,7 @@ export class Vector3DTypeReal extends AbstractRealVector<3> {
         return new Vector3DTypeReal(this.x!, this.y!, this.z!, this.vectorSpace);
     }
 
-    createVectorFromDescriptor(raw: RealVector3D): Vector3DTypeReal {
-        return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], this.vectorSpace);
+    createVectorFromDescriptor(descriptor: RealVector3D): Vector3DTypeReal {
+        return new Vector3DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], this.vectorSpace);
     }
-    
-    // static fromRaw(raw: RealVector3D): Vector3DTypeReal {
-    //     return new Vector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2]);
-    // }
-    
-    // static fromCoordinates(coords: number[]): Vector3DTypeReal {
-    //     if (coords.length !== 3) throw new RangeError('3D vector requires exactly 3 coordinates');
-    //     return new Vector3DTypeReal(coords[0], coords[1], coords[2]);
-    // }
 }

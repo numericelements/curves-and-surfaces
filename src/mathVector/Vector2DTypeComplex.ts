@@ -11,8 +11,8 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 const SPACE_DIMENSION = 2;
 
-export class Vector2DTypeComplex extends AbstractComplexVector {
-    private readonly data: ComplexVector2D;
+export class Vector2DTypeComplex extends AbstractComplexVector<2> {
+    private readonly _descriptor: ComplexVector2D;
     protected readonly _vectorSpace: ComplexVectorSpace<2>;
 
     constructor();
@@ -25,7 +25,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
         const nullComplex: IComplex = { type: COMPLEX, real: 0, imaginary: 0 };
         // Case 1: no arguments
         if(realOrComplexOrVectorSpace === undefined) {
-            this.data = { type: COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex] };
+            this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex] };
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -33,7 +33,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
         // Case 2: vectorSpace only
         if (realOrComplexOrVectorSpace instanceof ComplexVectorSpace) {
             this._vectorSpace = realOrComplexOrVectorSpace;
-            this.data = { type: COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex] };
+            this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex] };
             return;
         } 
         
@@ -42,7 +42,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
             const complex1 = realOrComplexOrVectorSpace;
             if(imaginaryOrComplex instanceof Complex) {
                 const complex2 = imaginaryOrComplex;
-                this.data = { type: COMPLEXVECTOR2D, coordinates: [
+                this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [
                     { type: COMPLEX, real: complex1.real, imaginary: complex1.imaginary },
                     { type: COMPLEX, real: complex2.real, imaginary: complex2.imaginary }
                 ]};
@@ -51,7 +51,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
                     : this.getDefaultVectorSpace();
                 return;
             } else {
-                this.data = { type: COMPLEXVECTOR2D, coordinates: [{ type: COMPLEX, real: complex1.real, imaginary: complex1.imaginary }, nullComplex] };
+                this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [{ type: COMPLEX, real: complex1.real, imaginary: complex1.imaginary }, nullComplex] };
                 this._vectorSpace = this.getDefaultVectorSpace();
                 return;
             }
@@ -70,7 +70,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
                 throw new RangeError();
             }
             // real2OrVectorSpace and imaginary2 are numbers (guaranteed by overload)
-            this.data = { type: COMPLEXVECTOR2D, coordinates: [{ type: COMPLEX, real: real, imaginary: imaginaryOrComplex!}, { type: COMPLEX, real: real2OrVectorSpace!, imaginary: imaginary2!}] };
+            this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [{ type: COMPLEX, real: real, imaginary: imaginaryOrComplex!}, { type: COMPLEX, real: real2OrVectorSpace!, imaginary: imaginary2!}] };
             this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
         }
     }
@@ -84,31 +84,33 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
     }
 
     get dimension(): number { return SPACE_DIMENSION; }
+    get vectorSpace(): ComplexVectorSpace<2> { return this._vectorSpace; }
     get vectorType(): string { return COMPLEXVECTOR2D; }
+
+    get coordinates(): Complex[] { 
+        let result: Complex[] = [];
+        for (let i = 0; i < this.dimension; i++) {
+            result.push(new Complex(this._descriptor.coordinates[i].real, this._descriptor.coordinates[i].imaginary));
+        }
+        return result;
+    }
+
+    get descriptor(): ComplexVector2D { return this._descriptor; }
     
     getCoordinate(index: number): Complex {
         if (index < 0 || index >= 2) {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        return new Complex(this.data.coordinates[index].real, this.data.coordinates[index].imaginary);
+        return new Complex(this._descriptor.coordinates[index].real, this._descriptor.coordinates[index].imaginary);
     }
-    
-    get coordinates(): Complex[] { 
-        let result: Complex[] = [];
-        for (let i = 0; i < this.dimension; i++) {
-            result.push(new Complex(this.data.coordinates[i].real, this.data.coordinates[i].imaginary));
-        }
-        return result;
-    }; 
-    get descriptor(): ComplexVector2D { return this.data; }
-    
+
     add(other: Vector2DTypeComplex): Vector2DTypeComplex {
-        return super.add(other) as Vector2DTypeComplex;
+        return new Vector2DTypeComplex(super.add(other).coordinates[0], super.add(other).coordinates[1], this.vectorSpace);
     }
 
     subtract(other: Vector2DTypeComplex): Vector2DTypeComplex {
-        return super.subtract(other) as Vector2DTypeComplex;
+        return new Vector2DTypeComplex(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], this.vectorSpace);
     }
 
     dot(other: Vector2DTypeComplex): number {
@@ -135,7 +137,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector {
     }
 
     clone(): Vector2DTypeComplex {
-        return new Vector2DTypeComplex(this.data.coordinates[0].real, this.data.coordinates[0].imaginary, this.data.coordinates[1].real, this.data.coordinates[1].imaginary, this.vectorSpace);
+        return new Vector2DTypeComplex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary, this._descriptor.coordinates[1].real, this._descriptor.coordinates[1].imaginary, this.vectorSpace);
     }
 
     createVectorFromDescriptor(vectorDescriptor: ComplexVector2D): Vector2DTypeComplex {

@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">98.75% </span>
+                <span class="strong">98.7% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>158/160</span>
+                <span class='fraction'>153/155</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92% </span>
+                <span class="strong">92.15% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>46/50</span>
+                <span class='fraction'>47/51</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">98.75% </span>
+                <span class="strong">98.7% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>158/160</span>
+                <span class='fraction'>153/155</span>
             </div>
         
             
@@ -217,13 +217,7 @@
 <a name='L152'></a><a href='#L152'>152</a>
 <a name='L153'></a><a href='#L153'>153</a>
 <a name='L154'></a><a href='#L154'>154</a>
-<a name='L155'></a><a href='#L155'>155</a>
-<a name='L156'></a><a href='#L156'>156</a>
-<a name='L157'></a><a href='#L157'>157</a>
-<a name='L158'></a><a href='#L158'>158</a>
-<a name='L159'></a><a href='#L159'>159</a>
-<a name='L160'></a><a href='#L160'>160</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L155'></a><a href='#L155'>155</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -304,20 +298,20 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">133x</span>
+<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">133x</span>
+<span class="cline-any cline-yes">102x</span>
+<span class="cline-any cline-yes">104x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">133x</span>
-<span class="cline-any cline-yes">102x</span>
-<span class="cline-any cline-yes">102x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
-<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -377,12 +371,7 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">72x</span>
 <span class="cline-any cline-yes">72x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+<span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { PROJECTIVEVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
@@ -396,8 +385,8 @@ import { Weight } from "./Weight";
 &nbsp;
 const SPACE_DIMENSION = 4;
 &nbsp;
-export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
-    private readonly data: ProjectiveVector3D;
+export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector&lt;4&gt; {
+    private readonly _descriptor: ProjectiveVector3D;
     protected readonly _vectorSpace: ProjectiveVectorSpace&lt;4&gt;;
     
     constructor();
@@ -411,13 +400,13 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
         if(xOrVectorSpace instanceof ProjectiveVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
             if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
-            this.data = { type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, { type: WEIGHT, weight: new Weight(1, strictlyPosWeight) }] };
+            this._descriptor = { type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, { type: WEIGHT, weight: new Weight(1, strictlyPosWeight) }] };
             return;
         } else if (weightOrVSpace instanceof ProjectiveVectorSpace) {
             this._vectorSpace = weightOrVSpace;
             if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) <span class="branch-0 cbranch-no" title="branch not covered" >strictlyPosWeight = false;</span>
             const x = xOrVectorSpace<span class="branch-0 cbranch-no" title="branch not covered" > ?? 0;</span>
-            this.data = { 
+            this._descriptor = { 
                 type: PROJECTIVEVECTOR3D, 
                 coordinates: [x, y<span class="branch-0 cbranch-no" title="branch not covered" > ?? 0,</span> z<span class="branch-0 cbranch-no" title="branch not covered" > ?? 0,</span> { type: WEIGHT, weight: new Weight(1, strictlyPosWeight) }] 
             };
@@ -425,7 +414,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
         } else {
             strictlyPosWeight = this.checkValidityWeightStatus(weightOrVSpace as Weight, vectorSpace as ProjectiveVectorSpace&lt;4&gt;);
             const x = xOrVectorSpace ?? 0;
-            this.data = { 
+            this._descriptor = { 
                 type: PROJECTIVEVECTOR3D, 
                 coordinates: [x, y ?? 0, z ?? 0, { type: WEIGHT, weight: weightOrVSpace ?? new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
             };
@@ -443,45 +432,45 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
     
     get dimension(): number { return SPACE_DIMENSION; }
 &nbsp;
-    get vectorType(): string { return PROJECTIVEVECTOR3D; }
+    get vectorSpace(): ProjectiveVectorSpace&lt;4&gt; { return this._vectorSpace; }
 &nbsp;
-    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
+    get vectorType(): string { return PROJECTIVEVECTOR3D; }
 &nbsp;
     get coordinates(): number[] { return this.homogeneousCoordinates; }
 &nbsp;
-    get descriptor(): ProjectiveVector3D { return { ...this.data }; }
+    get descriptor(): ProjectiveVector3D { return { ...this._descriptor }; }
 &nbsp;
     get z(): number { return this.getCoordinate(2) };
     
     get weight(): Weight {
-        return this.data.coordinates[3].weight;
+        return this._descriptor.coordinates[3].weight;
     }
     
     get homogeneousCoordinates(): number[] {
-        return [this.data.coordinates[0], this.data.coordinates[1], this.data.coordinates[2], this.weight.value];
+        return [this._descriptor.coordinates[0], this._descriptor.coordinates[1], this._descriptor.coordinates[2], this.weight.value];
     }
     
     getCoordinate(index: number): number {
-        if (index &lt; 0 || index &gt;= SPACE_DIMENSION) {
+        if (index === SPACE_DIMENSION - 1) {
+            return this._descriptor.coordinates[3].weight.value;
+        } else if(index === 0 || index === 1 || index === 2) {
+            return this._descriptor.coordinates[index];
+        } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
-        if (index === SPACE_DIMENSION - 1) return this.data.coordinates[3].weight.value;
-        return this.data.coordinates[index] as number;
     }
 &nbsp;
     add(other: ProjectiveVector3DTypeReal): ProjectiveVector3DTypeReal {
-        // return super.add(other) as ProjectiveVector3DTypeReal;
-        return new ProjectiveVector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).weight, this._vectorSpace) as ProjectiveVector3DTypeReal;
+        return new ProjectiveVector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).weight, this._vectorSpace);
     }
 &nbsp;
     subtract(other: ProjectiveVector3DTypeReal): ProjectiveVector3DTypeReal {
-        // return super.subtract(other) as ProjectiveVector3DTypeReal;
-        return new ProjectiveVector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).weight, this._vectorSpace) as ProjectiveVector3DTypeReal;
+        return new ProjectiveVector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).weight, this._vectorSpace);
     }
 &nbsp;
     scale(factor: number): ProjectiveVector3DTypeReal {
-        return new ProjectiveVector3DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).coordinates[2], super.scale(factor).weight, this._vectorSpace) as ProjectiveVector3DTypeReal;
+        return new ProjectiveVector3DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).coordinates[2], super.scale(factor).weight, this._vectorSpace);
     }
     
     equals(other: ProjectiveVector3DTypeReal, tolerance?: number): boolean {
@@ -517,7 +506,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
     // }
 &nbsp;
     toString(): string {
-        return this.vectorType + `(${this.data.coordinates[0]}, ${this.data.coordinates[1]}, ${this.data.coordinates[2]}, ${this.weight.toString()})` + ` ` + this._vectorSpace.toString();
+        return this.vectorType + `(${this._descriptor.coordinates[0]}, ${this._descriptor.coordinates[1]}, ${this._descriptor.coordinates[2]}, ${this.weight.toString()})` + ` ` + this._vectorSpace.toString();
     }
     
     clone(): ProjectiveVector3DTypeReal {
@@ -525,21 +514,17 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
         if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
         if(this._vectorSpace.weightManagement === WeightManagement.SomeNullWeights) strictlyPosWeight = this.weight.strictlyPositive;
         return new ProjectiveVector3DTypeReal(
-            this.data.coordinates[0],
-            this.data.coordinates[1],
-            this.data.coordinates[2],
+            this._descriptor.coordinates[0],
+            this._descriptor.coordinates[1],
+            this._descriptor.coordinates[2],
             new Weight(this.weight.value, strictlyPosWeight),
             this._vectorSpace
         );
     }
 &nbsp;
-    createVectorFromDescriptor(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
-        return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].weight, this.vectorSpace);
+    createVectorFromDescriptor(descriptor: ProjectiveVector3D): ProjectiveVector3DTypeReal {
+        return new ProjectiveVector3DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], descriptor.coordinates[3].weight, this.vectorSpace);
     }
-    
-    // static fromRaw(raw: ProjectiveVector3D): ProjectiveVector3DTypeReal {
-    //     return new ProjectiveVector3DTypeReal(raw.coordinates[0], raw.coordinates[1], raw.coordinates[2], raw.coordinates[3].weight);
-    // }
 }</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -547,7 +532,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-15T17:39:02.698Z
+                at 2026-01-24T10:53:11.690Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
