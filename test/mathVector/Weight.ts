@@ -100,5 +100,13 @@ describe('Weight', () => {
             const string = weight.toString();
             expect(string).to.eql(WEIGHT + `(value: ${weight.value}, strictlyPositive: ${weight.strictlyPositive})`);
         });
+
+        it(`can generate the weight descriptor`, () => {
+            const value = 10;
+            const weight = new Weight(value);
+            const descriptor = weight.toDescriptor();
+            expect(descriptor.type).to.eql(WEIGHT);
+            expect(descriptor.weight).to.eql(weight);
+        });
     });
 });

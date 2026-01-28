@@ -1,4 +1,4 @@
-import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { ComplexVectorSpace } from "./ComplexVectorSpace";
@@ -13,13 +13,29 @@ import { Complex } from "./Complex";
 
 export abstract class AbstractComplexVector<D extends number> extends AbstractVector implements IComplexVector {
 
-    get spaceType(): VectorSpaceType { return VectorSpaceType.COMPLEX; }
+    private static readonly _spaceType = VectorSpaceType.COMPLEX;
+    
+    get spaceType(): VectorSpaceType.COMPLEX { return AbstractComplexVector._spaceType; }
 
     abstract get vectorSpace(): ComplexVectorSpace<D>;
     abstract get descriptor(): ComplexVector;
     abstract get coordinates(): Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): IComplexVector;
+
+    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ComplexVectorSpace<D>): void {
+        if(vSpace.dimension() !== vectorDim) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ComplexVectorSpace<D>): void {
+        if(vSpace !== undefined && (vSpace.spaceType !== VectorSpaceType.COMPLEX || vSpace.dimension() !== vectorDim)) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
     
     add(other: IComplexVector): IComplexVector {
         return super.add(other) as IComplexVector;
@@ -86,7 +102,7 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
                 throw new RangeError(error.generateMessageString());
             }
             const dotProduct = this.dot(other);
-            const ratio = Math.abs(dotProduct as number / (thisNorm * otherNorm));
+            const ratio = Math.abs(dotProduct / (thisNorm * otherNorm));
             return ratio >= (1 - tolerance);
     }
 
@@ -101,7 +117,7 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
         }
         // better to use cross product if available
         const dotProduct = this.dot(other);
-        const ratio = Math.abs(dotProduct as number / (thisNorm * otherNorm));
+        const ratio = Math.abs(dotProduct / (thisNorm * otherNorm));
         return ratio <= angularTolerance;
     }
 

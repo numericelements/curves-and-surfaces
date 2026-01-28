@@ -1,4 +1,4 @@
-import { ANGULAR_TOL_VECTOR, EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { RealVectorSpace } from "./RealVectorSpace";
@@ -13,7 +13,9 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 
 export abstract class AbstractRealVector<D extends number> extends AbstractVector implements IRealVector {
     
-    get spaceType(): VectorSpaceType { return VectorSpaceType.REAL; }
+    private static readonly _spaceType = VectorSpaceType.REAL;
+
+    get spaceType(): VectorSpaceType.REAL { return AbstractRealVector._spaceType; }
     
     // Default implementations for coordinate accessors
     get x(): number { return this.getCoordinate(0) }
@@ -24,6 +26,20 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
     abstract toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector;
     abstract getCoordinate(index: number): number;
     abstract clone(): IRealVector;
+
+    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: RealVectorSpace<D>): void {
+        if(vSpace.dimension() !== vectorDim) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: RealVectorSpace<D>): void {
+        if(vSpace !== undefined && (vSpace.spaceType !== VectorSpaceType.REAL || vSpace.dimension() !== vectorDim)) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
     
     add(other: IRealVector): IRealVector {
         return super.add(other) as IRealVector;

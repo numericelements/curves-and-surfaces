@@ -271,6 +271,16 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projRealVector2.weight.value).to.eql(2);
         });
 
+        it(`cannot generate a consistent default projective real vector with a default weight into a user-defined non projective vector space`, () => {
+            // Here we use a real vector space that is not projective to show that type casting is necessary to bypass typescript checks
+            const vSpace = new RealVectorSpace(dimension);
+            // Such type casting must be avoided by the users because they don't throw errors at compile time and at runtime
+            expect(() =>  new ProjectiveVector2DTypeReal(vSpace as unknown as ProjectiveVectorSpace<3>)).to.not.throw();
+            const projRealVector2 = new ProjectiveVector2DTypeReal(vSpace as unknown as ProjectiveVectorSpace<3>);
+            // But the generated vector is not consistent
+            expect(projRealVector2.getCoordinate(0)).to.not.eql(0);
+        });
+
         it(`cannot change the status of the weight manager attached to a default 3D projective real vector space`, () => {
             const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights, true);
             const projRealVector = new ProjectiveVector2DTypeReal(vSpace);

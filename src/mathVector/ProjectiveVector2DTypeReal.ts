@@ -1,3 +1,4 @@
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
 import { PROJECTIVEVECTOR2D } from "../namedConstants/VectorTypeTags";
@@ -10,9 +11,11 @@ import type { ProjectiveVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-const SPACE_DIMENSION = 3;
 
 export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
+
+    private static readonly DIMENSION = 3 as const;
+    private static readonly _vectorType = PROJECTIVEVECTOR2D;
     private readonly _descriptor: ProjectiveVector2D;
     protected readonly _vectorSpace: ProjectiveVectorSpace<3>;
     
@@ -41,7 +44,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
 
         // Case 3: all coordinates and weight with optional vectorSpace
         if (weightOrVSpace instanceof Weight) {
-            strictlyPosWeight = this.checkValidityWeightStatus(weightOrVSpace as Weight, vectorSpace as ProjectiveVectorSpace<3>);
+            strictlyPosWeight = this.checkValidityWeightStatus(weightOrVSpace, vectorSpace as ProjectiveVectorSpace<3>);
             this._descriptor = { 
                 type: PROJECTIVEVECTOR2D, 
                 coordinates: [xOrVectorSpace, y!, { type: WEIGHT, weight: weightOrVSpace }] 
@@ -61,20 +64,16 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
 
     private getDefaultVectorSpace(): ProjectiveVectorSpace<3> {
         try{
-            return getDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveVectorSpace<3>;
+            return getDefaultVectorSpace(this.spaceType, ProjectiveVector2DTypeReal.DIMENSION);
         } catch(error) {
-            return new ProjectiveVectorSpace(this.dimension, true) as ProjectiveVectorSpace<3>;
+            return new ProjectiveVectorSpace(ProjectiveVector2DTypeReal.DIMENSION, true);
         }
     }
-    
-    get dimension(): number { return SPACE_DIMENSION; }
 
+    get dimension(): number { return ProjectiveVector2DTypeReal.DIMENSION; }
+    get vectorType(): string { return ProjectiveVector2DTypeReal._vectorType; }
     get vectorSpace(): ProjectiveVectorSpace<3> { return this._vectorSpace; }
-
-    get vectorType(): string { return PROJECTIVEVECTOR2D; }
-
     get coordinates(): number[] { return this.homogeneousCoordinates; }
-
     get descriptor(): ProjectiveVector2D { return { ...this._descriptor }; }
 
     get weight(): Weight {
@@ -86,7 +85,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
     }
     
     getCoordinate(index: number): number {
-        if (index === SPACE_DIMENSION - 1) {
+        if (index === ProjectiveVector2DTypeReal.DIMENSION - 1) {
             return this._descriptor.coordinates[2].weight.value;
         } else if(index === 0 || index === 1) {
             return this._descriptor.coordinates[index];

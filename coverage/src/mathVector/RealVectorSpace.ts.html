@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">89.71% </span>
+                <span class="strong">89.83% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>218/243</span>
+                <span class='fraction'>221/246</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">89.71% </span>
+                <span class="strong">89.83% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>218/243</span>
+                <span class='fraction'>221/246</span>
             </div>
         
             
@@ -305,7 +305,10 @@
 <a name='L240'></a><a href='#L240'>240</a>
 <a name='L241'></a><a href='#L241'>241</a>
 <a name='L242'></a><a href='#L242'>242</a>
-<a name='L243'></a><a href='#L243'>243</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L243'></a><a href='#L243'>243</a>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -338,28 +341,31 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">371x</span>
-<span class="cline-any cline-yes">371x</span>
-<span class="cline-any cline-yes">371x</span>
-<span class="cline-any cline-yes">371x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">400x</span>
+<span class="cline-any cline-yes">400x</span>
+<span class="cline-any cline-yes">400x</span>
+<span class="cline-any cline-yes">400x</span>
 <span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-yes">53x</span>
-<span class="cline-any cline-yes">370x</span>
-<span class="cline-any cline-yes">318x</span>
-<span class="cline-any cline-yes">318x</span>
-<span class="cline-any cline-yes">318x</span>
-<span class="cline-any cline-yes">367x</span>
-<span class="cline-any cline-yes">367x</span>
+<span class="cline-any cline-yes">399x</span>
+<span class="cline-any cline-yes">347x</span>
+<span class="cline-any cline-yes">347x</span>
+<span class="cline-any cline-yes">347x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">367x</span>
-<span class="cline-any cline-yes">367x</span>
-<span class="cline-any cline-yes">367x</span>
-<span class="cline-any cline-yes">367x</span>
-<span class="cline-any cline-yes">367x</span>
-<span class="cline-any cline-yes">367x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
+<span class="cline-any cline-yes">396x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">367x</span>
+<span class="cline-any cline-yes">396x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -379,8 +385,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">640x</span>
-<span class="cline-any cline-yes">640x</span>
+<span class="cline-any cline-yes">1083x</span>
+<span class="cline-any cline-yes">1083x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">9x</span>
@@ -572,9 +578,12 @@ import { Weight } from "./Weight";
 &nbsp;
 export class RealVectorSpace&lt;D extends number = number&gt; implements RealVectorSpaceInterface&lt;D&gt; {
 // export class RealVectorSpace&lt;D extends number = number&gt; implements IdentifiableVectorSpace&lt;RealVectorOfDimension&lt;D&gt;&gt; {
+&nbsp;
+    private static readonly _spaceType = VectorSpaceType.REAL as const;
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
+&nbsp;
     protected readonly dim: D;
     protected readonly strategy: IRealVectorSpaceStrategy&lt;D&gt;;
 &nbsp;
@@ -607,7 +616,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
     get id(): string { return this._id; }
     get name(): string { return this._name; }
     get isDefault(): boolean { return this._isDefault; }
-    get spaceType(): VectorSpaceType { return VectorSpaceType.REAL; }
+    get spaceType(): VectorSpaceType.REAL { return RealVectorSpace._spaceType; }
 &nbsp;
 &nbsp;
     // Identity methods
@@ -785,7 +794,7 @@ export function createRealVectorSpace(dimension: 4): RealVectorSpace&lt;4&gt;;
 export function createRealVectorSpace(dimension: number): RealVectorSpace&lt;number&gt;;
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >export function createRealVectorSpace(dimension: number): RealVectorSpace&lt;any&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >    if(dimension &lt; MIN_DIMENSION_REALVECTORSPACE || dimension &gt; MAX_DIMENSION_REALVECTORSPACE) {</span>
-<span class="cstat-no" title="statement not covered" >        const error = sendRangeErrorMessage("createRealVectorSpace", 'function', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);</span>
+<span class="cstat-no" title="statement not covered" >        const error = sendRangeErrorMessage("createRealVectorSpace", 'createRealVectorSpace', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);</span>
 <span class="cstat-no" title="statement not covered" >        throw new RangeError(error.generateMessageString());</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" >    return new RealVectorSpace(dimension);</span>
@@ -796,7 +805,7 @@ export function createRealVectorSpace(dimension: number): RealVectorSpace&lt;num
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-24T10:53:11.690Z
+                at 2026-01-28T13:55:22.479Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

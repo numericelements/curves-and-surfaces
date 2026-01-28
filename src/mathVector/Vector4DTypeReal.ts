@@ -1,4 +1,4 @@
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
@@ -8,9 +8,11 @@ import type { IProjectiveVector } from "./Vector";
 import type { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
-const SPACE_DIMENSION = 4;
 
 export class Vector4DTypeReal extends AbstractRealVector<4> {
+
+    private static readonly DIMENSION = 4 as const;
+    private static readonly _vectorType = REALVECTOR4D;
     private readonly _descriptor: RealVector4D;
     protected readonly _vectorSpace: RealVectorSpace<4>;
     
@@ -28,36 +30,42 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
         }
 
         // Case 2: vectorSpace only
-        if(xOrVectorSpace instanceof RealVectorSpace) {
+        if(xOrVectorSpace instanceof RealVectorSpace && y === undefined) {
+            super.checkVectorSpaceDimensionConsistency(Vector4DTypeReal.DIMENSION, xOrVectorSpace);
             this._vectorSpace = xOrVectorSpace;
             this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
             return;
         }
 
         // Case 3: all coordinates with optional vectorSpace
+        super.checkVectorSpaceConsistency(Vector4DTypeReal.DIMENSION, vectorSpace);
+        if(typeof xOrVectorSpace !== 'number' || typeof y !== 'number' || typeof z !== 'number' || typeof t !== 'number') {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
         this._descriptor = { type: REALVECTOR4D, coordinates: [xOrVectorSpace, y!, z!, t!] };
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 
     private getDefaultVectorSpace(): RealVectorSpace<4> {
         try{
-            return getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<4>;
+            return getDefaultVectorSpace(this.spaceType, Vector4DTypeReal.DIMENSION);
         } catch(error) {
-            return new RealVectorSpace(this.dimension, true) as RealVectorSpace<4>;
+            return new RealVectorSpace(Vector4DTypeReal.DIMENSION, true);
         }
     }
-    
-    get dimension(): number { return SPACE_DIMENSION; }
-    get vectorType(): string { return REALVECTOR4D; }
+
+    get dimension(): number { return Vector4DTypeReal.DIMENSION; }
+    get vectorType(): string { return Vector4DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<4> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
     get descriptor(): RealVector4D { return { ...this._descriptor }; }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(2); }
-    get t(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
+    get t(): number { return this.getCoordinate(Vector4DTypeReal.DIMENSION - 1); }
     
     getCoordinate(index: number): number {
-        if (index < 0 || index >= SPACE_DIMENSION) {
+        if (index < 0 || index >= Vector4DTypeReal.DIMENSION) {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }

@@ -1,5 +1,5 @@
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { REALVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
@@ -11,9 +11,11 @@ import type { RealVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-const SPACE_DIMENSION = 3;
 
 export class Vector3DTypeReal extends AbstractRealVector<3> {
+
+    private static readonly DIMENSION = 3 as const;
+    private static readonly _vectorType = REALVECTOR3D;
     private readonly _descriptor: RealVector3D;
     protected readonly _vectorSpace: RealVectorSpace<3>;
     
@@ -31,35 +33,41 @@ export class Vector3DTypeReal extends AbstractRealVector<3> {
         }
 
         // Case 2: vectorSpace only
-        if(xOrVectorSpace instanceof RealVectorSpace) {
+        if(xOrVectorSpace instanceof RealVectorSpace && y === undefined) {
+            super.checkVectorSpaceDimensionConsistency(Vector3DTypeReal.DIMENSION, xOrVectorSpace);
             this._vectorSpace = xOrVectorSpace;
             this._descriptor = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
             return;
         }
 
         // Case 3: all coordinates with optional vectorSpace
+        super.checkVectorSpaceConsistency(Vector3DTypeReal.DIMENSION, vectorSpace);
+        if(typeof xOrVectorSpace !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
         this._descriptor = { type: REALVECTOR3D, coordinates: [xOrVectorSpace, y!, z!] };
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 
     private getDefaultVectorSpace(): RealVectorSpace<3> {
         try{
-            return getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<3>;
+            return getDefaultVectorSpace(this.spaceType, Vector3DTypeReal.DIMENSION);
         } catch(error) {
-            return new RealVectorSpace(this.dimension, true) as RealVectorSpace<3>;
+            return new RealVectorSpace(Vector3DTypeReal.DIMENSION, true);
         }
     }
     
-    get dimension(): number { return SPACE_DIMENSION; }
-    get vectorType(): string { return REALVECTOR3D; }
+    get dimension(): number { return Vector3DTypeReal.DIMENSION; }
+    get vectorType(): string { return Vector3DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<3> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
     get descriptor(): RealVector3D { return { ...this._descriptor }; }
     get y(): number { return this.getCoordinate(1); }
-    get z(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
+    get z(): number { return this.getCoordinate(Vector3DTypeReal.DIMENSION - 1); }
     
     getCoordinate(index: number): number {
-        if (index < 0 || index >= SPACE_DIMENSION) {
+        if (index < 0 || index >= Vector3DTypeReal.DIMENSION) {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }

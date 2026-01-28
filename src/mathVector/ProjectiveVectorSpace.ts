@@ -14,13 +14,16 @@ import { PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResol
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
 import type { IProjectiveVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveVectorSpaceStrategy";
-import type { IdentifiableVectorSpace } from "./IVectorSpace";
+import type { IdentifiableVectorSpace, ProjectiveVectorSpaceInterface } from "./IVectorSpace";
 
 /**
  * Implementation of a projective vector space
  */
 
-export class ProjectiveVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ProjectiveVectorOfDimension<D>> {
+// export class ProjectiveVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ProjectiveVectorOfDimension<D>> {
+export class ProjectiveVectorSpace<D extends number = number> implements ProjectiveVectorSpaceInterface<D> {
+    
+    private static readonly _spaceType = VectorSpaceType.PROJECTIVE as const;
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
@@ -72,12 +75,9 @@ export class ProjectiveVectorSpace<D extends number = number> implements Identif
     }
 
     get id(): string { return this._id; }
-
     get name(): string { return this._name; }
-
     get isDefault(): boolean { return this._isDefault; }
-
-    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
+    get spaceType(): VectorSpaceType.PROJECTIVE { return ProjectiveVectorSpace._spaceType; }
 
     get weightManagement(): WeightManagement {
         return this._weightManagement;

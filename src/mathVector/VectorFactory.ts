@@ -169,7 +169,7 @@ export function projectiveRealVector3D(xOrVectorSpace?: number | ProjectiveVecto
         }
     } catch (error) {
         if(error instanceof RangeError && error.message.includes(EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE)) {
-            const error = sendRangeErrorMessage('function', 'projectiveRealVector3D', EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
+            const error = sendRangeErrorMessage('projectiveRealVector3D', 'projectiveRealVector3D', EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
         throw error;

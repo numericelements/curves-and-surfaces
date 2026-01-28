@@ -14,14 +14,16 @@ import type { Weight } from "./Weight";
  */
 export abstract class AbstractProjectiveVector<D extends number> extends AbstractVector implements IProjectiveVector {
 
-    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVE; }
-    abstract get vectorSpace(): ProjectiveVectorSpace<D>;
+    private static  readonly _spaceType = VectorSpaceType.PROJECTIVE;
+
+    get spaceType(): VectorSpaceType.PROJECTIVE { return AbstractProjectiveVector._spaceType; }
 
     // Default implementations for coordinate accessors
     get x(): number { return this.getCoordinate(0) };
     get y(): number { return this.getCoordinate(1) };
     get w(): number { return this.getCoordinate(this.dimension - 1) };
 
+    abstract get vectorSpace(): ProjectiveVectorSpace<D>;
     abstract get descriptor(): ProjectiveVector;
     abstract get coordinates(): number[];
     abstract get weight(): Weight;
@@ -108,7 +110,7 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
             throw new RangeError(error.generateMessageString());
         }
         const dotProduct = this.dot(other);
-        const angle = Math.acos(Math.abs(dotProduct as number / (thisNorm * otherNorm)));
+        const angle = Math.acos(Math.abs(dotProduct / (thisNorm * otherNorm)));
         return angle <= angularTolerance;
     }
 
@@ -123,7 +125,7 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
         }
         // better to use cross product if available
         const dotProduct = this.dot(other);
-        const ratio = Math.abs(dotProduct as number / (thisNorm * otherNorm));
+        const ratio = Math.abs(dotProduct / (thisNorm * otherNorm));
         return ratio <= angularTolerance;
     }
 

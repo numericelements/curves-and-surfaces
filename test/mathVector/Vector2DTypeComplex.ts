@@ -4,10 +4,11 @@ import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { Complex } from "../../src/mathVector/Complex";
 import { EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/ComplexVectorSpace";
-import { EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
+import { EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
+import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 
 describe('Vector 2D in complex vector space: generation and operators in this vector space', () => {
     const dimension = 2;
@@ -52,8 +53,11 @@ describe('Vector 2D in complex vector space: generation and operators in this ve
             expect(complexVector.vectorType).to.eql(COMPLEXVECTOR2D);
             expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector.vectorSpace.isDefault).to.eql(true);
-            defaultVectorSpaceID = DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension).id;
-            expect(complexVector.vectorSpace.id).to.eql(defaultVectorSpaceID);
+            const defaultVectorSpace = DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension);
+            if(defaultVectorSpace !== undefined) {
+                defaultVectorSpaceID = defaultVectorSpace.id;
+                expect(complexVector.vectorSpace.id).to.eql(defaultVectorSpaceID);
+            }
         });
 
         it(`can generate a default complex vector into a 2D vector space`, () => {
@@ -131,88 +135,92 @@ describe('Vector 2D in complex vector space: generation and operators in this ve
             expect(complexVector.vectorSpace).to.eql(vSpace);
         });
 
-        // All these overloads are not supported by the API --- IGNORE ---
-        // it(`cannot generate an arbitrary complex vector into a 2D vector space using a single complex number`, () => {
-        //     const real = 1;
-        //     const imaginary = -2;
-        //     const complex1 = new Complex(real, imaginary);
-        //     const complexVector = new Vector2DTypeComplex(complex1);
-        //     expect(complexVector.coordinates).to.eql([complex1, new Complex()]);
-        //     expect(complexVector.dimension).to.eql(dimension);
-        //     expect(complexVector.getCoordinate(0)).to.eql(complex1);
-        //     expect(complexVector.getCoordinate(1)).to.eql(new Complex());
-        //     expect(complexVector.vectorType).to.eql(COMPLEXVECTOR2D);
-        //     expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
-        //     expect(complexVector.vectorSpace.isDefault).to.eql(true);
-        // });
-        // it(`cannot generate an arbitrary complex vector into a 2D vector space using two real coordinates only`, () => {
-        //     const real = 1;
-        //     const imaginary = -2;
-        //     const complex1 = new Complex(real, imaginary);
-        //     const complexVector = new Vector2DTypeComplex(real, imaginary);
-        //     expect(complexVector.coordinates).to.eql([complex1, new Complex()]);
-        //     expect(complexVector.dimension).to.eql(dimension);
-        //     expect(complexVector.getCoordinate(0)).to.eql(complex1);
-        //     expect(complexVector.getCoordinate(1)).to.eql(new Complex());
-        //     expect(complexVector.vectorType).to.eql(COMPLEXVECTOR2D);
-        //     expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
-        //     expect(complexVector.vectorSpace.isDefault).to.eql(true);
-        // });
-        // it(`cannot generate an arbitrary complex vector into a 2D vector space using complex and real coordinates simultaneously`, () => {
-        //     const vSpace = new ComplexVectorSpace(dimension);
-        //     const real = 1;
-        //     const imaginary = -2;
-        //     const real1 = 3;
-        //     const imaginary1 = -4;
-        //     const complex1 = new Complex(real, imaginary);
-        //     const complex2 = new Complex(real1, imaginary1);
-        //     expect(() => new Vector2DTypeComplex(complex1, complex2, 0)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(complex1, complex2, 0)).to.throw(EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES);
-        //     expect(() => new Vector2DTypeComplex(complex1, complex2, 0, 0)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(complex1, complex2, 0, 0)).to.throw(EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES);
-        //     expect(() => new Vector2DTypeComplex(complex1, complex2, 0, 0, vSpace)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(complex1, complex2, 0, 0, vSpace)).to.throw(EM_UNSUPPORTED_API_WITH_COMPLEX_AND_REAL_COORDINATES);
-        // });
-        // it(`cannot generate an arbitrary complex vector into a 2D vector space using one complex coordinate and real ones simultaneously`, () => {
-        //     const vSpace = new ComplexVectorSpace(dimension);
-        //     const real = 1;
-        //     const imaginary = -2;
-        //     const complex1 = new Complex(real, imaginary);
-        //     expect(() => new Vector2DTypeComplex(complex1, 0)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(complex1, 0)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        //     expect(() => new Vector2DTypeComplex(complex1, 0, 0)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(complex1, 0, 0)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        //     expect(() => new Vector2DTypeComplex(complex1, 0, 0, 0)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(complex1, 0, 0, 0)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        //     expect(() => new Vector2DTypeComplex(complex1, 0, 0, 0, vSpace)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(complex1, 0, 0, 0, vSpace)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        // });
 
-        // it(`cannot generate an arbitrary complex vector into a 2D vector space using a first real coordinate and a complex one as second coordinate`, () => {
-        //     const vSpace = new ComplexVectorSpace(dimension);
-        //     const real = 1;
-        //     const imaginary = -2;
-        //     const complex1 = new Complex(real, imaginary);
-        //     expect(() => new Vector2DTypeComplex(real, complex1)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(real, complex1)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        //     expect(() => new Vector2DTypeComplex(real, complex1, 0)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(real, complex1, 0)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        //     expect(() => new Vector2DTypeComplex(real, complex1, 0, 0)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(real, complex1, 0, 0)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        //     expect(() => new Vector2DTypeComplex(real, complex1, 0, 0, vSpace)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(real, complex1, 0, 0, vSpace)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        // });
-        // it(`cannot generate an arbitrary complex vector into a 2D vector space using first and second real coordinates and subsequent parameters`, () => {
-        //     const vSpace = new ComplexVectorSpace(dimension);
-        //     const real = 1;
-        //     const imaginary = -2;
-        //     expect(() => new Vector2DTypeComplex(real, imaginary, vSpace)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(real, imaginary, vSpace)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        //     expect(() => new Vector2DTypeComplex(real, imaginary, vSpace, 0)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(real, imaginary, vSpace, 0)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        //     expect(() => new Vector2DTypeComplex(real, imaginary, vSpace, 0, vSpace)).to.throw(RangeError);
-        //     expect(() => new Vector2DTypeComplex(real, imaginary, vSpace, 0, vSpace)).to.throw(EM_VECTOR_COORDINATE_TYPE_INCONSISTENT);
-        // });
+        it(`cannot generate a default complex vector into a user-defined vector space if this vector space is not of type complex and of same dimension as the vector`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new RealVectorSpace(dimension);
+            expect(() =>  new Vector2DTypeComplex(vSpace as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(3);
+            expect(() =>  new Vector2DTypeComplex(vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a complex vector into a default vector space if the user-specified coordinates are not numbers`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector2DTypeComplex(0, 1, -2, vSpace as unknown as number)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(1, 2, vSpace as unknown as number, 1)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, vSpace as unknown as number, 3, 2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(vSpace as unknown as number, 1, -1, -3)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        
+            expect(() =>  new Vector2DTypeComplex(0, 1, -2, new Complex() as unknown as number)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(1, 2, new Complex() as unknown as number, 1)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, new Complex() as unknown as number, 3, 2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(new Complex() as unknown as number, 1, -1, -3)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a real vector into a user-specified vector space if the user-specified coordinates are not numbers and/or the vector space is not of type complex and of same dimension as the vector`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new RealVectorSpace(dimension);
+            expect(() =>  new Vector2DTypeComplex(0, -2, 1, 4, vSpace as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace1 = new ComplexVectorSpace(1);
+            expect(() =>  new Vector2DTypeComplex(0, -2, 1, vSpace as unknown as number, vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, -2, vSpace as unknown as number, -2, vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, vSpace as unknown as number, -2, 3, vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(vSpace as unknown as number, -2, 3, 1, vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            
+            expect(() =>  new Vector2DTypeComplex(0, -2, 1, new Complex() as unknown as number, vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, -2, new Complex() as unknown as number, -2, vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, new Complex() as unknown as number, -2, 3, vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(new Complex() as unknown as number, -2, 3, 1, vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            
+            const vSpace2 = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector2DTypeComplex(vSpace as unknown as number, -2, 1, 0, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, vSpace as unknown as number, -2, 1, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, 1, vSpace as unknown as number, 0, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, 1, -3, vSpace as unknown as number, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        
+            expect(() =>  new Vector2DTypeComplex(new Complex() as unknown as number, -2, 1, 0, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, new Complex() as unknown as number, -2, 1, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, 1, new Complex() as unknown as number, 0, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(0, 1, -3, new Complex() as unknown as number, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a default real vector into a user-defined vector space if this vector space is followed by other parameters`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector2DTypeComplex(vSpace as unknown as Complex, new Complex())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(vSpace as unknown as number, 1, 2, 3)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a complex vector into a default vector space if the user-specified coordinates are not a complex`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(1);
+            expect(() =>  new Vector2DTypeComplex(vSpace as unknown as Complex, new Complex(1, 1))).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(new Complex(1, 1), vSpace as unknown as Complex)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            
+            expect(() =>  new Vector2DTypeComplex(0 as unknown as Complex, new Complex(1, -1))).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(new Complex(1, -1), 10 as unknown as Complex)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            
+            const vSpace1 = new RealVectorSpace(2);
+            expect(() =>  new Vector2DTypeComplex(vSpace1 as unknown as Complex, new Complex(1, 1))).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(new Complex(1, 1), vSpace1 as unknown as Complex)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a complex vector into a user-defined vector space if the user-specified coordinates are not a complex`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(1);
+            expect(() =>  new Vector2DTypeComplex(new Complex(1, -1), new Complex(1, 1), 1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(new Complex(1, -1), new Complex(1, 1), vSpace as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(new Complex(1, 1), vSpace as unknown as Complex, vSpace as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(vSpace as unknown as Complex, new Complex(1, 1), vSpace as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            expect(() =>  new Vector2DTypeComplex(0 as unknown as Complex, new Complex(1, -1), vSpace as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(new Complex(1, -1), 10 as unknown as Complex, vSpace as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            
+            const vSpace1 = new RealVectorSpace(2);
+            expect(() =>  new Vector2DTypeComplex(vSpace1 as unknown as Complex, new Complex(1, 1), vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector2DTypeComplex(new Complex(1, 1), vSpace1 as unknown as Complex, vSpace1 as unknown as ComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
 
     });
 

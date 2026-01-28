@@ -2,8 +2,9 @@ import { expect } from "chai";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 import { Vector1DTypeReal } from "../../src/mathVector/Vector1DTypeReal";
-import { EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
+import { EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
 import { REALVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
+import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 
 describe('Vector 1D in real vector space: generation and operators in this vector space', () => {
     const dimension = 1;
@@ -59,6 +60,46 @@ describe('Vector 1D in real vector space: generation and operators in this vecto
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(false);
             expect(realVector.vectorSpace).to.eql(vSpace);
+        });
+
+        it(`cannot generate a default real vector into a user-defined vector space if this vector space is not of type real and of same dimension as the vector`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeReal(vSpace as unknown as RealVectorSpace<1>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(3);
+            expect(() =>  new Vector1DTypeReal(vSpace1 as unknown as RealVectorSpace<1>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a real vector into a default vector space if the user-specified coordinates are not numbers`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeReal(vSpace as unknown as number)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a real vector into a user-specified vector space if the user-specified coordinates are not numbers and/or the vector space is not of type real and of same dimension as the vector`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeReal(0, vSpace as unknown as RealVectorSpace<1>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(3);
+            expect(() =>  new Vector1DTypeReal(0, vSpace1 as unknown as RealVectorSpace<1>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace2 = new RealVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeReal(vSpace as unknown as number, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a default real vector into a user-defined vector space if this vector space is followed by other parameters`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new RealVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeReal(vSpace as unknown as number, vSpace)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`can generate a default real vector into a user-defined vector space if this vector space is type casted into a number`, () => {
+            // Use type casting as allowed by typescript even though this configuration is not making sense
+            const vSpace = new RealVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeReal(vSpace as unknown as number)).to.not.throw();
+            const vector = new Vector1DTypeReal(vSpace as unknown as number);
+            expect(vector.vectorSpace).to.eql(vSpace);
+            expect(vector.vectorSpace.isDefault).to.eql(false);
+            expect(vector.getCoordinate(0)).to.eql(0);
         });
     });
 

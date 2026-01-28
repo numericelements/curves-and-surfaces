@@ -23,9 +23,12 @@ import { Weight } from "./Weight";
 
 export class RealVectorSpace<D extends number = number> implements RealVectorSpaceInterface<D> {
 // export class RealVectorSpace<D extends number = number> implements IdentifiableVectorSpace<RealVectorOfDimension<D>> {
+
+    private static readonly _spaceType = VectorSpaceType.REAL as const;
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
+
     protected readonly dim: D;
     protected readonly strategy: IRealVectorSpaceStrategy<D>;
 
@@ -58,7 +61,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
     get id(): string { return this._id; }
     get name(): string { return this._name; }
     get isDefault(): boolean { return this._isDefault; }
-    get spaceType(): VectorSpaceType { return VectorSpaceType.REAL; }
+    get spaceType(): VectorSpaceType.REAL { return RealVectorSpace._spaceType; }
 
 
     // Identity methods
@@ -236,7 +239,7 @@ export function createRealVectorSpace(dimension: 4): RealVectorSpace<4>;
 export function createRealVectorSpace(dimension: number): RealVectorSpace<number>;
 export function createRealVectorSpace(dimension: number): RealVectorSpace<any> {
     if(dimension < MIN_DIMENSION_REALVECTORSPACE || dimension > MAX_DIMENSION_REALVECTORSPACE) {
-        const error = sendRangeErrorMessage("createRealVectorSpace", 'function', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
+        const error = sendRangeErrorMessage("createRealVectorSpace", 'createRealVectorSpace', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
         throw new RangeError(error.generateMessageString());
     }
     return new RealVectorSpace(dimension);

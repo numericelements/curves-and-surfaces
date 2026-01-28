@@ -17,6 +17,7 @@ import { EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorM
 import { EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ComplexVectorSpace";
 import { EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ProjectiveVectorSpace";
 import { EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ProjectiveComplexVectorSpace";
+import { RealVectorSpaceInterface } from "../../../src/mathVector/IVectorSpace";
 
 describe('Resolvers for default vector space generation associated with a vector', () => {
 
@@ -86,8 +87,10 @@ describe('Resolvers for default vector space generation associated with a vector
     });
 
     it('cannot get a vector space of unknown type', () => {
-        expect(() => getDefaultVectorSpace(VectorSpaceType.UNKNOWN_VECTORSPACE, 2)).to.throw(RangeError);
-        expect(() => getDefaultVectorSpace(VectorSpaceType.UNKNOWN_VECTORSPACE, 2)).to.throw(EM_INVALID_VECTOR_SPACE_TYPE);
+        // This unit test is rather artificial since the TypeScript compiler prevents such incorrect calls but it enables to cover all code paths
+        // and could be useful to cover runtime errors if the TypeScript type checking is bypassed for some reason
+        expect(() => getDefaultVectorSpace(VectorSpaceType.UNKNOWN_VECTORSPACE as unknown as VectorSpaceType.REAL, 2)).to.throw(RangeError);
+        expect(() => getDefaultVectorSpace(VectorSpaceType.UNKNOWN_VECTORSPACE as unknown as VectorSpaceType.REAL, 2)).to.throw(EM_INVALID_VECTOR_SPACE_TYPE);
     });
 
     it(`can resolve the default vector space for any real vector space and generate its id`, () => {
@@ -97,7 +100,7 @@ describe('Resolvers for default vector space generation associated with a vector
             isDefault: true,
             name: 'mockRealVectorSpace',
             id: INITIAL_VECTOR_SPACE_ID,
-        } as RealVectorSpace<2>;
+        } as RealVectorSpaceInterface<2>;
         expect(resolveDefaultVectorSpace(mockVectorSpace).includes(DEFAULT + `${mockVectorSpace.spaceType}_${mockVectorSpace.dimension()}_` + VECTOR_SPACE)).to.eql(true);
     });
 
@@ -144,7 +147,7 @@ describe('Resolvers for default vector space generation associated with a vector
             isDefault: true,
             name: 'mockRealVectorSpace',
             id: INITIAL_VECTOR_SPACE_ID,
-        } as RealVectorSpace<2>;
+        } as RealVectorSpaceInterface<2>;
         expect(() => resolveDefaultVectorSpace(mockVectorSpace)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
     });
 
@@ -271,9 +274,11 @@ describe('Resolvers for default vector space generation associated with a vector
     });
 
     it(`cannot get the default vector space for a vector space type distinct from ${VectorSpaceType}`, () => {
+        // This unit test is rather artificial since the TypeScript compiler prevents such incorrect calls but it enables to cover all code paths
+        // and could be useful to cover runtime errors if the TypeScript type checking is bypassed for some reason
         const dimension = 2;
         const incorrectVSType = "IncorrectType" as VectorSpaceType;
-        expect(() => getDefaultVectorSpace(incorrectVSType, dimension)).to.throw(EM_INVALID_VECTOR_SPACE_TYPE);
+        expect(() => getDefaultVectorSpace(incorrectVSType as unknown as VectorSpaceType.REAL, dimension)).to.throw(EM_INVALID_VECTOR_SPACE_TYPE);
     });
 
     it(`cannot get a default real vector space for a vector space dimension outside the range ${MIN_DIMENSION_REALVECTORSPACE}, ${MAX_DIMENSION_REALVECTORSPACE}`, () => {

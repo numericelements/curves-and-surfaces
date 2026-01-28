@@ -10,14 +10,15 @@ import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOM
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE } from "../../namedConstants/ProjectiveVectorSpace";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../namedConstants/RealVectorSpace";
 import { INITIAL_VECTOR_SPACE_ID, VECTOR_SPACE } from "../../namedConstants/VectorSpaceIdentifierManager";
-import type { ComplexVectorSpace } from "../ComplexVectorSpace";
-import type { IdentifiableVectorSpace } from "../IVectorSpace";
-import type { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
-import type { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
-import { RealVectorSpace } from "../RealVectorSpace";
+import type { ComplexVectorSpaceInterface, IdentifiableVectorSpace, ProjectiveComplexVectorSpaceInterface, ProjectiveVectorSpaceInterface, RealVectorSpaceInterface } from "../IVectorSpace";
 import { Vector } from "../VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 
+export type SupportedVectorSpace = 
+    | RealVectorSpaceInterface<number>
+    | ComplexVectorSpaceInterface<number>
+    | ProjectiveVectorSpaceInterface<number>
+    | ProjectiveComplexVectorSpaceInterface<number>;
 /**
  * Singleton manager for default vector spaces
  */
@@ -25,10 +26,10 @@ export class DefaultVectorSpaces {
     private static instance: DefaultVectorSpaces | null = null;
     private nextIndex: number = DEFAULT_VSPACE_INDEX_INITIAL_VALUE;
     
-    private realSpaces: Map<number, RealVectorSpace<any>> = new Map();
-    private complexSpaces: Map<number, ComplexVectorSpace<any>> = new Map();
-    private projectiveRealSpaces: Map<number, ProjectiveVectorSpace<any>> = new Map();
-    private projectiveComplexSpaces: Map<number, ProjectiveComplexVectorSpace<any>> = new Map();
+    private realSpaces: Map<number, RealVectorSpaceInterface<number>> = new Map();
+    private complexSpaces: Map<number, ComplexVectorSpaceInterface<number>> = new Map();
+    private projectiveRealSpaces: Map<number, ProjectiveVectorSpaceInterface<number>> = new Map();
+    private projectiveComplexSpaces: Map<number, ProjectiveComplexVectorSpaceInterface<number>> = new Map();
 
     private constructor() {}
 
@@ -59,7 +60,7 @@ export class DefaultVectorSpaces {
         return VECTOR_SPACE + `${vsId}_${Date.now()}`;
     }
 
-    getVectorSpaceIndex(vectorSpace: IdentifiableVectorSpace<Vector>): number | undefined{
+    getVectorSpaceIndex(vectorSpace: SupportedVectorSpace): number | undefined{
         const vsId = vectorSpace.id;
         if(vsId === INITIAL_VECTOR_SPACE_ID) return undefined;
         const decomposedId = vsId.split('_');
@@ -75,35 +76,35 @@ export class DefaultVectorSpaces {
         return index;
     }
 
-    registerVectorSpace(vectorSpace: IdentifiableVectorSpace<Vector>): boolean {
+    registerVectorSpace(vectorSpace: SupportedVectorSpace): boolean {
         let registered = true;
         switch(vectorSpace.spaceType) {
             case VectorSpaceType.REAL:
                 if(this.realSpaces.has(vectorSpace.dimension())) {
                     registered = false;
                 } else {
-                    this.registerRealVectorSpace(vectorSpace as RealVectorSpace);
+                    this.registerRealVectorSpace(vectorSpace);
                 }
                 return registered;
             case VectorSpaceType.COMPLEX:
                 if(this.complexSpaces.has(vectorSpace.dimension())) {
                     registered = false;
                 } else {
-                    this.registerComplexVectorSpace(vectorSpace as ComplexVectorSpace);
+                    this.registerComplexVectorSpace(vectorSpace);
                 }
                 return registered;
             case VectorSpaceType.PROJECTIVE:
                 if(this.projectiveRealSpaces.has(vectorSpace.dimension())) {
                     registered = false;
                 } else {
-                    this.registerProjectiveRealVectorSpace(vectorSpace as ProjectiveVectorSpace);
+                    this.registerProjectiveRealVectorSpace(vectorSpace);
                 }
                 return registered;
             case VectorSpaceType.PROJECTIVECOMPLEX:
                 if(this.projectiveComplexSpaces.has(vectorSpace.dimension())) {
                     registered = false;
                 } else {
-                    this.registerProjectiveComplexVectorSpace(vectorSpace as ProjectiveComplexVectorSpace);
+                    this.registerProjectiveComplexVectorSpace(vectorSpace);
                 }
                 return registered;
             default: {
@@ -113,7 +114,7 @@ export class DefaultVectorSpaces {
         } 
     }
 
-    registerRealVectorSpace<D extends number>(realVS: RealVectorSpace<D>): boolean {
+    registerRealVectorSpace<D extends number>(realVS: RealVectorSpaceInterface<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(realVS);
         let registered = false;
         if ((vsIndex === undefined || !this.realSpaces.has(realVS.dimension())) && 
@@ -124,7 +125,7 @@ export class DefaultVectorSpaces {
         return registered;
     }
 
-    registerComplexVectorSpace<D extends number>(complexVS: ComplexVectorSpace<D>): boolean {
+    registerComplexVectorSpace<D extends number>(complexVS: ComplexVectorSpaceInterface<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(complexVS);
         let registered = false;
         if ((vsIndex === undefined || !this.complexSpaces.has(complexVS.dimension())) && 
@@ -135,7 +136,7 @@ export class DefaultVectorSpaces {
         return registered;
     }
 
-    registerProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveVectorSpace<D>): boolean {
+    registerProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveVectorSpaceInterface<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(projectiveVS);
         let registered = false;
         if ((vsIndex === undefined || !this.projectiveRealSpaces.has(projectiveVS.dimension())) && 
@@ -146,7 +147,7 @@ export class DefaultVectorSpaces {
         return registered;
     }
 
-    registerProjectiveComplexVectorSpace<D extends number>(projectiveComplexVS: ProjectiveComplexVectorSpace<D>): boolean {
+    registerProjectiveComplexVectorSpace<D extends number>(projectiveComplexVS: ProjectiveComplexVectorSpaceInterface<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(projectiveComplexVS);
         let registered = false;
         if ((vsIndex === undefined || !this.projectiveComplexSpaces.has(projectiveComplexVS.dimension())) && 
@@ -157,7 +158,7 @@ export class DefaultVectorSpaces {
         return registered;
     }
 
-    getRealVectorSpace<D extends number>(dimension: D): RealVectorSpace<D> {
+    getRealVectorSpace<D extends number>(dimension: D): RealVectorSpaceInterface<D> | undefined {
         if (dimension < MIN_DIMENSION_REALVECTORSPACE || dimension > MAX_DIMENSION_REALVECTORSPACE) {
             throw new RangeError();
         }
@@ -165,10 +166,10 @@ export class DefaultVectorSpaces {
             const error = sendRangeErrorMessage(this.constructor.name, 'getRealVectorSpace', EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION);
             throw new RangeError(error.generateMessageString());
         }
-        return this.realSpaces.get(dimension) as RealVectorSpace<D>;
+        return this.realSpaces.get(dimension);
     }
 
-    getComplexVectorSpace<D extends number>(dimension: D): ComplexVectorSpace<D> {
+    getComplexVectorSpace<D extends number>(dimension: D): ComplexVectorSpaceInterface<D> | undefined {
         if (dimension < MIN_DIMENSION_COMPLEXVECTORSPACE || dimension > MAX_DIMENSION_COMPLEXVECTORSPACE) {
             throw new RangeError();
         }
@@ -176,10 +177,10 @@ export class DefaultVectorSpaces {
             const error = sendRangeErrorMessage(this.constructor.name, 'getComplexVectorSpace', EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION);
             throw new RangeError(error.generateMessageString());
         }
-        return this.complexSpaces.get(dimension) as ComplexVectorSpace<D>;
+        return this.complexSpaces.get(dimension);
     }
 
-    getProjectiveVectorSpace<D extends number>(dimension: D): ProjectiveVectorSpace<D> {
+    getProjectiveVectorSpace<D extends number>(dimension: D): ProjectiveVectorSpaceInterface<D> | undefined {
         if (dimension < MIN_DIMENSION_PROJECTIVEVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVEVECTORSPACE) {
             throw new RangeError();
         }
@@ -187,10 +188,10 @@ export class DefaultVectorSpaces {
             const error = sendRangeErrorMessage(this.constructor.name, 'getProjectiveVectorSpace', EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION);
             throw new RangeError(error.generateMessageString());
         }
-        return this.projectiveRealSpaces.get(dimension) as ProjectiveVectorSpace<D>;
+        return this.projectiveRealSpaces.get(dimension);
     }
 
-    getProjectiveComplexVectorSpace<D extends number>(dimension: D): ProjectiveComplexVectorSpace<D> {
+    getProjectiveComplexVectorSpace<D extends number>(dimension: D): ProjectiveComplexVectorSpaceInterface<D> | undefined {
         if (dimension < MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {
             throw new RangeError();
         }
@@ -198,7 +199,7 @@ export class DefaultVectorSpaces {
             const error = sendRangeErrorMessage(this.constructor.name, 'getProjectiveComplexVectorSpace', EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION);
             throw new RangeError(error.generateMessageString());
         }
-        return this.projectiveComplexSpaces.get(dimension) as ProjectiveComplexVectorSpace<D>;
+        return this.projectiveComplexSpaces.get(dimension);
     }
 
     /**

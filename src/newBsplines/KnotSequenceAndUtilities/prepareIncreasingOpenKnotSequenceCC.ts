@@ -32,7 +32,7 @@ export function prepareIncreasingOpenKnotSequenceCC(maxMultiplicityOrder: number
         }
         return {knots: knots, multiplicities: multiplicities, uMax: knotParameters.periodicKnots[knotParameters.periodicKnots.length - 1], indexKnotOrigin:  new KnotIndexStrictlyIncreasingSequence(0)};
     } else {
-        const error = new ErrorLog('function', 'prepareIncreasingOpenKnotSequenceCC');
+        const error = new ErrorLog('prepareIncreasingOpenKnotSequenceCC', 'prepareIncreasingOpenKnotSequenceCC');
         error.addMessage(EM_MAXMULTIPLICITY_ORDER_KNOT);
         console.log(error.generateMessageString());
         throw new RangeError(error.generateMessageString());

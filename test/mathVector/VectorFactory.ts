@@ -468,13 +468,21 @@ describe('Vector factory to create real, projective real, complex, and projectiv
         const vSpace = new ProjectiveVectorSpace(dimension3, WeightManagement.AllPositiveWeights, true);
         expect(vSpace.isDefault).to.eql(true);
         expect(() =>  projectiveRealVector3D(1, 2, new Weight(3, true), vSpace)).to.throw(EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
-        expect(() =>  projectiveRealVector3D(1, 2, new Weight(3, true), vSpace)).to.throw('function');
+        expect(() =>  projectiveRealVector3D(1, 2, new Weight(3, true), vSpace)).to.throw('projectiveRealVector3D');
     });
 
-    it(`cannot generate a projective real vector with a negative weight`, () => {
+    it(`cannot generate a consistent projective real vector into a user-defined non projective vector space`, () => {
+        const x = 1;
+        // Here we use a real vector space that is not projective to show that type casting is necessary to bypass typescript checks
         const vSpace = new RealVectorSpace(dimension3);
         expect(vSpace.isDefault).to.eql(false);
-        expect(() =>  projectiveRealVector3D(1, 2, new Weight(), vSpace as unknown as ProjectiveVectorSpace<3>)).to.throw();
-        // expect(() =>  projectiveRealVector3D(1, 2, new Weight(3, true), vSpace)).to.throw('function');
+        // Such type casting must be avoided by the users because they don't throw errors at compile time and at runtime
+        expect(() =>  projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveVectorSpace<3>)).to.not.throw();
+        const projRealVector = projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveVectorSpace<3>);
+        // But the generated vector is not consistent though the user coordinates are correctly set
+        expect(projRealVector.getCoordinate(0)).to.eql(x);
+        expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
+        expect(projRealVector.vectorSpace.spaceType).to.not.eql(VectorSpaceType.PROJECTIVE);
+        expect(projRealVector.vectorSpace.spaceType).to.eql(VectorSpaceType.REAL);
     });
 });

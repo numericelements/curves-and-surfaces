@@ -4,22 +4,18 @@
  */
 
 import { VectorSpaceIdentifierManager } from './VectorSpaceIdentifierManager';
-import type { RealVectorSpace } from '../RealVectorSpace';
-import type { Vector } from '../VectorSpaceConstructorInterface';
-import type { ComplexVectorSpace } from '../ComplexVectorSpace';
-import type { ProjectiveVectorSpace } from '../ProjectiveVectorSpace';
-import type { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
 import { VectorSpaceType } from '../../namedConstants/BSplineR1toRn';
 import { sendErrorMessage, sendRangeErrorMessage } from '../VectorSpaceUtilities';
 import { EM_INVALID_VECTOR_SPACE_TYPE } from '../../ErrorMessages/DefaultSpaceResolvers';
 import { EM_VECTOR_SPACE_ALREADY_REGISTERED } from '../../ErrorMessages/VectorSpaceResolvers';
-import type { IdentifiableVectorSpace } from '../IVectorSpace';
+import type { ComplexVectorSpaceInterface, ProjectiveComplexVectorSpaceInterface, ProjectiveVectorSpaceInterface, RealVectorSpaceInterface } from '../IVectorSpace';
+import { SupportedVectorSpace } from './DefaultVectorSpaces';
 
 /**
  * Register a real vector space for given dimension if not already registered
  * @internal
  */
-export function isRegisteredRealVectorSpace<D extends number>(realVS: RealVectorSpace<D>): boolean {
+export function isRegisteredRealVectorSpace<D extends number>(realVS: RealVectorSpaceInterface<D>): boolean {
     const registered = !VectorSpaceIdentifierManager.getInstance().registerRealVectorSpace(realVS);
     return registered;
 }
@@ -28,7 +24,7 @@ export function isRegisteredRealVectorSpace<D extends number>(realVS: RealVector
  * Register a complex vector space for given dimension if not already registered
  * @internal
  */
-export function isRegisteredComplexVectorSpace<D extends number>(complexVS: ComplexVectorSpace<D>): boolean {
+export function isRegisteredComplexVectorSpace<D extends number>(complexVS: ComplexVectorSpaceInterface<D>): boolean {
     const registered = !VectorSpaceIdentifierManager.getInstance().registerComplexVectorSpace(complexVS);
     return registered;
 }
@@ -37,7 +33,7 @@ export function isRegisteredComplexVectorSpace<D extends number>(complexVS: Comp
  * Register a projective real vector space for given dimension if not already registered
  * @internal
  */
-export function isRegisteredProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveVectorSpace<D>): boolean {
+export function isRegisteredProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveVectorSpaceInterface<D>): boolean {
     const registered = !VectorSpaceIdentifierManager.getInstance().registerProjectiveRealVectorSpace(projectiveVS);
     return registered;
 }
@@ -46,7 +42,7 @@ export function isRegisteredProjectiveRealVectorSpace<D extends number>(projecti
  * Register a projective complex vector space for given dimension if not already registered
  * @internal
  */
-export function isRegisteredProjectiveComplexVectorSpace<D extends number>(projectiveComplexVS: ProjectiveComplexVectorSpace<D>): boolean {
+export function isRegisteredProjectiveComplexVectorSpace<D extends number>(projectiveComplexVS: ProjectiveComplexVectorSpaceInterface<D>): boolean {
     const registered = !VectorSpaceIdentifierManager.getInstance().registerProjectiveComplexVectorSpace(projectiveComplexVS);
     return registered;
 }
@@ -55,23 +51,18 @@ export function isRegisteredProjectiveComplexVectorSpace<D extends number>(proje
  * Register a vector space based on type and dimension
  * @internal
  */
-export function isRegisteredVectorSpace<D extends number>(vectorSpace: ComplexVectorSpace<D>): boolean;
-export function isRegisteredVectorSpace<D extends number>(vectorSpace: RealVectorSpace<D>): boolean;
-export function isRegisteredVectorSpace<D extends number>(vectorSpace: ProjectiveVectorSpace<D>): boolean;
-export function isRegisteredVectorSpace<D extends number>(vectorSpace: ProjectiveComplexVectorSpace<D>): boolean;
-export function isRegisteredVectorSpace<V extends Vector>(vectorSpace: IdentifiableVectorSpace<V>): boolean;
-export function isRegisteredVectorSpace(vectorSpace: IdentifiableVectorSpace<Vector>): boolean {
+export function isRegisteredVectorSpace(vectorSpace: SupportedVectorSpace): boolean {
     switch (vectorSpace.spaceType) {
         case VectorSpaceType.REAL:
-            return isRegisteredRealVectorSpace(vectorSpace as RealVectorSpace);
+            return isRegisteredRealVectorSpace(vectorSpace);
         case VectorSpaceType.COMPLEX:
-            return isRegisteredComplexVectorSpace(vectorSpace as ComplexVectorSpace);
+            return isRegisteredComplexVectorSpace(vectorSpace);
         case VectorSpaceType.PROJECTIVE:
-            return isRegisteredProjectiveRealVectorSpace(vectorSpace as ProjectiveVectorSpace);
+            return isRegisteredProjectiveRealVectorSpace(vectorSpace);
         case VectorSpaceType.PROJECTIVECOMPLEX:
-            return isRegisteredProjectiveComplexVectorSpace(vectorSpace as ProjectiveComplexVectorSpace);
+            return isRegisteredProjectiveComplexVectorSpace(vectorSpace);
         default: {
-            const error = sendRangeErrorMessage('getDefaultVectorSpace', 'getDefaultVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
+            const error = sendRangeErrorMessage('isRegisteredVectorSpace', 'isRegisteredVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
             throw new RangeError(error.generateMessageString());
         }
     }
@@ -81,12 +72,7 @@ export function isRegisteredVectorSpace(vectorSpace: IdentifiableVectorSpace<Vec
  * Resolve vector space based on type and dimension to generate a unique identifier
  * @internal
  */
-export function resolveVectorSpace<D extends number>(vectorSpace: ComplexVectorSpace<D>): string;
-export function resolveVectorSpace<D extends number>(vectorSpace: RealVectorSpace<D>): string;
-export function resolveVectorSpace<D extends number>(vectorSpace: ProjectiveVectorSpace<D>): string;
-export function resolveVectorSpace<D extends number>(vectorSpace: ProjectiveComplexVectorSpace<D>): string;
-export function resolveVectorSpace<V extends Vector>(vectorSpace: IdentifiableVectorSpace<V>): string;
-export function resolveVectorSpace(vectorSpace: IdentifiableVectorSpace<Vector>): string {
+export function resolveVectorSpace(vectorSpace: SupportedVectorSpace): string {
     let vsId = "";
     const idManager = VectorSpaceIdentifierManager.getInstance();
     if(isRegisteredVectorSpace(vectorSpace)) {

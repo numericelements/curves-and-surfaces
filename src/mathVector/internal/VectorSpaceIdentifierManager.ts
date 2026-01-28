@@ -2,13 +2,10 @@ import { EM_INVALID_VECTOR_SPACE_TYPE } from "../../ErrorMessages/DefaultSpaceRe
 import { EM_INVALID_VECTOR_SPACE_ID_STRUCTURE, EM_INVALID_VECTOR_SPACE_INDEX_VALUE } from "../../ErrorMessages/VectorSpaceIdentifierManager";
 import { VectorSpaceType } from "../../namedConstants/BSplineR1toRn";
 import { INITIAL_VECTOR_SPACE_ID, LOCATION_INDEX_INTO_VECTOR_SPACE_ID, VECTOR_SPACE, VSPACE_INDEX_INITIAL_VALUE } from "../../namedConstants/VectorSpaceIdentifierManager";
-import type { ComplexVectorSpace } from "../ComplexVectorSpace";
-import type { IdentifiableVectorSpace } from "../IVectorSpace";
-import type { ProjectiveComplexVectorSpace } from "../ProjectiveComplexVectorSpace";
-import type { ProjectiveVectorSpace } from "../ProjectiveVectorSpace";
-import type { RealVectorSpace } from "../RealVectorSpace";
+import type { ComplexVectorSpaceInterface, IdentifiableVectorSpace, ProjectiveComplexVectorSpaceInterface, ProjectiveVectorSpaceInterface, RealVectorSpaceInterface } from "../IVectorSpace";
 import { Vector } from "../VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import { SupportedVectorSpace } from "./DefaultVectorSpaces";
 
 
 /**
@@ -17,10 +14,11 @@ import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
 export class VectorSpaceIdentifierManager {
     private static instance: VectorSpaceIdentifierManager | null = null;
     private nextIndex: number = VSPACE_INDEX_INITIAL_VALUE;
-    private realSpaces: Map<number, RealVectorSpace<any>> = new Map();
-    private complexSpaces: Map<number, ComplexVectorSpace<any>> = new Map();
-    private projectiveRealSpaces: Map<number, ProjectiveVectorSpace<any>> = new Map();
-    private projectiveComplexSpaces: Map<number, ProjectiveComplexVectorSpace<any>> = new Map();
+
+    private realSpaces: Map<number, RealVectorSpaceInterface<number>> = new Map();
+    private complexSpaces: Map<number, ComplexVectorSpaceInterface<number>> = new Map();
+    private projectiveRealSpaces: Map<number, ProjectiveVectorSpaceInterface<number>> = new Map();
+    private projectiveComplexSpaces: Map<number, ProjectiveComplexVectorSpaceInterface<number>> = new Map();
 
     private constructor() {}
 
@@ -51,7 +49,7 @@ export class VectorSpaceIdentifierManager {
         return VECTOR_SPACE + `${vsId}_${Date.now()}`;
     }
 
-    getVectorSpaceIndex(vectorSpace: IdentifiableVectorSpace<Vector>): number | undefined{
+    getVectorSpaceIndex(vectorSpace: SupportedVectorSpace): number | undefined{
         const vsId = vectorSpace.id;
         if(vsId === INITIAL_VECTOR_SPACE_ID) return undefined;
         const decomposedId = vsId.split('_');
@@ -67,19 +65,19 @@ export class VectorSpaceIdentifierManager {
         return index;
     }
 
-    registerVectorSpace(vectorSpace: IdentifiableVectorSpace<Vector>): void {
+    registerVectorSpace(vectorSpace: SupportedVectorSpace): void {
         switch(vectorSpace.spaceType) {
             case VectorSpaceType.REAL:
-                this.registerRealVectorSpace(vectorSpace as RealVectorSpace);
+                this.registerRealVectorSpace(vectorSpace);
                 return;
             case VectorSpaceType.COMPLEX:
-                this.registerComplexVectorSpace(vectorSpace as ComplexVectorSpace);
+                this.registerComplexVectorSpace(vectorSpace);
                 return;
             case VectorSpaceType.PROJECTIVE:
-                this.registerProjectiveRealVectorSpace(vectorSpace as ProjectiveVectorSpace);
+                this.registerProjectiveRealVectorSpace(vectorSpace);
                 return;
             case VectorSpaceType.PROJECTIVECOMPLEX:
-                this.registerProjectiveComplexVectorSpace(vectorSpace as ProjectiveComplexVectorSpace);
+                this.registerProjectiveComplexVectorSpace(vectorSpace);
                 return;
             default: {
                 const error = sendRangeErrorMessage(this.constructor.name, 'registerVectorSpace', EM_INVALID_VECTOR_SPACE_TYPE);
@@ -88,7 +86,7 @@ export class VectorSpaceIdentifierManager {
         }
     }
 
-    registerRealVectorSpace<D extends number>(realVS: RealVectorSpace<D>): boolean {
+    registerRealVectorSpace<D extends number>(realVS: RealVectorSpaceInterface<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(realVS);
         if ((vsIndex === undefined || !this.realSpaces.has(vsIndex)) && this.nextIndex >= VSPACE_INDEX_INITIAL_VALUE) {
             this.realSpaces.set(this.nextIndex, realVS);
@@ -97,7 +95,8 @@ export class VectorSpaceIdentifierManager {
         return false;
     }
 
-    registerComplexVectorSpace<D extends number>(complexVS: ComplexVectorSpace<D>): boolean {
+
+    registerComplexVectorSpace<D extends number>(complexVS: ComplexVectorSpaceInterface<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(complexVS);
         if ((vsIndex === undefined || !this.complexSpaces.has(vsIndex)) && this.nextIndex >= VSPACE_INDEX_INITIAL_VALUE) {
             this.complexSpaces.set(this.nextIndex, complexVS);
@@ -106,7 +105,7 @@ export class VectorSpaceIdentifierManager {
         return false;
     }
 
-    registerProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveVectorSpace<D>): boolean {
+    registerProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveVectorSpaceInterface<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(projectiveVS);
         if ((vsIndex === undefined || !this.projectiveRealSpaces.has(vsIndex)) && this.nextIndex >= VSPACE_INDEX_INITIAL_VALUE) {
             this.projectiveRealSpaces.set(this.nextIndex, projectiveVS);
@@ -115,7 +114,7 @@ export class VectorSpaceIdentifierManager {
         return false;
     }
 
-    registerProjectiveComplexVectorSpace<D extends number>(projectiveComplexVS: ProjectiveComplexVectorSpace<D>): boolean {
+    registerProjectiveComplexVectorSpace<D extends number>(projectiveComplexVS: ProjectiveComplexVectorSpaceInterface<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(projectiveComplexVS);
         if ((vsIndex === undefined || !this.projectiveComplexSpaces.has(vsIndex)) && this.nextIndex >= VSPACE_INDEX_INITIAL_VALUE) {
             this.projectiveComplexSpaces.set(this.nextIndex, projectiveComplexVS);

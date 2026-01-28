@@ -11,14 +11,17 @@ import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import type { IdentifiableVectorSpace } from "./IVectorSpace";
+import type { ComplexVectorSpaceInterface, IdentifiableVectorSpace } from "./IVectorSpace";
 import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
 import type { IComplex, ComplexVector, ComplexVectorOfDimension, IComplexWeight, ProjectiveComplexVector, RealVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ComplexVectorOfDimension<D>> {
+// export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ComplexVectorOfDimension<D>> {
+export class ComplexVectorSpace<D extends number = number> implements ComplexVectorSpaceInterface<D> {
+
+    private static readonly _spaceType = VectorSpaceType.COMPLEX as const;
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
@@ -52,7 +55,7 @@ export class ComplexVectorSpace<D extends number = number> implements Identifiab
     get id(): string { return this._id; }
     get name(): string { return this._name; }
     get isDefault(): boolean { return this._isDefault; }
-    get spaceType(): VectorSpaceType { return VectorSpaceType.COMPLEX; }
+    get spaceType(): VectorSpaceType.COMPLEX { return ComplexVectorSpace._spaceType; }
 
     // Identity methods
     isSameSpace(other: IdentifiableVectorSpace<Vector>): boolean {

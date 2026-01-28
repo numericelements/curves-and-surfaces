@@ -1,6 +1,6 @@
 import { EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { COMPLEXVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { AbstractComplexVector } from "./AbstractComplexVector";
 import { Complex } from "./Complex";
@@ -9,9 +9,11 @@ import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import type { IComplex, ComplexVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
-const SPACE_DIMENSION = 2;
 
 export class Vector2DTypeComplex extends AbstractComplexVector<2> {
+
+    private static readonly DIMENSION = 2 as const;
+    private static readonly _vectorType = COMPLEXVECTOR2D;
     private readonly _descriptor: ComplexVector2D;
     protected readonly _vectorSpace: ComplexVectorSpace<2>;
 
@@ -31,16 +33,24 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2> {
         }
 
         // Case 2: vectorSpace only
-        if (realOrComplexOrVectorSpace instanceof ComplexVectorSpace) {
+        if (realOrComplexOrVectorSpace instanceof ComplexVectorSpace && imaginaryOrComplex === undefined) {
+            super.checkVectorSpaceDimensionConsistency(Vector2DTypeComplex.DIMENSION, realOrComplexOrVectorSpace);
             this._vectorSpace = realOrComplexOrVectorSpace;
             this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [nullComplex, nullComplex] };
             return;
         } 
         
         // Case 3: coordinates as complex numbers with optional vectorSpace
-        if (realOrComplexOrVectorSpace instanceof Complex) {
-            const complex1 = realOrComplexOrVectorSpace;
-            if(imaginaryOrComplex instanceof Complex) {
+        if (realOrComplexOrVectorSpace instanceof Complex && imaginaryOrComplex instanceof Complex) {
+            if(real2OrVectorSpace instanceof ComplexVectorSpace) {
+                super.checkVectorSpaceConsistency(Vector2DTypeComplex.DIMENSION, real2OrVectorSpace);
+            } else if (real2OrVectorSpace !== undefined) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+                throw new RangeError(error.generateMessageString());
+            }
+            // At this point: realOrComplexOrVectorSpace and imaginaryOrComplex are Complex (guaranteed by overload)
+            // if(imaginaryOrComplex instanceof Complex) {
+                const complex1 = realOrComplexOrVectorSpace;
                 const complex2 = imaginaryOrComplex;
                 this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [
                     { type: COMPLEX, real: complex1.real, imaginary: complex1.imaginary },
@@ -50,42 +60,48 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2> {
                     ? real2OrVectorSpace
                     : this.getDefaultVectorSpace();
                 return;
-            } else {
-                this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [{ type: COMPLEX, real: complex1.real, imaginary: complex1.imaginary }, nullComplex] };
-                this._vectorSpace = this.getDefaultVectorSpace();
-                return;
-            }
+            // } else {
+            //     // cannot be reached with overloads, but added for type safety
+            //     const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            //     throw new RangeError(error.generateMessageString());
+            // }
         }
             
         // Case 4: coordinates as sequence of real and imaginary parts with optional vectorSpace
-        // At this point: realOrComplexOrVectorSpace is number (guaranteed by overload)
+        if(typeof realOrComplexOrVectorSpace !== 'number' || typeof imaginaryOrComplex !== 'number'
+            || typeof real2OrVectorSpace !== 'number' || typeof imaginary2 !== 'number') {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+        // At this point: realOrComplexOrVectorSpace, imaginaryOrComplex, real2OrVectorSpace, imaginary2 are numbers (guaranteed by overload)
+        super.checkVectorSpaceConsistency(Vector2DTypeComplex.DIMENSION, vectorSpace);
         const real = realOrComplexOrVectorSpace;
-        if (imaginaryOrComplex instanceof Complex) {
-            // cannot be reached with overloads, but added for type safety -> not covered by istanbul ignore
-            throw new RangeError();
-        } else {
-            // imaginaryOrVectorSpace is number (guaranteed by overload)
-            if(real2OrVectorSpace instanceof ComplexVectorSpace) {
-                // cannot be reached with overloads, but added for type safety -> not covered by istanbul ignore
-                throw new RangeError();
-            }
+        // if (imaginaryOrComplex instanceof Complex) {
+        //     // cannot be reached with overloads, but added for type safety -> not covered by istanbul ignore
+        //     throw new RangeError();
+        // } else {
+        //     // imaginaryOrVectorSpace is number (guaranteed by overload)
+        //     if(real2OrVectorSpace instanceof ComplexVectorSpace) {
+        //         // cannot be reached with overloads, but added for type safety -> not covered by istanbul ignore
+        //         throw new RangeError();
+        //     }
             // real2OrVectorSpace and imaginary2 are numbers (guaranteed by overload)
             this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [{ type: COMPLEX, real: real, imaginary: imaginaryOrComplex!}, { type: COMPLEX, real: real2OrVectorSpace!, imaginary: imaginary2!}] };
             this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
-        }
+        // }
     }
 
     private getDefaultVectorSpace(): ComplexVectorSpace<2> {
         try{
-            return getDefaultVectorSpace(this.spaceType, this.dimension) as ComplexVectorSpace<2>;
+            return getDefaultVectorSpace(this.spaceType, Vector2DTypeComplex.DIMENSION);
         } catch(error) {
-            return new ComplexVectorSpace(this.dimension, true) as ComplexVectorSpace<2>;
+            return new ComplexVectorSpace(Vector2DTypeComplex.DIMENSION, true);
         }
     }
 
-    get dimension(): number { return SPACE_DIMENSION; }
+    get dimension(): number { return Vector2DTypeComplex.DIMENSION; }
+    get vectorType(): string { return Vector2DTypeComplex._vectorType; }
     get vectorSpace(): ComplexVectorSpace<2> { return this._vectorSpace; }
-    get vectorType(): string { return COMPLEXVECTOR2D; }
 
     get coordinates(): Complex[] { 
         let result: Complex[] = [];
@@ -98,7 +114,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2> {
     get descriptor(): ComplexVector2D { return this._descriptor; }
     
     getCoordinate(index: number): Complex {
-        if (index < 0 || index >= 2) {
+        if (index < 0 || index >= Vector2DTypeComplex.DIMENSION) {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }

@@ -9,7 +9,7 @@ const SPACE_DIMENSION = 4;
 
 export function from4DProjectiveRealTo3DReal(projectiveVector: ProjectiveVector3DTypeReal, realVSpace?: RealVectorSpace<3>): Vector3DTypeReal {
       if(projectiveVector.weight.value < NULL_WEIGHT_TOLERANCE) {
-            const error = sendRangeErrorMessage('function', 'toVector3DReal', EM_WEIGHT_TOO_SMALL);
+            const error = sendRangeErrorMessage('from4DProjectiveRealTo3DReal', 'from4DProjectiveRealTo3DReal', EM_WEIGHT_TOO_SMALL);
             throw new RangeError(error.generateMessageString());
         }
         if(realVSpace !== undefined) {

@@ -33,3 +33,9 @@ export const WM_VECTOR_NORM_TOO_SMALL = 'The norm of the vector is smaller than 
 export const EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE = 'The weight status of the projective vector is incompatible with the weight management assigned to the vector space';
 
 export const EM_VECTORSPACE_DIMENSION_INCOMPATIBLE = `This method is not implemented for the current vector space dimension.`;
+
+// Error message when trying to create a vector into a user-defined vector space that is not of same type or of same dimension as the desired vector
+export const EM_VECTORSPACE_INCOMPATIBLE = 'The vector type and dimension desired are incompatible with the vector space type and/or dimension specified as input.';
+
+// Error message when trying to create a vector with input parameters of different types than those required
+export const EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE = 'At least one input parameter type differs from the type required. Cannot proceed.';

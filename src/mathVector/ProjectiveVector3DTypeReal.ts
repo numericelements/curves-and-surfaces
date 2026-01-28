@@ -10,59 +10,68 @@ import type { ProjectiveVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-const SPACE_DIMENSION = 4;
 
 export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
+
+    private static readonly DIMENSION = 4 as const;
+    private static readonly _vectorType = PROJECTIVEVECTOR3D;
     private readonly _descriptor: ProjectiveVector3D;
     protected readonly _vectorSpace: ProjectiveVectorSpace<4>;
     
     constructor();
-    constructor(x: number, y: number, z: number);
+    constructor(vectorSpace: ProjectiveVectorSpace<4>);
     constructor(x: number, y: number, z: number, weight: Weight, vectorSpace?: ProjectiveVectorSpace<4>);
     constructor(x: number, y: number, z: number, vectorSpace?: ProjectiveVectorSpace<4>);
-    constructor(vectorSpace: ProjectiveVectorSpace<4>);
+
     constructor(xOrVectorSpace?: number | ProjectiveVectorSpace<4>, y?: number, z?: number, weightOrVSpace?: Weight | ProjectiveVectorSpace<4>, vectorSpace?: ProjectiveVectorSpace<4>) {
         super();
         let strictlyPosWeight = true;
+        // Case 1: no arguments
+        if(xOrVectorSpace === undefined) {
+            this._descriptor = { type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
+            this._vectorSpace = this.getDefaultVectorSpace();
+            return;
+        }
+
+        // Case 2: vectorSpace only
         if(xOrVectorSpace instanceof ProjectiveVectorSpace) {
             this._vectorSpace = xOrVectorSpace;
             if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
-            this._descriptor = { type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, { type: WEIGHT, weight: new Weight(1, strictlyPosWeight) }] };
+            this._descriptor = { type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
             return;
-        } else if (weightOrVSpace instanceof ProjectiveVectorSpace) {
-            this._vectorSpace = weightOrVSpace;
-            if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
-            const x = xOrVectorSpace ?? 0;
+        }
+
+        // Case 3: all coordinates and weight with optional vectorSpace
+        if (weightOrVSpace instanceof Weight) {
+            strictlyPosWeight = this.checkValidityWeightStatus(weightOrVSpace, vectorSpace as ProjectiveVectorSpace<4>);
             this._descriptor = { 
                 type: PROJECTIVEVECTOR3D, 
-                coordinates: [x, y ?? 0, z ?? 0, { type: WEIGHT, weight: new Weight(1, strictlyPosWeight) }] 
+                coordinates: [xOrVectorSpace, y!, z!, { type: WEIGHT, weight: weightOrVSpace }] 
             };
+            this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
             return;
-        } else {
-            strictlyPosWeight = this.checkValidityWeightStatus(weightOrVSpace as Weight, vectorSpace as ProjectiveVectorSpace<4>);
-            const x = xOrVectorSpace ?? 0;
-            this._descriptor = { 
-                type: PROJECTIVEVECTOR3D, 
-                coordinates: [x, y ?? 0, z ?? 0, { type: WEIGHT, weight: weightOrVSpace ?? new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
-            };
-            if(vectorSpace !== undefined) {
-                this._vectorSpace = vectorSpace;
-            } else {
-                try {
-                    this._vectorSpace = getDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveVectorSpace<4>;
-                } catch(error) {
-                    this._vectorSpace = new ProjectiveVectorSpace(this.dimension, true) as ProjectiveVectorSpace<4>;
-                }
-            }
+        }
+
+        // Case 4: all coordinates with optional vectorSpace
+        this._vectorSpace = weightOrVSpace ?? this.getDefaultVectorSpace();;
+        if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
+        this._descriptor = { 
+            type: PROJECTIVEVECTOR3D, 
+            coordinates: [xOrVectorSpace, y!, z!, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
+        };
+    }
+
+    private getDefaultVectorSpace(): ProjectiveVectorSpace<4> {
+        try{
+            return getDefaultVectorSpace(this.spaceType, ProjectiveVector3DTypeReal.DIMENSION);
+        } catch(error) {
+            return new ProjectiveVectorSpace(ProjectiveVector3DTypeReal.DIMENSION, true);
         }
     }
     
-    get dimension(): number { return SPACE_DIMENSION; }
-
+    get dimension(): number { return ProjectiveVector3DTypeReal.DIMENSION; }
+    get vectorType(): string { return ProjectiveVector3DTypeReal._vectorType; }
     get vectorSpace(): ProjectiveVectorSpace<4> { return this._vectorSpace; }
-
-    get vectorType(): string { return PROJECTIVEVECTOR3D; }
-
     get coordinates(): number[] { return this.homogeneousCoordinates; }
 
     get descriptor(): ProjectiveVector3D { return { ...this._descriptor }; }
@@ -78,7 +87,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
     }
     
     getCoordinate(index: number): number {
-        if (index === SPACE_DIMENSION - 1) {
+        if (index === ProjectiveVector3DTypeReal.DIMENSION - 1) {
             return this._descriptor.coordinates[3].weight.value;
         } else if(index === 0 || index === 1 || index === 2) {
             return this._descriptor.coordinates[index];

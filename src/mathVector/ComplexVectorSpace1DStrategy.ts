@@ -34,7 +34,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
 
     addDescriptors(a: ComplexVector1D, b: ComplexVector1D): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
-            return addComplexUsingDescriptors(a as IComplex, b as IComplex);
+            return addComplexUsingDescriptors(a, b);
         } else {
             throw new RangeError();
         }
@@ -79,7 +79,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
 
     subtractDescriptors(a: ComplexVector1D, b: ComplexVector1D): ComplexVector1D {
         if (isVector1D(a) && isVector1D(b)) {
-            return subtractComplexUsingDescriptors(a as IComplex, b as IComplex);
+            return subtractComplexUsingDescriptors(a, b);
         } else {
             throw new RangeError();
         }

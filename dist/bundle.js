@@ -51527,6 +51527,7 @@ const DefaultSpaceResolvers_1 = __webpack_require__(/*! ./internal/DefaultSpaceR
 const VectorSpaceResolvers_2 = __webpack_require__(/*! ./internal/VectorSpaceResolvers */ "./src/mathVector/internal/VectorSpaceResolvers.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const Weight_2 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+// export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ComplexVectorOfDimension<D>> {
 class ComplexVectorSpace {
     constructor(dimension, isDefault = false, name) {
         this.dim = dimension;
@@ -51554,7 +51555,7 @@ class ComplexVectorSpace {
     get id() { return this._id; }
     get name() { return this._name; }
     get isDefault() { return this._isDefault; }
-    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.COMPLEX; }
+    get spaceType() { return ComplexVectorSpace._spaceType; }
     // Identity methods
     isSameSpace(other) {
         return this._id === other.id;
@@ -51699,6 +51700,7 @@ class ComplexVectorSpace {
     }
 }
 exports.ComplexVectorSpace = ComplexVectorSpace;
+ComplexVectorSpace._spaceType = BSplineR1toRn_1.VectorSpaceType.COMPLEX;
 
 
 /***/ }),
@@ -52045,6 +52047,7 @@ const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ../namedConstants
 const ComplexTypeTag_1 = __webpack_require__(/*! ../namedConstants/ComplexTypeTag */ "./src/namedConstants/ComplexTypeTag.ts");
 const WeightTypeTags_1 = __webpack_require__(/*! ../namedConstants/WeightTypeTags */ "./src/namedConstants/WeightTypeTags.ts");
 const VectorTypeTags_1 = __webpack_require__(/*! ../namedConstants/VectorTypeTags */ "./src/namedConstants/VectorTypeTags.ts");
+// export class ProjectiveComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ProjectiveComplexVectorOfDimension<D>> {
 class ProjectiveComplexVectorSpace {
     constructor(dimension, isDefltOrWeightMgmt, isDefault, name) {
         this.dim = dimension;
@@ -52087,7 +52090,7 @@ class ProjectiveComplexVectorSpace {
     get id() { return this._id; }
     get name() { return this._name; }
     get isDefault() { return this._isDefault; }
-    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX; }
+    get spaceType() { return ProjectiveComplexVectorSpace._spaceType; }
     // Identity methods
     isSameSpace(other) {
         return this._id === other.id;
@@ -52351,6 +52354,7 @@ class ProjectiveComplexVectorSpace {
     }
 }
 exports.ProjectiveComplexVectorSpace = ProjectiveComplexVectorSpace;
+ProjectiveComplexVectorSpace._spaceType = BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX;
 
 
 /***/ }),
@@ -52551,6 +52555,7 @@ const VectorSpaceIdentifierManager_1 = __webpack_require__(/*! ../namedConstants
 /**
  * Implementation of a projective vector space
  */
+// export class ProjectiveVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ProjectiveVectorOfDimension<D>> {
 class ProjectiveVectorSpace {
     constructor(dimension, isDefltOrWeightMgmt, isDefault, name) {
         this.dim = dimension;
@@ -52593,7 +52598,7 @@ class ProjectiveVectorSpace {
     get id() { return this._id; }
     get name() { return this._name; }
     get isDefault() { return this._isDefault; }
-    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.PROJECTIVE; }
+    get spaceType() { return ProjectiveVectorSpace._spaceType; }
     get weightManagement() {
         return this._weightManagement;
     }
@@ -52730,6 +52735,7 @@ class ProjectiveVectorSpace {
     }
 }
 exports.ProjectiveVectorSpace = ProjectiveVectorSpace;
+ProjectiveVectorSpace._spaceType = BSplineR1toRn_1.VectorSpaceType.PROJECTIVE;
 
 
 /***/ }),
@@ -53128,7 +53134,7 @@ class RealVectorSpace {
     get id() { return this._id; }
     get name() { return this._name; }
     get isDefault() { return this._isDefault; }
-    get spaceType() { return BSplineR1toRn_1.VectorSpaceType.REAL; }
+    get spaceType() { return RealVectorSpace._spaceType; }
     // Identity methods
     isSameSpace(other) {
         return this._id === other.id;
@@ -53267,9 +53273,11 @@ class RealVectorSpace {
     }
 }
 exports.RealVectorSpace = RealVectorSpace;
+// export class RealVectorSpace<D extends number = number> implements IdentifiableVectorSpace<RealVectorOfDimension<D>> {
+RealVectorSpace._spaceType = BSplineR1toRn_1.VectorSpaceType.REAL;
 function createRealVectorSpace(dimension) {
     if (dimension < RealVectorSpace_2.MIN_DIMENSION_REALVECTORSPACE || dimension > RealVectorSpace_2.MAX_DIMENSION_REALVECTORSPACE) {
-        const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)("createRealVectorSpace", 'function', RealVectorSpace_1.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
+        const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)("createRealVectorSpace", 'createRealVectorSpace', RealVectorSpace_1.EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
         throw new RangeError(error.generateMessageString());
     }
     return new RealVectorSpace(dimension);
@@ -54815,10 +54823,6 @@ const ComplexVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/Complex
 const RealVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/RealVectorSpace */ "./src/ErrorMessages/RealVectorSpace.ts");
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/ProjectiveVectorSpace */ "./src/ErrorMessages/ProjectiveVectorSpace.ts");
 const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../../ErrorMessages/ProjectiveComplexVectorSpace */ "./src/ErrorMessages/ProjectiveComplexVectorSpace.ts");
-/**
- * Get default real vector space for given dimension
- * @internal
- */
 function getDefaultRealVectorSpace(dimension) {
     try {
         return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getRealVectorSpace(dimension);
@@ -54833,10 +54837,6 @@ function getDefaultRealVectorSpace(dimension) {
     }
 }
 exports.getDefaultRealVectorSpace = getDefaultRealVectorSpace;
-/**
- * Get default complex vector space for given dimension
- * @internal
- */
 function getDefaultComplexVectorSpace(dimension) {
     try {
         return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension);
@@ -54851,10 +54851,6 @@ function getDefaultComplexVectorSpace(dimension) {
     }
 }
 exports.getDefaultComplexVectorSpace = getDefaultComplexVectorSpace;
-/**
- * Get default projective real vector space for given dimension
- * @internal
- */
 function getDefaultProjectiveRealVectorSpace(dimension) {
     try {
         return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(dimension);
@@ -54869,10 +54865,6 @@ function getDefaultProjectiveRealVectorSpace(dimension) {
     }
 }
 exports.getDefaultProjectiveRealVectorSpace = getDefaultProjectiveRealVectorSpace;
-/**
- * Get default projective complex vector space for given dimension
- * @internal
- */
 function getDefaultProjectiveComplexVectorSpace(dimension) {
     try {
         return DefaultVectorSpaces_1.DefaultVectorSpaces.getInstance().getProjectiveComplexVectorSpace(dimension);
@@ -54887,6 +54879,7 @@ function getDefaultProjectiveComplexVectorSpace(dimension) {
     }
 }
 exports.getDefaultProjectiveComplexVectorSpace = getDefaultProjectiveComplexVectorSpace;
+// export function getDefaultVectorSpace<VS extends VectorSpaceType, D extends number>(spaceType: VS, dimension: D): VectorSpaceForType<VS, D>;
 function getDefaultVectorSpace(spaceType, dimension) {
     switch (spaceType) {
         case BSplineR1toRn_1.VectorSpaceType.REAL:
@@ -55346,6 +55339,10 @@ function isRegisteredProjectiveComplexVectorSpace(projectiveComplexVS) {
     return registered;
 }
 exports.isRegisteredProjectiveComplexVectorSpace = isRegisteredProjectiveComplexVectorSpace;
+/**
+ * Register a vector space based on type and dimension
+ * @internal
+ */
 function isRegisteredVectorSpace(vectorSpace) {
     switch (vectorSpace.spaceType) {
         case BSplineR1toRn_1.VectorSpaceType.REAL:
@@ -55357,12 +55354,16 @@ function isRegisteredVectorSpace(vectorSpace) {
         case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
             return isRegisteredProjectiveComplexVectorSpace(vectorSpace);
         default: {
-            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('getDefaultVectorSpace', 'getDefaultVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_TYPE);
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)('isRegisteredVectorSpace', 'isRegisteredVectorSpace', DefaultSpaceResolvers_1.EM_INVALID_VECTOR_SPACE_TYPE);
             throw new RangeError(error.generateMessageString());
         }
     }
 }
 exports.isRegisteredVectorSpace = isRegisteredVectorSpace;
+/**
+ * Resolve vector space based on type and dimension to generate a unique identifier
+ * @internal
+ */
 function resolveVectorSpace(vectorSpace) {
     let vsId = "";
     const idManager = VectorSpaceIdentifierManager_1.VectorSpaceIdentifierManager.getInstance();
@@ -62812,7 +62813,7 @@ function prepareIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameter
         return { knots: knots, multiplicities: multiplicities, uMax: knotParameters.periodicKnots[knotParameters.periodicKnots.length - 1], indexKnotOrigin: new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0) };
     }
     else {
-        const error = new ErrorLoging_1.ErrorLog('function', 'prepareIncreasingOpenKnotSequenceCC');
+        const error = new ErrorLoging_1.ErrorLog('prepareIncreasingOpenKnotSequenceCC', 'prepareIncreasingOpenKnotSequenceCC');
         error.addMessage(KnotSequences_1.EM_MAXMULTIPLICITY_ORDER_KNOT);
         console.log(error.generateMessageString());
         throw new RangeError(error.generateMessageString());

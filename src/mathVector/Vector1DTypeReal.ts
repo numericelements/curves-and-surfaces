@@ -1,4 +1,4 @@
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { REALVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
@@ -8,10 +8,11 @@ import type { IProjectiveVector } from "./Vector";
 import type { RealVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
-const SPACE_DIMENSION = 1;
 
 export class Vector1DTypeReal extends AbstractRealVector<1> {
 
+    private static readonly DIMENSION = 1 as const;
+    private static readonly _vectorType = REALVECTOR1D;
     private readonly value: number;
     protected readonly _vectorSpace: RealVectorSpace<1>;
 
@@ -29,27 +30,33 @@ export class Vector1DTypeReal extends AbstractRealVector<1> {
         }
 
         // Case 2: vectorSpace only
-        if(xOrVectorSpace instanceof RealVectorSpace) {
+        if(xOrVectorSpace instanceof RealVectorSpace && vectorSpace === undefined) {
+            super.checkVectorSpaceDimensionConsistency(Vector1DTypeReal.DIMENSION, xOrVectorSpace);
             this.value = 0;
             this._vectorSpace = xOrVectorSpace;
             return;
         }
         
         // Case 3: value with optional vectorSpace
+        super.checkVectorSpaceConsistency(Vector1DTypeReal.DIMENSION, vectorSpace);
+        if(typeof xOrVectorSpace !== 'number') {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
         this.value = xOrVectorSpace;
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
     
     private getDefaultVectorSpace(): RealVectorSpace<1> {
         try{
-            return getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace<1>;
+            return getDefaultVectorSpace(this.spaceType, Vector1DTypeReal.DIMENSION);
         } catch(error) {
-            return new RealVectorSpace(this.dimension, true) as RealVectorSpace<1>;
+            return new RealVectorSpace(Vector1DTypeReal.DIMENSION, true);
         }
     }
 
-    get dimension(): number { return SPACE_DIMENSION; }
-    get vectorType(): string { return REALVECTOR1D; }
+    get dimension(): number { return Vector1DTypeReal.DIMENSION; }
+    get vectorType(): string { return Vector1DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<1> { return this._vectorSpace; }
     get coordinates(): number[] { return [this.value]; }
     get descriptor(): RealVector1D { return this.value; }

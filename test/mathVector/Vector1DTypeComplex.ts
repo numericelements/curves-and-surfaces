@@ -2,12 +2,14 @@ import { expect } from "chai";
 import { Vector1DTypeComplex } from "../../src/mathVector/Vector1DTypeComplex";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { Complex } from "../../src/mathVector/Complex";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
+import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
+import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 
 describe('Vector 1D in complex vector space: generation and operators in this vector space', () => {
     const dimension = 1;
@@ -75,8 +77,11 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector.vectorType).to.eql(COMPLEXVECTOR1D);
             expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector.vectorSpace.isDefault).to.eql(true);
-            defaultVectorSpaceID = DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension).id;
-            expect(complexVector.vectorSpace.id).to.eql(defaultVectorSpaceID);
+            const defaultVectorSpace = DefaultVectorSpaces.getInstance().getComplexVectorSpace(dimension);
+            if(defaultVectorSpace !== undefined) {
+                defaultVectorSpaceID = defaultVectorSpace.id;
+                expect(complexVector.vectorSpace.id).to.eql(defaultVectorSpaceID);
+            }
         });
 
         it(`can generate an arbitrary complex vector from a Complex into a 1D vector space`, () => {
@@ -92,6 +97,60 @@ describe('Vector 1D in complex vector space: generation and operators in this ve
             expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector.vectorSpace.isDefault).to.eql(false);
             expect(complexVector.vectorSpace).to.eql(vSpace);
+        });
+
+
+        it(`cannot generate a default complex vector into a user-defined vector space if this vector space is not of type complex and of same dimension as the vector`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new RealVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeComplex(vSpace as unknown as ComplexVectorSpace<1>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(3);
+            expect(() =>  new Vector1DTypeComplex(vSpace1 as unknown as ComplexVectorSpace<1>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a complex vector into a default vector space if the user-specified coordinates are not numbers`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeComplex(0, vSpace as unknown as number)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector1DTypeComplex(vSpace as unknown as number, 1)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a complex vector into a user-specified vector space if the user-specified coordinates are not numbers and/or the vector space is not of type complex and of same dimension as the vector`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new RealVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeComplex(0, -2, vSpace as unknown as ComplexVectorSpace<1>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace1 = new ComplexVectorSpace(2);
+            expect(() =>  new Vector1DTypeComplex(0, -2, vSpace1 as unknown as ComplexVectorSpace<1>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            expect(() =>  new Vector1DTypeComplex(vSpace as unknown as number, -2, vSpace1 as unknown as ComplexVectorSpace<1>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace2 = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeComplex(vSpace as unknown as number, -2, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector1DTypeComplex(0, vSpace as unknown as number, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a default complex vector into a user-defined vector space if this vector space is followed by other parameters`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeComplex(vSpace as unknown as Complex, vSpace)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector1DTypeComplex(vSpace as unknown as number, 1)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a complex vector into a default vector space if the user-specified coordinate is not a complex`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ComplexVectorSpace(2);
+            expect(() =>  new Vector1DTypeComplex(vSpace as unknown as Complex)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            expect(() =>  new Vector1DTypeComplex(0 as unknown as Complex)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(2);
+            expect(() =>  new Vector1DTypeComplex(vSpace1 as unknown as Complex)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`can generate a default complex vector into a user-defined vector space if this vector space is type casted into a complex`, () => {
+            // Use type casting as allowed by typescript even though this configuration is not making sense
+            const vSpace = new ComplexVectorSpace(dimension);
+            expect(() =>  new Vector1DTypeComplex(vSpace as unknown as Complex)).to.not.throw();
+            const vector = new Vector1DTypeComplex(vSpace as unknown as Complex);
+            expect(vector.vectorSpace).to.eql(vSpace);
+            expect(vector.vectorSpace.isDefault).to.eql(false);
+            expect(vector.getCoordinate(0)).to.eql(new Complex());
         });
     });
 

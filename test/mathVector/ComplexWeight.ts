@@ -210,5 +210,18 @@ describe('ComplexWeight', () => {
             const string = weight.toString();
             expect(string).to.eql(COMPLEXWEIGHT + `(real: ${weight.real.toString()}, imaginary: ${weight.imaginary.toString()})`);
         });
+
+
+        it(`can get the complex weight descriptor`, () => {
+            const valueR = 2;
+            const valueImaginary = 4;
+            const weightR = new Weight(valueR);
+            const weightI = new Weight(valueImaginary);
+            const weight = new ComplexWeight(weightR, weightI);
+            const descriptor = weight.toDescriptor();
+            expect(descriptor.type).to.eql(COMPLEXWEIGHT);
+            expect(descriptor.real).to.eql(weight.real);
+            expect(descriptor.imaginary).to.eql(weight.imaginary);
+        });
     });
 });

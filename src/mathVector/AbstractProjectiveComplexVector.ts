@@ -14,9 +14,11 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
  */
 export abstract class AbstractProjectiveComplexVector<D extends number> extends AbstractVector implements IProjectiveComplexVector {
 
-    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVECOMPLEX; }
-    abstract get vectorSpace(): ProjectiveComplexVectorSpace<D>;
+    private static  readonly _spaceType = VectorSpaceType.PROJECTIVECOMPLEX;
+    
+    get spaceType(): VectorSpaceType.PROJECTIVECOMPLEX { return AbstractProjectiveComplexVector._spaceType; }
 
+    abstract get vectorSpace(): ProjectiveComplexVectorSpace<D>;
     abstract get descriptor(): ProjectiveComplexVector;
     abstract get coordinates(): Complex[];
     abstract get weight(): ComplexWeight;
@@ -76,7 +78,7 @@ export abstract class AbstractProjectiveComplexVector<D extends number> extends 
             return true; // Zero vectors are colinear
         }
         const dotProduct = this.dot(other);
-        const ratio = Math.abs(dotProduct as number / (thisNorm * otherNorm));
+        const ratio = Math.abs(dotProduct / (thisNorm * otherNorm));
         return ratio >= 1 - tolerance;
     }
 
@@ -91,7 +93,7 @@ export abstract class AbstractProjectiveComplexVector<D extends number> extends 
         }
         // better to use cross product if available
         const dotProduct = this.dot(other);
-        const ratio = Math.abs(dotProduct as number / (thisNorm * otherNorm));
+        const ratio = Math.abs(dotProduct / (thisNorm * otherNorm));
         return ratio <= angularTolerance;
     }
 

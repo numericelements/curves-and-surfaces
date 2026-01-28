@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { ANGULAR_TOL_VECTOR, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { Vector3DTypeReal } from "../../src/mathVector/Vector3DTypeReal";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 import { WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
@@ -70,6 +70,43 @@ describe('Vector 3D in real vector space: generation and operators in this vecto
             expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
             expect(realVector.vectorSpace.isDefault).to.eql(false);
             expect(realVector.vectorSpace).to.eql(vSpace);
+        });
+
+        it(`cannot generate a default real vector into a user-defined vector space if this vector space is not of type real and of same dimension as the vector`, () => {
+           // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ProjectiveVectorSpace(dimension);
+            expect(() =>  new Vector3DTypeReal(vSpace as unknown as RealVectorSpace<3>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(2);
+            expect(() =>  new Vector3DTypeReal(vSpace1 as unknown as RealVectorSpace<3>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a real vector into a default vector space if the user-specified coordinates are not numbers`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ProjectiveVectorSpace(dimension);
+            expect(() =>  new Vector3DTypeReal(0, 1, vSpace as unknown as number)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector3DTypeReal(2, vSpace as unknown as number, 1)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector3DTypeReal(vSpace as unknown as number, 0, -1)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a real vector into a user-specified vector space if the user-specified coordinates are not numbers and/or the vector space is not of type real and of same dimension as the vector`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ProjectiveVectorSpace(dimension);
+            expect(() =>  new Vector3DTypeReal(0, -2, 1, vSpace as unknown as RealVectorSpace<3>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(2);
+            expect(() =>  new Vector3DTypeReal(0, -2, 1, vSpace1 as unknown as RealVectorSpace<3>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            expect(() =>  new Vector3DTypeReal(vSpace as unknown as number, -2, 1, vSpace1 as unknown as RealVectorSpace<3>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            expect(() =>  new Vector3DTypeReal(0, vSpace as unknown as number, -2, vSpace1 as unknown as RealVectorSpace<3>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            expect(() =>  new Vector3DTypeReal(0, 1, vSpace as unknown as number, vSpace1 as unknown as RealVectorSpace<3>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace2 = new RealVectorSpace(dimension);
+            expect(() =>  new Vector3DTypeReal(vSpace as unknown as number, -2, 1, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector3DTypeReal(0, vSpace as unknown as number, -2, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new Vector3DTypeReal(0, 1, vSpace as unknown as number, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a default real vector into a user-defined vector space if this vector space is followed by other parameters`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new RealVectorSpace(dimension);
+            expect(() =>  new Vector3DTypeReal(vSpace as unknown as number, 1, 2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
         });
     });
 

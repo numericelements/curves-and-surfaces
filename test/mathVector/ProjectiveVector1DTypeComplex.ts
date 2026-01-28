@@ -17,6 +17,7 @@ import { EM_REVERT_NOT_APPLICABLE_PROJECTIVE_COMPLEX, EM_STRICTLYPOS_STATUS_INCO
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
 import { PROJECTIVECOMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
+import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 
 describe('Vector 1D in projective complex vector space: generation and operators in this vector space', () => {
     const dimension = 2;
@@ -426,6 +427,16 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(vSpace.isDefault).to.eql(true);
             expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
             expect(() => new ProjectiveVector1DTypeComplex(new Complex(1, -2), new ComplexWeight(new Weight(2), new Weight(3)), vSpace)).to.throw(EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT);
+        });
+
+        it(`cannot generate a consistent default projective complex vector with a default weight into a user-defined non projective complex vector space`, () => {
+            // Here we use a real vector space that is not projective to show that type casting is necessary to bypass typescript checks
+            const vSpace = new RealVectorSpace(dimension);
+            // Such type casting must be avoided by the users because they don't throw errors at compile time and at runtime
+            expect(() =>  new ProjectiveVector1DTypeComplex(vSpace as unknown as ProjectiveComplexVectorSpace<2>)).to.not.throw();
+            const projRealVector2 = new ProjectiveVector1DTypeComplex(vSpace as unknown as ProjectiveComplexVectorSpace<2>);
+            // But the generated vector is not consistent
+            expect(projRealVector2.getCoordinate(0)).to.not.eql(new Complex());
         });
     });
 

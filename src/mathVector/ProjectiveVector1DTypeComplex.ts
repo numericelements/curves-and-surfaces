@@ -16,9 +16,11 @@ import { IComplex, ProjectiveComplexVector } from "./VectorSpaceConstructorInter
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-const SPACE_DIMENSION = 2;
 
 export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVector<2> {
+
+    private static readonly DIMENSION = 2 as const;
+    private static readonly _vectorType = PROJECTIVECOMPLEXVECTOR1D;
     private readonly  _descriptor: ProjectiveComplexVector;
     protected  readonly _vectorSpace: ProjectiveComplexVectorSpace<2>;
     
@@ -110,14 +112,14 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
     
     private getDefaultVectorSpace(): ProjectiveComplexVectorSpace<2> {
         try{
-            return getDefaultVectorSpace(this.spaceType, this.dimension) as ProjectiveComplexVectorSpace<2>;
+            return getDefaultVectorSpace(this.spaceType, ProjectiveVector1DTypeComplex.DIMENSION);
         } catch(error) {
-            return new ProjectiveComplexVectorSpace(this.dimension, true) as ProjectiveComplexVectorSpace<2>;
+            return new ProjectiveComplexVectorSpace(ProjectiveVector1DTypeComplex.DIMENSION, true);
         }
     }
 
-    get dimension(): number { return SPACE_DIMENSION; } // Homogeneous coordinates
-    get vectorType(): string { return PROJECTIVECOMPLEXVECTOR1D; }
+    get dimension(): number { return ProjectiveVector1DTypeComplex.DIMENSION; } // Homogeneous coordinates
+    get vectorType(): string { return ProjectiveVector1DTypeComplex._vectorType; }
     get vectorSpace(): ProjectiveComplexVectorSpace<2> { return this._vectorSpace; }
     get coordinates(): Complex[] { return [new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary), new Complex(this._descriptor.coordinates[1].real.value, this._descriptor.coordinates[1].imaginary.value)]; }
     get descriptor(): ProjectiveComplexVector { return { ...this._descriptor }; }
@@ -194,7 +196,7 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
     }
     
     getCoordinate(index: number): Complex {
-        if (index < 0 || index >= SPACE_DIMENSION) {
+        if (index < 0 || index >= ProjectiveVector1DTypeComplex.DIMENSION) {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }

@@ -19,10 +19,13 @@ import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { PROJECTIVECOMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
 import type { IProjectiveComplexVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveComplexVectorSpaceStrategy";
-import type { IdentifiableVectorSpace } from "./IVectorSpace";
+import type { IdentifiableVectorSpace, ProjectiveComplexVectorSpaceInterface } from "./IVectorSpace";
 
 
-export class ProjectiveComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ProjectiveComplexVectorOfDimension<D>> {
+// export class ProjectiveComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ProjectiveComplexVectorOfDimension<D>> {
+export class ProjectiveComplexVectorSpace<D extends number = number> implements ProjectiveComplexVectorSpaceInterface<D> {
+
+    private static readonly _spaceType = VectorSpaceType.PROJECTIVECOMPLEX as const;
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
@@ -74,7 +77,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
     get id(): string { return this._id; }
     get name(): string { return this._name; }
     get isDefault(): boolean { return this._isDefault; }
-    get spaceType(): VectorSpaceType { return VectorSpaceType.PROJECTIVECOMPLEX; }
+    get spaceType(): VectorSpaceType.PROJECTIVECOMPLEX { return ProjectiveComplexVectorSpace._spaceType; }
 
     // Identity methods
     isSameSpace(other: IdentifiableVectorSpace<Vector>): boolean {

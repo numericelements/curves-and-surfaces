@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>107/107</span>
+                <span class='fraction'>115/115</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>31/31</span>
+                <span class='fraction'>38/38</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>107/107</span>
+                <span class='fraction'>115/115</span>
             </div>
         
             
@@ -170,7 +170,15 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -191,25 +199,33 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">131x</span>
-<span class="cline-any cline-yes">131x</span>
-<span class="cline-any cline-yes">131x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">148x</span>
+<span class="cline-any cline-yes">148x</span>
+<span class="cline-any cline-yes">148x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">129x</span>
-<span class="cline-any cline-yes">129x</span>
-<span class="cline-any cline-yes">131x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">146x</span>
+<span class="cline-any cline-yes">146x</span>
+<span class="cline-any cline-yes">148x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">143x</span>
+<span class="cline-any cline-yes">143x</span>
+<span class="cline-any cline-yes">143x</span>
+<span class="cline-any cline-yes">148x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">127x</span>
-<span class="cline-any cline-yes">127x</span>
-<span class="cline-any cline-yes">127x</span>
-<span class="cline-any cline-yes">131x</span>
-<span class="cline-any cline-yes">131x</span>
+<span class="cline-any cline-yes">148x</span>
+<span class="cline-any cline-yes">148x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">24x</span>
@@ -277,7 +293,7 @@
 <span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-yes">29x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE } from "../namedConstants/Vectors";
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
@@ -287,9 +303,11 @@ import type { IProjectiveVector } from "./Vector";
 import type { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 &nbsp;
-const SPACE_DIMENSION = 4;
 &nbsp;
 export class Vector4DTypeReal extends AbstractRealVector&lt;4&gt; {
+&nbsp;
+    private static readonly DIMENSION = 4 as const;
+    private static readonly _vectorType = REALVECTOR4D;
     private readonly _descriptor: RealVector4D;
     protected readonly _vectorSpace: RealVectorSpace&lt;4&gt;;
     
@@ -307,36 +325,42 @@ export class Vector4DTypeReal extends AbstractRealVector&lt;4&gt; {
         }
 &nbsp;
         // Case 2: vectorSpace only
-        if(xOrVectorSpace instanceof RealVectorSpace) {
+        if(xOrVectorSpace instanceof RealVectorSpace &amp;&amp; y === undefined) {
+            super.checkVectorSpaceDimensionConsistency(Vector4DTypeReal.DIMENSION, xOrVectorSpace);
             this._vectorSpace = xOrVectorSpace;
             this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
             return;
         }
 &nbsp;
         // Case 3: all coordinates with optional vectorSpace
+        super.checkVectorSpaceConsistency(Vector4DTypeReal.DIMENSION, vectorSpace);
+        if(typeof xOrVectorSpace !== 'number' || typeof y !== 'number' || typeof z !== 'number' || typeof t !== 'number') {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
         this._descriptor = { type: REALVECTOR4D, coordinates: [xOrVectorSpace, y!, z!, t!] };
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 &nbsp;
     private getDefaultVectorSpace(): RealVectorSpace&lt;4&gt; {
         try{
-            return getDefaultVectorSpace(this.spaceType, this.dimension) as RealVectorSpace&lt;4&gt;;
+            return getDefaultVectorSpace(this.spaceType, Vector4DTypeReal.DIMENSION);
         } catch(error) {
-            return new RealVectorSpace(this.dimension, true) as RealVectorSpace&lt;4&gt;;
+            return new RealVectorSpace(Vector4DTypeReal.DIMENSION, true);
         }
     }
-    
-    get dimension(): number { return SPACE_DIMENSION; }
-    get vectorType(): string { return REALVECTOR4D; }
+&nbsp;
+    get dimension(): number { return Vector4DTypeReal.DIMENSION; }
+    get vectorType(): string { return Vector4DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace&lt;4&gt; { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
     get descriptor(): RealVector4D { return { ...this._descriptor }; }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(2); }
-    get t(): number { return this.getCoordinate(SPACE_DIMENSION - 1); }
+    get t(): number { return this.getCoordinate(Vector4DTypeReal.DIMENSION - 1); }
     
     getCoordinate(index: number): number {
-        if (index &lt; 0 || index &gt;= SPACE_DIMENSION) {
+        if (index &lt; 0 || index &gt;= Vector4DTypeReal.DIMENSION) {
             const error = sendRangeErrorMessage(this.constructor.name, 'getCoordinate', EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
@@ -391,7 +415,7 @@ export class Vector4DTypeReal extends AbstractRealVector&lt;4&gt; {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-01-24T10:53:11.690Z
+                at 2026-01-28T13:55:22.479Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
