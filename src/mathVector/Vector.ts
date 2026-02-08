@@ -115,7 +115,7 @@ export interface IProjectiveVector<D extends number = number> extends IVector {
 export interface IProjectiveComplexVector<D extends number = number> extends IVector {
     readonly vectorSpace: ProjectiveComplexVectorSpace<D>;
     readonly weight: ComplexWeight;
-    readonly homogeneousCoordinates: (number | IComplex)[];
+    readonly homogeneousComplexCoordinates: Complex[];
     getCoordinate(index: number): Complex;
     
     add(other: IProjectiveComplexVector): IProjectiveComplexVector;

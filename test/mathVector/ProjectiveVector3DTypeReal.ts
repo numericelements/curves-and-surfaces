@@ -7,10 +7,9 @@ import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
-import { EM_NORM_TOO_SMALL, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
+import { EM_NORM_TOO_SMALL, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { EM_WEIGHT_TOO_SMALL } from "../../src/ErrorMessages/ProjectiveVectors";
 import { PROJECTIVEVECTOR3D } from "../../src/namedConstants/VectorTypeTags";
 
 describe('Projective vector 3D in real vector space: generation and operators in this vector space', () => {
@@ -162,6 +161,28 @@ describe('Projective vector 3D in real vector space: generation and operators in
             expect(projRealVector.weight.value).to.eql(0);
             expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR3D);
             expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+        });
+
+        it(`can generate an arbitrary projective real vector with default weight into a user-defined 4D vector space with weight management ${WeightManagement.AllPositiveWeights}`, () => {
+            const x = 4;
+            const y = -2;
+            const z = 6;
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const projRealVector = new ProjectiveVector3DTypeReal(x, y, z, vSpace);
+            expect(projRealVector.coordinates.length).to.eql(dimension);
+            expect(projRealVector.coordinates).to.eql([x, y, z, DEFAULT_WEIGHT_VALUE]);
+            expect(projRealVector.dimension).to.eql(dimension);
+            expect(projRealVector.getCoordinate(0)).to.eql(x);
+            expect(projRealVector.getCoordinate(1)).to.eql(y);
+            expect(projRealVector.getCoordinate(2)).to.eql(z);
+            expect(projRealVector.getCoordinate(3)).to.eql(new Weight().value);
+            expect(projRealVector.weight.strictlyPositive).to.eql(false);
+            expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR3D);
+            expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+            expect(projRealVector.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector.vectorSpace).to.eql(vSpace);
         });
 
         it(`can generate user-defined projective real vectors with prescribed weight management ${WeightManagement.SomeNullWeights} and null or strictly positive weights`, () => {
@@ -325,14 +346,136 @@ describe('Projective vector 3D in real vector space: generation and operators in
             expect(projRealVector1.weight).to.eql(smallWeight1);
         });
 
-        it(`cannot generate a consistent default projective real vector with a default weight into a user-defined non projective vector space`, () => {
-            // Here we use a real vector space that is not projective to show that type casting is necessary to bypass typescript checks
+        it(`cannot generate a default projective vector into a user-defined vector space if this vector space is not of type projective real and of same dimension as the vector`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
             const vSpace = new RealVectorSpace(dimension);
-            // Such type casting must be avoided by the users because they don't throw errors at compile time and at runtime
-            expect(() =>  new ProjectiveVector3DTypeReal(vSpace as unknown as ProjectiveVectorSpace<4>)).to.not.throw();
-            const projRealVector2 = new ProjectiveVector3DTypeReal(vSpace as unknown as ProjectiveVectorSpace<4>);
-            // But the generated vector is not consistent
-            expect(projRealVector2.getCoordinate(0)).to.not.eql(0);
+            expect(() =>  new ProjectiveVector3DTypeReal(vSpace as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            const vSpace1 = new ProjectiveVectorSpace(3);
+            expect(() =>  new ProjectiveVector3DTypeReal(vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a projective vector into a default vector space  with a default weight if the user-specified coordinates are not numbers`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new RealVectorSpace(dimension);
+            expect(() =>  new ProjectiveVector3DTypeReal(2, -1, vSpace as unknown as number)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(2, vSpace as unknown as number, 0)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(vSpace as unknown as number, -1, 0)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            
+            expect(() =>  new ProjectiveVector3DTypeReal(2, -1, new Weight() as unknown as number)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(2, new Weight() as unknown as number, 0)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(new Weight() as unknown as number, -1, 0)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a projective vector into a user-defined vector space if the user-specified coordinates are not numbers and/or the vector space is not of type projective real and of same dimension as the vector`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ProjectiveVectorSpace(3);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, 6, vSpace as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(4);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, 6, vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(vSpace as unknown as number, -2, 6, vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, vSpace as unknown as number, 6, vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, vSpace as unknown as number, vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            expect(() =>  new ProjectiveVector3DTypeReal(0, 4, new Weight() as unknown as number, vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, new Weight() as unknown as number, -3, vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(new Weight() as unknown as number, 4, -3, vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            const vSpace2 = new ProjectiveVectorSpace(dimension);
+            expect(() =>  new ProjectiveVector3DTypeReal(vSpace as unknown as number, -2, 3, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, vSpace as unknown as number, 3, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, vSpace as unknown as number, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            expect(() =>  new ProjectiveVector3DTypeReal(1, 6, new Weight() as unknown as number, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(1, new Weight() as unknown as number, 4, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(new Weight() as unknown as number, 6, 4, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a projective vector into a default vector space if the user-specified coordinates are not numbers and a weight`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ProjectiveVectorSpace(3);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, 4, vSpace as unknown as Weight)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(4);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, 4, vSpace1 as unknown as Weight)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(vSpace as unknown as number, -2, 4, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, vSpace as unknown as number, 4, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, vSpace as unknown as number, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            expect(() =>  new ProjectiveVector3DTypeReal(4, 0, new Weight() as unknown as number, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(4, new Weight() as unknown as number, -3, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(new Weight() as unknown as number, 0, -3, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            const vSpace2 = new ProjectiveVectorSpace(dimension);
+            expect(() =>  new ProjectiveVector3DTypeReal(vSpace2 as unknown as number, -2, 3, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, vSpace2 as unknown as number, 3, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, vSpace2 as unknown as number, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            expect(() =>  new ProjectiveVector3DTypeReal(0, 1, new Weight() as unknown as number, -3 as unknown as Weight)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, new Weight() as unknown as number, 4, 2 as unknown as Weight)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(new Weight() as unknown as number, 1, 4, 2 as unknown as Weight)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a projective vector into a user-defined vector space if the user-specified coordinates are not numbers and a weight`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ProjectiveVectorSpace(3);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, 3, new Weight(2), vSpace as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(4);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, 3, new Weight(2), vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(vSpace as unknown as number, -2, 3, new Weight(), vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, vSpace as unknown as number, 3, new Weight(), vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -3, 3, vSpace as unknown as Weight, vSpace1 as unknown as ProjectiveVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            expect(() =>  new ProjectiveVector3DTypeReal(0, 4, new Weight() as unknown as number, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, new Weight() as unknown as number, -3, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(new Weight() as unknown as number, 4, -3, new Weight())).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            const vSpace2 = new ProjectiveVectorSpace(dimension);
+            expect(() =>  new ProjectiveVector3DTypeReal(vSpace2 as unknown as number, -2, 4, new Weight(), vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, vSpace2 as unknown as number, 4, new Weight(), vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, vSpace2 as unknown as number, new Weight(), vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(0, -2, 4, vSpace2 as unknown as Weight, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+
+            expect(() =>  new ProjectiveVector3DTypeReal(1, 5, new Weight() as unknown as number, -3 as unknown as Weight, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(1, new Weight() as unknown as number, 4, 2 as unknown as Weight, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            expect(() =>  new ProjectiveVector3DTypeReal(new Weight() as unknown as number, 5, 4, 2 as unknown as Weight, vSpace2)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+        });
+
+        it(`cannot generate a projective vector into a default vector space with user-specified coordinates and a prescribed weight of incorrect type`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const x = -1;
+            const y = 6;
+            const z = -6;
+            const vSpace = new ProjectiveVectorSpace(3);
+            expect(() =>  new ProjectiveVector3DTypeReal(x, y, z, vSpace as unknown as Weight)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace1 = new RealVectorSpace(4);
+            expect(() =>  new ProjectiveVector3DTypeReal(x, y, z, vSpace1 as unknown as Weight)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+
+            expect(() =>  new ProjectiveVector3DTypeReal(x, y, z, x as unknown as Weight)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+        });
+
+        it(`can generate a user-defined projective vector into a user-defined vector space even if the vector space is type casted into a Weight`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            const vSpace = new ProjectiveVectorSpace(dimension);
+            expect(() =>  new ProjectiveVector3DTypeReal(1, 3, 5, vSpace as unknown as Weight)).to.not.throw();
+            const vector = new ProjectiveVector3DTypeReal(1, 3, 5, vSpace as unknown as Weight);
+            expect(vector.vectorSpace).to.eql(vSpace);
+            expect(vector.vectorSpace.isDefault).to.eql(false);
+            expect(vector.getCoordinate(0)).to.eql(1);
+            expect(vector.getCoordinate(1)).to.eql(3);
+            expect(vector.getCoordinate(2)).to.eql(5);
+            expect(vector.getCoordinate(3)).to.eql(1);
+            expect(vector.weight).to.eql(new Weight());
+        });
+
+        it(`can generate a user-defined projective vector into a default vector space even if the weight is type casted into a projective vector space`, () => {
+            // Use type casting as allowed by typescript even though they describe configurations that should be avoided
+            expect(() =>  new ProjectiveVector3DTypeReal(1, 3, 5, new Weight(3) as unknown as ProjectiveVectorSpace<4>)).to.not.throw();
+            const vector = new ProjectiveVector3DTypeReal(1, 3, 5, new Weight(3) as unknown as ProjectiveVectorSpace<4>);
+            expect(vector.vectorSpace.isDefault).to.eql(true);
+            expect(vector.getCoordinate(0)).to.eql(1);
+            expect(vector.getCoordinate(1)).to.eql(3);
+            expect(vector.getCoordinate(2)).to.eql(5);
+            expect(vector.getCoordinate(3)).to.eql(3);
+            expect(vector.weight).to.eql(new Weight(3));
         });
     });
 

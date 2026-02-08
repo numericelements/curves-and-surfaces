@@ -49,22 +49,16 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2> {
                 throw new RangeError(error.generateMessageString());
             }
             // At this point: realOrComplexOrVectorSpace and imaginaryOrComplex are Complex (guaranteed by overload)
-            // if(imaginaryOrComplex instanceof Complex) {
-                const complex1 = realOrComplexOrVectorSpace;
-                const complex2 = imaginaryOrComplex;
-                this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [
-                    { type: COMPLEX, real: complex1.real, imaginary: complex1.imaginary },
-                    { type: COMPLEX, real: complex2.real, imaginary: complex2.imaginary }
-                ]};
-                this._vectorSpace = (real2OrVectorSpace instanceof ComplexVectorSpace)
-                    ? real2OrVectorSpace
-                    : this.getDefaultVectorSpace();
-                return;
-            // } else {
-            //     // cannot be reached with overloads, but added for type safety
-            //     const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
-            //     throw new RangeError(error.generateMessageString());
-            // }
+            const complex1 = realOrComplexOrVectorSpace;
+            const complex2 = imaginaryOrComplex;
+            this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [
+                { type: COMPLEX, real: complex1.real, imaginary: complex1.imaginary },
+                { type: COMPLEX, real: complex2.real, imaginary: complex2.imaginary }
+            ]};
+            this._vectorSpace = (real2OrVectorSpace instanceof ComplexVectorSpace)
+                ? real2OrVectorSpace
+                : this.getDefaultVectorSpace();
+            return;
         }
             
         // Case 4: coordinates as sequence of real and imaginary parts with optional vectorSpace
@@ -76,19 +70,9 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2> {
         // At this point: realOrComplexOrVectorSpace, imaginaryOrComplex, real2OrVectorSpace, imaginary2 are numbers (guaranteed by overload)
         super.checkVectorSpaceConsistency(Vector2DTypeComplex.DIMENSION, vectorSpace);
         const real = realOrComplexOrVectorSpace;
-        // if (imaginaryOrComplex instanceof Complex) {
-        //     // cannot be reached with overloads, but added for type safety -> not covered by istanbul ignore
-        //     throw new RangeError();
-        // } else {
-        //     // imaginaryOrVectorSpace is number (guaranteed by overload)
-        //     if(real2OrVectorSpace instanceof ComplexVectorSpace) {
-        //         // cannot be reached with overloads, but added for type safety -> not covered by istanbul ignore
-        //         throw new RangeError();
-        //     }
-            // real2OrVectorSpace and imaginary2 are numbers (guaranteed by overload)
-            this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [{ type: COMPLEX, real: real, imaginary: imaginaryOrComplex!}, { type: COMPLEX, real: real2OrVectorSpace!, imaginary: imaginary2!}] };
-            this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
-        // }
+        // real2OrVectorSpace and imaginary2 are numbers (guaranteed by overload)
+        this._descriptor = { type: COMPLEXVECTOR2D, coordinates: [{ type: COMPLEX, real: real, imaginary: imaginaryOrComplex!}, { type: COMPLEX, real: real2OrVectorSpace!, imaginary: imaginary2!}] };
+        this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 
     private getDefaultVectorSpace(): ComplexVectorSpace<2> {

@@ -1,13 +1,16 @@
 import { EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT } from "../ErrorMessages/ComplexWeight";
-import { EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT } from "../ErrorMessages/ProjectiveComplexVectors";
+import { EM_COMPLEX_WEIGHT_TOO_SMALL, EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT } from "../ErrorMessages/ProjectiveComplexVectors";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { TOLERANCE_MIN_MAGNITUDE } from "../namedConstants/Complex";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { PROJECTIVECOMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
-import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { AbstractProjectiveComplexVector } from "./AbstractProjectiveComplexVector";
 import { Complex } from "./Complex";
+import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { ComplexWeight } from "./ComplexWeight";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
@@ -34,7 +37,7 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
     constructor(realOrComplexOrVectorSpace?: number | Complex | ProjectiveComplexVectorSpace<2>, imaginaryOrComplexWeightOrVectorSpace?: number | ComplexWeight | ProjectiveComplexVectorSpace<2>, realWeightOrVectorSpace?: Weight | ProjectiveComplexVectorSpace<2>, imaginaryWeight?: Weight, vectorSpace?: ProjectiveComplexVectorSpace<2>) {
         super();
         const nullComplex: IComplex = { type: COMPLEX, real: 0, imaginary: 0 };
-        const defaultComplexWeight = { type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight() };
+        const defaultComplexWeight = { type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false) };
         // Case 1: no arguments
         if(realOrComplexOrVectorSpace === undefined) {
             this._descriptor = { type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [nullComplex, defaultComplexWeight] };
@@ -43,7 +46,8 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         }
 
         // Case 2: vectorSpace only
-        if (realOrComplexOrVectorSpace instanceof ProjectiveComplexVectorSpace) {
+        if (realOrComplexOrVectorSpace instanceof ProjectiveComplexVectorSpace && imaginaryOrComplexWeightOrVectorSpace === undefined) {
+            super.checkVectorSpaceDimensionConsistency(ProjectiveVector1DTypeComplex.DIMENSION, realOrComplexOrVectorSpace);
             this._vectorSpace = realOrComplexOrVectorSpace;
             const complexW = this.initializeAndValidateWeights(this._vectorSpace);
             this._descriptor = { type: PROJECTIVECOMPLEXVECTOR1D,
@@ -53,6 +57,11 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
 
         // Case 3: coordinates as complex and complex weight with optional vectorSpace
         if (realOrComplexOrVectorSpace instanceof Complex && imaginaryOrComplexWeightOrVectorSpace instanceof ComplexWeight) {
+            if (realWeightOrVectorSpace instanceof Weight || imaginaryWeight !== undefined) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+                throw new RangeError(error.generateMessageString());
+            }
+            super.checkVectorSpaceConsistency(ProjectiveVector1DTypeComplex.DIMENSION, realWeightOrVectorSpace);
             const complex = realOrComplexOrVectorSpace.toDescriptor();
             this._vectorSpace = (realWeightOrVectorSpace instanceof ProjectiveComplexVectorSpace)
                 ? realWeightOrVectorSpace
@@ -65,6 +74,12 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         // Case 4: coordinates as complex number with optional vectorSpace
         // At this point: imaginaryOrComplexWeightOrVectorSpace is ProjectiveComplexVectorSpace or undefined (guaranteed by overload)
         if (realOrComplexOrVectorSpace instanceof Complex) {
+            if((!(imaginaryOrComplexWeightOrVectorSpace instanceof ProjectiveComplexVectorSpace) && imaginaryOrComplexWeightOrVectorSpace !== undefined)
+            || realWeightOrVectorSpace !== undefined) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+                throw new RangeError(error.generateMessageString());
+            }
+            super.checkVectorSpaceConsistency(ProjectiveVector1DTypeComplex.DIMENSION, imaginaryOrComplexWeightOrVectorSpace);
             const complex = realOrComplexOrVectorSpace.toDescriptor();
             this._vectorSpace = (imaginaryOrComplexWeightOrVectorSpace instanceof ProjectiveComplexVectorSpace)
                 ? imaginaryOrComplexWeightOrVectorSpace
@@ -75,16 +90,13 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
             return;
         }
 
-        // Case 5: coordinates as sequence of real and imaginary parts  and complex weight as sequence of real and imaginary weights with optional vectorSpace
+        // Case 5: coordinates as sequence of real and imaginary parts and complex weight as sequence of real and imaginary weights with optional vectorSpace
         // At this point: realOrComplexOrVectorSpace is number and imaginaryOrComplexWeightOrVectorSpace is number too (guaranteed by overload)
-        if(realWeightOrVectorSpace instanceof Weight)  {
-            if(imaginaryOrComplexWeightOrVectorSpace instanceof ProjectiveComplexVectorSpace
-                || imaginaryOrComplexWeightOrVectorSpace instanceof ComplexWeight) {
-                // cannot be reached with overloads, but added for type safety -> not covered by istanbul ignore
-                throw new RangeError();
-            }
+        if(typeof realOrComplexOrVectorSpace === 'number' && typeof imaginaryOrComplexWeightOrVectorSpace === 'number'
+            && realWeightOrVectorSpace instanceof Weight && imaginaryWeight instanceof Weight)  {
+            super.checkVectorSpaceConsistency(ProjectiveVector1DTypeComplex.DIMENSION, vectorSpace);
             this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
-            // At this point: imaginaryWeight is Weight (quaranteed by overload)
+            // At this point: realWeightOrVectorSpace and imaginaryWeight are Weight (quaranteed by overload)
             const complexW = this.initializeAndValidateWeights(this._vectorSpace, realWeightOrVectorSpace, imaginaryWeight);
             this._descriptor = { type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
                 { type: COMPLEX, real: realOrComplexOrVectorSpace, imaginary: imaginaryOrComplexWeightOrVectorSpace! },
@@ -95,19 +107,25 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
 
         // Case 6: coordinates as sequence of real and imaginary parts with optional vectorSpace
         // At this point: realOrComplexOrVectorSpace is number and imaginaryOrComplexWeightOrVectorSpace is number too (guaranteed by overload)
-        this._vectorSpace = (realWeightOrVectorSpace instanceof ProjectiveComplexVectorSpace)
-            ? realWeightOrVectorSpace
-            : this.getDefaultVectorSpace();
-        const complexW = this.initializeAndValidateWeights(this._vectorSpace);
-        if(imaginaryOrComplexWeightOrVectorSpace instanceof ProjectiveComplexVectorSpace
-            || imaginaryOrComplexWeightOrVectorSpace instanceof ComplexWeight) {
-            // cannot be reached with overloads, but added for type safety -> not covered by istanbul ignore
-            throw new RangeError();
+        if(typeof realOrComplexOrVectorSpace !== 'number' || typeof imaginaryOrComplexWeightOrVectorSpace !== 'number'
+            || imaginaryWeight !== undefined) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
         }
-        this._descriptor = { type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
-            { type: COMPLEX, real: realOrComplexOrVectorSpace, imaginary: imaginaryOrComplexWeightOrVectorSpace! },
-            complexW
-        ]}; 
+        if (realWeightOrVectorSpace instanceof ProjectiveComplexVectorSpace || realWeightOrVectorSpace === undefined) {
+            super.checkVectorSpaceConsistency(ProjectiveVector1DTypeComplex.DIMENSION, realWeightOrVectorSpace);
+            this._vectorSpace = (realWeightOrVectorSpace instanceof ProjectiveComplexVectorSpace)
+                ? realWeightOrVectorSpace
+                : this.getDefaultVectorSpace();
+            const complexW = this.initializeAndValidateWeights(this._vectorSpace);
+            this._descriptor = { type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
+                { type: COMPLEX, real: realOrComplexOrVectorSpace, imaginary: imaginaryOrComplexWeightOrVectorSpace! },
+                complexW
+            ]};
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
     }
     
     private getDefaultVectorSpace(): ProjectiveComplexVectorSpace<2> {
@@ -128,14 +146,14 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         return new ComplexWeight(this._descriptor.coordinates[1].real, this._descriptor.coordinates[1].imaginary);
     }
     
-    get homogeneousCoordinates(): number[] {
-        return [this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary, this.weight.real.value];
+    get homogeneousComplexCoordinates(): Complex[] {
+        return [new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary), new Complex(this.weight.real.value, this.weight.imaginary.value)];
     }
 
     private initializeAndValidateWeights(vectorSpace: ProjectiveComplexVectorSpace<2>, realWeight?: Weight, imaginaryWeight?: Weight): ComplexWeight {
         const weightManagement = vectorSpace.weightManagement;
         let realW = new Weight();
-        let imaginaryW = new Weight();
+        let imaginaryW = new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
         switch(weightManagement) {
             case WeightManagement.AllStrictlyPositiveWeights:
                 if(realWeight !== undefined) {
@@ -147,10 +165,12 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
                 }
                 if(imaginaryWeight !== undefined) {
                     imaginaryW = imaginaryWeight;
-                    if(!imaginaryWeight.strictlyPositive) {
-                        const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT)
-                        throw new RangeError(error.generateMessageString());
-                    }
+                    // Removed because the imaginary weight management is set free to process the default
+                    // imaginary weight value set to 0
+                    // if(!imaginaryWeight.strictlyPositive) {
+                    //     const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT)
+                    //     throw new RangeError(error.generateMessageString());
+                    // }
                 }
                 break;
             case WeightManagement.AllPositiveWeights:
@@ -173,21 +193,20 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
                 if(realWeight !== undefined) {
                     realW = realWeight;
                     imaginaryW = new Weight(DEFAULT_WEIGHT_VALUE, realWeight.strictlyPositive);
-                    if(imaginaryWeight !== undefined && imaginaryWeight.strictlyPositive === realWeight.strictlyPositive) {
+                    // Modified because the imaginary weight management is set free to process the default
+                    // if(imaginaryWeight !== undefined && imaginaryWeight.strictlyPositive === realWeight.strictlyPositive) {
+                    if(imaginaryWeight !== undefined) {
                         imaginaryW = imaginaryWeight;
-                    } else {
-                        const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT)
-                        throw new RangeError(error.generateMessageString());
+                    // } else {
+                    //     const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT)
+                    //     throw new RangeError(error.generateMessageString());
                     }
                 }
                 if(imaginaryWeight !== undefined) {
                     imaginaryW = imaginaryWeight;
                     realW = new Weight(DEFAULT_WEIGHT_VALUE, imaginaryWeight.strictlyPositive);
-                    if(realWeight !== undefined && realWeight.strictlyPositive === imaginaryWeight.strictlyPositive) {
+                    if(realWeight !== undefined) {
                         realW = realWeight;
-                    } else {
-                        const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT)
-                        throw new RangeError(error.generateMessageString());
                     }
                 }
                 break;
@@ -201,18 +220,22 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
             throw new RangeError(error.generateMessageString());
         }
         if (index === 1) {
-            const real = this.weight.real.value;
-            const imaginary = this.weight.imaginary.value;
-            return new Complex(real, imaginary);
+            return this.weight.toComplex();
         }
         return new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary);
     }
     
     normalize(): ProjectiveVector1DTypeComplex {
-        const w = this.weight.real.value;
-        if (w === 0) return this.clone();
-        const complex = new Complex(this._descriptor.coordinates[0].real / w, this._descriptor.coordinates[0].imaginary / w);
-        return new ProjectiveVector1DTypeComplex(complex, new ComplexWeight());
+        const complexW = this.weight.toComplex();
+        if (complexW.magnitude() < TOLERANCE_MIN_MAGNITUDE) {
+            // the magnitude of the complex weight is too small to perform a complex division
+            const error = sendRangeErrorMessage(this.constructor.name, 'normalize', EM_COMPLEX_WEIGHT_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+        let normalizedWeight = new ComplexWeight();
+        if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) normalizedWeight = new ComplexWeight( new Weight(DEFAULT_WEIGHT_VALUE, false), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false));
+        if(this._vectorSpace.weightManagement === WeightManagement.SomeNullWeights) normalizedWeight = new ComplexWeight( new Weight(), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false));
+        return new ProjectiveVector1DTypeComplex(complexW.divide(this.coordinates[0]), normalizedWeight, this._vectorSpace);
     }
 
     add(other: ProjectiveVector1DTypeComplex): ProjectiveVector1DTypeComplex {
@@ -229,13 +252,29 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         return super.equals(other, tolerance);
     }
     
-    toComplexVector(): Vector1DTypeComplex {
-        const normalized = this.normalize();
-        const realWeight = this.weight.real.value
-        return new Vector1DTypeComplex(
-            normalized._descriptor.coordinates[0].real,
-            normalized._descriptor.coordinates[0].imaginary
-        );
+    toComplexVector(vectorSpace?: ComplexVectorSpace<1>): Vector1DTypeComplex {
+        let vSpace = vectorSpace;
+        if(vSpace === undefined) {
+            try{
+                vSpace = getDefaultVectorSpace(VectorSpaceType.COMPLEX, 1);
+            } catch(error) {
+                vSpace = new ComplexVectorSpace(1, true);
+            }
+        }
+        try {
+            const normalized = this.normalize();
+            return new Vector1DTypeComplex(
+                normalized._descriptor.coordinates[0].real,
+                normalized._descriptor.coordinates[0].imaginary,
+                vSpace
+            );
+        } catch (error) {
+            return new Vector1DTypeComplex(
+                this._descriptor.coordinates[0].real,
+                this._descriptor.coordinates[0].imaginary,
+                vSpace
+            );
+        }
     }
 
     toString(): string {

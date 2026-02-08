@@ -3,7 +3,7 @@ import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { PROJECTIVEVECTOR2D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import type { ComplexVector, ComplexVector1D, ProjectiveVector2D, Real, RealVector, RealVector2D } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector1D, ProjectiveVector2D, Real, RealVector, RealVector2D } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

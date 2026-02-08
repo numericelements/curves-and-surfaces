@@ -477,12 +477,12 @@ describe('Vector factory to create real, projective real, complex, and projectiv
         const vSpace = new RealVectorSpace(dimension3);
         expect(vSpace.isDefault).to.eql(false);
         // Such type casting must be avoided by the users because they don't throw errors at compile time and at runtime
-        expect(() =>  projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveVectorSpace<3>)).to.not.throw();
-        const projRealVector = projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveVectorSpace<3>);
+        expect(() =>  projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveVectorSpace<3>)).to.throw();
+        // const projRealVector = projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveVectorSpace<3>);
         // But the generated vector is not consistent though the user coordinates are correctly set
-        expect(projRealVector.getCoordinate(0)).to.eql(x);
-        expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
-        expect(projRealVector.vectorSpace.spaceType).to.not.eql(VectorSpaceType.PROJECTIVE);
-        expect(projRealVector.vectorSpace.spaceType).to.eql(VectorSpaceType.REAL);
+        // expect(projRealVector.getCoordinate(0)).to.eql(x);
+        // expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
+        // expect(projRealVector.vectorSpace.spaceType).to.not.eql(VectorSpaceType.PROJECTIVE);
+        // expect(projRealVector.vectorSpace.spaceType).to.eql(VectorSpaceType.REAL);
     });
 });

@@ -1,1 +1,2 @@
 export const EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT = 'The real and imaginary weights do not have the same positivity (both strictly posititve or both positive). Cannot proceed.';
+export const EM_NEGATIVE_REAL_IMAGINARY_PARTS = 'Negative real ad/or imaginary parts cannot be used to generate a complex weight. Cannot proceed.';

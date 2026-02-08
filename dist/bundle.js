@@ -38425,6 +38425,21 @@ exports.SquareDotSolidShader = SquareDotSolidShader;
 
 /***/ }),
 
+/***/ "./src/ErrorMessages/Complex.ts":
+/*!**************************************!*\
+  !*** ./src/ErrorMessages/Complex.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.EM_MAGNITUDE_COMPLEX_TOO_SMALL = void 0;
+exports.EM_MAGNITUDE_COMPLEX_TOO_SMALL = "The magnitude of the complex number is smaller than the tolerance value and a division cannot be performed. Please consider reducing the current tolerance value if needed.";
+
+
+/***/ }),
+
 /***/ "./src/ErrorMessages/ComplexOperators.ts":
 /*!***********************************************!*\
   !*** ./src/ErrorMessages/ComplexOperators.ts ***!
@@ -38476,8 +38491,9 @@ exports.EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION = 'No default complex vec
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT = void 0;
+exports.EM_NEGATIVE_REAL_IMAGINARY_PARTS = exports.EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT = void 0;
 exports.EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT = 'The real and imaginary weights do not have the same positivity (both strictly posititve or both positive). Cannot proceed.';
+exports.EM_NEGATIVE_REAL_IMAGINARY_PARTS = 'Negative real ad/or imaginary parts cannot be used to generate a complex weight. Cannot proceed.';
 
 
 /***/ }),
@@ -51296,7 +51312,14 @@ exports.SymmetricMatrix = SymmetricMatrix;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Complex = void 0;
+const Complex_1 = __webpack_require__(/*! ../ErrorMessages/Complex */ "./src/ErrorMessages/Complex.ts");
+const ComplexWeight_1 = __webpack_require__(/*! ../ErrorMessages/ComplexWeight */ "./src/ErrorMessages/ComplexWeight.ts");
+const Complex_2 = __webpack_require__(/*! ../namedConstants/Complex */ "./src/namedConstants/Complex.ts");
 const ComplexTypeTag_1 = __webpack_require__(/*! ../namedConstants/ComplexTypeTag */ "./src/namedConstants/ComplexTypeTag.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const ComplexWeight_2 = __webpack_require__(/*! ./ComplexWeight */ "./src/mathVector/ComplexWeight.ts");
+const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
+const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 class Complex {
     constructor(real = 0, imaginary = 0) {
         this._real = real;
@@ -51323,6 +51346,28 @@ class Complex {
     multiply(other) {
         return new Complex(this._real * other.real - this._imaginary * other.imaginary, this._real * other.imaginary + this._imaginary * other.real);
     }
+    reciprocal() {
+        const magnitude = this.magnitude();
+        if (magnitude > Complex_2.TOLERANCE_MIN_MAGNITUDE) {
+            return new Complex(this._real / Math.pow(magnitude, 2), -this._imaginary / Math.pow(magnitude, 2));
+        }
+        else {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'reciprocal', Complex_1.EM_MAGNITUDE_COMPLEX_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+    divide(other) {
+        const realNumerator = other._real * this._real + other._imaginary * this._imaginary;
+        const imaginaryNumerator = other._imaginary * this._real - other._real * this._imaginary;
+        const magnitude = this.magnitude();
+        if (magnitude > Complex_2.TOLERANCE_MIN_MAGNITUDE) {
+            return new Complex(realNumerator / Math.pow(magnitude, 2), imaginaryNumerator / Math.pow(magnitude, 2));
+        }
+        else {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'divide', Complex_1.EM_MAGNITUDE_COMPLEX_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
     scale(scalarOrComplex) {
         if (typeof scalarOrComplex === 'number') {
             return new Complex(this._real * scalarOrComplex, this._imaginary * scalarOrComplex);
@@ -51339,6 +51384,24 @@ class Complex {
     }
     magnitude() {
         return Math.sqrt(this._real * this._real + this._imaginary * this._imaginary);
+    }
+    toComplexWeight(weightManagement) {
+        if (this._real < 0 || this._imaginary < 0) {
+            const error = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'toComplexWeight', ComplexWeight_1.EM_NEGATIVE_REAL_IMAGINARY_PARTS);
+            throw new RangeError(error.generateMessageString());
+        }
+        let complexWeight = new ComplexWeight_2.ComplexWeight();
+        if (this._real > 0 && this._imaginary > 0)
+            complexWeight = new ComplexWeight_2.ComplexWeight(new Weight_1.Weight(this._real), new Weight_1.Weight(this._imaginary));
+        if (weightManagement === undefined)
+            return complexWeight;
+        if (weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights)
+            complexWeight = new ComplexWeight_2.ComplexWeight(new Weight_1.Weight(this._real, false), new Weight_1.Weight(this._imaginary, false));
+        if (this._real === 0)
+            complexWeight = new ComplexWeight_2.ComplexWeight(new Weight_1.Weight(this._real, false), new Weight_1.Weight(this._imaginary, false));
+        if (this._imaginary === 0)
+            complexWeight = new ComplexWeight_2.ComplexWeight(new Weight_1.Weight(this._real, false), new Weight_1.Weight(this._imaginary, false));
+        return complexWeight;
     }
     clone() {
         return new Complex(this._real, this._imaginary);
@@ -51964,6 +52027,7 @@ const ComplexWeight_1 = __webpack_require__(/*! ../ErrorMessages/ComplexWeight *
 const ErrorLoging_1 = __webpack_require__(/*! ../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 const Weight_1 = __webpack_require__(/*! ../namedConstants/Weight */ "./src/namedConstants/Weight.ts");
 const WeightTypeTags_1 = __webpack_require__(/*! ../namedConstants/WeightTypeTags */ "./src/namedConstants/WeightTypeTags.ts");
+const Complex_1 = __webpack_require__(/*! ./Complex */ "./src/mathVector/Complex.ts");
 const Weight_2 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 class ComplexWeight {
     constructor(real, imaginary) {
@@ -51975,14 +52039,12 @@ class ComplexWeight {
             this._real = real;
         }
         if (imaginary === undefined) {
-            if (this._real.strictlyPositive) {
-                this._imaginary = new Weight_2.Weight();
-            }
-            else
-                this._imaginary = new Weight_2.Weight(Weight_1.DEFAULT_WEIGHT_VALUE, false);
+            this._imaginary = new Weight_2.Weight(Weight_1.DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
         }
         else {
-            this.assessmentInputWeightStrictlyPositiveStatus(this._real, imaginary);
+            // Deactivated method to set the imaginary weight free of strict positivity constraint
+            // because the default imaginary weight value is 0
+            // this.assessmentInputWeightStrictlyPositiveStatus(this._real, imaginary);
             this._imaginary = imaginary;
         }
     }
@@ -52000,6 +52062,9 @@ class ComplexWeight {
     }
     toDescriptor() {
         return { type: WeightTypeTags_1.COMPLEXWEIGHT, real: this._real.clone(), imaginary: this._imaginary.clone() };
+    }
+    toComplex() {
+        return new Complex_1.Complex(this._real.value, this._imaginary.value);
     }
     clone() {
         return new ComplexWeight(this._real.clone(), this._imaginary.clone());
@@ -54339,10 +54404,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WeightManager = void 0;
 const WeightManager_1 = __webpack_require__(/*! ../ErrorMessages/WeightManager */ "./src/ErrorMessages/WeightManager.ts");
 const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../namedConstants/ProjectiveVectorSpace */ "./src/namedConstants/ProjectiveVectorSpace.ts");
+const Weight_1 = __webpack_require__(/*! ../namedConstants/Weight */ "./src/namedConstants/Weight.ts");
 const Complex_1 = __webpack_require__(/*! ./Complex */ "./src/mathVector/Complex.ts");
 const ComplexWeight_1 = __webpack_require__(/*! ./ComplexWeight */ "./src/mathVector/ComplexWeight.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
-const Weight_1 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
+const Weight_2 = __webpack_require__(/*! ./Weight */ "./src/mathVector/Weight.ts");
 const WeightManagerPositiveWeightStrategy_1 = __webpack_require__(/*! ./WeightManagerPositiveWeightStrategy */ "./src/mathVector/WeightManagerPositiveWeightStrategy.ts");
 const WeightManagerSomeNullWeightStrategy_1 = __webpack_require__(/*! ./WeightManagerSomeNullWeightStrategy */ "./src/mathVector/WeightManagerSomeNullWeightStrategy.ts");
 const WeightManagerStrictPositiveWeightStrategy_1 = __webpack_require__(/*! ./WeightManagerStrictPositiveWeightStrategy */ "./src/mathVector/WeightManagerStrictPositiveWeightStrategy.ts");
@@ -54447,14 +54513,14 @@ class WeightManager {
             }
             if (this._weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights && (scaled.real < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE || scaled.imaginary < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE)) {
                 if (scaled.real < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE && scaled.imaginary >= ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-                    return new ComplexWeight_1.ComplexWeight(new Weight_1.Weight(0, false), new Weight_1.Weight(scaled.imaginary, false));
+                    return new ComplexWeight_1.ComplexWeight(new Weight_2.Weight(0, false), new Weight_2.Weight(scaled.imaginary, false));
                 }
                 else if (scaled.real >= ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE && scaled.imaginary < ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE) {
-                    return new ComplexWeight_1.ComplexWeight(new Weight_1.Weight(scaled.real, false), new Weight_1.Weight(0, false));
+                    return new ComplexWeight_1.ComplexWeight(new Weight_2.Weight(scaled.real, false), new Weight_2.Weight(0, false));
                 }
-                return new ComplexWeight_1.ComplexWeight(new Weight_1.Weight(0, false), new Weight_1.Weight(0, false));
+                return new ComplexWeight_1.ComplexWeight(new Weight_2.Weight(0, false), new Weight_2.Weight(Weight_1.DEFAULT_IMAGINARY_WEIGHT_VALUE, false));
             }
-            return new ComplexWeight_1.ComplexWeight(new Weight_1.Weight(scaled.real, weight.real.strictlyPositive), new Weight_1.Weight(scaled.imaginary, weight.imaginary.strictlyPositive));
+            return new ComplexWeight_1.ComplexWeight(new Weight_2.Weight(scaled.real, weight.real.strictlyPositive), new Weight_2.Weight(scaled.imaginary, weight.imaginary.strictlyPositive));
         }
         else
             return new ComplexWeight_1.ComplexWeight(this.scaleWeight(weight.real, scalar), this.scaleWeight(weight.imaginary, scalar));
@@ -56738,6 +56804,27 @@ var VectorSpaceType;
 
 /***/ }),
 
+/***/ "./src/namedConstants/Complex.ts":
+/*!***************************************!*\
+  !*** ./src/namedConstants/Complex.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.TOLERANCE_MIN_MAGNITUDE = void 0;
+/**
+ * @description
+ * Tolerance value for determining whether a complex number is too close to zero or not.
+ *
+ * @constant {number}
+ */
+exports.TOLERANCE_MIN_MAGNITUDE = 1e-12;
+
+
+/***/ }),
+
 /***/ "./src/namedConstants/ComplexTypeTag.ts":
 /*!**********************************************!*\
   !*** ./src/namedConstants/ComplexTypeTag.ts ***!
@@ -57037,8 +57124,9 @@ exports.UNDEFINED_VECTORTYPE = 'UndefinedVectorType';
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.DEFAULT_WEIGHT_VALUE = void 0;
+exports.DEFAULT_IMAGINARY_WEIGHT_VALUE = exports.DEFAULT_WEIGHT_VALUE = void 0;
 exports.DEFAULT_WEIGHT_VALUE = 1;
+exports.DEFAULT_IMAGINARY_WEIGHT_VALUE = 0;
 
 
 /***/ }),

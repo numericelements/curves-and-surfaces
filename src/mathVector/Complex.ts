@@ -1,5 +1,12 @@
+import { EM_MAGNITUDE_COMPLEX_TOO_SMALL } from "../ErrorMessages/Complex";
+import { EM_NEGATIVE_REAL_IMAGINARY_PARTS } from "../ErrorMessages/ComplexWeight";
+import { TOLERANCE_MIN_MAGNITUDE } from "../namedConstants/Complex";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { ComplexWeight } from "./ComplexWeight";
 import type { IComplex } from "./VectorSpaceConstructorInterface";
+import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import { Weight } from "./Weight";
 
 
 export class Complex {
@@ -43,6 +50,28 @@ export class Complex {
         );
     }
 
+    reciprocal(): Complex {
+        const magnitude = this.magnitude();
+        if(magnitude > TOLERANCE_MIN_MAGNITUDE) {
+            return new Complex(this._real / Math.pow(magnitude, 2), -this._imaginary / Math.pow(magnitude, 2));
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'reciprocal', EM_MAGNITUDE_COMPLEX_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    divide(other: Complex): Complex {
+        const realNumerator = other._real * this._real + other._imaginary * this._imaginary;
+        const imaginaryNumerator = other._imaginary * this._real - other._real * this._imaginary;
+        const magnitude = this.magnitude();
+        if(magnitude > TOLERANCE_MIN_MAGNITUDE) {
+            return new Complex(realNumerator / Math.pow(magnitude, 2), imaginaryNumerator / Math.pow(magnitude, 2));
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'divide', EM_MAGNITUDE_COMPLEX_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
     scale(scalar: number): Complex;
     scale(complex: Complex): Complex;
     scale(scalarOrComplex: number | Complex): Complex {
@@ -63,6 +92,24 @@ export class Complex {
 
     magnitude(): number {
         return Math.sqrt(this._real * this._real + this._imaginary * this._imaginary);
+    }
+
+    toComplexWeight(weightManagement?: WeightManagement): ComplexWeight {
+        if(this._real < 0 || this._imaginary < 0) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'toComplexWeight', EM_NEGATIVE_REAL_IMAGINARY_PARTS);
+            throw new RangeError(error.generateMessageString());
+        }
+        let complexWeight = new ComplexWeight();
+        if(this._real > 0 && this._imaginary > 0)
+            complexWeight = new ComplexWeight(new Weight(this._real), new Weight(this._imaginary));
+        if(weightManagement === undefined) return complexWeight;
+        if(weightManagement === WeightManagement.AllPositiveWeights)
+            complexWeight = new ComplexWeight(new Weight(this._real, false), new Weight(this._imaginary, false));
+        if(this._real === 0)
+            complexWeight = new ComplexWeight(new Weight(this._real, false), new Weight(this._imaginary, false));
+        if(this._imaginary === 0)
+            complexWeight = new ComplexWeight(new Weight(this._real, false), new Weight(this._imaginary, false));
+        return complexWeight;
     }
 
     clone(): Complex {

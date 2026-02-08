@@ -1,7 +1,7 @@
 import { EM_REVERT_NOT_APPLICABLE, EM_WEIGHT_TOO_SMALL } from "../ErrorMessages/ProjectiveVectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import type { IProjectiveVector } from "./Vector";
@@ -32,6 +32,20 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
     abstract clone(): IProjectiveVector;
     // abstract toRealVector(realVectorSpace?: RealVectorSpace<any>): IRealVector;
     abstract toString(): string;
+
+    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveVectorSpace<D>): void {
+        if(vSpace.dimension() !== vectorDim) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ProjectiveVectorSpace<D>): void {
+        if(vSpace !== undefined && (vSpace.spaceType !== VectorSpaceType.PROJECTIVE || vSpace.dimension() !== vectorDim)) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
 
     checkValidityWeightStatus(weightOrVSpace: Weight, vectorSpace: ProjectiveVectorSpace<any>): boolean {
         let strictlyPosWeight = true;

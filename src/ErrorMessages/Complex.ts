@@ -1,0 +1,1 @@
+export const EM_MAGNITUDE_COMPLEX_TOO_SMALL = "The magnitude of the complex number is smaller than the tolerance value and a division cannot be performed. Please consider reducing the current tolerance value if needed.";

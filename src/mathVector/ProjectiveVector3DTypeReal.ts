@@ -1,5 +1,5 @@
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { PROJECTIVEVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
@@ -34,7 +34,8 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
         }
 
         // Case 2: vectorSpace only
-        if(xOrVectorSpace instanceof ProjectiveVectorSpace) {
+        if(xOrVectorSpace instanceof ProjectiveVectorSpace && y === undefined) {
+            super.checkVectorSpaceDimensionConsistency(ProjectiveVector3DTypeReal.DIMENSION, xOrVectorSpace);
             this._vectorSpace = xOrVectorSpace;
             if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
             this._descriptor = { type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
@@ -42,7 +43,8 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
         }
 
         // Case 3: all coordinates and weight with optional vectorSpace
-        if (weightOrVSpace instanceof Weight) {
+        if (typeof xOrVectorSpace === 'number' && typeof y === 'number' && typeof z === 'number' && weightOrVSpace instanceof Weight) {
+            super.checkVectorSpaceConsistency(ProjectiveVector3DTypeReal.DIMENSION, vectorSpace);
             strictlyPosWeight = this.checkValidityWeightStatus(weightOrVSpace, vectorSpace as ProjectiveVectorSpace<4>);
             this._descriptor = { 
                 type: PROJECTIVEVECTOR3D, 
@@ -53,12 +55,22 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
         }
 
         // Case 4: all coordinates with optional vectorSpace
-        this._vectorSpace = weightOrVSpace ?? this.getDefaultVectorSpace();;
-        if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
-        this._descriptor = { 
-            type: PROJECTIVEVECTOR3D, 
-            coordinates: [xOrVectorSpace, y!, z!, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
-        };
+        if(typeof xOrVectorSpace !== 'number' || typeof y !== 'number' || typeof z !== 'number') {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+        if (!(weightOrVSpace instanceof Weight) && vectorSpace === undefined) {
+            super.checkVectorSpaceConsistency(ProjectiveVector3DTypeReal.DIMENSION, weightOrVSpace);
+            this._vectorSpace = weightOrVSpace ?? this.getDefaultVectorSpace();;
+            if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
+            this._descriptor = { 
+                type: PROJECTIVEVECTOR3D, 
+                coordinates: [xOrVectorSpace, y!, z!, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
+            };
+        } else {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
     }
 
     private getDefaultVectorSpace(): ProjectiveVectorSpace<4> {

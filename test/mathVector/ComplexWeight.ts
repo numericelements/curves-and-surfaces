@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ComplexWeight } from "../../src/mathVector/ComplexWeight";
-import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT } from "../../src/ErrorMessages/ComplexWeight";
 import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
@@ -11,9 +11,9 @@ describe('ComplexWeight', () => {
         it('can generate a ComplexWeight object without weight values', () => {
             const weight = new ComplexWeight();
             expect(weight.real.value).to.eql(DEFAULT_WEIGHT_VALUE);
-            expect(weight.imaginary.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
             expect(weight.real.strictlyPositive).to.eql(true);
-            expect(weight.imaginary.strictlyPositive).to.eql(true);
+            expect(weight.imaginary.strictlyPositive).to.eql(false);
         });
 
         it('can generate a ComplexWeight object with prescribed real weight value that must be strictly positive and default imaginary weight value', () => {
@@ -21,9 +21,9 @@ describe('ComplexWeight', () => {
             const weightR = new Weight(valueReal);
             const weight = new ComplexWeight(weightR);
             expect(weight.real.value).to.eql(valueReal);
-            expect(weight.imaginary.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
             expect(weight.real.strictlyPositive).to.eql(true);
-            expect(weight.imaginary.strictlyPositive).to.eql(true);
+            expect(weight.imaginary.strictlyPositive).to.eql(false);
         });
 
         it('can generate a ComplexWeight object with prescribed real weight value that is positive and default imaginary weight value that is positive', () => {
@@ -32,7 +32,7 @@ describe('ComplexWeight', () => {
             const weightR = new Weight(valueReal, strictlyPositive);
             const weight = new ComplexWeight(weightR);
             expect(weight.real.value).to.eql(valueReal);
-            expect(weight.imaginary.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
             expect(weight.real.strictlyPositive).to.eql(false);
             expect(weight.imaginary.strictlyPositive).to.eql(false);
         });
@@ -43,7 +43,7 @@ describe('ComplexWeight', () => {
             const weightR = new Weight(valueReal, strictlyPositive);
             const weight = new ComplexWeight(weightR);
             expect(weight.real.value).to.eql(valueReal);
-            expect(weight.imaginary.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
             expect(weight.real.strictlyPositive).to.eql(false);
             expect(weight.imaginary.strictlyPositive).to.eql(false);
         });
@@ -86,19 +86,20 @@ describe('ComplexWeight', () => {
             expect(weight.imaginary.strictlyPositive).to.eql(false);
         });
 
-        it('cannot generate a ComplexWeight object when real and imaginary weight positivity status differ', () => {
-            let valueR = 0;
-            const strictlyPositive = false;
-            let weightR = new Weight(valueR, strictlyPositive);
-            let valueImaginary = 3;
-            let weightI = new Weight(valueImaginary);
-            expect(() => new ComplexWeight(weightR, weightI)).to.throw(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
-            valueR = 2;
-            weightR = new Weight(valueR);
-            valueImaginary = 3;
-            weightI = new Weight(valueImaginary, strictlyPositive);
-            expect(() => new ComplexWeight(weightR, weightI)).to.throw(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
-        });
+        // Deactivated unit test to set the imaginary weight free of strict positivity constraint
+        // it('cannot generate a ComplexWeight object when real and imaginary weight positivity status differ', () => {
+        //     let valueR = 0;
+        //     const strictlyPositive = false;
+        //     let weightR = new Weight(valueR, strictlyPositive);
+        //     let valueImaginary = 3;
+        //     let weightI = new Weight(valueImaginary);
+        //     expect(() => new ComplexWeight(weightR, weightI)).to.throw(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
+        //     valueR = 2;
+        //     weightR = new Weight(valueR);
+        //     valueImaginary = 3;
+        //     weightI = new Weight(valueImaginary, strictlyPositive);
+        //     expect(() => new ComplexWeight(weightR, weightI)).to.throw(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
+        // });
 
         it('can generate a ComplexWeight object with a real weight value that can be null', () => {
             const valueR = 0;
@@ -211,7 +212,6 @@ describe('ComplexWeight', () => {
             expect(string).to.eql(COMPLEXWEIGHT + `(real: ${weight.real.toString()}, imaginary: ${weight.imaginary.toString()})`);
         });
 
-
         it(`can get the complex weight descriptor`, () => {
             const valueR = 2;
             const valueImaginary = 4;
@@ -222,6 +222,17 @@ describe('ComplexWeight', () => {
             expect(descriptor.type).to.eql(COMPLEXWEIGHT);
             expect(descriptor.real).to.eql(weight.real);
             expect(descriptor.imaginary).to.eql(weight.imaginary);
+        });
+
+        it(`can extract the complex weight values to generate a Complex`, () => {
+            const valueR = 2;
+            const valueImaginary = 4;
+            const weightR = new Weight(valueR);
+            const weightI = new Weight(valueImaginary);
+            const weight = new ComplexWeight(weightR, weightI);
+            const complex = weight.toComplex();
+            expect(complex.real).to.eql(weight.real.value);
+            expect(complex.imaginary).to.eql(weight.imaginary.value);
         });
     });
 });

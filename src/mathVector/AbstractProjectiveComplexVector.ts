@@ -1,6 +1,6 @@
 import { EM_REVERT_NOT_APPLICABLE_PROJECTIVE_COMPLEX } from "../ErrorMessages/ProjectiveComplexVectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
 import { Complex } from "./Complex";
 import type { ComplexWeight } from "./ComplexWeight";
@@ -22,13 +22,27 @@ export abstract class AbstractProjectiveComplexVector<D extends number> extends 
     abstract get descriptor(): ProjectiveComplexVector;
     abstract get coordinates(): Complex[];
     abstract get weight(): ComplexWeight;
-    abstract get homogeneousCoordinates(): (number | IComplex)[];
+    abstract get homogeneousComplexCoordinates(): Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): IProjectiveComplexVector;
     abstract normalize(): IProjectiveComplexVector;
     abstract toComplexVector(): IComplexVector;
     abstract toString(): string;
     
+    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveComplexVectorSpace<D>): void {
+        if(vSpace.dimension() !== vectorDim) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
+    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ProjectiveComplexVectorSpace<D>): void {
+        if(vSpace !== undefined && (vSpace.spaceType !== VectorSpaceType.PROJECTIVECOMPLEX || vSpace.dimension() !== vectorDim)) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
+    }
+
     add(other: IProjectiveComplexVector): IProjectiveComplexVector {
         return super.add(other) as IProjectiveComplexVector;
     }

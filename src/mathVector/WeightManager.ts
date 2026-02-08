@@ -1,5 +1,6 @@
 import { EM_SCALE_FACTOR_NULL, EM_SCALE_FACTOR_STRICTLY_NEGATIVE, EM_WEIGHT_MANAGEMENT_UNKOWN, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT } from "../ErrorMessages/WeightManager";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { Complex } from "./Complex";
 import { ComplexWeight } from "./ComplexWeight";
 import type { Real } from "./VectorSpaceConstructorInterface";
@@ -133,7 +134,7 @@ export class WeightManager {
                 } else if(scaled.real >= NULL_WEIGHT_TOLERANCE && scaled.imaginary < NULL_WEIGHT_TOLERANCE) {
                     return new ComplexWeight(new Weight(scaled.real, false), new Weight(0, false));
                 }
-                return new ComplexWeight(new Weight(0, false), new Weight(0, false));
+                return new ComplexWeight(new Weight(0, false), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false));
             }
             return new ComplexWeight(new Weight(scaled.real, weight.real.strictlyPositive), new Weight(scaled.imaginary, weight.imaginary.strictlyPositive));
         } else

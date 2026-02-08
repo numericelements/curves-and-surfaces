@@ -1,7 +1,8 @@
 import { EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT } from "../ErrorMessages/ComplexWeight";
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
-import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
+import { Complex } from "./Complex";
 import { IComplexWeight } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
 
@@ -22,11 +23,11 @@ export class ComplexWeight {
             this._real = real;
         }
         if(imaginary === undefined) {
-            if(this._real.strictlyPositive) {
-                this._imaginary = new Weight();
-            } else this._imaginary = new Weight(DEFAULT_WEIGHT_VALUE, false);
+            this._imaginary = new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
         } else {
-            this.assessmentInputWeightStrictlyPositiveStatus(this._real, imaginary);
+            // Deactivated method to set the imaginary weight free of strict positivity constraint
+            // because the default imaginary weight value is 0
+            // this.assessmentInputWeightStrictlyPositiveStatus(this._real, imaginary);
             this._imaginary = imaginary;
         }
     }
@@ -51,11 +52,15 @@ export class ComplexWeight {
         return { type: COMPLEXWEIGHT, real: this._real.clone(), imaginary: this._imaginary.clone() };
     }
 
+    toComplex(): Complex {
+        return new Complex(this._real.value, this._imaginary.value);
+    }
+
     clone(): ComplexWeight {
         return new ComplexWeight(this._real.clone(), this._imaginary.clone());
     }
 
-    protected assessmentInputWeightStrictlyPositiveStatus(real: Weight, imaginary: Weight): void {
+    private assessmentInputWeightStrictlyPositiveStatus(real: Weight, imaginary: Weight): void {
         if (real.strictlyPositive !== imaginary.strictlyPositive) {
             const error = new ErrorLog(this.constructor.name, "constructor");
             error.addMessage(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
