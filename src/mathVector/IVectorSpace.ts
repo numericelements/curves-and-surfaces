@@ -18,7 +18,10 @@ export interface VectorSpace<V extends Vector> {
     
     /** Vector subtraction (derived operation) */
     subtractDescriptors(a: V, b: V): V;
-    
+
+    /** Norm of a vector */
+    normDescriptor(v: V): number;
+
     /** Dimension of the vector space */
     dimension(): number;
 

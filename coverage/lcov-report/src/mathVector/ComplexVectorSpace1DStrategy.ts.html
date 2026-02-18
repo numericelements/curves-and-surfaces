@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.49% </span>
+                <span class="strong">98.27% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>110/114</span>
+                <span class='fraction'>114/116</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">94.28% </span>
+                <span class="strong">97.22% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>33/35</span>
+                <span class='fraction'>35/36</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">96.49% </span>
+                <span class="strong">98.27% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>110/114</span>
+                <span class='fraction'>114/116</span>
             </div>
         
             
@@ -176,7 +176,11 @@
 <a name='L111'></a><a href='#L111'>111</a>
 <a name='L112'></a><a href='#L112'>112</a>
 <a name='L113'></a><a href='#L113'>113</a>
-<a name='L114'></a><a href='#L114'>114</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -219,12 +223,12 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">30x</span>
 <span class="cline-any cline-yes">29x</span>
-<span class="cline-any cline-yes">29x</span>
-<span class="cline-any cline-yes">29x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">29x</span>
+<span class="cline-any cline-yes">30x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">30x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">10x</span>
@@ -291,7 +295,9 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../ErrorMessages/ComplexVectorSpace";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { DEFAULT } from "../namedConstants/VectorSpaceIdentifierManager";
 import { PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
@@ -334,9 +340,9 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
     normDescriptor(vector: ComplexVector1D): number {
         if(isVector1D(vector)) {
             return Math.sqrt(vector.real * vector.real + vector.imaginary * vector.imaginary);
-        }<span class="branch-0 cbranch-no" title="branch not covered" > else {</span>
-<span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
+        } else {
+            throw new RangeError();
+        }
     }
 &nbsp;
     dotDescriptors(a: ComplexVector1D, b: ComplexVector1D): number {
@@ -393,7 +399,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         }
     }
 &nbsp;
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector1D, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector1D {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector1D, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(DEFAULT_WEIGHT_VALUE), imaginary: new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)}): ProjectiveComplexVector1D {
         if(isVector1D(vector)) {
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [vector, weight]};
         } else {
@@ -409,7 +415,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-08T17:47:05.720Z
+                at 2026-02-18T14:53:33.438Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

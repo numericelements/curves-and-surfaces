@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">93.91% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>139/148</span>
+                <span class='fraction'>148/148</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">97.82% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>45/46</span>
+                <span class='fraction'>47/47</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">92.3% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>12/13</span>
+                <span class='fraction'>12/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">93.91% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>139/148</span>
+                <span class='fraction'>148/148</span>
             </div>
         
             
@@ -225,13 +225,13 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">7x</span>
@@ -296,7 +296,7 @@
 <span class="cline-any cline-yes">50x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-yes">104x</span>
@@ -310,10 +310,10 @@
 <span class="cline-any cline-yes">104x</span>
 <span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-yes">26x</span>
-<span class="cline-any cline-yes">26x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">28x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">28x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">33x</span>
@@ -372,14 +372,14 @@ import type { WeightManager } from "./WeightManager";
 export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceStrategy&lt;4&gt; {
     // Implementation for 4D vectors
 &nbsp;
-<span class="fstat-no" title="function not covered" >    getWeight(v: ProjectiveVector3D): Real {</span>
-<span class="cstat-no" title="statement not covered" >        if(this.isInVectorSpace(v)) {</span>
-<span class="cstat-no" title="statement not covered" >            return v.coordinates[3].weight.value;</span>
-<span class="cstat-no" title="statement not covered" >        } else {</span>
-<span class="cstat-no" title="statement not covered" >            const error = sendRangeErrorMessage(this.constructor.name, 'getWeight', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);</span>
-<span class="cstat-no" title="statement not covered" >            throw new RangeError(error.generateMessageString());</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+    // getWeight(v: ProjectiveVector3D): Real {
+    //     if(this.isInVectorSpace(v)) {
+    //         return v.coordinates[3].weight.value;
+    //     } else {
+    //         const error = sendRangeErrorMessage(this.constructor.name, 'getWeight', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+    //         throw new RangeError(error.generateMessageString());
+    //     }
+    // }
 &nbsp;
     shareSameWeightManagement(v1: ProjectiveVector3D, v2: ProjectiveVector3D, weightManager: WeightManager): boolean {
         if(this.areSameDimension(v1, v2) &amp;&amp; this.isInVectorSpace(v1)) {
@@ -421,7 +421,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         return vector;
     }
 &nbsp;
-    add(a: ProjectiveVector3D, b: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
+    addDescriptors(a: ProjectiveVector3D, b: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(a) &amp;&amp; isVector4D(b)) {
             const sumWeights = weightManager.addWeights(a.coordinates[3].weight, b.coordinates[3].weight);
             return {type: PROJECTIVEVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], {type: WEIGHT, weight: sumWeights}]};
@@ -430,7 +430,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 &nbsp;
-    subtract(a: ProjectiveVector3D, b: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
+    subtractDescriptors(a: ProjectiveVector3D, b: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(a) &amp;&amp; isVector4D(b)) {
             try {
                 const diffWeights = weightManager.subtractWeights(a.coordinates[3].weight, b.coordinates[3].weight);
@@ -443,7 +443,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 &nbsp;
-    norm(v: ProjectiveVector3D): number {
+    normDescriptor(v: ProjectiveVector3D): number {
         if(isVector4D(v)) {
             let result = 0;
             for(let i = 0; i &lt; v.coordinates.length; i++) {
@@ -458,12 +458,12 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
             }
             result = Math.sqrt(result);
             return result;
-        }<span class="branch-0 cbranch-no" title="branch not covered" > else {</span>
-<span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
+        } else {
+            throw new RangeError();
+        }
     }
 &nbsp;
-    scale(scalar: Real, v: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
+    scaleDescriptor(scalar: Real, v: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(v)) {
             try{
                 const scaledWeight = weightManager.scaleWeight(v.coordinates[3].weight, scalar);
@@ -476,7 +476,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 &nbsp;
-    clone(v: ProjectiveVector3D): ProjectiveVector3D {
+    cloneVector(v: ProjectiveVector3D): ProjectiveVector3D {
         if(isVector4D(v)) {
             const cloneWeight = v.coordinates[3].weight.clone();
             return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, weight: cloneWeight}]};
@@ -514,7 +514,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-08T17:47:05.720Z
+                at 2026-02-18T14:53:33.438Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

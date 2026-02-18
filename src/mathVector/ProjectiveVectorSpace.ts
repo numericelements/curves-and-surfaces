@@ -69,9 +69,9 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
             case MAX_DIMENSION_PROJECTIVEVECTORSPACE:
                 return new ProjectiveVectorSpace4DStrategy();
             default:
-                const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
-                throw new RangeError(error.generateMessageString());
         }
+        const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
+        throw new RangeError(error.generateMessageString());
     }
 
     get id(): string { return this._id; }
@@ -91,10 +91,6 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
     isIsomorphicTo(other: IdentifiableVectorSpace<Vector>): boolean {
         return this.spaceType === other.spaceType && 
                this.dimension() === other.dimension();
-    }
-
-    getWeight(v: ProjectiveVectorOfDimension<D>): Real {
-        return this.strategy.getWeight(v);
     }
 
     shareSameWeightManagement(v1: ProjectiveVectorOfDimension<D>, v2: ProjectiveVectorOfDimension<D>): boolean {
@@ -139,7 +135,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
     
     addDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
         try { 
-            return this.strategy.add(a, b, this.weightManager);
+            return this.strategy.addDescriptors(a, b, this.weightManager);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
@@ -152,7 +148,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
 
     subtractDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
         try {
-            return this.strategy.subtract(a, b, this.weightManager);
+            return this.strategy.subtractDescriptors(a, b, this.weightManager);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
@@ -172,7 +168,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
 
     normDescriptor(a: ProjectiveVectorOfDimension<D>): number {
         try { 
-            return this.strategy.norm(a);
+            return this.strategy.normDescriptor(a);
         } catch (error) {
             const message1 = sendRangeErrorMessage(this.constructor.name, 'norm', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message1.generateMessageString());
@@ -181,7 +177,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
 
     scaleDescriptor(scalar: Real, v: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
         try {
-            return this.strategy.scale(scalar, v, this.weightManager);
+            return this.strategy.scaleDescriptor(scalar, v, this.weightManager);
         } catch(error) {
             if(error instanceof RangeError && error.message.includes(EM_SCALE_FACTOR_STRICTLY_NEGATIVE)) {
                 const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
@@ -197,7 +193,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
 
     cloneVector(v: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
         try {
-            return this.strategy.clone(v);
+            return this.strategy.cloneVector(v);
         } catch (error) {
             const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
             throw new RangeError(message.generateMessageString());

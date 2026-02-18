@@ -109,7 +109,8 @@ export interface IProjectiveVector<D extends number = number> extends IVector {
     // Projective-specific methods
     clone(): IProjectiveVector;
     normalize(): IProjectiveVector;
-    // toRealVector(realVectorSpace?: RealVectorSpace<any>): IRealVector;
+    homogeneousTransform(tolerance?: number): IProjectiveVector;
+    toRealVector(): IRealVector;
 }
 
 export interface IProjectiveComplexVector<D extends number = number> extends IVector {
@@ -124,5 +125,5 @@ export interface IProjectiveComplexVector<D extends number = number> extends IVe
 
     // Projective-specific methods
     normalize(): IProjectiveComplexVector;
-    toComplexVector(): IRealVector | IComplexVector;
+    toComplexVector(): IComplexVector;
 }

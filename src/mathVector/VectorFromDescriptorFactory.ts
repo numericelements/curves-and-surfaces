@@ -128,3 +128,31 @@
 //         throw new Error('Cannot create projective complex vector from raw data');
 //     }
 // }
+
+// methods from ProjectiveComplexVectorSpace  to be adapted
+    // getWeight(v: ProjectiveComplexVector): IComplexWeight {
+    //     if(this.isInVectorSpace(v)) {
+    //         return this.strategy.getWeight(v);
+    //     } else {
+    //         const error = sendRangeErrorMessage(this.constructor.name, 'getWeight', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+    //         throw new RangeError(error.generateMessageString());
+    //     }
+    // }
+
+    // getRealWeight(v: ProjectiveComplexVector): Real {
+    //     if(this.isInVectorSpace(v)) {
+    //         return this.strategy.getWeight(v).real.value;
+    //     } else {
+    //         const error = sendRangeErrorMessage(this.constructor.name, 'getRealWeight', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+    //         throw new RangeError(error.generateMessageString());
+    //     }
+    // }
+
+    // getImagiinaryWeight(v: ProjectiveComplexVector): Real {
+    //     if(this.isInVectorSpace(v)) {
+    //         return this.strategy.getWeight(v).imaginary.value;
+    //     } else {
+    //         const error = sendRangeErrorMessage(this.constructor.name, 'getImaginaryWeight', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
+    //         throw new RangeError(error.generateMessageString());
+    //     }
+    // }

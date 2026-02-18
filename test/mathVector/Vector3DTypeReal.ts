@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { ANGULAR_TOL_VECTOR, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { Vector3DTypeReal } from "../../src/mathVector/Vector3DTypeReal";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 import { WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
@@ -358,5 +358,26 @@ describe('Vector 3D in real vector space: generation and operators in this vecto
             expect(projectiveVector.getCoordinate(1)).to.eql(2);
             expect(projectiveVector.getCoordinate(2)).to.eql(3);
         });
+
+        it(`cannot map a real 3D vector into a complex vector`, () => {
+            const vSpace = new RealVectorSpace(dimension);
+            const realVector1 = new Vector3DTypeReal(1, 2, 3, vSpace);
+            expect(realVector1.dimension).to.eql(dimension);
+            expect(realVector1.vectorType).to.eql(REALVECTOR3D);
+            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector1.vectorSpace.isDefault).to.eql(false);
+            expect(() => realVector1.toComplexVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        });
+
+        it(`cannot map a real 3D vector into a projective complex vector`, () => {
+            const vSpace = new RealVectorSpace(dimension);
+            const realVector1 = new Vector3DTypeReal(1, 2, 3, vSpace);
+            expect(realVector1.dimension).to.eql(dimension);
+            expect(realVector1.vectorType).to.eql(REALVECTOR3D);
+            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector1.vectorSpace.isDefault).to.eql(false);
+            expect(() => realVector1.toProjectiveComplexVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        });
+
     });
 });

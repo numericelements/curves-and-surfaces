@@ -1,10 +1,13 @@
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
+import { Complex } from "./Complex";
+import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import type { IProjectiveVector } from "./Vector";
+import type { IComplexVector, IProjectiveVector } from "./Vector";
+import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
 import type { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
@@ -103,6 +106,13 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
     toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<5>): IProjectiveVector {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
+    }
+
+    toComplexVector(complexVectorSpace?: ComplexVectorSpace<2>): Vector2DTypeComplex {
+        if (complexVectorSpace !== undefined) {
+            return new Vector2DTypeComplex(new Complex(this.x, this.y), new Complex(this.z, this.t), complexVectorSpace);
+        }
+        return new Vector2DTypeComplex(new Complex(this.x, this.y), new Complex(this.z, this.t));
     }
     
     clone(): Vector4DTypeReal {

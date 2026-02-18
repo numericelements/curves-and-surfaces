@@ -1,4 +1,6 @@
-import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { EM_WEIGHT_TOO_SMALL } from "../ErrorMessages/ProjectiveVectors";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { PROJECTIVEVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
@@ -6,6 +8,8 @@ import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { RealVectorSpace } from "./RealVectorSpace";
+import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import type { ProjectiveVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -109,6 +113,16 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
         }
     }
 
+    homogeneousTransform(tolerance?: number): ProjectiveVector3DTypeReal {
+        if(tolerance === undefined) tolerance = NULL_WEIGHT_TOLERANCE;
+        if(this.weight.value < tolerance) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'homogeneousTransform', EM_WEIGHT_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+        const normalizedCoord = this.applyHomogeneousTransformation(tolerance);
+        return new ProjectiveVector3DTypeReal(normalizedCoord[0], normalizedCoord[1], normalizedCoord[2], this._vectorSpace);
+    }
+
     add(other: ProjectiveVector3DTypeReal): ProjectiveVector3DTypeReal {
         return new ProjectiveVector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).weight, this._vectorSpace);
     }
@@ -133,25 +147,32 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
         return super.isOrthogonal(other, angularTolerance);
     }
     
-    // toRealVector(realVSpace?: RealVectorSpace<3>): Vector3DTypeReal {
-    //     if(this.weight.value < NULL_WEIGHT_TOLERANCE) {
-    //         const error = sendRangeErrorMessage(this.constructor.name, 'toVector3DReal', EM_WEIGHT_TOO_SMALL);
-    //         throw new RangeError(error.generateMessageString());
-    //     }
-    //     if(realVSpace !== undefined) {
-    //         return new Vector3DTypeReal(
-    //             this.coordinates[0] / this.coordinates[SPACE_DIMENSION - 1],
-    //             this.coordinates[1] / this.coordinates[SPACE_DIMENSION - 1],
-    //             this.coordinates[2] / this.coordinates[SPACE_DIMENSION - 1],
-    //             realVSpace
-    //         );
-    //     }
-    //     return new Vector3DTypeReal(
-    //         this.coordinates[0] / this.coordinates[SPACE_DIMENSION - 1],
-    //         this.coordinates[1] / this.coordinates[SPACE_DIMENSION - 1],
-    //         this.coordinates[2] / this.coordinates[SPACE_DIMENSION - 1]
-    //     );
-    // }
+    toRealVector(vectorSpace?: RealVectorSpace<3>): Vector3DTypeReal {
+        let vSpace = vectorSpace;
+        if(vSpace === undefined) {
+             try{
+                vSpace = getDefaultVectorSpace(VectorSpaceType.REAL, 3);
+            } catch(error) {
+                vSpace = new RealVectorSpace(3, true);
+            }
+        }
+        try {
+            const normalized = this.homogeneousTransform();
+            return new Vector3DTypeReal(
+                normalized._descriptor.coordinates[0],
+                normalized._descriptor.coordinates[1],
+                normalized._descriptor.coordinates[2],
+                vSpace
+            );
+        } catch (error) {
+            return new Vector3DTypeReal(
+                this._descriptor.coordinates[0],
+                this._descriptor.coordinates[1],
+                this._descriptor.coordinates[2],
+                vSpace
+            );
+         }
+     }
 
     toString(): string {
         return this.vectorType + `(${this._descriptor.coordinates[0]}, ${this._descriptor.coordinates[1]}, ${this._descriptor.coordinates[2]}, ${this.weight.toString()})` + ` ` + this._vectorSpace.toString();

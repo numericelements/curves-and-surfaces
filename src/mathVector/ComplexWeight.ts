@@ -60,12 +60,13 @@ export class ComplexWeight {
         return new ComplexWeight(this._real.clone(), this._imaginary.clone());
     }
 
-    private assessmentInputWeightStrictlyPositiveStatus(real: Weight, imaginary: Weight): void {
-        if (real.strictlyPositive !== imaginary.strictlyPositive) {
-            const error = new ErrorLog(this.constructor.name, "constructor");
-            error.addMessage(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
-            console.log(error.generateMessageString());
-            throw new RangeError(error.generateMessageString());
-        }
-    }
+    // This method is deactivated to be able to create imaginary weights that are not strictly positive for all categories of weight management
+    // private assessmentInputWeightStrictlyPositiveStatus(real: Weight, imaginary: Weight): void {
+    //     if (real.strictlyPositive !== imaginary.strictlyPositive) {
+    //         const error = new ErrorLog(this.constructor.name, "constructor");
+    //         error.addMessage(EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT);
+    //         console.log(error.generateMessageString());
+    //         throw new RangeError(error.generateMessageString());
+    //     }
+    // }
 }

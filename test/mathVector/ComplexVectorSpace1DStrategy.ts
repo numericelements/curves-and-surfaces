@@ -1,13 +1,16 @@
 import { expect } from "chai";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { IComplex, ComplexVector1D, IComplexWeight } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { IComplex, ComplexVector1D, IComplexWeight, ComplexVector2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { createTestComplexVector } from "./ComplexVectorSpaceTestFactory";
 import { Weight } from "../../src/mathVector/Weight";
 import { VectorSpaceIdentifierManager } from "../../src/mathVector/internal/VectorSpaceIdentifierManager";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
-import { PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
+import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
+import { EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE } from "../../src/ErrorMessages/ComplexVectorSpace";
+import { DEFAULT } from "../../src/namedConstants/VectorSpaceIdentifierManager";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 
 
 describe('ComplexVectorSpace1DStrategy', () => {
@@ -60,6 +63,12 @@ describe('ComplexVectorSpace1DStrategy', () => {
                 expect(result.imaginary).to.eql(12);
             });
 
+            it(`cannot get the norm a ComplexVector of dimension outside the current Complex vector space ${MIN_DIMENSION_COMPLEXVECTORSPACE} when the scale factor is Complex`, () => {
+                const complexVectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
+                const vec1: ComplexVector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 2}, {type: COMPLEX, real: 1, imaginary: 1}]};
+                expect(() => complexVectorSpace.normDescriptor(vec1 as unknown as ComplexVector1D)).to.throw(EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE)
+            });
+
             it(`can create a ${COMPLEX} vector with user-defined coordinates`, () => {
                 const result = vectorSpace.createVector([[1, 2]]);
                 expect(result.type).to.eql(COMPLEX);
@@ -86,8 +95,8 @@ describe('ComplexVectorSpace1DStrategy', () => {
                 expect(result.coordinates[0].real).to.eql(vec1.real);
                 expect(result.coordinates[0].imaginary).to.eql(vec1.imaginary);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-                expect(result.coordinates[1].real).to.eql(new Weight());
-                expect(result.coordinates[1].imaginary).to.eql(new Weight());
+                expect(result.coordinates[1].real).to.eql(new Weight(DEFAULT_WEIGHT_VALUE));
+                expect(result.coordinates[1].imaginary).to.eql(new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false));
             });
 
             it(`can generate the image of ${COMPLEX} vector into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D} with a user-defined weight`, () => {
@@ -132,10 +141,10 @@ describe('ComplexVectorSpace1DStrategy', () => {
                 expect(result.coordinates[0].real).to.eql(vec1.real);
                 expect(result.coordinates[0].imaginary).to.eql(vec1.imaginary);
                 expect(result.coordinates[1].type).to.eql(COMPLEXWEIGHT);
-                expect(result.coordinates[1].real).to.eql(new Weight());
+                expect(result.coordinates[1].real).to.eql(new Weight(DEFAULT_WEIGHT_VALUE));
                 expect(result.coordinates[1].real.strictlyPositive).to.eql(true);
-                expect(result.coordinates[1].imaginary).to.eql(new  Weight());;
-                expect(result.coordinates[1].imaginary.strictlyPositive).to.eql(true);
+                expect(result.coordinates[1].imaginary).to.eql(new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false));
+                expect(result.coordinates[1].imaginary.strictlyPositive).to.eql(false);
             });
 
         });

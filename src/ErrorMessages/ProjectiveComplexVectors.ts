@@ -1,3 +1,4 @@
 export const EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT = `The strictlyPositive weight status of real and/or imaginary weights is incompatible with the active weight management category`;
 export const EM_REVERT_NOT_APPLICABLE_PROJECTIVE_COMPLEX = `The revert operator is not applicable into projective complex vector space because it would produce negative weights that would be incompatible with all the weight managements available.`;
 export const EM_COMPLEX_WEIGHT_TOO_SMALL = `The magnitude of the complex weight is too small to apply this operator`;
+export const EM_NORMALIZE_NOT_APPLICABLE_PROJECTIVE_COMPLEX = `The normalize operator is not defined for projective complex vectors`;

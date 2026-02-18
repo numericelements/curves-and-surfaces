@@ -4,11 +4,12 @@ import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { Complex } from "../../src/mathVector/Complex";
 import { EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/ComplexVectorSpace";
-import { EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
+import { EM_NORM_TOO_SMALL, EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
-import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
+import { COMPLEXVECTOR2D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
+import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 
 describe('Vector 2D in complex vector space: generation and operators in this vector space', () => {
     const dimension = 2;
@@ -286,12 +287,76 @@ describe('Vector 2D in complex vector space: generation and operators in this ve
         const coordinatesA = [complex1, complex2];
         const coordinatesB = [complex3, complex4];
 
-        it(`cannot compute the norm of a vector because this method does not exist for complex vector space 2D`, () => {
+        it(`can get the real part of a component of a complex vector`, () => {
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+            const result = complexVector1.getReal(0);
+            expect(result).to.be.eql(complex1.real);
+            const result1 = complexVector1.getReal(1);
+            expect(result1).to.be.eql(complex2.real);
+        });
+
+        it(`cannot get the real part of a component of a complex vector using an index outside the correct range`, () => {
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+            expect(() => complexVector1.getReal(dimension)).to.throw(EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+        });
+
+        it(`cannot get the real part of a component of a complex vector using a negative index`, () => {
+            const coordinates = [1, 3];
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+            expect(() => complexVector1.getReal(-1)).to.throw(EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+        });
+
+        it(`can get the imaginary part of a component of a complex vector`, () => {
+            const coordinates = [1, 3];
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+            const result = complexVector1.getImaginary(0);
+            expect(result).to.be.eql(complex1.imaginary);
+            const result1 = complexVector1.getImaginary(1);
+            expect(result1).to.be.eql(complex2.imaginary);
+        });
+
+        it(`cannot get the imaginary part of a component of a complex vector using an index outside the correct range`, () => {
+            const coordinates = [1, 3];
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+            expect(() => complexVector1.getImaginary(dimension)).to.throw(EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+        });
+
+        it(`cannot get the imaginary part of a component of a complex vector using a negative index`, () => {
+            const coordinates = [1, 3];
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+            expect(() => complexVector1.getImaginary(-1)).to.throw(EM_VECTOR_COORDINATE_INDEX_OUT_RANGE);
+        });
+
+        it(`can compute the norm of a vector in 2D complex vector space`, () => {
             const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
             expect(complexVector1.dimension).to.eql(dimension);
             expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector1.vectorSpace.isDefault).to.eql(true);
-            expect(() => complexVector1.norm()).to.throw(EM_TRANSFORMATION_NOT_AVAILABLE);
+            expect(complexVector1.norm()).to.eql(Math.sqrt(complex1.magnitude() ** 2 + complex2.magnitude() ** 2));
         });
 
         it(`can get the vector descriptor as a string`, () => {
@@ -305,12 +370,71 @@ describe('Vector 2D in complex vector space: generation and operators in this ve
             expect(string).to.eql(COMPLEXVECTOR2D + `(${complex1.toString()}, ${complex2.toString()})` + ` ` + complexVector1.vectorSpace.toString());
         });
 
-        it(`cannot normalize a complex vector because this method does not exist for complex vector space 2D`, () => {
+        it(`can normalize a complex vector into a 2D default complex vector space using the default tolerance`, () => {
             const complexVector1 = new Vector2DTypeComplex(complex1, complex2);
             expect(complexVector1.dimension).to.eql(dimension);
             expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complexVector1.vectorSpace.isDefault).to.eql(true);
-            expect(() => complexVector1.normalize()).to.throw(EM_TRANSFORMATION_NOT_AVAILABLE);
+            const normalizedVector = complexVector1.normalize();
+            expect(normalizedVector.dimension).to.eql(dimension);
+            expect(normalizedVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(normalizedVector.vectorSpace.isDefault).to.eql(true);
+            const norm = complexVector1.norm();
+            expect(normalizedVector.norm()).to.be.closeTo(1, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[0].real).to.be.closeTo(complex1.real / norm, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[0].imaginary).to.be.closeTo(complex1.imaginary / norm, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[1].real).to.be.closeTo(complex2.real / norm, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[1].imaginary).to.be.closeTo(complex2.imaginary / norm, TOLERANCE_FLOAT);
+        });
+
+        it(`cannot normalize a complex vector into a 2D default complex vector space when its norm is smaller than the default tolerance`, () => {
+            const smallComplex1 = new Complex(LINEAR_TOL_VECTOR / 2, 0);
+            const smallComplex2 = new Complex(0, LINEAR_TOL_VECTOR / 2);
+            const complexVector1 = new Vector2DTypeComplex(smallComplex1, smallComplex2);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+            expect(complexVector1.norm()).to.be.lessThan(LINEAR_TOL_VECTOR);
+            expect(() => complexVector1.normalize()).to.throw(EM_NORM_TOO_SMALL);
+        });
+
+        it(`can normalize a complex vector into a 2D default complex vector space using a custom tolerance`, () => {
+            const smallComplex1 = new Complex(LINEAR_TOL_VECTOR / 2, 0);
+            const smallComplex2 = new Complex(0, LINEAR_TOL_VECTOR / 2);
+            const complexVector1 = new Vector2DTypeComplex(smallComplex1, smallComplex2);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(true);
+            const normalizedVector = complexVector1.normalize(LINEAR_TOL_VECTOR / 10);
+            expect(normalizedVector.dimension).to.eql(dimension);
+            expect(normalizedVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(normalizedVector.vectorSpace.isDefault).to.eql(true);
+            const norm = complexVector1.norm();
+            expect(normalizedVector.norm()).to.be.closeTo(1, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[0].real).to.be.closeTo(smallComplex1.real / norm, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[0].imaginary).to.be.closeTo(smallComplex1.imaginary / norm, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[1].real).to.be.closeTo(smallComplex2.real / norm, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[1].imaginary).to.be.closeTo(smallComplex2.imaginary / norm, TOLERANCE_FLOAT);
+        });
+
+        it(`can normalize a complex vector into a 2D user-defined complex vector space using the default tolerance`, () => {
+            const vSpace = new ComplexVectorSpace(dimension);
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2, vSpace);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(false);
+            expect(complexVector1.vectorSpace).to.eql(vSpace);
+            const normalizedVector = complexVector1.normalize();
+            expect(normalizedVector.dimension).to.eql(dimension);
+            expect(normalizedVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(normalizedVector.vectorSpace.isDefault).to.eql(false);
+            expect(normalizedVector.vectorSpace).to.eql(vSpace);
+            const norm = complexVector1.norm();
+            expect(normalizedVector.norm()).to.be.closeTo(1, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[0].real).to.be.closeTo(complex1.real / norm, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[0].imaginary).to.be.closeTo(complex1.imaginary / norm, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[1].real).to.be.closeTo(complex2.real / norm, TOLERANCE_FLOAT);
+            expect(normalizedVector.coordinates[1].imaginary).to.be.closeTo(complex2.imaginary / norm, TOLERANCE_FLOAT);
         });
 
         it(`cannot check the equality of vectors belonging to different vector spaces `, () => {
@@ -355,6 +479,61 @@ describe('Vector 2D in complex vector space: generation and operators in this ve
             expect(complexVector1.vectorSpace.isDefault).to.eql(false);
             const complexVector2 = new Vector2DTypeComplex(complex3, complex4, vSpace);
             expect(() => complexVector1.dot(complexVector2)).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        });
+
+        it(`cannot map a complex 2D vector into a projective complex vector`, () => {
+            const vSpace = new ComplexVectorSpace(dimension);
+            const complexVector = new Vector2DTypeComplex(1, 2, 3, 5, vSpace);
+            expect(complexVector.dimension).to.eql(dimension);
+            expect(complexVector.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector.vectorSpace.isDefault).to.eql(false);
+            expect(() => complexVector.toProjectiveComplexVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        });
+
+        it(`can map a 2D complex vector into a 4D real vector of a default real vector space`, () => {
+            DefaultVectorSpaces.reset();
+            const complex1 = new Complex(1, 3);
+            const complex2 = new Complex(2, 4);
+            const vSpace = new ComplexVectorSpace(dimension);
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2, vSpace);
+            const realVector = complexVector1.toRealVector();
+            expect(realVector.dimension).to.eql(4);
+            expect(realVector.vectorType).to.eql(REALVECTOR4D);
+            expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector.vectorSpace.isDefault).to.eql(true);
+            expect(realVector.getCoordinate(0)).to.eql(complex1.real);
+            expect(realVector.getCoordinate(1)).to.eql(complex1.imaginary);
+            expect(realVector.getCoordinate(2)).to.eql(complex2.real);
+            expect(realVector.getCoordinate(3)).to.eql(complex2.imaginary);
+        });
+
+        it(`can map a 2D complex vector into a 4D real vector of a custom real vector space`, () => {
+            DefaultVectorSpaces.reset();
+            const complex1 = new Complex(1, 3);
+            const complex2 = new Complex(2, 4);
+            const vSpace = new ComplexVectorSpace(dimension);
+            const complexVector1 = new Vector2DTypeComplex(complex1, complex2, vSpace);
+            const realVSpace = new RealVectorSpace(4);
+            const realVector = complexVector1.toRealVector(realVSpace);
+            expect(realVector.dimension).to.eql(4);
+            expect(realVector.vectorType).to.eql(REALVECTOR4D);
+            expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector.vectorSpace.isDefault).to.eql(false);
+            expect(realVector.getCoordinate(0)).to.eql(complex1.real);
+            expect(realVector.getCoordinate(1)).to.eql(complex1.imaginary);
+            expect(realVector.getCoordinate(2)).to.eql(complex2.real);
+            expect(realVector.getCoordinate(3)).to.eql(complex2.imaginary);
+        });
+
+        it(`cannot map a complex 2D vector into a projective complex vector`, () => {
+            const vSpace = new ComplexVectorSpace(dimension);
+            const complexVector1 = new Vector2DTypeComplex(1, 2, 3, 5, vSpace);
+            expect(complexVector1.dimension).to.eql(dimension);
+            expect(complexVector1.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector1.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector1.vectorSpace.isDefault).to.eql(false);
+            expect(() => complexVector1.toProjectiveVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         });
     });
 });

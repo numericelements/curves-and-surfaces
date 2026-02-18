@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.47% </span>
+                <span class="strong">81.69% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>117/153</span>
+                <span class='fraction'>125/153</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">85.71% </span>
+                <span class="strong">84.61% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>30/35</span>
+                <span class='fraction'>33/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>8/12</span>
+                <span class='fraction'>9/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.47% </span>
+                <span class="strong">81.69% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>117/153</span>
+                <span class='fraction'>125/153</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -288,33 +288,33 @@
 <span class="cline-any cline-yes">24x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">11x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">11x</span>
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">7x</span>
@@ -325,7 +325,7 @@
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">11x</span>
+<span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">31x</span>
@@ -372,11 +372,11 @@ import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { PROJECTIVECOMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
-import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors, subtractComplexWeightsUsingDescriptors } from "./ComplexNumberFactory";
+import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import { ComplexWeight } from "./ComplexWeight";
 import type { IProjectiveComplexVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveComplexVectorSpaceStrategy";
 import type { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVector1D, Real, } from "./VectorSpaceConstructorInterface";
-import { isVector1D, isVector2D } from "./VectorSpaceUtilities";
+import { isVector2D } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import type { WeightManager } from "./WeightManager";
 &nbsp;
@@ -425,7 +425,7 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
 <span class="cstat-no" title="statement not covered" >        return vector;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-    add(a: ProjectiveComplexVector, b: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector1D {
+    addDescriptors(a: ProjectiveComplexVector, b: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector1D {
         if(isVector2D(a) &amp;&amp; isVector2D(b)) {
             const complexWa = new ComplexWeight(a.coordinates[1].real, a.coordinates[1].imaginary);
             const complexWb = new ComplexWeight(b.coordinates[1].real, b.coordinates[1].imaginary);
@@ -439,19 +439,19 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
 <span class="cstat-no" title="statement not covered" >        }</span>
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    norm(v: ProjectiveComplexVector): number {</span>
-<span class="cstat-no" title="statement not covered" >        if(isVector1D(v)) {</span>
-<span class="cstat-no" title="statement not covered" >            let result = 0;</span>
-<span class="cstat-no" title="statement not covered" >            result = Math.sqrt(v.coordinates[0].real * v.coordinates[0].real + v.coordinates[0].imaginary * v.coordinates[0].imaginary);</span>
-<span class="cstat-no" title="statement not covered" >            result+= v.coordinates[1].real.value * v.coordinates[1].real.value + v.coordinates[1].imaginary.value * v.coordinates[1].imaginary.value; </span>
-<span class="cstat-no" title="statement not covered" >            result = Math.sqrt(result);</span>
-<span class="cstat-no" title="statement not covered" >            return result;</span>
-<span class="cstat-no" title="statement not covered" >        } else {</span>
+    normDescriptor(v: ProjectiveComplexVector): number {
+        if(isVector2D(v)) {
+            let result = 0;
+            result = v.coordinates[0].real * v.coordinates[0].real + v.coordinates[0].imaginary * v.coordinates[0].imaginary;
+            result+= v.coordinates[1].real.value * v.coordinates[1].real.value + v.coordinates[1].imaginary.value * v.coordinates[1].imaginary.value; 
+            result = Math.sqrt(result);
+            return result;
+        }<span class="branch-0 cbranch-no" title="branch not covered" > else {</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+    }
 &nbsp;
-    scale(scaleFactor: IComplex | number, vector: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
+    scaleDescriptor(scaleFactor: IComplex | number, vector: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
         if (typeof scaleFactor === 'number') {
             if(vector.coordinates[1].real.strictlyPositive) {
                 const scaledWeight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.value * scaleFactor), imaginary: new Weight(vector.coordinates[1].imaginary.value * scaleFactor)};
@@ -479,7 +479,7 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
         }
     }
 &nbsp;
-    subtract(a: ProjectiveComplexVector, b: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
+    subtractDescriptors(a: ProjectiveComplexVector, b: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
         if(isVector2D(a) &amp;&amp; isVector2D(b)) {
             const complexWa = new ComplexWeight(a.coordinates[1].real, a.coordinates[1].imaginary);
             const complexWb = new ComplexWeight(b.coordinates[1].real, b.coordinates[1].imaginary);
@@ -493,7 +493,7 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
 <span class="cstat-no" title="statement not covered" >        }</span>
     }
 &nbsp;
-    clone(vector: ProjectiveComplexVector): ProjectiveComplexVector {
+    cloneVector(vector: ProjectiveComplexVector): ProjectiveComplexVector {
         return {type: vector.type, coordinates: [
             {type: vector.coordinates[0].type, real: vector.coordinates[0].real, imaginary: vector.coordinates[0].imaginary},
             {type: vector.coordinates[1].type, real: vector.coordinates[1].real, imaginary: vector.coordinates[1].imaginary}
@@ -526,7 +526,7 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-08T17:47:06.797Z
+                at 2026-02-18T14:53:34.666Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

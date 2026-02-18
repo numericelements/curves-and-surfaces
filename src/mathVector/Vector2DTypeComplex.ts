@@ -6,6 +6,8 @@ import { AbstractComplexVector } from "./AbstractComplexVector";
 import { Complex } from "./Complex";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { RealVectorSpace } from "./RealVectorSpace";
+import { Vector4DTypeReal } from "./Vector4DTypeReal";
 import type { IComplex, ComplexVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
@@ -134,6 +136,11 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2> {
     
     toString(): string {
         return this.vectorType + `(${this.coordinates[0].toString()}, ${this.coordinates[1].toString()})` + ` ` + this._vectorSpace.toString();
+    }
+
+    toRealVector(realVectorSpace?: RealVectorSpace<4>): Vector4DTypeReal {
+        if(realVectorSpace !== undefined) return new Vector4DTypeReal(this.getCoordinate(0).real, this.getCoordinate(0).imaginary, this.getCoordinate(1).real, this.getCoordinate(1).imaginary, realVectorSpace);
+        return new Vector4DTypeReal(this.getCoordinate(0).real, this.getCoordinate(0).imaginary, this.getCoordinate(1).real, this.getCoordinate(1).imaginary);
     }
 
     clone(): Vector2DTypeComplex {

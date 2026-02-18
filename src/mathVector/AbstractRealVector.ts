@@ -1,11 +1,13 @@
-import { ANGULAR_TOL_VECTOR, EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { RealVectorSpace } from "./RealVectorSpace";
-import type { IProjectiveVector, IRealVector } from "./Vector";
+import type { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector, IVector } from "./Vector";
 import type { RealVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { ComplexVectorSpace } from "./ComplexVectorSpace";
+import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 
 /**
  * Abstract base for real vectors
@@ -23,7 +25,6 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
     abstract get vectorSpace(): RealVectorSpace<D>;   
     abstract get descriptor(): RealVector;
     abstract get coordinates(): number[];
-    abstract toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector;
     abstract getCoordinate(index: number): number;
     abstract clone(): IRealVector;
 
@@ -52,6 +53,10 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
     scale(scalar: number): IRealVector {
         const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
         return this.createVectorFromDescriptor(result);
+    }
+
+    normalize(tolerance?: number): IRealVector {
+        return super.normalize(tolerance) as IRealVector;
     }
 
     dot(other: IRealVector): number {
@@ -106,6 +111,21 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
         const angle = Math.acos(Math.abs(dotProduct / (thisNorm * otherNorm)));
         const halfPi = Math.atan(1) * 2;
         return (halfPi - angle) <= angularTolerance;
+    }
+
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector {
+        const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
+    }
+
+    toComplexVector(complexVectorSpace?: ComplexVectorSpace<any>): IComplexVector {
+        const error = sendRangeErrorMessage(this.constructor.name, 'toComplexVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
+    }
+
+    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector {
+        const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveComplexVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
     }
 
     protected abstract createVectorFromDescriptor(descriptor: RealVector): IRealVector;

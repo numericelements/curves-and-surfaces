@@ -44,7 +44,7 @@ export class OpenBSplineR1toRnComplexProjectiveVectorStrategy extends AbstractOP
     euclideanDistances(): number[] {
         const distances: number[] = [];
         for (let i = 0; i < this.openBSplineR1toRn.controlPolygon.length - 1; i += 1) {
-            distances.push(this.vectorSpace.norm(this.vectorSpace.subtractDescriptors(this.openBSplineR1toRn.controlPolygon.getVector(i + 1) as ProjectiveComplexVector, this.openBSplineR1toRn.controlPolygon.getVector(i) as ProjectiveComplexVector)));
+            distances.push(this.vectorSpace.normDescriptor(this.vectorSpace.subtractDescriptors(this.openBSplineR1toRn.controlPolygon.getVector(i + 1) as ProjectiveComplexVector, this.openBSplineR1toRn.controlPolygon.getVector(i) as ProjectiveComplexVector)));
         }
         return distances;
     }

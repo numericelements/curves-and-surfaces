@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.08% </span>
+                <span class="strong">77.96% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>76/115</span>
+                <span class='fraction'>92/118</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">93.75% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>15/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">83.33% </span>
-                <span class="quiet">Branches</span>
+                <span class="quiet">Functions</span>
                 <span class='fraction'>10/12</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">72.72% </span>
-                <span class="quiet">Functions</span>
-                <span class='fraction'>8/11</span>
-            </div>
-        
-            
-            <div class='fl pad1y space-right2'>
-                <span class="strong">66.08% </span>
+                <span class="strong">77.96% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>76/115</span>
+                <span class='fraction'>92/118</span>
             </div>
         
             
@@ -177,7 +177,10 @@
 <a name='L112'></a><a href='#L112'>112</a>
 <a name='L113'></a><a href='#L113'>113</a>
 <a name='L114'></a><a href='#L114'>114</a>
-<a name='L115'></a><a href='#L115'>115</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -208,19 +211,18 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">167x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">167x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">201x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">201x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">17x</span>
@@ -231,17 +233,21 @@
 <span class="cline-any cline-yes">18x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -299,7 +305,7 @@ import { Complex } from "./Complex";
 import type { ComplexWeight } from "./ComplexWeight";
 import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { IComplexVector, IProjectiveComplexVector } from "./Vector";
-import type { IComplex, ProjectiveComplexVector } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveComplexVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 &nbsp;
 /**
@@ -318,22 +324,21 @@ export abstract class AbstractProjectiveComplexVector&lt;D extends number&gt; ex
     abstract get homogeneousComplexCoordinates(): Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): IProjectiveComplexVector;
-    abstract normalize(): IProjectiveComplexVector;
     abstract toComplexVector(): IComplexVector;
     abstract toString(): string;
     
     protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveComplexVectorSpace&lt;D&gt;): void {
-        if(vSpace.dimension() !== vectorDim) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);</span>
-<span class="cstat-no" title="statement not covered" >            throw new RangeError(error.generateMessageString());</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
+        if(vSpace.dimension() !== vectorDim) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
     }
 &nbsp;
     protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ProjectiveComplexVectorSpace&lt;D&gt;): void {
-        if(vSpace !== undefined &amp;&amp; (vSpace.spaceType !== VectorSpaceType.PROJECTIVECOMPLEX || vSpace.dimension() !== vectorDim)) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);</span>
-<span class="cstat-no" title="statement not covered" >            throw new RangeError(error.generateMessageString());</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
+        if(vSpace !== undefined &amp;&amp; (vSpace.spaceType !== VectorSpaceType.PROJECTIVECOMPLEX || vSpace.dimension() !== vectorDim)) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
+            throw new RangeError(error.generateMessageString());
+        }
     }
 &nbsp;
     add(other: IProjectiveComplexVector): IProjectiveComplexVector {
@@ -344,18 +349,22 @@ export abstract class AbstractProjectiveComplexVector&lt;D extends number&gt; ex
         return super.subtract(other) as IProjectiveComplexVector;
     }
 &nbsp;
+    normalize(tolerance?: number): IProjectiveComplexVector {
+        return super.normalize(tolerance) as IProjectiveComplexVector;
+    }
+&nbsp;
     scale(scalar: number): IProjectiveComplexVector;
     scale(scalar: Complex): IProjectiveComplexVector;
-<span class="fstat-no" title="function not covered" >    scale(scalar: number | Complex): IProjectiveComplexVector {</span>
-<span class="cstat-no" title="statement not covered" >        let result: ProjectiveComplexVector;</span>
-<span class="cstat-no" title="statement not covered" >        if(scalar instanceof Complex) {</span>
+    scale(scalar: number | Complex): IProjectiveComplexVector {
+        let result: ProjectiveComplexVector;
+        if(scalar instanceof Complex) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >            const scalarDescriptor = scalar.toDescriptor();</span>
 <span class="cstat-no" title="statement not covered" >            result = this._vectorSpace.scaleDescriptor(scalarDescriptor, this.descriptor);</span>
-<span class="cstat-no" title="statement not covered" >        } else {</span>
-<span class="cstat-no" title="statement not covered" >            result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >        return this.createVectorFromDescriptor(result);</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+        } else {
+            result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
+        }
+        return this.createVectorFromDescriptor(result);
+    }
 &nbsp;
     revert(): IProjectiveComplexVector {
         const error = sendRangeErrorMessage(this.constructor.name, 'revert', EM_REVERT_NOT_APPLICABLE_PROJECTIVE_COMPLEX);
@@ -412,7 +421,7 @@ export abstract class AbstractProjectiveComplexVector&lt;D extends number&gt; ex
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-08T17:47:05.720Z
+                at 2026-02-18T14:53:33.438Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

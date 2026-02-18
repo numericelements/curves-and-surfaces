@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">94.11% </span>
+                <span class="strong">96.21% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>128/136</span>
+                <span class='fraction'>127/132</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.2% </span>
+                <span class="strong">88.46% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>25/29</span>
+                <span class='fraction'>23/26</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">94.11% </span>
+                <span class="strong">96.21% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>128/136</span>
+                <span class='fraction'>127/132</span>
             </div>
         
             
@@ -195,11 +195,7 @@
 <a name='L130'></a><a href='#L130'>130</a>
 <a name='L131'></a><a href='#L131'>131</a>
 <a name='L132'></a><a href='#L132'>132</a>
-<a name='L133'></a><a href='#L133'>133</a>
-<a name='L134'></a><a href='#L134'>134</a>
-<a name='L135'></a><a href='#L135'>135</a>
-<a name='L136'></a><a href='#L136'>136</a>
-<a name='L137'></a><a href='#L137'>137</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L133'></a><a href='#L133'>133</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -248,28 +244,24 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">205x</span>
-<span class="cline-any cline-yes">205x</span>
-<span class="cline-any cline-yes">205x</span>
-<span class="cline-any cline-yes">205x</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">46x</span>
-<span class="cline-any cline-yes">203x</span>
-<span class="cline-any cline-yes">203x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">223x</span>
+<span class="cline-any cline-yes">223x</span>
+<span class="cline-any cline-yes">223x</span>
+<span class="cline-any cline-yes">52x</span>
+<span class="cline-any cline-yes">52x</span>
+<span class="cline-any cline-yes">52x</span>
+<span class="cline-any cline-yes">223x</span>
+<span class="cline-any cline-yes">223x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">35x</span>
-<span class="cline-any cline-yes">35x</span>
-<span class="cline-any cline-yes">35x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">18x</span>
-<span class="cline-any cline-yes">16x</span>
-<span class="cline-any cline-yes">16x</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">42x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">20x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">59x</span>
@@ -336,10 +328,10 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { EM_NORM_TOO_SMALL, EM_VECTOR_NOT_APPLICABLE_TO_NORM, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
+import { EM_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import type { IVector } from "./Vector";
-import type { IComplex, Vector } from "./VectorSpaceConstructorInterface";
+import type { Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Complex } from "./Complex";
 import type { IdentifiableVectorSpace } from "./IVectorSpace";
@@ -385,17 +377,13 @@ export abstract class AbstractVector&lt;VS extends IdentifiableVectorSpace&lt;V&
 &nbsp;
     norm(tolerance?: number): number {
         if(tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
-        if ('normDescriptor' in this._vectorSpace &amp;&amp; typeof this._vectorSpace.normDescriptor === 'function') {
-            const norm = (this._vectorSpace as any).normDescriptor(this.descriptor);
-            if(norm &lt; tolerance) {
-                const warning = new WarningLog(this.constructor.name, "norm", WM_VECTOR_NORM_TOO_SMALL);
-                warning.logMessage();
-            }
-            return norm;
+        const norm = this._vectorSpace.normDescriptor(this.descriptor);
+        if(norm &lt; tolerance) {
+            const warning = new WarningLog(this.constructor.name, "norm", WM_VECTOR_NORM_TOO_SMALL);
+            warning.logMessage();
         }
-<span class="cstat-no" title="statement not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >        const error = sendRangeErrorMessage(this.constructor.name, 'norm', EM_VECTOR_NOT_APPLICABLE_TO_NORM);</span></span>
-<span class="cstat-no" title="statement not covered" >        throw new RangeError(error.generateMessageString());</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+        return norm;
+    }
 &nbsp;
     normalize(tolerance?: number): IVector {
         if(tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
@@ -410,7 +398,7 @@ export abstract class AbstractVector&lt;VS extends IdentifiableVectorSpace&lt;V&
     dot(other: IVector): number {
         this.validateCompatibility(other);
         if ('dotDescriptors' in this._vectorSpace &amp;&amp; typeof this._vectorSpace.dotDescriptors === 'function') {
-            return (this._vectorSpace as any).dotDescriptors(this.descriptor, other.descriptor);
+            return this._vectorSpace.dotDescriptors(this.descriptor, other.descriptor);
         }
 <span class="cstat-no" title="statement not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >        throw new Error('Dot product not available for this vector space');</span></span>
 <span class="cstat-no" title="statement not covered" >    }</span>
@@ -478,7 +466,7 @@ export abstract class AbstractVector&lt;VS extends IdentifiableVectorSpace&lt;V&
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-08T17:47:06.797Z
+                at 2026-02-18T14:53:34.666Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

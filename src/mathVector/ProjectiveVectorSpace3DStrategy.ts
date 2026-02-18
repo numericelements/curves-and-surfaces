@@ -14,14 +14,14 @@ import type { WeightManager } from "./WeightManager";
 export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceStrategy<3> {
     // Implementation for 3D vectors
 
-    getWeight(v: ProjectiveVector2D): Real {
-        if(this.isInVectorSpace(v)) {
-            return v.coordinates[2].weight.value;
-        } else {
-            const error = sendRangeErrorMessage(this.constructor.name, 'getWeight', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
-            throw new RangeError(error.generateMessageString());
-        }
-    }
+    // getWeight(v: ProjectiveVector2D): Real {
+    //     if(this.isInVectorSpace(v)) {
+    //         return v.coordinates[2].weight.value;
+    //     } else {
+    //         const error = sendRangeErrorMessage(this.constructor.name, 'getWeight', EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+    //         throw new RangeError(error.generateMessageString());
+    //     }
+    // }
 
     shareSameWeightManagement(v1: ProjectiveVector2D, v2: ProjectiveVector2D, weightManager: WeightManager): boolean {
         if(this.areSameDimension(v1, v2) && this.isInVectorSpace(v1)) {
@@ -63,7 +63,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         return vector;
     }
 
-    add(a: ProjectiveVector2D, b: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
+    addDescriptors(a: ProjectiveVector2D, b: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
         if(isVector3D(a) && isVector3D(b)) {
             const sumWeights = weightManager.addWeights(a.coordinates[2].weight, b.coordinates[2].weight);
             return {type: PROJECTIVEVECTOR2D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], {type: WEIGHT, weight: sumWeights}]};
@@ -72,7 +72,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    subtract(a: ProjectiveVector2D, b: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
+    subtractDescriptors(a: ProjectiveVector2D, b: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
         if(isVector3D(a) && isVector3D(b)) {
             try {
                 const diffWeights = weightManager.subtractWeights(a.coordinates[2].weight, b.coordinates[2].weight);
@@ -85,7 +85,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    norm(v: ProjectiveVector2D): number {
+    normDescriptor(v: ProjectiveVector2D): number {
         if(isVector3D(v)) {
             let result = 0;
             for(let i = 0; i < v.coordinates.length; i++) {
@@ -105,7 +105,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    scale(scalar: Real, v: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
+    scaleDescriptor(scalar: Real, v: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
         if(isVector3D(v)) {
             try{
                 const scaledWeight = weightManager.scaleWeight(v.coordinates[2].weight, scalar);
@@ -118,7 +118,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         }
     }
 
-    clone(v: ProjectiveVector2D): ProjectiveVector2D {
+    cloneVector(v: ProjectiveVector2D): ProjectiveVector2D {
         if(isVector3D(v)) {
             const clonedWeight = v.coordinates[2].weight.clone();
             return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, weight: clonedWeight}]};

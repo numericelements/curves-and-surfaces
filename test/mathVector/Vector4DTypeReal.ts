@@ -3,8 +3,10 @@ import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 import { ANGULAR_TOL_VECTOR, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { Vector4DTypeReal } from "../../src/mathVector/Vector4DTypeReal";
-import { REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
+import { COMPLEXVECTOR2D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
+import { Complex } from "../../src/mathVector/Complex";
+import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 
 describe('Vector 4D in real vector space: generation and operators in this vector space', () => {
     const dimension = 4;
@@ -249,5 +251,49 @@ describe('Vector 4D in real vector space: generation and operators in this vecto
             expect(realVector1.vectorSpace.isDefault).to.eql(false);
             expect(() => realVector1.toProjectiveVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         });
+
+        it(`cannot map a real 4D vector into a projective complex vector`, () => {
+            const vSpace = new RealVectorSpace(dimension);
+            const realVector1 = new Vector4DTypeReal(1, 2, 3, 5, vSpace);
+            expect(realVector1.dimension).to.eql(dimension);
+            expect(realVector1.vectorType).to.eql(REALVECTOR4D);
+            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector1.vectorSpace.isDefault).to.eql(false);
+            expect(() => realVector1.toProjectiveComplexVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        });
+
+        it(`can map a real 4D vector into a 2D complex vector of a default complex vector space`, () => {
+            const vSpace = new RealVectorSpace(dimension);
+            const realVector1 = new Vector4DTypeReal(1, 2, 3, 5, vSpace);
+            expect(realVector1.dimension).to.eql(dimension);
+            expect(realVector1.vectorType).to.eql(REALVECTOR4D);
+            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector1.vectorSpace.isDefault).to.eql(false);
+            const complexVector = realVector1.toComplexVector();
+            expect(complexVector.dimension).to.eql(2);
+            expect(complexVector.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector.vectorSpace.isDefault).to.eql(true);
+            expect(complexVector.coordinates[0]).to.eql(new Complex(1, 2));
+            expect(complexVector.coordinates[1]).to.eql(new Complex(3, 5));
+        });
+
+        it(`can map a real 4D vector into a 2D complex vector of a custom complex vector space`, () => {
+            const vSpace = new RealVectorSpace(dimension);
+            const realVector1 = new Vector4DTypeReal(1, 2, 3, 5, vSpace);
+            expect(realVector1.dimension).to.eql(dimension);
+            expect(realVector1.vectorType).to.eql(REALVECTOR4D);
+            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector1.vectorSpace.isDefault).to.eql(false);
+            const complexVS = new ComplexVectorSpace(2);
+            const complexVector = realVector1.toComplexVector(complexVS);
+            expect(complexVector.dimension).to.eql(2);
+            expect(complexVector.vectorType).to.eql(COMPLEXVECTOR2D);
+            expect(complexVector.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complexVector.vectorSpace.isDefault).to.eql(false);
+            expect(complexVector.coordinates[0]).to.eql(new Complex(1, 2));
+            expect(complexVector.coordinates[1]).to.eql(new Complex(3, 5));
+        });
+
     });
 });

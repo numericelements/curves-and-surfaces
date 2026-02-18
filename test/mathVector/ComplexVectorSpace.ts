@@ -15,6 +15,8 @@ import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
 import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
+import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
+import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
 
 describe('ComplexVectorSpace', () => {
 
@@ -356,6 +358,58 @@ describe('ComplexVectorSpace', () => {
             expect(() => complexVectorSpace.createComplexWeight(2, -2)).to.throw(EM_IMAGINARYWEIGHT_NEGATIVE);
         });
 
+        it(`can compare 1D vector spaces to a 1D complex vector space of same dimension and conclude their are isomorphic`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(1);
+            expect(complexVectorSpace.isDefault).to.eql(false);
+            const complexVectorSpace1 = new ComplexVectorSpace(1);
+            expect(complexVectorSpace1.isDefault).to.eql(false);
+            expect(complexVectorSpace.id).to.not.eql(complexVectorSpace1.id);
+            expect(complexVectorSpace.isIsomorphicTo(complexVectorSpace1)).to.eql(true);
+
+            const complexVectorSpace2 = new ComplexVectorSpace(1, true);
+            expect(complexVectorSpace2.isDefault).to.eql(true);
+            expect(complexVectorSpace.id).to.not.eql(complexVectorSpace2.id);
+            expect(complexVectorSpace.isIsomorphicTo(complexVectorSpace2)).to.eql(true);
+        });
+
+        it(`can compare 2D vector spaces to a 2D complex vector space of same dimension and conclude their are isomorphic`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(2);
+            expect(complexVectorSpace.isDefault).to.eql(false);
+            const complexVectorSpace1 = new ComplexVectorSpace(2);
+            expect(complexVectorSpace1.isDefault).to.eql(false);
+            expect(complexVectorSpace.id).to.not.eql(complexVectorSpace1.id);
+            expect(complexVectorSpace.isIsomorphicTo(complexVectorSpace1)).to.eql(true);
+
+            const complexVectorSpace2 = new ComplexVectorSpace(2, true);
+            expect(complexVectorSpace2.isDefault).to.eql(true);
+            expect(complexVectorSpace.id).to.not.eql(complexVectorSpace2.id);
+            expect(complexVectorSpace.isIsomorphicTo(complexVectorSpace2)).to.eql(true);
+        });
+
+        it(`can compare a 1D vector space to a 2D real vector space and conclude their are isomorphic`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(1);
+            const realVectorSpace = new RealVectorSpace(2);
+            expect(complexVectorSpace.isIsomorphicTo(realVectorSpace)).to.eql(true);
+        });
+
+        it(`can compare vector spaces to a Complex Vector space and check if they are isomorphic`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(2);
+            const complexVectorSpace2 = new ComplexVectorSpace(1);
+            expect(complexVectorSpace.isIsomorphicTo(complexVectorSpace2)).to.eql(false);
+
+            const complexVectorSpace3 = new ComplexVectorSpace(2);
+            expect(complexVectorSpace.isIsomorphicTo(complexVectorSpace3)).to.eql(true);
+        });
+
+        it(`can compare vector spaces of different typesto a RealVector space and check if they are isomorphic`, () => {
+            const complexVectorSpace = new ComplexVectorSpace(2);
+            const realVS = new RealVectorSpace(2);
+            expect(complexVectorSpace.isIsomorphicTo(realVS)).to.eql(false);
+
+            const complexVectorSpace2 = new ComplexVectorSpace(2);
+            const projectiveComplexVS = new ProjectiveComplexVectorSpace(2);
+            expect(complexVectorSpace2.isIsomorphicTo(projectiveComplexVS)).to.eql(false);
+        });
     });
 
 });

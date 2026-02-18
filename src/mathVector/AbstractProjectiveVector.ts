@@ -1,10 +1,11 @@
 import { EM_REVERT_NOT_APPLICABLE, EM_WEIGHT_TOO_SMALL } from "../ErrorMessages/ProjectiveVectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
+import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
-import type { IProjectiveVector } from "./Vector";
+import type { IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
 import type { ProjectiveVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Weight } from "./Weight";
@@ -30,7 +31,8 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
     abstract get homogeneousCoordinates(): number[];
     abstract getCoordinate(index: number): number;
     abstract clone(): IProjectiveVector;
-    // abstract toRealVector(realVectorSpace?: RealVectorSpace<any>): IRealVector;
+    abstract toRealVector(): IRealVector;
+    abstract homogeneousTransform(tolerance?: number): IProjectiveVector;
     abstract toString(): string;
 
     protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveVectorSpace<D>): void {
@@ -72,9 +74,10 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
         return strictlyPosWeight;
     }
 
-    applyHomogeneousTransformation(): number[] {
-        if(this.weight.value < NULL_WEIGHT_TOLERANCE) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'toVector2DReal', EM_WEIGHT_TOO_SMALL);
+    applyHomogeneousTransformation(tolerance?: number): number[] {
+        if(tolerance === undefined) tolerance = NULL_WEIGHT_TOLERANCE;
+        if(this.weight.value < tolerance) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'applyHomogeneousTransformation', EM_WEIGHT_TOO_SMALL);
             throw new RangeError(error.generateMessageString());
         }
         const realCoordinates: number[] = [];
@@ -95,6 +98,10 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
     scale(scalar: number): IProjectiveVector {
         const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
         return this.createVectorFromDescriptor(result);
+    }
+
+    dot(other: IProjectiveVector): number {
+        return super.dot(other);
     }
 
     revert(): IProjectiveVector {
@@ -141,6 +148,11 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
         const dotProduct = this.dot(other);
         const ratio = Math.abs(dotProduct / (thisNorm * otherNorm));
         return ratio <= angularTolerance;
+    }
+
+    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector {
+        const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveComplexVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
     }
 
     protected abstract createVectorFromDescriptor(descriptor: ProjectiveVector): IProjectiveVector;

@@ -15,6 +15,8 @@ import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
 import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
+import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
+import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 
 describe('RealVectorSpace', () => {
 
@@ -78,6 +80,7 @@ describe('RealVectorSpace', () => {
                 expect(() => new RealVectorSpace(i, true)).to.throw(EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED);
             }
         });
+
     });
 
     describe('Accesssors', () => {
@@ -324,11 +327,11 @@ describe('RealVectorSpace', () => {
         it('cannot get the normalized vector of a RealVector of dimension outside the current vector space dimension', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1 = 0;
-            expect(() => realVectorSpace.normalizeRaw(vec1 as unknown as RealVector2D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.normalizeDescriptor(vec1 as unknown as RealVector2D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
-            expect(() => realVectorSpace.normalizeRaw(vec2 as unknown as RealVector2D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.normalizeDescriptor(vec2 as unknown as RealVector2D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
             const vec3: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 1, 0, 1]};
-            expect(() => realVectorSpace.normalizeRaw(vec3 as unknown as RealVector2D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.normalizeDescriptor(vec3 as unknown as RealVector2D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
         });
 
         it('cannot get the cross product of two RealVectors of dimension ' + MIN_DIMENSION_REALVECTORSPACE, () => {
@@ -491,6 +494,87 @@ describe('RealVectorSpace', () => {
         it(`cannot create a RealVector when the number of coordinates is not equal to the dimension of the RealVectorSpace`, () => {
             const realVectorSpace = new RealVectorSpace(4);
             expect(() => realVectorSpace.createVector([1, 2, 3])).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+        });
+
+        it(`can compare 1D vector spaces to a 1D real vector space of same dimension and conclude their are isomorphic`, () => {
+            const realVectorSpace = new RealVectorSpace(1);
+            expect(realVectorSpace.isDefault).to.eql(false);
+            const realVectorSpace1 = new RealVectorSpace(1);
+            expect(realVectorSpace1.isDefault).to.eql(false);
+            expect(realVectorSpace.id).to.not.eql(realVectorSpace1.id);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace1)).to.eql(true);
+
+            const realVectorSpace2 = new RealVectorSpace(1, true);
+            expect(realVectorSpace2.isDefault).to.eql(true);
+            expect(realVectorSpace.id).to.not.eql(realVectorSpace2.id);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace2)).to.eql(true);
+        });
+
+        it(`can compare 2D vector spaces to a 2D real vector space of same dimension and conclude their are isomorphic`, () => {
+            const realVectorSpace = new RealVectorSpace(2);
+            expect(realVectorSpace.isDefault).to.eql(false);
+            const realVectorSpace1 = new RealVectorSpace(2);
+            expect(realVectorSpace1.isDefault).to.eql(false);
+            expect(realVectorSpace.id).to.not.eql(realVectorSpace1.id);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace1)).to.eql(true);
+
+            const realVectorSpace2 = new RealVectorSpace(2, true);
+            expect(realVectorSpace2.isDefault).to.eql(true);
+            expect(realVectorSpace.id).to.not.eql(realVectorSpace2.id);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace2)).to.eql(true);
+        });
+
+        it(`can compare 3D vector spaces to a 3D real vector space of same dimension and conclude their are isomorphic`, () => {
+            const realVectorSpace = new RealVectorSpace(3);
+            expect(realVectorSpace.isDefault).to.eql(false);
+            const realVectorSpace1 = new RealVectorSpace(3);
+            expect(realVectorSpace1.isDefault).to.eql(false);
+            expect(realVectorSpace.id).to.not.eql(realVectorSpace1.id);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace1)).to.eql(true);
+
+            const realVectorSpace2 = new RealVectorSpace(3, true);
+            expect(realVectorSpace2.isDefault).to.eql(true);
+            expect(realVectorSpace.id).to.not.eql(realVectorSpace2.id);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace2)).to.eql(true);
+        });
+
+        it(`can compare 4D vector spaces to a 4D real vector space of same dimension and conclude their are isomorphic`, () => {
+            const realVectorSpace = new RealVectorSpace(4);
+            expect(realVectorSpace.isDefault).to.eql(false);
+            const realVectorSpace1 = new RealVectorSpace(4);
+            expect(realVectorSpace1.isDefault).to.eql(false);
+            expect(realVectorSpace.id).to.not.eql(realVectorSpace1.id);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace1)).to.eql(true);
+
+            const realVectorSpace2 = new RealVectorSpace(4, true);
+            expect(realVectorSpace2.isDefault).to.eql(true);
+            expect(realVectorSpace.id).to.not.eql(realVectorSpace2.id);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace2)).to.eql(true);
+        });
+
+        it(`can compare a 2D vector space to a 1D complex vector space and conclude their are isomorphic`, () => {
+            const realVectorSpace = new RealVectorSpace(2);
+            const complexVectorSpace = new ComplexVectorSpace(1);
+            expect(realVectorSpace.isIsomorphicTo(complexVectorSpace)).to.eql(true);
+        });
+
+        it(`can compare vector spaces to a RealVector space and check if they are isomorphic`, () => {
+            const realVectorSpace = new RealVectorSpace(4);
+            const realVectorSpace2 = new RealVectorSpace(3);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace2)).to.eql(false);
+
+            const realVectorSpace3 = new RealVectorSpace(4);
+            expect(realVectorSpace.isIsomorphicTo(realVectorSpace3)).to.eql(true);
+        });
+
+        it(`can compare vector spaces of different typesto a RealVector space and check if they are isomorphic`, () => {
+            const realVectorSpace = new RealVectorSpace(2);
+            const complexVS = new ComplexVectorSpace(2);
+            expect(realVectorSpace.isIsomorphicTo(complexVS)).to.eql(false);
+
+            const realVectorSpace2 = new RealVectorSpace(4);
+            const projectiveVS = new ProjectiveVectorSpace(4);
+            expect(realVectorSpace2.isIsomorphicTo(projectiveVS)).to.eql(false);
         });
     });
 

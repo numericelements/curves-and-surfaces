@@ -369,7 +369,7 @@ describe('VectorSpaceIdentifierManager. Manager of vector space ids ensuring the
 });
 
 // Helper function to create mock spaces
-function createMockVectorSpace(dimension: number, spaceType: VectorSpaceType, id: string): { dimension: () => number; spaceType: VectorSpaceType; isDefault: boolean; id: string } {
+export function createMockVectorSpace(dimension: number, spaceType: VectorSpaceType, id: string): { dimension: () => number; spaceType: VectorSpaceType; isDefault: boolean; id: string } {
     const mockSpace = {
         dimension: () => dimension,
         spaceType: spaceType,

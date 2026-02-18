@@ -1,12 +1,23 @@
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { COMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { AbstractComplexVector } from "./AbstractComplexVector";
 import { Complex } from "./Complex";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
+import { ComplexWeight } from "./ComplexWeight";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
+import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
+import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
+import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { RealVectorSpace } from "./RealVectorSpace";
+import { IProjectiveVector, IRealVector } from "./Vector";
+import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import type { IComplex, ComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import { Weight } from "./Weight";
 
 
 export class Vector1DTypeComplex extends AbstractComplexVector<1> {
@@ -120,6 +131,31 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1> {
 
     toString(): string {
         return this.vectorType + `(${this.getCoordinate(0).toString()})` + ` ` + this._vectorSpace.toString();
+    }
+
+    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<2>): ProjectiveVector1DTypeComplex {
+        if( projectiveComplexVectorSpace !== undefined) {
+            if(projectiveComplexVectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
+                return new ProjectiveVector1DTypeComplex(this.getCoordinate(0), new ComplexWeight( new Weight(DEFAULT_WEIGHT_VALUE, false), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)), projectiveComplexVectorSpace);
+            }
+            return new ProjectiveVector1DTypeComplex(this.getCoordinate(0), projectiveComplexVectorSpace);
+        }
+        return new ProjectiveVector1DTypeComplex(this.getCoordinate(0));
+    }
+
+    toProjectiveVector(projectiveVectorSpace?: ProjectiveVectorSpace<3>): ProjectiveVector2DTypeReal {
+        if( projectiveVectorSpace !== undefined) {
+            if(projectiveVectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
+                return new ProjectiveVector2DTypeReal(this.real, this.imaginary, new Weight(DEFAULT_WEIGHT_VALUE, false), projectiveVectorSpace);
+            }
+            return new ProjectiveVector2DTypeReal(this.real, this.imaginary, new Weight(DEFAULT_WEIGHT_VALUE), projectiveVectorSpace);
+        }
+        return new ProjectiveVector2DTypeReal(this.real, this.imaginary, new Weight(DEFAULT_WEIGHT_VALUE));
+    }
+
+    toRealVector(realVectorSpace?: RealVectorSpace<2>): Vector2DTypeReal {
+        if(realVectorSpace !== undefined) return new Vector2DTypeReal(this.getCoordinate(0).real, this.getCoordinate(0).imaginary, realVectorSpace);
+        return new Vector2DTypeReal(this.getCoordinate(0).real, this.getCoordinate(0).imaginary);
     }
     
     clone(): Vector1DTypeComplex {

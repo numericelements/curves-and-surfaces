@@ -1,6 +1,7 @@
 import { ProjectiveVectorSpace } from "../mathVector/ProjectiveVectorSpace";
-import { createRealVectorSpace, RealVectorSpace } from "../mathVector/RealVectorSpace";
+import { RealVectorSpace } from "../mathVector/RealVectorSpace";
 import { ProjectiveVector, RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { createRealVectorSpace } from "../mathVector/VectorSpaceFactory";
 import { isVector2D, isVector3D, isVector4D } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";

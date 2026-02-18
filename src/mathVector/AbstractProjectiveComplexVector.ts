@@ -6,7 +6,7 @@ import { Complex } from "./Complex";
 import type { ComplexWeight } from "./ComplexWeight";
 import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { IComplexVector, IProjectiveComplexVector } from "./Vector";
-import type { IComplex, ProjectiveComplexVector } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveComplexVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 /**
@@ -25,7 +25,6 @@ export abstract class AbstractProjectiveComplexVector<D extends number> extends 
     abstract get homogeneousComplexCoordinates(): Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): IProjectiveComplexVector;
-    abstract normalize(): IProjectiveComplexVector;
     abstract toComplexVector(): IComplexVector;
     abstract toString(): string;
     
@@ -49,6 +48,10 @@ export abstract class AbstractProjectiveComplexVector<D extends number> extends 
 
     subtract(other: IProjectiveComplexVector): IProjectiveComplexVector {
         return super.subtract(other) as IProjectiveComplexVector;
+    }
+
+    normalize(tolerance?: number): IProjectiveComplexVector {
+        return super.normalize(tolerance) as IProjectiveComplexVector;
     }
 
     scale(scalar: number): IProjectiveComplexVector;

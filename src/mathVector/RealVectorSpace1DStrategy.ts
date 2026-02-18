@@ -69,7 +69,7 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1> {
         }
     }
 
-    normalizeRaw(v: RealVector1D): RealVector1D {
+    normalizeDescriptor(v: RealVector1D): RealVector1D {
         if(isVector1D(v)) {
             return v / this.normDescriptor(v);
         } else {

@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
-import { ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, IWeight, ProjectiveVectorOfDimension } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ProjectiveVector, IWeight, ProjectiveVectorOfDimension } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { DEFAULT_WEIGHT } from "../../src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2";

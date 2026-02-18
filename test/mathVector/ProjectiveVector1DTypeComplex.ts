@@ -9,7 +9,7 @@ import { MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../src/namedConst
 import { ComplexWeight } from "../../src/mathVector/ComplexWeight";
 import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
+import { EM_NORM_TOO_SMALL, EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS } from "../../src/ErrorMessages/WeightManager";
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL } from "../../src/ErrorMessages/ComplexOperators";
 import { EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT } from "../../src/ErrorMessages/ComplexWeight";
@@ -22,6 +22,8 @@ import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpac
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 import { TOLERANCE_MIN_MAGNITUDE } from "../../src/namedConstants/Complex";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
+import { INITIAL_VECTOR_SPACE_ID } from "../../src/namedConstants/VectorSpaceIdentifierManager";
+import { createMockVectorSpace } from "./internal/VectorSpaceIdentifierManager";
 
 describe('Vector 1D in projective complex vector space: generation and operators in this vector space', () => {
     const dimension = 2;
@@ -1651,7 +1653,99 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(coordInArray[3]).to.eql(projectiveComplexVector.getCoordinate(1).imaginary);
         });
 
-        it(`can normalize a projective complex vector of a user-defined vector space with a weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+        it(`can normalize a projective complex vector of a default vector space using the default tolerance`, () => {
+            const complex = new Complex(-1, 2);
+            const realW = new Weight(2);
+            const imaginaryW = new Weight();
+            const complexW = new ComplexWeight(realW, imaginaryW);
+            const projectiveComplexVector1 = new ProjectiveVector1DTypeComplex(complex, complexW);
+            expect(projectiveComplexVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            expect(projectiveComplexVector1.dimension).to.eql(dimension);
+            expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(true);
+            const normalizedProjectiveComplexVector = projectiveComplexVector1.normalize();
+            const normProjVect = projectiveComplexVector1.norm();
+            expect(normProjVect).to.be.greaterThan(LINEAR_TOL_VECTOR);
+            expect(normalizedProjectiveComplexVector.dimension).to.eql(dimension);
+            expect(normalizedProjectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(normalizedProjectiveComplexVector.vectorSpace).to.eql(projectiveComplexVector1.vectorSpace);
+            expect(normalizedProjectiveComplexVector.vectorSpace.isDefault).to.eql(true);
+            const normalizedWeight = normalizedProjectiveComplexVector.weight.toComplex();
+            expect(normalizedWeight.real).to.be.closeTo(complexW.real.value / normProjVect, TOLERANCE_FLOAT);
+            expect(normalizedWeight.imaginary).to.be.closeTo(complexW.imaginary.value / normProjVect, TOLERANCE_FLOAT);
+            expect(normalizedProjectiveComplexVector.getCoordinate(0).real).to.be.closeTo(complex.real / normProjVect, TOLERANCE_FLOAT);
+            expect(normalizedProjectiveComplexVector.getCoordinate(0).imaginary).to.be.closeTo(complex.imaginary / normProjVect, TOLERANCE_FLOAT);
+        });
+
+        it(`can normalize a projective complex vector of a user-defined vector space using the default tolerance`, () => {
+            const complex = new Complex(-1, 2);
+            const realW = new Weight(2, false);
+            const imaginaryW = new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
+            const complexW = new ComplexWeight(realW, imaginaryW);
+            const vSpace = new ProjectiveComplexVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const projectiveComplexVector1 = new ProjectiveVector1DTypeComplex(complex, complexW, vSpace);
+            expect(projectiveComplexVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            expect(projectiveComplexVector1.dimension).to.eql(dimension);
+            expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(false);
+            const normalizedProjectiveComplexVector = projectiveComplexVector1.normalize();
+            const normProjVect = projectiveComplexVector1.norm();
+            expect(normProjVect).to.be.greaterThan(LINEAR_TOL_VECTOR);
+            expect(normalizedProjectiveComplexVector.dimension).to.eql(dimension);
+            expect(normalizedProjectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(normalizedProjectiveComplexVector.vectorSpace).to.eql(projectiveComplexVector1.vectorSpace);
+            expect(normalizedProjectiveComplexVector.vectorSpace.isDefault).to.eql(false);
+            const normalizedWeight = normalizedProjectiveComplexVector.weight.toComplex();
+            expect(normalizedWeight.real).to.be.closeTo(complexW.real.value / normProjVect, TOLERANCE_FLOAT);
+            expect(normalizedWeight.imaginary).to.be.closeTo(complexW.imaginary.value / normProjVect, TOLERANCE_FLOAT);
+            expect(normalizedProjectiveComplexVector.getCoordinate(0).real).to.be.closeTo(complex.real / normProjVect, TOLERANCE_FLOAT);
+            expect(normalizedProjectiveComplexVector.getCoordinate(0).imaginary).to.be.closeTo(complex.imaginary / normProjVect, TOLERANCE_FLOAT);
+        });
+
+        it(`cannot normalize a projective complex vector of a user-defined vector space when its norm is smaller than the default tolerance`, () => {
+            const complex = new Complex(LINEAR_TOL_VECTOR / 2, 0);
+            const realW = new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
+            const imaginaryW = new Weight(LINEAR_TOL_VECTOR / 2, false);
+            const complexW = new ComplexWeight(realW, imaginaryW);
+            const vSpace = new ProjectiveComplexVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const projectiveComplexVector1 = new ProjectiveVector1DTypeComplex(complex, complexW, vSpace);
+            expect(projectiveComplexVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            expect(projectiveComplexVector1.dimension).to.eql(dimension);
+            expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(false);
+            const normProjVect = projectiveComplexVector1.norm();
+            expect(normProjVect).to.be.lessThan(LINEAR_TOL_VECTOR);
+            expect(() => projectiveComplexVector1.normalize()).to.throw(EM_NORM_TOO_SMALL);
+        });
+
+        it(`can normalize a projective complex vector of a default vector space using a custom tolerance`, () => {
+            const complex = new Complex(LINEAR_TOL_VECTOR / 2, 0);
+            const realW = new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
+            const imaginaryW = new Weight(LINEAR_TOL_VECTOR / 2, false);
+            const complexW = new ComplexWeight(realW, imaginaryW);
+            const vSpace = new ProjectiveComplexVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+            const projectiveComplexVector1 = new ProjectiveVector1DTypeComplex(complex, complexW);
+            expect(projectiveComplexVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            expect(projectiveComplexVector1.dimension).to.eql(dimension);
+            expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(true);
+            const normalizedProjectiveComplexVector = projectiveComplexVector1.normalize(LINEAR_TOL_VECTOR / 10);
+            const normProjVect = projectiveComplexVector1.norm();
+            expect(normProjVect).to.be.lessThan(LINEAR_TOL_VECTOR);
+            expect(normalizedProjectiveComplexVector.dimension).to.eql(dimension);
+            expect(normalizedProjectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(normalizedProjectiveComplexVector.vectorSpace).to.eql(projectiveComplexVector1.vectorSpace);
+            expect(normalizedProjectiveComplexVector.vectorSpace.isDefault).to.eql(true);
+            const normalizedWeight = normalizedProjectiveComplexVector.weight.toComplex();
+            expect(normalizedWeight.real).to.be.closeTo(complexW.real.value / normProjVect, TOLERANCE_FLOAT);
+            expect(normalizedWeight.imaginary).to.be.closeTo(complexW.imaginary.value / normProjVect, TOLERANCE_FLOAT);
+            expect(normalizedProjectiveComplexVector.getCoordinate(0).real).to.be.closeTo(complex.real / normProjVect, TOLERANCE_FLOAT);
+            expect(normalizedProjectiveComplexVector.getCoordinate(0).imaginary).to.be.closeTo(complex.imaginary / normProjVect, TOLERANCE_FLOAT);
+        });
+
+        it(`can apply the homogeneous transform to a projective complex vector of a user-defined vector space with a weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
             const complex = new Complex(-1, 2);
             const realW = new Weight(2);
             const imaginaryW = new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
@@ -1663,16 +1757,16 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(projectiveComplexVector1.dimension).to.eql(dimension);
             expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
             expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(false);
-            const normalized = projectiveComplexVector1.normalize();
-            expect(normalized.dimension).to.eql(dimension);
-            expect(normalized.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
-            expect(normalized.weight.real.value).to.eql(DEFAULT_WEIGHT_VALUE);
-            expect(normalized.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
-            expect(normalized.getCoordinate(0).real).to.closeTo(cWeightAsComplex.divide(complex).real, TOLERANCE_FLOAT);
-            expect(normalized.getCoordinate(0).imaginary).to.closeTo(cWeightAsComplex.divide(complex).imaginary, TOLERANCE_FLOAT);
+            const scaledToRefComplexWeight = projectiveComplexVector1.homogeneousTransform();
+            expect(scaledToRefComplexWeight.dimension).to.eql(dimension);
+            expect(scaledToRefComplexWeight.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(scaledToRefComplexWeight.weight.real.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(scaledToRefComplexWeight.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
+            expect(scaledToRefComplexWeight.getCoordinate(0).real).to.closeTo(cWeightAsComplex.divide(complex).real, TOLERANCE_FLOAT);
+            expect(scaledToRefComplexWeight.getCoordinate(0).imaginary).to.closeTo(cWeightAsComplex.divide(complex).imaginary, TOLERANCE_FLOAT);
         });
 
-        it(`can normalize a projective complex vector with a weight management ${WeightManagement.AllPositiveWeights}`, () => {
+        it(`can apply the homogeneous transform to a projective complex vector with a weight management ${WeightManagement.AllPositiveWeights}`, () => {
             const complex = new Complex(-1, 2);
             const realW = new Weight(2, false);
             const imaginaryW = new Weight(DEFAULT_WEIGHT_VALUE, false);
@@ -1684,16 +1778,16 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(projectiveComplexVector1.dimension).to.eql(dimension);
             expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
             expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(false);
-            const normalized = projectiveComplexVector1.normalize();
-            expect(normalized.dimension).to.eql(dimension);
-            expect(normalized.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
-            expect(normalized.weight.real.value).to.eql(DEFAULT_WEIGHT_VALUE);
-            expect(normalized.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
-            expect(normalized.getCoordinate(0).real).to.closeTo(cWeightAsComplex.divide(complex).real, TOLERANCE_FLOAT);
-            expect(normalized.getCoordinate(0).imaginary).to.closeTo(cWeightAsComplex.divide(complex).imaginary, TOLERANCE_FLOAT);
+            const scaledToRefComplexWeight = projectiveComplexVector1.homogeneousTransform();
+            expect(scaledToRefComplexWeight.dimension).to.eql(dimension);
+            expect(scaledToRefComplexWeight.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(scaledToRefComplexWeight.weight.real.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(scaledToRefComplexWeight.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
+            expect(scaledToRefComplexWeight.getCoordinate(0).real).to.closeTo(cWeightAsComplex.divide(complex).real, TOLERANCE_FLOAT);
+            expect(scaledToRefComplexWeight.getCoordinate(0).imaginary).to.closeTo(cWeightAsComplex.divide(complex).imaginary, TOLERANCE_FLOAT);
         });
 
-        it(`can normalize a projective complex vector with a weight management ${WeightManagement.SomeNullWeights}`, () => {
+        it(`can apply the homogeneous transform to a projective complex vector with a weight management ${WeightManagement.SomeNullWeights}`, () => {
             const complex = new Complex(-1, 2);
             const realW = new Weight(2, true);
             const imaginaryW = new Weight(DEFAULT_WEIGHT_VALUE, false);
@@ -1705,16 +1799,16 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(projectiveComplexVector1.dimension).to.eql(dimension);
             expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
             expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(false);
-            const normalized = projectiveComplexVector1.normalize();
-            expect(normalized.dimension).to.eql(dimension);
-            expect(normalized.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
-            expect(normalized.weight.real.value).to.eql(DEFAULT_WEIGHT_VALUE);
-            expect(normalized.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
-            expect(normalized.getCoordinate(0).real).to.closeTo(cWeightAsComplex.divide(complex).real, TOLERANCE_FLOAT);
-            expect(normalized.getCoordinate(0).imaginary).to.closeTo(cWeightAsComplex.divide(complex).imaginary, TOLERANCE_FLOAT);
+            const scaledToRefComplexWeight = projectiveComplexVector1.homogeneousTransform();
+            expect(scaledToRefComplexWeight.dimension).to.eql(dimension);
+            expect(scaledToRefComplexWeight.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(scaledToRefComplexWeight.weight.real.value).to.eql(DEFAULT_WEIGHT_VALUE);
+            expect(scaledToRefComplexWeight.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
+            expect(scaledToRefComplexWeight.getCoordinate(0).real).to.closeTo(cWeightAsComplex.divide(complex).real, TOLERANCE_FLOAT);
+            expect(scaledToRefComplexWeight.getCoordinate(0).imaginary).to.closeTo(cWeightAsComplex.divide(complex).imaginary, TOLERANCE_FLOAT);
         });
 
-        it(`cannot normalize a projective complex vector when its magnitude is smaller than tolerance ${TOLERANCE_MIN_MAGNITUDE}`, () => {
+        it(`cannot apply the homogeneous transform to a projective complex vector when its magnitude is smaller than tolerance ${TOLERANCE_MIN_MAGNITUDE}`, () => {
             const complex = new Complex(-1, 2);
             const realW = new Weight(TOLERANCE_MIN_MAGNITUDE / 2, false);
             const imaginaryW = new Weight(0, false);
@@ -1725,7 +1819,21 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(projectiveComplexVector.dimension).to.eql(dimension);
             expect(projectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
             expect(projectiveComplexVector.vectorSpace.isDefault).to.eql(false);
-            expect(() => projectiveComplexVector.normalize()).to.throw(EM_COMPLEX_WEIGHT_TOO_SMALL);
+            expect(() => projectiveComplexVector.homogeneousTransform()).to.throw(EM_COMPLEX_WEIGHT_TOO_SMALL);
+        });
+
+        it(`cannot apply the homogeneous transform to a projective complex vector when its magnitude is smaller than tolerance ${TOLERANCE_MIN_MAGNITUDE}`, () => {
+            const complex = new Complex(-1, 2);
+            const realW = new Weight(TOLERANCE_MIN_MAGNITUDE / 2, false);
+            const imaginaryW = new Weight(0, false);
+            const complexW = new ComplexWeight(realW, imaginaryW);
+            const vSpace = new ProjectiveComplexVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const projectiveComplexVector = new ProjectiveVector1DTypeComplex(complex, complexW, vSpace);
+            expect(projectiveComplexVector.dimension).to.eql(dimension);
+            expect(projectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector.vectorSpace.isDefault).to.eql(false);
+            expect(() => projectiveComplexVector.homogeneousTransform()).to.throw(EM_COMPLEX_WEIGHT_TOO_SMALL);
         });
 
         it(`can map a projective complex vector into a vector of a default complex vector space`, () => {
@@ -1743,8 +1851,8 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(complex1D.dimension).to.eql(1);
             expect(complex1D.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complex1D.vectorSpace.isDefault).to.eql(true);
-            expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.normalize().getCoordinate(0).real);
-            expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.normalize().getCoordinate(0).imaginary);
+            expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.homogeneousTransform().getCoordinate(0).real);
+            expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.homogeneousTransform().getCoordinate(0).imaginary);
         });
 
         it(`can map a projective complex vector into a vector of a user-defined complex vector space`, () => {
@@ -1764,8 +1872,8 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(complex1D.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complex1D.vectorSpace.isDefault).to.eql(false);
             expect(complex1D.vectorSpace).to.eql(complexVS);
-            expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.normalize().getCoordinate(0).real);
-            expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.normalize().getCoordinate(0).imaginary);
+            expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.homogeneousTransform().getCoordinate(0).real);
+            expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.homogeneousTransform().getCoordinate(0).imaginary);
         });
 
         it(`can map a projective complex vector into a vector of a user-defined complex vector space`, () => {
@@ -1786,8 +1894,8 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(complex1D.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complex1D.vectorSpace.isDefault).to.eql(false);
             expect(complex1D.vectorSpace).to.eql(complexVS);
-            expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.normalize().getCoordinate(0).real);
-            expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.normalize().getCoordinate(0).imaginary);
+            expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.homogeneousTransform().getCoordinate(0).real);
+            expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.homogeneousTransform().getCoordinate(0).imaginary);
         });
 
         it(`can map a projective complex vector into a vector of a default complex vector space`, () => {
@@ -1806,8 +1914,8 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(complex1D.dimension).to.eql(1);
             expect(complex1D.spaceType).to.eql(VectorSpaceType.COMPLEX);
             expect(complex1D.vectorSpace.isDefault).to.eql(true);
-            expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.normalize().getCoordinate(0).real);
-            expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.normalize().getCoordinate(0).imaginary);
+            expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.homogeneousTransform().getCoordinate(0).real);
+            expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.homogeneousTransform().getCoordinate(0).imaginary);
         });
 
         it(`can map a projective complex vector with null complex weight into a vector of a default complex vector space`, () => {
@@ -1828,6 +1936,80 @@ describe('Vector 1D in projective complex vector space: generation and operators
             expect(complex1D.vectorSpace.isDefault).to.eql(true);
             expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.getCoordinate(0).real);
             expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.getCoordinate(0).imaginary);
+        });
+
+        it(`can map a projective complex vector with null complex weight into a vector of a user-defined complex vector space`, () => {
+            const complex = new Complex(-3, 4);
+            const realW = new Weight(0, false);
+            const imaginaryW = new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
+            const complexW = new ComplexWeight(realW, imaginaryW);
+            const vSpace = new ProjectiveComplexVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const projectiveComplexVector1 = new ProjectiveVector1DTypeComplex(complex, complexW, vSpace);
+            expect(projectiveComplexVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            expect(projectiveComplexVector1.dimension).to.eql(dimension);
+            expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(true);
+            const complexVS = new ComplexVectorSpace(1);
+            const complex1D = projectiveComplexVector1.toComplexVector(complexVS);
+            expect(complex1D.dimension).to.eql(1);
+            expect(complex1D.spaceType).to.eql(VectorSpaceType.COMPLEX);
+            expect(complex1D.vectorSpace.isDefault).to.eql(false);
+            expect(complex1D.getCoordinate(0).real).to.eql(projectiveComplexVector1.getCoordinate(0).real);
+            expect(complex1D.getCoordinate(0).imaginary).to.eql(projectiveComplexVector1.getCoordinate(0).imaginary);
+        });
+
+        it(`can check the vector dimension against the vector space dimension`, () => {
+            class CustomProjectiveComplexVector extends ProjectiveVector1DTypeComplex {
+                constructor(coordinates: Complex, weight: ComplexWeight, vectorSpace?: ProjectiveComplexVectorSpace<2>) {
+                    super(coordinates, weight, vectorSpace);
+                }
+
+                checkVectorSpaceDimensionConsistency(dimension: number, vectorSpace: ProjectiveComplexVectorSpace<2>): void {
+                    super.checkVectorSpaceDimensionConsistency(dimension, vectorSpace);
+                }
+            }
+            
+            const complex = new Complex(-1, 2);
+            const realW = new Weight(2);
+            const imaginaryW = new Weight();
+            const complexW = new ComplexWeight(realW, imaginaryW);
+            const vSpace = new ProjectiveComplexVectorSpace(dimension);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            const projectiveComplexVector1 = new CustomProjectiveComplexVector(complex, complexW, vSpace);
+            expect(projectiveComplexVector1.dimension).to.eql(dimension);
+            expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(false);
+            const vSpace1 = createMockVectorSpace(1, VectorSpaceType.PROJECTIVECOMPLEX, INITIAL_VECTOR_SPACE_ID) as ProjectiveComplexVectorSpace<2>;
+            expect(() => projectiveComplexVector1.checkVectorSpaceDimensionConsistency(dimension, vSpace1)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+        });
+
+
+        it(`can check the vector dimension and type against the vector space dimension`, () => {
+            class CustomProjectiveComplexVector extends ProjectiveVector1DTypeComplex {
+                constructor(coordinates: Complex, weight: ComplexWeight, vectorSpace?: ProjectiveComplexVectorSpace<2>) {
+                    super(coordinates, weight, vectorSpace);
+                }
+
+                checkVectorSpaceConsistency(dimension: number, vectorSpace?: ProjectiveComplexVectorSpace<2>): void {
+                    super.checkVectorSpaceConsistency(dimension, vectorSpace);
+                }
+            }
+            
+            const complex = new Complex(-1, 2);
+            const realW = new Weight(2);
+            const imaginaryW = new Weight();
+            const complexW = new ComplexWeight(realW, imaginaryW);
+            const vSpace = new ProjectiveComplexVectorSpace(dimension);
+            expect(vSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            const projectiveComplexVector1 = new CustomProjectiveComplexVector(complex, complexW, vSpace);
+            expect(projectiveComplexVector1.dimension).to.eql(dimension);
+            expect(projectiveComplexVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector1.vectorSpace.isDefault).to.eql(false);
+            const vSpace1 = createMockVectorSpace(1, VectorSpaceType.PROJECTIVECOMPLEX, INITIAL_VECTOR_SPACE_ID) as ProjectiveComplexVectorSpace<2>;
+            expect(() => projectiveComplexVector1.checkVectorSpaceConsistency(dimension, vSpace1)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
+            const vSpace2 = createMockVectorSpace(dimension, VectorSpaceType.COMPLEX, INITIAL_VECTOR_SPACE_ID) as ProjectiveComplexVectorSpace<2>;
+            expect(() =>projectiveComplexVector1.checkVectorSpaceConsistency(dimension, vSpace2)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
         });
     });
 });

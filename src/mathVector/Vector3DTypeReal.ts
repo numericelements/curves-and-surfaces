@@ -1,6 +1,8 @@
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { DEFAULT } from "../namedConstants/VectorSpaceIdentifierManager";
 import { REALVECTOR3D } from "../namedConstants/VectorTypeTags";
+import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
@@ -105,11 +107,11 @@ export class Vector3DTypeReal extends AbstractRealVector<3> {
     toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<4>): IProjectiveVector {
         if (projectiveRealVectorSpace !== undefined) {
             if(projectiveRealVectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
-                return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight(1, false), projectiveRealVectorSpace);
+                return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight(DEFAULT_WEIGHT_VALUE, false), projectiveRealVectorSpace);
             }
-            return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight(), projectiveRealVectorSpace);
+            return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight(DEFAULT_WEIGHT_VALUE), projectiveRealVectorSpace);
         }
-        return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight());
+        return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight(DEFAULT_WEIGHT_VALUE));
     }
     
     clone(): Vector3DTypeReal {

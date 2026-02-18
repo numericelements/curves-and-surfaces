@@ -101,7 +101,7 @@ describe('RealVectorSpace3DStrategy', () => {
 
         it('can get the normalized vector of a RealVector', () => {
             const vec1 = createTestRealVector(vectorType, [1, 2, 3]) as RealVector3D;
-            const normalized = vectorSpace.normalizeRaw(vec1);
+            const normalized = vectorSpace.normalizeDescriptor(vec1);
             const vec = isVector3D(normalized);
             expect(normalized.type).to.eql(REALVECTOR3D);
             expect(vec).to.eql(true);
@@ -110,7 +110,7 @@ describe('RealVectorSpace3DStrategy', () => {
 
         it('cannot normalize a RealVector of dimension outside the current vector space dimension', () => {
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [0, 1]};
-            expect(() => vectorSpace.normalizeRaw(vec1 as unknown as RealVector3D)).to.throw();
+            expect(() => vectorSpace.normalizeDescriptor(vec1 as unknown as RealVector3D)).to.throw();
         });
 
         it('can get the cross product of two RealVectors of dimension 3', () => {

@@ -1,10 +1,11 @@
 import { expect } from "chai";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { IComplex } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ComplexVector1D, ComplexVector2D, IComplex } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { createTestComplexVector } from "./ComplexVectorSpaceTestFactory";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
+import { EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE } from "../../src/ErrorMessages/ComplexVectorSpace";
 
 
 describe('ComplexVectorSpace2DStrategy', () => {
@@ -79,6 +80,12 @@ describe('ComplexVectorSpace2DStrategy', () => {
                 expect(result.coordinates[1].type).to.eql(COMPLEX);
                 expect(result.coordinates[1].real).to.eql(3);
                 expect(result.coordinates[1].imaginary).to.eql(4);
+            });
+
+            it(`cannot get the norm a ComplexVector of dimension outside the current Complex vector space ${MAX_DIMENSION_COMPLEXVECTORSPACE} when the scale factor is Complex`, () => {
+                const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
+                const vec1: ComplexVector1D = {type: COMPLEX, real: 0, imaginary: 2};
+                expect(() => complexVectorSpace.normDescriptor(vec1 as unknown as ComplexVector2D)).to.throw(EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE)
             });
 
         });

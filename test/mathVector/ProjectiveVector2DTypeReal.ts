@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { EM_NORM_TOO_SMALL, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
 import { Weight } from "../../src/mathVector/Weight";
-import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
 import { ProjectiveVector2DTypeReal } from "../../src/mathVector/ProjectiveVector2DTypeReal";
@@ -10,8 +10,10 @@ import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVector
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { EM_WEIGHT_TOO_SMALL } from "../../src/ErrorMessages/ProjectiveVectors";
 import { PROJECTIVEVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
+import { Complex } from "../../src/mathVector/Complex";
+import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
+import { EM_INCOMPATIBLE_WEIGHT_MANAGEMENT } from "../../src/ErrorMessages/ProjectiveVectors";
 
 describe('Projective vector 2D in real vector space: generation and operators in this vector space', () => {
     const dimension = 3;
@@ -648,6 +650,224 @@ describe('Projective vector 2D in real vector space: generation and operators in
             expect(projectiveVector1.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
             expect(projectiveVector1.vectorSpace.isDefault).to.eql(false);
             expect(() => projectiveVector1.normalize()).to.throw(EM_NORM_TOO_SMALL);
+        });
+
+        it(`can apply the homogeneous transform to a projective vector to set a weight with default value ${DEFAULT_WEIGHT_VALUE} with a weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+            const coordinates = [2, 4, 6];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1]), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            const scaledToDefaultWeight = projRealVector1.homogeneousTransform();
+            expect(scaledToDefaultWeight.descriptor.coordinates[2].weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
+        });
+
+        it(`can apply the homogeneous transform to a projective vector into a default vector space to set a weight with default value ${DEFAULT_WEIGHT_VALUE} with a weight management ${WeightManagement.AllPositiveWeights}`, () => {
+            const coordinates = [2, 4, 6];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1], false), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const scaledToDefaultWeight = projRealVector1.homogeneousTransform();
+            expect(scaledToDefaultWeight.descriptor.coordinates[2].weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
+        });
+
+        it(`can map a projective vector into a vector of a default real vector space`, () => {
+            const coordinates = [2, 4, 6];
+            const vSpace = new ProjectiveVectorSpace(dimension);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1]), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            const realVector = projRealVector1.toRealVector();
+            expect(realVector.dimension).to.eql(2);
+            expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector.vectorSpace.isDefault).to.eql(true);
+            expect(realVector.getCoordinate(0)).to.eql(coordinates[0] / projRealVector1.weight.value);
+            expect(realVector.getCoordinate(1)).to.eql(coordinates[1] / projRealVector1.weight.value);
+        });
+
+        it(`can map a projective vector into a vector of a user-defined real vector space`, () => {
+            const coordinates = [2, 4, 6];
+            const vSpace = new ProjectiveVectorSpace(dimension);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1]), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            const realVSpace = new RealVectorSpace(2);
+            const realVector = projRealVector1.toRealVector(realVSpace);
+            expect(realVector.dimension).to.eql(2);
+            expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector.vectorSpace.isDefault).to.eql(false);
+            expect(realVector.vectorSpace.id).to.eql(realVSpace.id);
+            expect(realVector.getCoordinate(0)).to.eql(coordinates[0] / projRealVector1.weight.value);
+            expect(realVector.getCoordinate(1)).to.eql(coordinates[1] / projRealVector1.weight.value);
+        });
+
+        it(`can map a projective vector with null weight into a vector of a user-defined real vector space`, () => {
+            const coordinates = [2, 4];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(0, false), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const realVSpace = new RealVectorSpace(2);
+            const realVector = projRealVector1.toRealVector(realVSpace);
+            expect(realVector.dimension).to.eql(2);
+            expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector.vectorSpace.isDefault).to.eql(false);
+            expect(realVector.vectorSpace.id).to.eql(realVSpace.id);
+            expect(realVector.getCoordinate(0)).to.eql(coordinates[0]);
+            expect(realVector.getCoordinate(1)).to.eql(coordinates[1]);
+        });
+
+        it(`can map a projective vector with null weight into a vector of a default real vector space`, () => {
+            const coordinates = [2, 4];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(0, false), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const realVector = projRealVector1.toRealVector();
+            expect(realVector.dimension).to.eql(2);
+            expect(realVector.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector.vectorSpace.isDefault).to.eql(true);
+            expect(realVector.getCoordinate(0)).to.eql(coordinates[0]);
+            expect(realVector.getCoordinate(1)).to.eql(coordinates[1]);
+        });
+
+        it(`can map a projective vector into a projective complex vector of a default projective complex vector space and same weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+            const coordinates = [2, 4, 6];
+            const vSpace = new ProjectiveVectorSpace(dimension);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1]), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            const projectiveComplexVector = projRealVector1.toProjectiveComplexVector();
+            expect(projectiveComplexVector.dimension).to.eql(2);
+            expect(projectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            expect(projectiveComplexVector.vectorSpace.isDefault).to.eql(true);
+            expect(projectiveComplexVector.getCoordinate(0)).to.eql(new Complex(coordinates[0], coordinates[1]));
+            expect(projectiveComplexVector.weight.real.value).to.eql(coordinates[dimension - 1]);
+            expect(projectiveComplexVector.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
+            expect(projectiveComplexVector.weight.real.strictlyPositive).to.eql(true);
+            expect(projectiveComplexVector.weight.imaginary.strictlyPositive).to.eql(false);
+        });
+
+        it(`can map a projective vector into a projective complex vector of a default projective complex vector space and same weight management ${WeightManagement.AllPositiveWeights}`, () => {
+            const coordinates = [2, 4, 6];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1], false), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const projectiveComplexVS = new ProjectiveComplexVectorSpace(2, WeightManagement.AllPositiveWeights, true);
+            // projectiveComplexVS is not used as input of toProjectiveComplexVector because it is a default projective complex vector space.
+            // However, being created, it exists and is available as default without using its identifier.
+            const projectiveComplexVector = projRealVector1.toProjectiveComplexVector();
+            expect(projectiveComplexVector.dimension).to.eql(2);
+            expect(projectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            expect(projectiveComplexVector.vectorSpace.isDefault).to.eql(true);
+            expect(projectiveComplexVector.getCoordinate(0)).to.eql(new Complex(coordinates[0], coordinates[1]));
+            expect(projectiveComplexVector.weight.real.value).to.eql(coordinates[dimension - 1]);
+            expect(projectiveComplexVector.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
+            expect(projectiveComplexVector.weight.real.strictlyPositive).to.eql(false);
+            expect(projectiveComplexVector.weight.imaginary.strictlyPositive).to.eql(false);
+        });
+
+        it(`can map a projective vector into a projective complex vector of a default projective complex vector space and same weight management ${WeightManagement.SomeNullWeights}`, () => {
+            const coordinates = [2, 4, 0];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1], false), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+            const projectiveComplexVS = new ProjectiveComplexVectorSpace(2, WeightManagement.SomeNullWeights, true);
+            const projectiveComplexVector = projRealVector1.toProjectiveComplexVector(projectiveComplexVS);
+            expect(projectiveComplexVector.dimension).to.eql(2);
+            expect(projectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+            expect(projectiveComplexVector.vectorSpace.isDefault).to.eql(true);
+            expect(projectiveComplexVector.getCoordinate(0)).to.eql(new Complex(coordinates[0], coordinates[1]));
+            expect(projectiveComplexVector.weight.real.value).to.eql(coordinates[dimension - 1]);
+            expect(projectiveComplexVector.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
+            expect(projectiveComplexVector.weight.real.strictlyPositive).to.eql(false);
+            expect(projectiveComplexVector.weight.imaginary.strictlyPositive).to.eql(false);
+        });
+
+        it(`cannot map a projective vector into a projective complex vector of a default projective complex vector space with different categories of weight management`, () => {
+            const coordinates = [2, 4, 0];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1], false), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+            const projectiveComplexVS = new ProjectiveComplexVectorSpace(2, WeightManagement.AllPositiveWeights, true);
+            expect(() => projRealVector1.toProjectiveComplexVector(projectiveComplexVS)).to.throw(EM_INCOMPATIBLE_WEIGHT_MANAGEMENT);
+        });
+
+        it(`can map a projective vector into a projective complex vector of a custom projective complex vector space and same weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+            const coordinates = [2, 4, 6];
+            const vSpace = new ProjectiveVectorSpace(dimension);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1]), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            const projectiveComplexVS = new ProjectiveComplexVectorSpace(2, WeightManagement.AllStrictlyPositiveWeights);
+            const projectiveComplexVector = projRealVector1.toProjectiveComplexVector(projectiveComplexVS);
+            expect(projectiveComplexVector.dimension).to.eql(2);
+            expect(projectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+            expect(projectiveComplexVector.vectorSpace.isDefault).to.eql(false);
+            expect(projectiveComplexVector.getCoordinate(0)).to.eql(new Complex(coordinates[0], coordinates[1]));
+            expect(projectiveComplexVector.weight.real.value).to.eql(coordinates[dimension - 1]);
+            expect(projectiveComplexVector.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
+            expect(projectiveComplexVector.weight.real.strictlyPositive).to.eql(true);
+            expect(projectiveComplexVector.weight.imaginary.strictlyPositive).to.eql(false);
+        });
+
+        it(`can map a projective vector into a projective complex vector of a custom projective complex vector space and same weight management ${WeightManagement.AllPositiveWeights}`, () => {
+            const coordinates = [2, 4, 0];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1], false), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            const projectiveComplexVS = new ProjectiveComplexVectorSpace(2, WeightManagement.AllPositiveWeights);
+            const projectiveComplexVector = projRealVector1.toProjectiveComplexVector(projectiveComplexVS);
+            expect(projectiveComplexVector.dimension).to.eql(2);
+            expect(projectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+            expect(projectiveComplexVector.vectorSpace.isDefault).to.eql(false);
+            expect(projectiveComplexVector.getCoordinate(0)).to.eql(new Complex(coordinates[0], coordinates[1]));
+            expect(projectiveComplexVector.weight.real.value).to.eql(coordinates[dimension - 1]);
+            expect(projectiveComplexVector.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
+            expect(projectiveComplexVector.weight.real.strictlyPositive).to.eql(false);
+            expect(projectiveComplexVector.weight.imaginary.strictlyPositive).to.eql(false);
+        });
+
+        it(`can map a projective vector into a projective complex vector of a custom projective complex vector space and same weight management ${WeightManagement.SomeNullWeights}`, () => {
+            const coordinates = [2, 4, 6];
+            const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.SomeNullWeights);
+            const projRealVector1 = new ProjectiveVector2DTypeReal(coordinates[0], coordinates[1], new Weight(coordinates[dimension - 1]), vSpace);
+            expect(projRealVector1.dimension).to.eql(dimension);
+            expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+            expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+            const projectiveComplexVS = new ProjectiveComplexVectorSpace(2, WeightManagement.SomeNullWeights);
+            const projectiveComplexVector = projRealVector1.toProjectiveComplexVector(projectiveComplexVS);
+            expect(projectiveComplexVector.dimension).to.eql(2);
+            expect(projectiveComplexVector.spaceType).to.eql(VectorSpaceType.PROJECTIVECOMPLEX);
+            expect(projectiveComplexVector.vectorSpace.weightManagement).to.eql(WeightManagement.SomeNullWeights);
+            expect(projectiveComplexVector.vectorSpace.isDefault).to.eql(false);
+            expect(projectiveComplexVector.getCoordinate(0)).to.eql(new Complex(coordinates[0], coordinates[1]));
+            expect(projectiveComplexVector.weight.real.value).to.eql(coordinates[dimension - 1]);
+            expect(projectiveComplexVector.weight.imaginary.value).to.eql(DEFAULT_IMAGINARY_WEIGHT_VALUE);
+            expect(projectiveComplexVector.weight.real.strictlyPositive).to.eql(true);
+            expect(projectiveComplexVector.weight.imaginary.strictlyPositive).to.eql(false);
         });
 
         // it(`can transform a projective real 3D vector with weight management ${WeightManagement.AllStrictlyPositiveWeights} and a weight greater than ${NULL_WEIGHT_TOLERANCE} into a real 2D vector of a default 2D real vector space`, () => {

@@ -18,7 +18,6 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-// export class ComplexVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ComplexVectorOfDimension<D>> {
 export class ComplexVectorSpace<D extends number = number> implements ComplexVectorSpaceInterface<D> {
 
     private static readonly _spaceType = VectorSpaceType.COMPLEX as const;
@@ -47,9 +46,9 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
             case MIN_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace1DStrategy();
             case MAX_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace2DStrategy();
             default:
-                const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
-                throw new RangeError(error.generateMessageString());
         }
+        const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
+        throw new RangeError(error.generateMessageString());
     }
 
     get id(): string { return this._id; }
@@ -63,6 +62,8 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
     }
 
     isIsomorphicTo(other: IdentifiableVectorSpace<Vector>): boolean {
+        if(other.spaceType === VectorSpaceType.REAL && other.dimension() === 2
+            && this.dim === 1) return true;
         return this.spaceType === other.spaceType && 
                this.dimension() === other.dimension();
     }
@@ -132,10 +133,10 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
             return this.strategy.addDescriptors(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
+                const message1 = sendRangeErrorMessage(this.constructor.name, 'addDescriptors', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(message1.generateMessageString());
             }
-            const message2 = sendRangeErrorMessage(this.constructor.name, 'add', EM_COMPLEXVECTORS_DIFFERENT_DIM);
+            const message2 = sendRangeErrorMessage(this.constructor.name, 'addDescriptors', EM_COMPLEXVECTORS_DIFFERENT_DIM);
             throw new RangeError(message2.generateMessageString());
         }
     }
@@ -144,10 +145,7 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
         try {
             return this.strategy.normDescriptor(vector);
         } catch(error) {
-            if(error instanceof RangeError && error.message.includes(EM_TRANSFORMATION_NOT_AVAILABLE)) {
-                throw error;
-            }
-            const message1 = sendRangeErrorMessage(this.constructor.name, 'norm', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
+            const message1 = sendRangeErrorMessage(this.constructor.name, 'normDescriptor', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message1.generateMessageString());
         }
     }
@@ -158,7 +156,7 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
         try {
             return this.strategy.scaleDescriptor(scalar, vector);
         } catch(error) {
-            const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+            const message = sendRangeErrorMessage(this.constructor.name, 'scaleDescriptor', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
         }
     }
@@ -168,10 +166,10 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
             return this.strategy.dotDescriptors(a, b);
         } catch(error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                const message1 = sendRangeErrorMessage(this.constructor.name, 'dot', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
+                const message1 = sendRangeErrorMessage(this.constructor.name, 'dotDescriptors', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(message1.generateMessageString());
             }
-            const message2 = sendRangeErrorMessage(this.constructor.name, 'dot', EM_COMPLEXVECTORS_DIFFERENT_DIM);
+            const message2 = sendRangeErrorMessage(this.constructor.name, 'dotDescriptors', EM_COMPLEXVECTORS_DIFFERENT_DIM);
             throw new RangeError(message2.generateMessageString());
         }
     }
@@ -181,10 +179,10 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
             return this.strategy.subtractDescriptors(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
+                const message1 = sendRangeErrorMessage(this.constructor.name, 'subtractDescriptors', EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(message1.generateMessageString());
             }
-            const message2 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_COMPLEXVECTORS_DIFFERENT_DIM);
+            const message2 = sendRangeErrorMessage(this.constructor.name, 'subtractDescriptors', EM_COMPLEXVECTORS_DIFFERENT_DIM);
             throw new RangeError(message2.generateMessageString());
         }
     }
@@ -193,7 +191,7 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
         try {
             return this.strategy.cloneVector(vector);
         } catch(error) {
-            const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
+            const message = sendRangeErrorMessage(this.constructor.name, 'cloneVector', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
         }
     }
@@ -206,7 +204,7 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
         return this.strategy.fromComplexVectorSpaceToRealVectorSpace(vector);
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVectorOfDimension<D>, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector {
-        return this.strategy.fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector, weight);
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVectorOfDimension<D>, weight?: IComplexWeight): ProjectiveComplexVector {
+        return this.strategy.fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector, weight!);
     }
 }

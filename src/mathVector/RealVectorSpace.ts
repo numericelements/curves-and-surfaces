@@ -22,7 +22,6 @@ import { Weight } from "./Weight";
  */
 
 export class RealVectorSpace<D extends number = number> implements RealVectorSpaceInterface<D> {
-// export class RealVectorSpace<D extends number = number> implements IdentifiableVectorSpace<RealVectorOfDimension<D>> {
 
     private static readonly _spaceType = VectorSpaceType.REAL as const;
     private readonly _id: string;
@@ -53,9 +52,10 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
             case 2: return new RealVectorSpace2DStrategy();
             case 3: return new RealVectorSpace3DStrategy();
             case MAX_DIMENSION_REALVECTORSPACE: return new RealVectorSpace4DStrategy();
-            default: const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
-                throw new RangeError(error.generateMessageString());
+            default: 
         }
+        const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
+        throw new RangeError(error.generateMessageString());
     }
 
     get id(): string { return this._id; }
@@ -70,6 +70,8 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
     }
 
     isIsomorphicTo(other: IdentifiableVectorSpace<Vector>): boolean {
+        if(other.spaceType === VectorSpaceType.COMPLEX && other.dimension() === 1
+            && this.dim === 2) return true;
         return this.spaceType === other.spaceType && 
                this.dimension() === other.dimension();
     }
@@ -99,25 +101,6 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         return this.strategy.defaultVect();
     }
 
-    // Validation methods
-    private validateVectorCompatibility(a: IVector, b: IVector): void {
-        if (a.dimension !== b.dimension || a.spaceType !== b.spaceType) {
-            throw new Error(`Vectors are not compatible: ${a.vectorType} vs ${b.vectorType}`);
-        }
-        if (a.dimension !== this.dim) {
-            throw new Error(`Vector dimension ${a.dimension} does not match space dimension ${this.dim}`);
-        }
-    }
-
-    private validateVectorBelongsToSpace(v: IVector): void {
-        if (v.spaceType !== VectorSpaceType.REAL) {
-            throw new Error(`Vector is not a real vector: ${v.vectorType}`);
-        }
-        if (v.dimension !== this.dim) {
-            throw new Error(`Vector dimension ${v.dimension} does not match space dimension ${this.dim}`);
-        }
-    }
-
     // Utility methods
     toString(): string {
         return `${this._name} [ID: ${this._id}]`;
@@ -132,10 +115,10 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
             return this.strategy.addDescriptors(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                const message1 = sendRangeErrorMessage(this.constructor.name, 'add', EM_REALVECTORS_NOT_IN_VECTORSPACE);
+                const message1 = sendRangeErrorMessage(this.constructor.name, 'addDescriptors', EM_REALVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(message1.generateMessageString());
             }
-            const message2 = sendRangeErrorMessage(this.constructor.name, 'add', EM_REALVECTORS_DIFFERENT_DIM);
+            const message2 = sendRangeErrorMessage(this.constructor.name, 'addDescriptors', EM_REALVECTORS_DIFFERENT_DIM);
             throw new RangeError(message2.generateMessageString());
         }
     }
@@ -145,10 +128,10 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
             return this.strategy.subtractDescriptors(a, b);
         } catch (error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                const message1 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_REALVECTORS_NOT_IN_VECTORSPACE);
+                const message1 = sendRangeErrorMessage(this.constructor.name, 'subtractDescriptors', EM_REALVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(message1.generateMessageString());
             }
-            const message2 = sendRangeErrorMessage(this.constructor.name, 'subtract', EM_REALVECTORS_DIFFERENT_DIM);
+            const message2 = sendRangeErrorMessage(this.constructor.name, 'subtractDescriptors', EM_REALVECTORS_DIFFERENT_DIM);
             throw new RangeError(message2.generateMessageString());
         }
     }
@@ -157,7 +140,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         try {
             return this.strategy.scaleDescriptor(scalar, v);
         } catch(error) {
-            const message = sendRangeErrorMessage(this.constructor.name, 'scale', EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            const message = sendRangeErrorMessage(this.constructor.name, 'scaleDescriptor', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
@@ -166,7 +149,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         try{
             return this.strategy.cloneVector(v);
         } catch (error) {
-            const message = sendRangeErrorMessage(this.constructor.name, 'clone', EM_REALVECTOR_NOT_IN_VECTORSPACE)
+            const message = sendRangeErrorMessage(this.constructor.name, 'cloneVector', EM_REALVECTOR_NOT_IN_VECTORSPACE)
             throw new RangeError(message.generateMessageString());
         }
     }
@@ -175,16 +158,16 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         try {
             return this.strategy.normDescriptor(v);
         } catch (error) {
-            const message = sendRangeErrorMessage(this.constructor.name, 'norm', EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            const message = sendRangeErrorMessage(this.constructor.name, 'normDescriptor', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
 
-    normalizeRaw(v: RealVectorOfDimension<D>): RealVectorOfDimension<D> {
+    normalizeDescriptor(v: RealVectorOfDimension<D>): RealVectorOfDimension<D> {
         try {
-            return this.strategy.normalizeRaw(v);
+            return this.strategy.normalizeDescriptor(v);
         } catch(error) {
-            const message = sendRangeErrorMessage(this.constructor.name, 'normalize', EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            const message = sendRangeErrorMessage(this.constructor.name, 'normalizeDescriptor', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
     }
@@ -198,10 +181,10 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
             return this.strategy.dotDescriptors(a, b);
         } catch(error) {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
-                const message1 = sendRangeErrorMessage(this.constructor.name, 'dot', EM_REALVECTORS_NOT_IN_VECTORSPACE);
+                const message1 = sendRangeErrorMessage(this.constructor.name, 'dotDescriptors', EM_REALVECTORS_NOT_IN_VECTORSPACE);
                 throw new RangeError(message1.generateMessageString());
             }
-            const message2 = sendRangeErrorMessage(this.constructor.name, 'dot', EM_REALVECTORS_DIFFERENT_DIM);
+            const message2 = sendRangeErrorMessage(this.constructor.name, 'dotDescriptors', EM_REALVECTORS_DIFFERENT_DIM);
             throw new RangeError(message2.generateMessageString());
         }
     }
@@ -232,15 +215,3 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
 
   }
   
-export function createRealVectorSpace(dimension: 1): RealVectorSpace<1>;
-export function createRealVectorSpace(dimension: 2): RealVectorSpace<2>;
-export function createRealVectorSpace(dimension: 3): RealVectorSpace<3>;
-export function createRealVectorSpace(dimension: 4): RealVectorSpace<4>;
-export function createRealVectorSpace(dimension: number): RealVectorSpace<number>;
-export function createRealVectorSpace(dimension: number): RealVectorSpace<any> {
-    if(dimension < MIN_DIMENSION_REALVECTORSPACE || dimension > MAX_DIMENSION_REALVECTORSPACE) {
-        const error = sendRangeErrorMessage("createRealVectorSpace", 'createRealVectorSpace', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
-        throw new RangeError(error.generateMessageString());
-    }
-    return new RealVectorSpace(dimension);
-}

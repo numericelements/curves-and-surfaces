@@ -1,11 +1,19 @@
-import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { EM_INCOMPATIBLE_WEIGHT_MANAGEMENT, EM_WEIGHT_TOO_SMALL } from "../ErrorMessages/ProjectiveVectors";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { PROJECTIVEVECTOR2D } from "../namedConstants/VectorTypeTags";
-import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
+import { Complex } from "./Complex";
+import { ComplexWeight } from "./ComplexWeight";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
+import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { RealVectorSpace } from "./RealVectorSpace";
+import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import type { ProjectiveVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -106,6 +114,16 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
         }
     }
 
+    homogeneousTransform(tolerance?: number): ProjectiveVector2DTypeReal {
+        if(tolerance === undefined) tolerance = NULL_WEIGHT_TOLERANCE;
+        if(this.weight.value < tolerance) {
+            const error = sendRangeErrorMessage(this.constructor.name, 'homogeneousTransform', EM_WEIGHT_TOO_SMALL);
+            throw new RangeError(error.generateMessageString());
+        }
+        const normalizedCoord = this.applyHomogeneousTransformation(tolerance);
+        return new ProjectiveVector2DTypeReal(normalizedCoord[0], normalizedCoord[1], this._vectorSpace);
+    }
+
     add(other: ProjectiveVector2DTypeReal): ProjectiveVector2DTypeReal {
         const result = super.add(other) as ProjectiveVector2DTypeReal;
         const weight = result.descriptor.coordinates[2].weight;
@@ -135,14 +153,52 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
     isOrthogonal(other: ProjectiveVector2DTypeReal, angularTolerance?: number): boolean {
         return super.isOrthogonal(other, angularTolerance);
     }
-    
-    // toRealVector(realVSpace?: RealVectorSpace<2>): Vector2DTypeReal {
-    //     const realCoord = this.applyHomogeneousTransformation();
-    //     if (realVSpace !== undefined) {
-    //         return new Vector2DTypeReal(realCoord[0], realCoord[1], realVSpace);
-    //     }
-    //     return new Vector2DTypeReal(realCoord[0], realCoord[1]);
-    // }
+
+    toRealVector(vectorSpace?: RealVectorSpace<2>): Vector2DTypeReal {
+        let vSpace = vectorSpace;
+        if(vSpace === undefined) {
+            try{
+                vSpace = getDefaultVectorSpace(VectorSpaceType.REAL, 2);
+            } catch(error) {
+                vSpace = new RealVectorSpace(2, true);
+            }
+        }
+        try {
+            const normalized = this.homogeneousTransform();
+            return new Vector2DTypeReal(
+                normalized._descriptor.coordinates[0],
+                normalized._descriptor.coordinates[1],
+                vSpace
+            );
+        } catch (error) {
+            return new Vector2DTypeReal(
+                this._descriptor.coordinates[0],
+                this._descriptor.coordinates[1],
+                vSpace
+            );
+        }
+    }
+
+
+    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<2>): ProjectiveVector1DTypeComplex {
+        if( projectiveComplexVectorSpace !== undefined) {
+            if(projectiveComplexVectorSpace.weightManagement === WeightManagement.AllPositiveWeights
+                && this._vectorSpace.weightManagement === projectiveComplexVectorSpace.weightManagement) {
+                return new ProjectiveVector1DTypeComplex(new Complex(this._descriptor.coordinates[0], this._descriptor.coordinates[1]), new ComplexWeight( new Weight(this.weight.value, false), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)), projectiveComplexVectorSpace);
+            } else if(this._vectorSpace.weightManagement === projectiveComplexVectorSpace.weightManagement ) {
+                let realWeight = new Weight(this.weight.value, false);
+                if(this._vectorSpace.weightManagement === WeightManagement.AllStrictlyPositiveWeights 
+                    || this.weight.strictlyPositive) realWeight = new Weight(this.weight.value, true);
+                return new ProjectiveVector1DTypeComplex(new Complex(this._descriptor.coordinates[0], this._descriptor.coordinates[1]), new ComplexWeight( realWeight, new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)), projectiveComplexVectorSpace);
+            }
+            const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveComplexVector', EM_INCOMPATIBLE_WEIGHT_MANAGEMENT);
+            throw new RangeError(error.generateMessageString());
+        }
+        if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
+            return new ProjectiveVector1DTypeComplex(new Complex(this._descriptor.coordinates[0], this._descriptor.coordinates[1]), new ComplexWeight( new Weight(this.weight.value, false), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)), projectiveComplexVectorSpace);
+        }
+        return new ProjectiveVector1DTypeComplex(new Complex(this._descriptor.coordinates[0], this._descriptor.coordinates[1]), new ComplexWeight( new Weight(this.weight.value, true), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)), projectiveComplexVectorSpace);
+    }
     
     clone(): ProjectiveVector2DTypeReal {
         let strictlyPosWeight = true;

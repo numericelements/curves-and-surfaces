@@ -162,5 +162,25 @@ describe('Vector 1D in real vector space: generation and operators in this vecto
             expect(realVector1.vectorSpace.isDefault).to.eql(false);
             expect(() => realVector1.toProjectiveVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         });
+
+        it(`cannot map a real 1D vector into a complex vector`, () => {
+            const vSpace = new RealVectorSpace(dimension);
+            const realVector1 = new Vector1DTypeReal(1, vSpace);
+            expect(realVector1.dimension).to.eql(dimension);
+            expect(realVector1.vectorType).to.eql(REALVECTOR1D);
+            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector1.vectorSpace.isDefault).to.eql(false);
+            expect(() => realVector1.toComplexVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        });
+
+        it(`cannot map a real 1D vector into a projective complex vector`, () => {
+            const vSpace = new RealVectorSpace(dimension);
+            const realVector1 = new Vector1DTypeReal(1, vSpace);
+            expect(realVector1.dimension).to.eql(dimension);
+            expect(realVector1.vectorType).to.eql(REALVECTOR1D);
+            expect(realVector1.spaceType).to.eql(VectorSpaceType.REAL);
+            expect(realVector1.vectorSpace.isDefault).to.eql(false);
+            expect(() => realVector1.toProjectiveComplexVector()).to.throw(EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        });
     });
 });

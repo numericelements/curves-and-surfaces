@@ -1,12 +1,18 @@
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { REALVECTOR2D } from "../namedConstants/VectorTypeTags";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { AbstractRealVector } from "./AbstractRealVector";
+import { Complex } from "./Complex";
+import { ComplexVectorSpace } from "./ComplexVectorSpace";
+import { ComplexWeight } from "./ComplexWeight";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
+import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
+import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
 import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import type { IProjectiveVector } from "./Vector";
+import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
 import type { RealVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -101,14 +107,31 @@ export class Vector2DTypeReal extends AbstractRealVector<2> {
         return super.isOrthogonal(other, angularTolerance);
     }
     
-    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<3>): IProjectiveVector {
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<3>): ProjectiveVector2DTypeReal {
         if (projectiveRealVectorSpace !== undefined) {
             if(projectiveRealVectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
-                return new ProjectiveVector2DTypeReal(this.x, this.y, new Weight(1, false), projectiveRealVectorSpace);
+                return new ProjectiveVector2DTypeReal(this.x, this.y, new Weight(DEFAULT_WEIGHT_VALUE, false), projectiveRealVectorSpace);
             }
-            return new ProjectiveVector2DTypeReal(this.x, this.y, new Weight(), projectiveRealVectorSpace);
+            return new ProjectiveVector2DTypeReal(this.x, this.y, new Weight(DEFAULT_WEIGHT_VALUE), projectiveRealVectorSpace);
         }
-        return new ProjectiveVector2DTypeReal(this.x, this.y, new Weight());
+        return new ProjectiveVector2DTypeReal(this.x, this.y, new Weight(DEFAULT_WEIGHT_VALUE));
+    }
+
+    toComplexVector(complexVectorSpace?: ComplexVectorSpace<1>): Vector1DTypeComplex {
+        if (complexVectorSpace !== undefined) {
+            return new Vector1DTypeComplex(this.x, this.y, complexVectorSpace);
+        }
+        return new Vector1DTypeComplex(this.x, this.y);
+    }
+
+    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<2>): ProjectiveVector1DTypeComplex {
+        if (projectiveComplexVectorSpace !== undefined) {
+            if(projectiveComplexVectorSpace.weightManagement === WeightManagement.AllPositiveWeights) {
+                return new ProjectiveVector1DTypeComplex(new Complex(this.x, this.y), new ComplexWeight(new Weight(DEFAULT_WEIGHT_VALUE, false), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)), projectiveComplexVectorSpace);
+            }
+            return new ProjectiveVector1DTypeComplex(this.x, this.y, new Weight(DEFAULT_WEIGHT_VALUE), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false), projectiveComplexVectorSpace);
+        }
+        return new ProjectiveVector1DTypeComplex(this.x, this.y, new Weight(DEFAULT_WEIGHT_VALUE), new  Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false));
     }
     
     clone(): Vector2DTypeReal {

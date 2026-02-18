@@ -76,7 +76,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
         }
     }
 
-    normalizeRaw(v: RealVector3D): RealVector3D {
+    normalizeDescriptor(v: RealVector3D): RealVector3D {
         if(isVector3D(v)) {
             const norm = this.normDescriptor(v);
             return {type: REALVECTOR3D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm]};

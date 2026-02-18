@@ -47,8 +47,12 @@ export class ComplexVectorSpace2DStrategy implements IComplexVectorSpaceStrategy
 
     normDescriptor(vector: ComplexVector): number {
         if(isVector2D(vector)) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'fromComplexVectorSpaceToProjectiveComplexVectorSpace', EM_TRANSFORMATION_NOT_AVAILABLE);
-            throw new RangeError(error.generateMessageString());
+            let result = 0;
+            for(const component of vector.coordinates) {
+                result += Math.pow(component.real, 2) + Math.pow(component.imaginary, 2);
+            }
+            result = Math.sqrt(result);
+            return result;
         } else {
             throw new RangeError();
         }
@@ -112,7 +116,7 @@ export class ComplexVectorSpace2DStrategy implements IComplexVectorSpaceStrategy
         throw new RangeError(error.generateMessageString());
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): never {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector, weight: IComplexWeight): never {
         const error = sendRangeErrorMessage(this.constructor.name, 'fromComplexVectorSpaceToProjectiveComplexVectorSpace', EM_TRANSFORMATION_NOT_AVAILABLE);
         throw new RangeError(error.generateMessageString());
     }

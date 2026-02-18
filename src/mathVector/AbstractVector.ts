@@ -1,8 +1,8 @@
 import { WarningLog } from "../errorProcessing/ErrorLoging";
-import { EM_NORM_TOO_SMALL, EM_VECTOR_NOT_APPLICABLE_TO_NORM, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
+import { EM_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import type { IVector } from "./Vector";
-import type { IComplex, Vector } from "./VectorSpaceConstructorInterface";
+import type { Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Complex } from "./Complex";
 import type { IdentifiableVectorSpace } from "./IVectorSpace";
@@ -48,16 +48,12 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
 
     norm(tolerance?: number): number {
         if(tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
-        if ('normDescriptor' in this._vectorSpace && typeof this._vectorSpace.normDescriptor === 'function') {
-            const norm = (this._vectorSpace as any).normDescriptor(this.descriptor);
-            if(norm < tolerance) {
-                const warning = new WarningLog(this.constructor.name, "norm", WM_VECTOR_NORM_TOO_SMALL);
-                warning.logMessage();
-            }
-            return norm;
+        const norm = this._vectorSpace.normDescriptor(this.descriptor);
+        if(norm < tolerance) {
+            const warning = new WarningLog(this.constructor.name, "norm", WM_VECTOR_NORM_TOO_SMALL);
+            warning.logMessage();
         }
-        const error = sendRangeErrorMessage(this.constructor.name, 'norm', EM_VECTOR_NOT_APPLICABLE_TO_NORM);
-        throw new RangeError(error.generateMessageString());
+        return norm;
     }
 
     normalize(tolerance?: number): IVector {
@@ -73,7 +69,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
     dot(other: IVector): number {
         this.validateCompatibility(other);
         if ('dotDescriptors' in this._vectorSpace && typeof this._vectorSpace.dotDescriptors === 'function') {
-            return (this._vectorSpace as any).dotDescriptors(this.descriptor, other.descriptor);
+            return this._vectorSpace.dotDescriptors(this.descriptor, other.descriptor);
         }
         throw new Error('Dot product not available for this vector space');
     }

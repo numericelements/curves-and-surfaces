@@ -69,11 +69,6 @@ export class Vector1DTypeReal extends AbstractRealVector<1> {
         return this.value;
     }
     
-    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<2>): IProjectiveVector {
-        const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
-        throw new RangeError(error.generateMessageString());
-    }
-    
     clone(): Vector1DTypeReal {
         return new Vector1DTypeReal(this.value, this.vectorSpace);
     }

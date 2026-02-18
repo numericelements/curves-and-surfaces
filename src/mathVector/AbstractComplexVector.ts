@@ -1,11 +1,13 @@
-import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
+import { ANGULAR_TOL_VECTOR, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { ComplexVectorSpace } from "./ComplexVectorSpace";
-import type { IComplexVector } from "./Vector";
+import type { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
 import type { ComplexVector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Complex } from "./Complex";
+import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
+import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 
 /**
  * Abstract base for complex vectors
@@ -22,6 +24,8 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
     abstract get coordinates(): Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): IComplexVector;
+    abstract toString(): string;
+    abstract toRealVector(): IRealVector;
 
     protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ComplexVectorSpace<D>): void {
         if(vSpace.dimension() !== vectorDim) {
@@ -43,6 +47,10 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
 
     subtract(other: IComplexVector): IComplexVector {
         return super.subtract(other) as IComplexVector;
+    }
+
+    normalize(tolerance?: number): IComplexVector {
+        return super.normalize(tolerance) as IComplexVector;
     }
 
     dot(other: IComplexVector): number {
@@ -86,8 +94,6 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
         return result;
     }
 
-    abstract toString(): string;
-
     equals(other: IComplexVector, tolerance?: number): boolean {
         return super.equals(other, tolerance);
     }
@@ -119,6 +125,16 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
         const dotProduct = this.dot(other);
         const ratio = Math.abs(dotProduct / (thisNorm * otherNorm));
         return ratio <= angularTolerance;
+    }
+
+    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector {
+        const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveComplexVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
+    }
+
+    toProjectiveVector(projectiveVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector {
+        const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
+        throw new RangeError(error.generateMessageString());
     }
 
     protected abstract createVectorFromDescriptor(descriptor: ComplexVector): IComplexVector;

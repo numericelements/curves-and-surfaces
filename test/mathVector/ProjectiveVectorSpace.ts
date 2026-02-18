@@ -13,6 +13,7 @@ import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessa
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
 import { PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D } from "../../src/namedConstants/VectorTypeTags";
+import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 
 describe('ProjectiveVectorSpace', () => {
     
@@ -351,6 +352,22 @@ describe('ProjectiveVectorSpace', () => {
             expect(() => projectiveVectorSpace.cloneVector(vec1 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE)
         });
 
+        it(`cannot get the norm of a ProjectiveVector of dimension outside the vector space ${MIN_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
+            const vec1 = 0;
+            expect(() => projectiveVectorSpace.normDescriptor(vec1 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+            const vec2: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [0, 1, 0, {type: WEIGHT, weight: new Weight(2)}]};
+            expect(() => projectiveVectorSpace.normDescriptor(vec2 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+        });
+
+        it(`cannot get the norm of a ProjectiveVector of dimension outside the vector space ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE);
+            const vec1 = 0;
+            expect(() => projectiveVectorSpace.normDescriptor(vec1 as unknown as ProjectiveVector3D)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+            const vec2: ProjectiveVector2D = {type: PROJECTIVEVECTOR2D, coordinates: [0, 1, {type: WEIGHT, weight: new Weight(2)}]};
+            expect(() => projectiveVectorSpace.normDescriptor(vec2 as unknown as ProjectiveVector3D)).to.throw(EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE);
+        });
+
         it(`cannot generate a RealVector of dimension outside the Projective vector space ${MIN_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 2, {type: WEIGHT, weight: new Weight(2)}]};
@@ -367,6 +384,53 @@ describe('ProjectiveVectorSpace', () => {
             const projectiveVectorSpace = new ProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE);
             const vec1: ProjectiveVector3D = {type: PROJECTIVEVECTOR3D, coordinates: [1, 0, 2, {type: WEIGHT, weight: new Weight(2)}]};
             expect(() => projectiveVectorSpace.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(vec1 as unknown as ProjectiveVector2D)).to.throw(EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE)
+        });
+
+        it(`can compare 3D vector spaces to a 3D projective vector space of same dimension and conclude their are isomorphic`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(3);
+            expect(projectiveVectorSpace.isDefault).to.eql(false);
+            const projectiveVectorSpace1 = new ProjectiveVectorSpace(3);
+            expect(projectiveVectorSpace1.isDefault).to.eql(false);
+            expect(projectiveVectorSpace.id).to.not.eql(projectiveVectorSpace1.id);
+            expect(projectiveVectorSpace.isIsomorphicTo(projectiveVectorSpace1)).to.eql(true);
+
+            const projectiveVectorSpace2 = new ProjectiveVectorSpace(3, true);
+            expect(projectiveVectorSpace2.isDefault).to.eql(true);
+            expect(projectiveVectorSpace.id).to.not.eql(projectiveVectorSpace2.id);
+            expect(projectiveVectorSpace.isIsomorphicTo(projectiveVectorSpace2)).to.eql(true);
+        });
+
+        it(`can compare 4D vector spaces to a 4D projective vector space of same dimension and conclude their are isomorphic`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(4);
+            expect(projectiveVectorSpace.isDefault).to.eql(false);
+            const projectiveVectorSpace1 = new ProjectiveVectorSpace(4);
+            expect(projectiveVectorSpace1.isDefault).to.eql(false);
+            expect(projectiveVectorSpace.id).to.not.eql(projectiveVectorSpace1.id);
+            expect(projectiveVectorSpace.isIsomorphicTo(projectiveVectorSpace1)).to.eql(true);
+
+            const projectiveVectorSpace2 = new ProjectiveVectorSpace(4, true);
+            expect(projectiveVectorSpace2.isDefault).to.eql(true);
+            expect(projectiveVectorSpace.id).to.not.eql(projectiveVectorSpace2.id);
+            expect(projectiveVectorSpace.isIsomorphicTo(projectiveVectorSpace2)).to.eql(true);
+        });
+
+        it(`can compare vector spaces to a Projective Vector space and check if they are isomorphic`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(3);
+            const projectiveVectorSpace2 = new ProjectiveVectorSpace(4);
+            expect(projectiveVectorSpace.isIsomorphicTo(projectiveVectorSpace2)).to.eql(false);
+
+            const projectiveVectorSpace3 = new ProjectiveVectorSpace(3);
+            expect(projectiveVectorSpace.isIsomorphicTo(projectiveVectorSpace3)).to.eql(true);
+        });
+
+        it(`can compare vector spaces of different typesto a RealVector space and check if they are isomorphic`, () => {
+            const projectiveVectorSpace = new ProjectiveVectorSpace(3);
+            const realVS = new RealVectorSpace(3);
+            expect(projectiveVectorSpace.isIsomorphicTo(realVS)).to.eql(false);
+
+            const projectiveVectorSpace2 = new ProjectiveVectorSpace(4);
+            const realVS1 = new RealVectorSpace(4);
+            expect(projectiveVectorSpace2.isIsomorphicTo(realVS1)).to.eql(false);
         });
 
     });

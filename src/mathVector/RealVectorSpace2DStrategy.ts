@@ -1,9 +1,11 @@
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/RealVectorSpace";
+import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { PROJECTIVEVECTOR2D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { WEIGHT } from "../namedConstants/WeightTypeTags";
+import { IdentifiableVectorSpace } from "./IVectorSpace";
 import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import type { ComplexVector1D, ProjectiveVector2D, Real, RealVector, RealVector2D } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector1D, ProjectiveVector2D, Real, RealVector, RealVector2D, Vector } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -76,7 +78,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
         }
     }
 
-    normalizeRaw(v: RealVector2D): RealVector2D {
+    normalizeDescriptor(v: RealVector2D): RealVector2D {
         if(isVector2D(v)) {
             const norm = this.normDescriptor(v);
             return {type: REALVECTOR2D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm]};

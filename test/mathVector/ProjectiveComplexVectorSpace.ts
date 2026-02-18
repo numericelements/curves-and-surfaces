@@ -13,10 +13,15 @@ import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVector
 import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdentifierManager";
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessages/DefaultSpaceResolvers";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
-import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
 import { PROJECTIVECOMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
+import { Complex } from "../../src/mathVector/Complex";
+import { ComplexWeight } from "../../src/mathVector/ComplexWeight";
+import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
+import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
+import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
 
 describe('ProjectiveComplexVectorSpace', () => {
    
@@ -690,6 +695,15 @@ describe('ProjectiveComplexVectorSpace', () => {
             expect(() => projectiveVectorSpace.cloneVector(vec1)).to.throw(EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
         });
 
+        it(`can compute the norm of a ProjectiveComplexVector with different weight positivity conditions`, () => {
+            const complex = new Complex(1, 2);
+            const complexWeight = new ComplexWeight(new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false), new Weight(3, false));
+            const complexWeightAsComplex = complexWeight.toComplex();
+            const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
+            let vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: complex.real, imaginary: complex.imaginary}, {type: COMPLEXWEIGHT, real: complexWeight.real, imaginary: complexWeight.imaginary}]};
+            expect(projectiveVectorSpace.normDescriptor(vec1)).to.be.eql(Math.sqrt(complex.magnitude() * complex.magnitude() + complexWeightAsComplex.magnitude() * complexWeightAsComplex.magnitude())); // norm is sqrt(|complex|^2 + |complexWeight|^2)
+        });
+
         it(`can generate the image of ${PROJECTIVECOMPLEXVECTOR1D} vector into the Complex vector space ${COMPLEX}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             const vec1 : ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(3)}]};
@@ -734,6 +748,40 @@ describe('ProjectiveComplexVectorSpace', () => {
             let vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(3, false), imaginary: new Weight(0, false)}]};
             expect(() => projectiveVectorSpace.fromProjectiveComplexVectorSpaceToComplexVectorSpace(vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
+
+        it(`can compare 2D vector spaces to a 2D projective complex vector space of same dimension and conclude their are isomorphic`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(2);
+            expect(projectiveComplexVectorSpace.isDefault).to.eql(false);
+            const projectiveComplexVectorSpace1 = new ProjectiveComplexVectorSpace(2);
+            expect(projectiveComplexVectorSpace1.isDefault).to.eql(false);
+            expect(projectiveComplexVectorSpace.id).to.not.eql(projectiveComplexVectorSpace1.id);
+            expect(projectiveComplexVectorSpace.isIsomorphicTo(projectiveComplexVectorSpace1)).to.eql(true);
+
+            const projectiveComplexVectorSpace2 = new ProjectiveComplexVectorSpace(2, WeightManagement.AllPositiveWeights, true);
+            expect(projectiveComplexVectorSpace2.isDefault).to.eql(true);
+            expect(projectiveComplexVectorSpace.id).to.not.eql(projectiveComplexVectorSpace2.id);
+            expect(projectiveComplexVectorSpace.weightManagement).to.not.eql(projectiveComplexVectorSpace2.weightManagement);
+            expect(projectiveComplexVectorSpace.isIsomorphicTo(projectiveComplexVectorSpace2)).to.eql(true);
+        });
+
+        it(`can compare vector spaces of same dimension to a Projective Complex Vector space and check if they are isomorphic`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(2);
+            const complexVS = new ComplexVectorSpace(2);
+            expect(projectiveComplexVectorSpace.isIsomorphicTo(complexVS)).to.eql(false);
+
+            const realVectorSpace = new RealVectorSpace(2);
+            expect(projectiveComplexVectorSpace.isIsomorphicTo(realVectorSpace)).to.eql(false);
+        });
+
+        it(`can compare vector spaces of different types to a RealVector space and check if they are isomorphic`, () => {
+            const projectiveComplexVectorSpace = new ProjectiveComplexVectorSpace(2);
+            const realVS = new RealVectorSpace(3);
+            expect(projectiveComplexVectorSpace.isIsomorphicTo(realVS)).to.eql(false);
+
+            const projectiveVS1 = new ProjectiveVectorSpace(4);
+            expect(projectiveComplexVectorSpace.isIsomorphicTo(projectiveVS1)).to.eql(false);
+        });
+
 
         // const PROJECTIVECOMPLEXVECTOR2D = 'ProjectiveComplexVector2D';
         // interface ProjectiveComplexVector2D {

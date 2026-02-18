@@ -74,7 +74,7 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
         }
     }
 
-    normalizeRaw(v: RealVector4D): RealVector4D {
+    normalizeDescriptor(v: RealVector4D): RealVector4D {
         if(isVector4D(v)) {
             const norm = this.normDescriptor(v);
             return {type: REALVECTOR4D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm, v.coordinates[3] / norm]};

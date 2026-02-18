@@ -13,7 +13,7 @@ import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVector
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS } from "../../src/ErrorMessages/WeightManager";
 import { EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
-import { EM_REVERT_NOT_APPLICABLE } from "../../src/ErrorMessages/ProjectiveVectors";
+import { EM_REVERT_NOT_APPLICABLE, EM_WEIGHT_TOO_SMALL } from "../../src/ErrorMessages/ProjectiveVectors";
 
 
 const defaultCoordinates = [1, 2, 3];
@@ -760,7 +760,7 @@ export function createCommonProjectiveVectorTests(
                 expect(coord[projRealVector1.dimension - 1]).to.eql(coordinates[projRealVector1.dimension - 1]);
             });
 
-            it(`cannot apply the revert operator to a projective vector with wieght management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+            it(`cannot apply the revert operator to a projective vector with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
                 const coordinates = [2, 4, 6, 8];
                 const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
                 const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
@@ -768,6 +768,55 @@ export function createCommonProjectiveVectorTests(
                 expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
                 expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
                 expect(() => projRealVector1.revert()).to.throw(EM_REVERT_NOT_APPLICABLE);
+            });
+
+            it(`can apply the homogeneous transform to a projective vector to set a weight with default value ${DEFAULT_WEIGHT_VALUE} with a weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllStrictlyPositiveWeights);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1]));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(false);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
+                const scaledToDefaultWeight = projRealVector1.homogeneousTransform();
+                for (let i = 0; i < projRealVector1.dimension - 1; i++) {
+                    expect(scaledToDefaultWeight.descriptor.coordinates[i]).to.eql(coordinates[i] / coordinates[projRealVector1.dimension - 1]);
+                }
+            });
+
+            it(`can apply the homogeneous transform to a projective vector into a default vector space to set a weight with default value ${DEFAULT_WEIGHT_VALUE} with a weight management ${WeightManagement.AllPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(coordinates[dimension - 1], false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                const scaledToDefaultWeight = projRealVector1.homogeneousTransform();
+                for (let i = 0; i < projRealVector1.dimension - 1; i++) {
+                    expect(scaledToDefaultWeight.descriptor.coordinates[i]).to.eql(coordinates[i] / coordinates[projRealVector1.dimension - 1]);
+                }
+            });
+
+            it(`cannot apply the homogeneous transform to a projective vector into a default vector space if the vector norm is smaller than ${NULL_WEIGHT_TOLERANCE} with a weight management ${WeightManagement.AllPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(NULL_WEIGHT_TOLERANCE / 2, false));
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(() => projRealVector1.homogeneousTransform()).to.throw(EM_WEIGHT_TOO_SMALL);
+            });
+
+            it(`can adjust the tolerance threshold to compute the homogeneous transform of a projective vector into a default vector space with a weight management ${WeightManagement.AllPositiveWeights}`, () => {
+                const coordinates = [2, 4, 6, 8];
+                const vSpace = new ProjectiveVectorSpace(dimension, WeightManagement.AllPositiveWeights, true);
+                const projRealVector1 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(NULL_WEIGHT_TOLERANCE / 2, false));
+                const tolerance = NULL_WEIGHT_TOLERANCE / 10;
+                expect(projRealVector1.dimension).to.eql(dimension);
+                expect(projRealVector1.vectorSpace.isDefault).to.eql(true);
+                expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllPositiveWeights);
+                expect(() => projRealVector1.homogeneousTransform(tolerance)).to.not.throw();
+                const projRealVector2 = createTestProjectiveVector(dimension, vSpace, coordinates, new Weight(tolerance / 2, false));
+                expect(() => projRealVector2.homogeneousTransform(tolerance)).to.throw(EM_WEIGHT_TOO_SMALL);
             });
         });
     });

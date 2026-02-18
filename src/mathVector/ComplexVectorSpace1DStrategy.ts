@@ -1,6 +1,8 @@
 import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../ErrorMessages/ComplexVectorSpace";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { DEFAULT } from "../namedConstants/VectorSpaceIdentifierManager";
 import { PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
@@ -102,7 +104,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         }
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector1D, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(), imaginary: new Weight()}): ProjectiveComplexVector1D {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector1D, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(DEFAULT_WEIGHT_VALUE), imaginary: new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)}): ProjectiveComplexVector1D {
         if(isVector1D(vector)) {
             return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [vector, weight]};
         } else {

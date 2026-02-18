@@ -14,7 +14,7 @@ export interface IRealVectorSpaceStrategy<D extends number>  {
     subtractDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
     cloneVector(v: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
     normDescriptor(v: RealVectorOfDimension<D>): number;
-    normalizeRaw(v: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
+    normalizeDescriptor(v: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
     crossProductRaw(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVector;
     dotDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): number;
     fromRealVectorSpaceToProjectiveVectorSpace(v: RealVectorOfDimension<D>, weight: Weight): ProjectiveVector;

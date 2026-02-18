@@ -1,4 +1,3 @@
-import { EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT } from "../ErrorMessages/ComplexWeight";
 import { EM_COMPLEX_WEIGHT_TOO_SMALL, EM_STRICTLYPOS_STATUS_INCOMPATIBLE_WEIGHT_MANAGEMENT } from "../ErrorMessages/ProjectiveComplexVectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { TOLERANCE_MIN_MAGNITUDE } from "../namedConstants/Complex";
@@ -225,17 +224,22 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         return new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary);
     }
     
-    normalize(): ProjectiveVector1DTypeComplex {
+    homogeneousTransform(): ProjectiveVector1DTypeComplex {
         const complexW = this.weight.toComplex();
         if (complexW.magnitude() < TOLERANCE_MIN_MAGNITUDE) {
             // the magnitude of the complex weight is too small to perform a complex division
-            const error = sendRangeErrorMessage(this.constructor.name, 'normalize', EM_COMPLEX_WEIGHT_TOO_SMALL);
+            const error = sendRangeErrorMessage(this.constructor.name, 'homogeneousTransform', EM_COMPLEX_WEIGHT_TOO_SMALL);
             throw new RangeError(error.generateMessageString());
         }
         let normalizedWeight = new ComplexWeight();
         if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) normalizedWeight = new ComplexWeight( new Weight(DEFAULT_WEIGHT_VALUE, false), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false));
         if(this._vectorSpace.weightManagement === WeightManagement.SomeNullWeights) normalizedWeight = new ComplexWeight( new Weight(), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false));
         return new ProjectiveVector1DTypeComplex(complexW.divide(this.coordinates[0]), normalizedWeight, this._vectorSpace);
+    }
+
+    normalize(tolerance?: number): ProjectiveVector1DTypeComplex {
+        const result = super.normalize(tolerance) as ProjectiveVector1DTypeComplex;
+        return new ProjectiveVector1DTypeComplex(result.coordinates[0], result.weight, this._vectorSpace);
     }
 
     add(other: ProjectiveVector1DTypeComplex): ProjectiveVector1DTypeComplex {
@@ -262,7 +266,7 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
             }
         }
         try {
-            const normalized = this.normalize();
+            const normalized = this.homogeneousTransform();
             return new Vector1DTypeComplex(
                 normalized._descriptor.coordinates[0].real,
                 normalized._descriptor.coordinates[0].imaginary,

@@ -65,7 +65,7 @@ export function createCommonRealVectorSpaceTests<D extends 1 | 2 | 3 | 4>(
         it(`can get the normalized vector of a RealVector of dimension ${dimension}`, () => {
             const vectorSpace = createRealVectorSpace(dimension);
             const vec1 = createTestRealVector(dimension);
-            const normalized = vectorSpace.normalizeRaw(vec1);
+            const normalized = vectorSpace.normalizeDescriptor(vec1);
             expect(vectorSpace.isInVectorSpace(normalized)).to.eql(true);
         });
 
