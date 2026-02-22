@@ -3,27 +3,35 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { ComplexVectorSpace } from "./ComplexVectorSpace";
 import type { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
-import type { ComplexVector } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector, ComplexVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Complex } from "./Complex";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { IdentifiableVectorSpace } from "./IVectorSpace";
 
 /**
  * Abstract base for complex vectors
  */
 
-export abstract class AbstractComplexVector<D extends number> extends AbstractVector implements IComplexVector {
+export abstract class AbstractComplexVector<D extends number>
+    extends AbstractVector<D, ComplexVectorOfDimension<D>, ComplexVectorSpace<D>>
+    implements IComplexVector<D> 
+{
 
     private static readonly _spaceType = VectorSpaceType.COMPLEX;
+    
+    protected abstract readonly _vectorSpace: ComplexVectorSpace<D>;
+    // protected abstract readonly _vectorSpace: IdentifiableVectorSpace<ComplexVector>;
     
     get spaceType(): VectorSpaceType.COMPLEX { return AbstractComplexVector._spaceType; }
 
     abstract get vectorSpace(): ComplexVectorSpace<D>;
-    abstract get descriptor(): ComplexVector;
+    abstract get descriptor(): ComplexVectorOfDimension<D>;
+    // abstract get descriptor(): ComplexVector;
     abstract get coordinates(): Complex[];
     abstract getCoordinate(index: number): Complex;
-    abstract clone(): IComplexVector;
+    abstract clone(): this;
     abstract toString(): string;
     abstract toRealVector(): IRealVector;
 
@@ -41,26 +49,30 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
         }
     }
     
-    add(other: IComplexVector): IComplexVector {
-        return super.add(other) as IComplexVector;
-    }
+    // add(other: IComplexVector): IComplexVector {
+    //     return super.add(other) as IComplexVector;
+    // }
 
-    subtract(other: IComplexVector): IComplexVector {
-        return super.subtract(other) as IComplexVector;
-    }
+    // subtract(other: IComplexVector): IComplexVector {
+    //     return super.subtract(other) as IComplexVector;
+    // }
 
-    normalize(tolerance?: number): IComplexVector {
-        return super.normalize(tolerance) as IComplexVector;
-    }
+    // normalize(tolerance?: number): IComplexVector {
+    //     return super.normalize(tolerance) as IComplexVector;
+    // }
 
-    dot(other: IComplexVector): number {
-        return super.dot(other);
-    }
+    // dot(other: IComplexVector): number {
+    //     return super.dot(other);
+    // }
 
-    scale(scalar: number): IComplexVector;
-    scale(scalar: Complex): IComplexVector;
-    scale(scalar: number | Complex): IComplexVector {
-        let result: ComplexVector;
+    // scale(scalar: number): IComplexVector;
+    // scale(scalar: Complex): IComplexVector;
+    // scale(scalar: number | Complex): IComplexVector {
+    scale(scalar: number): this;
+    scale(scalar: Complex): this;
+    scale(scalar: number | Complex): this {
+        // let result: ComplexVector;
+        let result: ComplexVectorOfDimension<D>;
         if(scalar instanceof Complex) {
             const scalarDescriptor = scalar.toDescriptor();
             result = this._vectorSpace.scaleDescriptor(scalarDescriptor, this.descriptor);
@@ -70,9 +82,9 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
         return this.createVectorFromDescriptor(result);
     }
     
-    revert(): IComplexVector {
-        return super.revert() as IComplexVector;   
-    }
+    // revert(): IComplexVector {
+    //     return super.revert() as IComplexVector;   
+    // }
 
     // Complex-specific implementations
     getReal(index: number): number {
@@ -94,11 +106,11 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
         return result;
     }
 
-    equals(other: IComplexVector, tolerance?: number): boolean {
+    equals(other: IComplexVector<D>, tolerance?: number): boolean {
         return super.equals(other, tolerance);
     }
 
-    isParallel(other: IComplexVector, tolerance?: number): boolean {
+    isParallel(other: IComplexVector<D>, tolerance?: number): boolean {
             this.validateCompatibility(other);
             if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
             const thisNorm = this.norm();
@@ -112,7 +124,7 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
             return ratio >= (1 - tolerance);
     }
 
-    isOrthogonal(other: IComplexVector, angularTolerance?: number): boolean {
+    isOrthogonal(other: IComplexVector<D>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();
@@ -137,5 +149,5 @@ export abstract class AbstractComplexVector<D extends number> extends AbstractVe
         throw new RangeError(error.generateMessageString());
     }
 
-    protected abstract createVectorFromDescriptor(descriptor: ComplexVector): IComplexVector;
+    // protected abstract createVectorFromDescriptor(descriptor: ComplexVector): IComplexVector;
 }

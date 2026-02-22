@@ -13,13 +13,16 @@ import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
+import { IVector } from "./Vector";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import type { ProjectiveVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
+export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> 
+     implements IVector<3, ProjectiveVector2D>
+{
 
     private static readonly DIMENSION = 3 as const;
     private static readonly _vectorType = PROJECTIVEVECTOR2D;
@@ -97,7 +100,14 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
 
     get weight(): Weight {
         return this._descriptor.coordinates[2].weight;
+        // return this._descriptor.coordinates[2] instanceof Weight 
+        //     ? this._descriptor.coordinates[2]
+        //     : this._weight;
     }
+
+    // get weightManagement(): WeightManagement {
+    //     return this._vectorSpace.weightManagement;
+    // }
     
     get homogeneousCoordinates(): number[] {
         return [this._descriptor.coordinates[0], this._descriptor.coordinates[1], this.weight.value];
@@ -124,18 +134,23 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
         return new ProjectiveVector2DTypeReal(normalizedCoord[0], normalizedCoord[1], this._vectorSpace);
     }
 
-    add(other: ProjectiveVector2DTypeReal): ProjectiveVector2DTypeReal {
-        const result = super.add(other) as ProjectiveVector2DTypeReal;
+    add(other: ProjectiveVector2DTypeReal): this {
+        const result = super.add(other);
         const weight = result.descriptor.coordinates[2].weight;
-        return new ProjectiveVector2DTypeReal(result.coordinates[0], result.coordinates[1], weight, this._vectorSpace);
+        // return new ProjectiveVector2DTypeReal(result.coordinates[0], result.coordinates[1], weight, this._vectorSpace);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
-    subtract(other: ProjectiveVector2DTypeReal): ProjectiveVector2DTypeReal {
-        return new ProjectiveVector2DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).weight, this._vectorSpace);
+    subtract(other: ProjectiveVector2DTypeReal): this {
+        const result = super.subtract(other);
+        // return new ProjectiveVector2DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).weight, this._vectorSpace);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
-    scale(factor: number): ProjectiveVector2DTypeReal {
-        return new ProjectiveVector2DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).weight, this._vectorSpace);
+    scale(factor: number): this {
+        // return new ProjectiveVector2DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).weight, this._vectorSpace);
+        const result = super.scale(factor);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
     toString(): string {
@@ -200,7 +215,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
         return new ProjectiveVector1DTypeComplex(new Complex(this._descriptor.coordinates[0], this._descriptor.coordinates[1]), new ComplexWeight( new Weight(this.weight.value, true), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)), projectiveComplexVectorSpace);
     }
     
-    clone(): ProjectiveVector2DTypeReal {
+    clone(): this {
         let strictlyPosWeight = true;
         if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
         if(this._vectorSpace.weightManagement === WeightManagement.SomeNullWeights) strictlyPosWeight = this.weight.strictlyPositive;
@@ -209,10 +224,10 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> {
             this._descriptor.coordinates[1],
             new Weight(this.weight.value, strictlyPosWeight),
             this._vectorSpace
-        );
+        ) as this;
     }
 
-    createVectorFromDescriptor(descriptor: ProjectiveVector2D): ProjectiveVector2DTypeReal {
-        return new ProjectiveVector2DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2].weight, this.vectorSpace);
+    createVectorFromDescriptor(descriptor: ProjectiveVector2D): this {
+        return new ProjectiveVector2DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2].weight, this.vectorSpace) as this;
     }
 }

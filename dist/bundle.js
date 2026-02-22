@@ -1,11 +1,11 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./node_modules/chart.js/dist/Chart.js":
+/***/ "./node_modules/chart.js/dist/Chart.js"
 /*!*********************************************!*\
   !*** ./node_modules/chart.js/dist/Chart.js ***!
   \*********************************************/
-/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 /*!
  * Chart.js v2.9.4
@@ -16180,28 +16180,29 @@ return src;
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/file-saver/dist/FileSaver.min.js":
+/***/ "./node_modules/file-saver/dist/FileSaver.min.js"
 /*!*******************************************************!*\
   !*** ./node_modules/file-saver/dist/FileSaver.min.js ***!
   \*******************************************************/
-/***/ (function(module, exports, __webpack_require__) {
+(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;(function(a,b){if(true)!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (b),
 		__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
 		(__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__),
-		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));else {}})(this,function(){"use strict";function b(a,b){return"undefined"==typeof b?b={autoBom:!1}:"object"!=typeof b&&(console.warn("Deprecated: Expected third argument to be a object"),b={autoBom:!b}),b.autoBom&&/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(a.type)?new Blob(["\uFEFF",a],{type:a.type}):a}function c(a,b,c){var d=new XMLHttpRequest;d.open("GET",a),d.responseType="blob",d.onload=function(){g(d.response,b,c)},d.onerror=function(){console.error("could not download file")},d.send()}function d(a){var b=new XMLHttpRequest;b.open("HEAD",a,!1);try{b.send()}catch(a){}return 200<=b.status&&299>=b.status}function e(a){try{a.dispatchEvent(new MouseEvent("click"))}catch(c){var b=document.createEvent("MouseEvents");b.initMouseEvent("click",!0,!0,window,0,0,0,80,20,!1,!1,!1,!1,0,null),a.dispatchEvent(b)}}var f="object"==typeof window&&window.window===window?window:"object"==typeof self&&self.self===self?self:"object"==typeof __webpack_require__.g&&__webpack_require__.g.global===__webpack_require__.g?__webpack_require__.g:void 0,a=f.navigator&&/Macintosh/.test(navigator.userAgent)&&/AppleWebKit/.test(navigator.userAgent)&&!/Safari/.test(navigator.userAgent),g=f.saveAs||("object"!=typeof window||window!==f?function(){}:"download"in HTMLAnchorElement.prototype&&!a?function(b,g,h){var i=f.URL||f.webkitURL,j=document.createElement("a");g=g||b.name||"download",j.download=g,j.rel="noopener","string"==typeof b?(j.href=b,j.origin===location.origin?e(j):d(j.href)?c(b,g,h):e(j,j.target="_blank")):(j.href=i.createObjectURL(b),setTimeout(function(){i.revokeObjectURL(j.href)},4E4),setTimeout(function(){e(j)},0))}:"msSaveOrOpenBlob"in navigator?function(f,g,h){if(g=g||f.name||"download","string"!=typeof f)navigator.msSaveOrOpenBlob(b(f,h),g);else if(d(f))c(f,g,h);else{var i=document.createElement("a");i.href=f,i.target="_blank",setTimeout(function(){e(i)})}}:function(b,d,e,g){if(g=g||open("","_blank"),g&&(g.document.title=g.document.body.innerText="downloading..."),"string"==typeof b)return c(b,d,e);var h="application/octet-stream"===b.type,i=/constructor/i.test(f.HTMLElement)||f.safari,j=/CriOS\/[\d]+/.test(navigator.userAgent);if((j||h&&i||a)&&"undefined"!=typeof FileReader){var k=new FileReader;k.onloadend=function(){var a=k.result;a=j?a:a.replace(/^data:[^;]*;/,"data:attachment/file;"),g?g.location.href=a:location=a,g=null},k.readAsDataURL(b)}else{var l=f.URL||f.webkitURL,m=l.createObjectURL(b);g?g.location=m:location.href=m,g=null,setTimeout(function(){l.revokeObjectURL(m)},4E4)}});f.saveAs=g.saveAs=g, true&&(module.exports=g)});
+		__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));else // removed by dead control flow
+{}})(this,function(){"use strict";function b(a,b){return"undefined"==typeof b?b={autoBom:!1}:"object"!=typeof b&&(console.warn("Deprecated: Expected third argument to be a object"),b={autoBom:!b}),b.autoBom&&/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(a.type)?new Blob(["\uFEFF",a],{type:a.type}):a}function c(a,b,c){var d=new XMLHttpRequest;d.open("GET",a),d.responseType="blob",d.onload=function(){g(d.response,b,c)},d.onerror=function(){console.error("could not download file")},d.send()}function d(a){var b=new XMLHttpRequest;b.open("HEAD",a,!1);try{b.send()}catch(a){}return 200<=b.status&&299>=b.status}function e(a){try{a.dispatchEvent(new MouseEvent("click"))}catch(c){var b=document.createEvent("MouseEvents");b.initMouseEvent("click",!0,!0,window,0,0,0,80,20,!1,!1,!1,!1,0,null),a.dispatchEvent(b)}}var f="object"==typeof window&&window.window===window?window:"object"==typeof self&&self.self===self?self:"object"==typeof __webpack_require__.g&&__webpack_require__.g.global===__webpack_require__.g?__webpack_require__.g:void 0,a=f.navigator&&/Macintosh/.test(navigator.userAgent)&&/AppleWebKit/.test(navigator.userAgent)&&!/Safari/.test(navigator.userAgent),g=f.saveAs||("object"!=typeof window||window!==f?function(){}:"download"in HTMLAnchorElement.prototype&&!a?function(b,g,h){var i=f.URL||f.webkitURL,j=document.createElement("a");g=g||b.name||"download",j.download=g,j.rel="noopener","string"==typeof b?(j.href=b,j.origin===location.origin?e(j):d(j.href)?c(b,g,h):e(j,j.target="_blank")):(j.href=i.createObjectURL(b),setTimeout(function(){i.revokeObjectURL(j.href)},4E4),setTimeout(function(){e(j)},0))}:"msSaveOrOpenBlob"in navigator?function(f,g,h){if(g=g||f.name||"download","string"!=typeof f)navigator.msSaveOrOpenBlob(b(f,h),g);else if(d(f))c(f,g,h);else{var i=document.createElement("a");i.href=f,i.target="_blank",setTimeout(function(){e(i)})}}:function(b,d,e,g){if(g=g||open("","_blank"),g&&(g.document.title=g.document.body.innerText="downloading..."),"string"==typeof b)return c(b,d,e);var h="application/octet-stream"===b.type,i=/constructor/i.test(f.HTMLElement)||f.safari,j=/CriOS\/[\d]+/.test(navigator.userAgent);if((j||h&&i||a)&&"undefined"!=typeof FileReader){var k=new FileReader;k.onloadend=function(){var a=k.result;a=j?a:a.replace(/^data:[^;]*;/,"data:attachment/file;"),g?g.location.href=a:location=a,g=null},k.readAsDataURL(b)}else{var l=f.URL||f.webkitURL,m=l.createObjectURL(b);g?g.location=m:location.href=m,g=null,setTimeout(function(){l.revokeObjectURL(m)},4E4)}});f.saveAs=g.saveAs=g, true&&(module.exports=g)});
 
 //# sourceMappingURL=FileSaver.min.js.map
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/af.js":
+/***/ "./node_modules/moment/locale/af.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/af.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Afrikaans [af]
@@ -16285,13 +16286,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ar-dz.js":
+/***/ "./node_modules/moment/locale/ar-dz.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/ar-dz.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Arabic (Algeria) [ar-dz]
@@ -16460,13 +16461,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ar-kw.js":
+/***/ "./node_modules/moment/locale/ar-kw.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/ar-kw.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Arabic (Kuwait) [ar-kw]
@@ -16534,13 +16535,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ar-ly.js":
+/***/ "./node_modules/moment/locale/ar-ly.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/ar-ly.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Arabic (Libya) [ar-ly]
@@ -16724,13 +16725,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ar-ma.js":
+/***/ "./node_modules/moment/locale/ar-ma.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/ar-ma.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Arabic (Morocco) [ar-ma]
@@ -16799,13 +16800,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ar-ps.js":
+/***/ "./node_modules/moment/locale/ar-ps.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/ar-ps.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Arabic (Palestine) [ar-ps]
@@ -16930,13 +16931,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ar-sa.js":
+/***/ "./node_modules/moment/locale/ar-sa.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/ar-sa.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Arabic (Saudi Arabia) [ar-sa]
@@ -17054,13 +17055,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ar-tn.js":
+/***/ "./node_modules/moment/locale/ar-tn.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/ar-tn.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale  :  Arabic (Tunisia) [ar-tn]
@@ -17128,13 +17129,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ar.js":
+/***/ "./node_modules/moment/locale/ar.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ar.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Arabic [ar]
@@ -17336,13 +17337,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/az.js":
+/***/ "./node_modules/moment/locale/az.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/az.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Azerbaijani [az]
@@ -17457,13 +17458,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/be.js":
+/***/ "./node_modules/moment/locale/be.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/be.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Belarusian [be]
@@ -17618,13 +17619,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/bg.js":
+/***/ "./node_modules/moment/locale/bg.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/bg.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Bulgarian [bg]
@@ -17724,13 +17725,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/bm.js":
+/***/ "./node_modules/moment/locale/bm.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/bm.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Bambara [bm]
@@ -17794,13 +17795,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/bn-bd.js":
+/***/ "./node_modules/moment/locale/bn-bd.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/bn-bd.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Bengali (Bangladesh) [bn-bd]
@@ -17942,13 +17943,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/bn.js":
+/***/ "./node_modules/moment/locale/bn.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/bn.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Bengali [bn]
@@ -18080,13 +18081,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/bo.js":
+/***/ "./node_modules/moment/locale/bo.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/bo.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Tibetan [bo]
@@ -18223,13 +18224,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/br.js":
+/***/ "./node_modules/moment/locale/br.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/br.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Breton [br]
@@ -18410,13 +18411,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/bs.js":
+/***/ "./node_modules/moment/locale/bs.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/bs.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Bosnian [bs]
@@ -18589,13 +18590,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ca.js":
+/***/ "./node_modules/moment/locale/ca.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ca.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Catalan [ca]
@@ -18708,13 +18709,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/cs.js":
+/***/ "./node_modules/moment/locale/cs.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/cs.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Czech [cs]
@@ -18908,13 +18909,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/cv.js":
+/***/ "./node_modules/moment/locale/cv.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/cv.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Chuvash [cv]
@@ -18990,13 +18991,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/cy.js":
+/***/ "./node_modules/moment/locale/cy.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/cy.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Welsh [cy]
@@ -19107,13 +19108,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/da.js":
+/***/ "./node_modules/moment/locale/da.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/da.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Danish [da]
@@ -19179,13 +19180,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/de-at.js":
+/***/ "./node_modules/moment/locale/de-at.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/de-at.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : German (Austria) [de-at]
@@ -19277,13 +19278,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/de-ch.js":
+/***/ "./node_modules/moment/locale/de-ch.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/de-ch.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : German (Switzerland) [de-ch]
@@ -19372,13 +19373,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/de.js":
+/***/ "./node_modules/moment/locale/de.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/de.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : German [de]
@@ -19469,13 +19470,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/dv.js":
+/***/ "./node_modules/moment/locale/dv.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/dv.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Maldivian [dv]
@@ -19578,13 +19579,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/el.js":
+/***/ "./node_modules/moment/locale/el.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/el.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Greek [el]
@@ -19703,13 +19704,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/en-au.js":
+/***/ "./node_modules/moment/locale/en-au.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/en-au.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : English (Australia) [en-au]
@@ -19790,13 +19791,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/en-ca.js":
+/***/ "./node_modules/moment/locale/en-ca.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/en-ca.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : English (Canada) [en-ca]
@@ -19873,13 +19874,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/en-gb.js":
+/***/ "./node_modules/moment/locale/en-gb.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/en-gb.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : English (United Kingdom) [en-gb]
@@ -19960,13 +19961,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/en-ie.js":
+/***/ "./node_modules/moment/locale/en-ie.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/en-ie.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : English (Ireland) [en-ie]
@@ -20047,13 +20048,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/en-il.js":
+/***/ "./node_modules/moment/locale/en-il.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/en-il.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : English (Israel) [en-il]
@@ -20130,13 +20131,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/en-in.js":
+/***/ "./node_modules/moment/locale/en-in.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/en-in.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : English (India) [en-in]
@@ -20217,13 +20218,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/en-nz.js":
+/***/ "./node_modules/moment/locale/en-nz.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/en-nz.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : English (New Zealand) [en-nz]
@@ -20304,13 +20305,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/en-sg.js":
+/***/ "./node_modules/moment/locale/en-sg.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/en-sg.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : English (Singapore) [en-sg]
@@ -20391,13 +20392,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/eo.js":
+/***/ "./node_modules/moment/locale/eo.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/eo.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Esperanto [eo]
@@ -20478,13 +20479,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/es-do.js":
+/***/ "./node_modules/moment/locale/es-do.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/es-do.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Spanish (Dominican Republic) [es-do]
@@ -20605,13 +20606,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/es-mx.js":
+/***/ "./node_modules/moment/locale/es-mx.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/es-mx.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Spanish (Mexico) [es-mx]
@@ -20734,13 +20735,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/es-us.js":
+/***/ "./node_modules/moment/locale/es-us.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/es-us.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Spanish (United States) [es-us]
@@ -20863,13 +20864,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/es.js":
+/***/ "./node_modules/moment/locale/es.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/es.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Spanish [es]
@@ -20992,13 +20993,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/et.js":
+/***/ "./node_modules/moment/locale/et.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/et.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Estonian [et]
@@ -21089,13 +21090,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/eu.js":
+/***/ "./node_modules/moment/locale/eu.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/eu.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Basque [eu]
@@ -21173,13 +21174,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/fa.js":
+/***/ "./node_modules/moment/locale/fa.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/fa.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Persian [fa]
@@ -21305,13 +21306,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/fi.js":
+/***/ "./node_modules/moment/locale/fi.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/fi.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Finnish [fi]
@@ -21448,13 +21449,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/fil.js":
+/***/ "./node_modules/moment/locale/fil.js"
 /*!*******************************************!*\
   !*** ./node_modules/moment/locale/fil.js ***!
   \*******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Filipino [fil]
@@ -21525,13 +21526,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/fo.js":
+/***/ "./node_modules/moment/locale/fo.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/fo.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Faroese [fo]
@@ -21601,13 +21602,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/fr-ca.js":
+/***/ "./node_modules/moment/locale/fr-ca.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/fr-ca.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : French (Canada) [fr-ca]
@@ -21690,13 +21691,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/fr-ch.js":
+/***/ "./node_modules/moment/locale/fr-ch.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/fr-ch.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : French (Switzerland) [fr-ch]
@@ -21783,13 +21784,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/fr.js":
+/***/ "./node_modules/moment/locale/fr.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/fr.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : French [fr]
@@ -21910,13 +21911,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/fy.js":
+/***/ "./node_modules/moment/locale/fy.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/fy.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Frisian [fy]
@@ -22004,13 +22005,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ga.js":
+/***/ "./node_modules/moment/locale/ga.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ga.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Irish or Irish Gaelic [ga]
@@ -22118,13 +22119,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/gd.js":
+/***/ "./node_modules/moment/locale/gd.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/gd.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Scottish Gaelic [gd]
@@ -22232,13 +22233,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/gl.js":
+/***/ "./node_modules/moment/locale/gl.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/gl.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Galician [gl]
@@ -22326,13 +22327,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/gom-deva.js":
+/***/ "./node_modules/moment/locale/gom-deva.js"
 /*!************************************************!*\
   !*** ./node_modules/moment/locale/gom-deva.js ***!
   \************************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Konkani Devanagari script [gom-deva]
@@ -22471,13 +22472,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/gom-latn.js":
+/***/ "./node_modules/moment/locale/gom-latn.js"
 /*!************************************************!*\
   !*** ./node_modules/moment/locale/gom-latn.js ***!
   \************************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Konkani Latin script [gom-latn]
@@ -22614,13 +22615,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/gu.js":
+/***/ "./node_modules/moment/locale/gu.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/gu.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Gujarati [gu]
@@ -22755,13 +22756,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/he.js":
+/***/ "./node_modules/moment/locale/he.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/he.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Hebrew [he]
@@ -22868,13 +22869,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/hi.js":
+/***/ "./node_modules/moment/locale/hi.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/hi.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Hindi [hi]
@@ -23055,13 +23056,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/hr.js":
+/***/ "./node_modules/moment/locale/hr.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/hr.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Croatian [hr]
@@ -23230,13 +23231,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/hu.js":
+/***/ "./node_modules/moment/locale/hu.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/hu.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Hungarian [hu]
@@ -23367,13 +23368,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/hy-am.js":
+/***/ "./node_modules/moment/locale/hy-am.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/hy-am.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Armenian [hy-am]
@@ -23480,13 +23481,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/id.js":
+/***/ "./node_modules/moment/locale/id.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/id.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Indonesian [id]
@@ -23575,13 +23576,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/is.js":
+/***/ "./node_modules/moment/locale/is.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/is.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Icelandic [is]
@@ -23734,13 +23735,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/it-ch.js":
+/***/ "./node_modules/moment/locale/it-ch.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/it-ch.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Italian (Switzerland) [it-ch]
@@ -23817,13 +23818,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/it.js":
+/***/ "./node_modules/moment/locale/it.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/it.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Italian [it]
@@ -23942,13 +23943,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ja.js":
+/***/ "./node_modules/moment/locale/ja.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ja.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Japanese [ja]
@@ -24109,13 +24110,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/jv.js":
+/***/ "./node_modules/moment/locale/jv.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/jv.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Javanese [jv]
@@ -24204,13 +24205,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ka.js":
+/***/ "./node_modules/moment/locale/ka.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ka.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Georgian [ka]
@@ -24315,13 +24316,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/kk.js":
+/***/ "./node_modules/moment/locale/kk.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/kk.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Kazakh [kk]
@@ -24416,13 +24417,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/km.js":
+/***/ "./node_modules/moment/locale/km.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/km.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Cambodian [km]
@@ -24538,13 +24539,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/kn.js":
+/***/ "./node_modules/moment/locale/kn.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/kn.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Kannada [kn]
@@ -24681,13 +24682,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ko.js":
+/***/ "./node_modules/moment/locale/ko.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ko.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Korean [ko]
@@ -24775,13 +24776,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ku-kmr.js":
+/***/ "./node_modules/moment/locale/ku-kmr.js"
 /*!**********************************************!*\
   !*** ./node_modules/moment/locale/ku-kmr.js ***!
   \**********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Northern Kurdish [ku-kmr]
@@ -24908,13 +24909,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ku.js":
+/***/ "./node_modules/moment/locale/ku.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ku.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Kurdish [ku]
@@ -25045,13 +25046,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ky.js":
+/***/ "./node_modules/moment/locale/ky.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ky.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Kyrgyz [ky]
@@ -25148,13 +25149,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/lb.js":
+/***/ "./node_modules/moment/locale/lb.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/lb.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Luxembourgish [lb]
@@ -25304,13 +25305,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/lo.js":
+/***/ "./node_modules/moment/locale/lo.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/lo.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Lao [lo]
@@ -25389,13 +25390,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/lt.js":
+/***/ "./node_modules/moment/locale/lt.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/lt.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Lithuanian [lt]
@@ -25533,13 +25534,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/lv.js":
+/***/ "./node_modules/moment/locale/lv.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/lv.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Latvian [lv]
@@ -25646,13 +25647,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/me.js":
+/***/ "./node_modules/moment/locale/me.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/me.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Montenegrin [me]
@@ -25782,13 +25783,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/mi.js":
+/***/ "./node_modules/moment/locale/mi.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/mi.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Maori [mi]
@@ -25861,13 +25862,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/mk.js":
+/***/ "./node_modules/moment/locale/mk.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/mk.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Macedonian [mk]
@@ -25966,13 +25967,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ml.js":
+/***/ "./node_modules/moment/locale/ml.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ml.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Malayalam [ml]
@@ -26067,13 +26068,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/mn.js":
+/***/ "./node_modules/moment/locale/mn.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/mn.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Mongolian [mn]
@@ -26186,13 +26187,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/mr.js":
+/***/ "./node_modules/moment/locale/mr.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/mr.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Marathi [mr]
@@ -26408,13 +26409,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ms-my.js":
+/***/ "./node_modules/moment/locale/ms-my.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/ms-my.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Malay [ms-my]
@@ -26503,13 +26504,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ms.js":
+/***/ "./node_modules/moment/locale/ms.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ms.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Malay [ms]
@@ -26597,13 +26598,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/mt.js":
+/***/ "./node_modules/moment/locale/mt.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/mt.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Maltese (Malta) [mt]
@@ -26672,13 +26673,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/my.js":
+/***/ "./node_modules/moment/locale/my.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/my.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Burmese [my]
@@ -26782,13 +26783,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/nb.js":
+/***/ "./node_modules/moment/locale/nb.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/nb.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Norwegian Bokmål [nb]
@@ -26861,13 +26862,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ne.js":
+/***/ "./node_modules/moment/locale/ne.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ne.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Nepalese [ne]
@@ -27001,13 +27002,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/nl-be.js":
+/***/ "./node_modules/moment/locale/nl-be.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/nl-be.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Dutch (Belgium) [nl-be]
@@ -27122,13 +27123,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/nl.js":
+/***/ "./node_modules/moment/locale/nl.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/nl.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Dutch [nl]
@@ -27245,13 +27246,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/nn.js":
+/***/ "./node_modules/moment/locale/nn.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/nn.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Nynorsk [nn]
@@ -27323,13 +27324,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/oc-lnc.js":
+/***/ "./node_modules/moment/locale/oc-lnc.js"
 /*!**********************************************!*\
   !*** ./node_modules/moment/locale/oc-lnc.js ***!
   \**********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Occitan, lengadocian dialecte [oc-lnc]
@@ -27427,13 +27428,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/pa-in.js":
+/***/ "./node_modules/moment/locale/pa-in.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/pa-in.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Punjabi (India) [pa-in]
@@ -27568,13 +27569,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/pl.js":
+/***/ "./node_modules/moment/locale/pl.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/pl.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Polish [pl]
@@ -27727,13 +27728,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/pt-br.js":
+/***/ "./node_modules/moment/locale/pt-br.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/pt-br.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Portuguese (Brazil) [pt-br]
@@ -27804,13 +27805,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/pt.js":
+/***/ "./node_modules/moment/locale/pt.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/pt.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Portuguese [pt]
@@ -27886,13 +27887,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ro.js":
+/***/ "./node_modules/moment/locale/ro.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ro.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Romanian [ro]
@@ -27981,13 +27982,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ru.js":
+/***/ "./node_modules/moment/locale/ru.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ru.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Russian [ru]
@@ -28213,13 +28214,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/sd.js":
+/***/ "./node_modules/moment/locale/sd.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/sd.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Sindhi [sd]
@@ -28313,13 +28314,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/se.js":
+/***/ "./node_modules/moment/locale/se.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/se.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Northern Sami [se]
@@ -28389,13 +28390,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/si.js":
+/***/ "./node_modules/moment/locale/si.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/si.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Sinhalese [si]
@@ -28477,13 +28478,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/sk.js":
+/***/ "./node_modules/moment/locale/sk.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/sk.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Slovak [sk]
@@ -28641,13 +28642,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/sl.js":
+/***/ "./node_modules/moment/locale/sl.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/sl.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Slovenian [sl]
@@ -28831,13 +28832,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/sq.js":
+/***/ "./node_modules/moment/locale/sq.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/sq.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Albanian [sq]
@@ -28915,13 +28916,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/sr-cyrl.js":
+/***/ "./node_modules/moment/locale/sr-cyrl.js"
 /*!***********************************************!*\
   !*** ./node_modules/moment/locale/sr-cyrl.js ***!
   \***********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Serbian Cyrillic [sr-cyrl]
@@ -29061,13 +29062,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/sr.js":
+/***/ "./node_modules/moment/locale/sr.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/sr.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Serbian [sr]
@@ -29209,13 +29210,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ss.js":
+/***/ "./node_modules/moment/locale/ss.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ss.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : siSwati [ss]
@@ -29312,13 +29313,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/sv.js":
+/***/ "./node_modules/moment/locale/sv.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/sv.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Swedish [sv]
@@ -29399,13 +29400,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/sw.js":
+/***/ "./node_modules/moment/locale/sw.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/sw.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Swahili [sw]
@@ -29473,13 +29474,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ta.js":
+/***/ "./node_modules/moment/locale/ta.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ta.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Tamil [ta]
@@ -29623,13 +29624,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/te.js":
+/***/ "./node_modules/moment/locale/te.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/te.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Telugu [te]
@@ -29730,13 +29731,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/tet.js":
+/***/ "./node_modules/moment/locale/tet.js"
 /*!*******************************************!*\
   !*** ./node_modules/moment/locale/tet.js ***!
   \*******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Tetun Dili (East Timor) [tet]
@@ -29817,13 +29818,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/tg.js":
+/***/ "./node_modules/moment/locale/tg.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/tg.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Tajik [tg]
@@ -29953,13 +29954,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/th.js":
+/***/ "./node_modules/moment/locale/th.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/th.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Thai [th]
@@ -30037,13 +30038,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/tk.js":
+/***/ "./node_modules/moment/locale/tk.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/tk.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Turkmen [tk]
@@ -30147,13 +30148,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/tl-ph.js":
+/***/ "./node_modules/moment/locale/tl-ph.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/tl-ph.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Tagalog (Philippines) [tl-ph]
@@ -30223,13 +30224,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/tlh.js":
+/***/ "./node_modules/moment/locale/tlh.js"
 /*!*******************************************!*\
   !*** ./node_modules/moment/locale/tlh.js ***!
   \*******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Klingon [tlh]
@@ -30366,13 +30367,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/tr.js":
+/***/ "./node_modules/moment/locale/tr.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/tr.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Turkish [tr]
@@ -30491,13 +30492,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/tzl.js":
+/***/ "./node_modules/moment/locale/tzl.js"
 /*!*******************************************!*\
   !*** ./node_modules/moment/locale/tzl.js ***!
   \*******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Talossan [tzl]
@@ -30599,13 +30600,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/tzm-latn.js":
+/***/ "./node_modules/moment/locale/tzm-latn.js"
 /*!************************************************!*\
   !*** ./node_modules/moment/locale/tzm-latn.js ***!
   \************************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Central Atlas Tamazight Latin [tzm-latn]
@@ -30672,13 +30673,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/tzm.js":
+/***/ "./node_modules/moment/locale/tzm.js"
 /*!*******************************************!*\
   !*** ./node_modules/moment/locale/tzm.js ***!
   \*******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Central Atlas Tamazight [tzm]
@@ -30745,13 +30746,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ug-cn.js":
+/***/ "./node_modules/moment/locale/ug-cn.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/ug-cn.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Uyghur (China) [ug-cn]
@@ -30875,13 +30876,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/uk.js":
+/***/ "./node_modules/moment/locale/uk.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/uk.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Ukrainian [uk]
@@ -31061,13 +31062,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/ur.js":
+/***/ "./node_modules/moment/locale/ur.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/ur.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Urdu [ur]
@@ -31162,13 +31163,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/uz-latn.js":
+/***/ "./node_modules/moment/locale/uz-latn.js"
 /*!***********************************************!*\
   !*** ./node_modules/moment/locale/uz-latn.js ***!
   \***********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Uzbek Latin [uz-latn]
@@ -31235,13 +31236,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/uz.js":
+/***/ "./node_modules/moment/locale/uz.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/uz.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Uzbek [uz]
@@ -31305,13 +31306,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/vi.js":
+/***/ "./node_modules/moment/locale/vi.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/vi.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Vietnamese [vi]
@@ -31404,13 +31405,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/x-pseudo.js":
+/***/ "./node_modules/moment/locale/x-pseudo.js"
 /*!************************************************!*\
   !*** ./node_modules/moment/locale/x-pseudo.js ***!
   \************************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Pseudo [x-pseudo]
@@ -31496,13 +31497,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/yo.js":
+/***/ "./node_modules/moment/locale/yo.js"
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/yo.js ***!
   \******************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Yoruba Nigeria [yo]
@@ -31568,13 +31569,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/zh-cn.js":
+/***/ "./node_modules/moment/locale/zh-cn.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/zh-cn.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Chinese (China) [zh-cn]
@@ -31707,13 +31708,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/zh-hk.js":
+/***/ "./node_modules/moment/locale/zh-hk.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/zh-hk.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Chinese (Hong Kong) [zh-hk]
@@ -31827,13 +31828,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/zh-mo.js":
+/***/ "./node_modules/moment/locale/zh-mo.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/zh-mo.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Chinese (Macau) [zh-mo]
@@ -31946,13 +31947,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale/zh-tw.js":
+/***/ "./node_modules/moment/locale/zh-tw.js"
 /*!*********************************************!*\
   !*** ./node_modules/moment/locale/zh-tw.js ***!
   \*********************************************/
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //! moment.js locale configuration
 //! locale : Chinese (Taiwan) [zh-tw]
@@ -32064,13 +32065,13 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/locale sync recursive ^\\.\\/.*$":
+/***/ "./node_modules/moment/locale sync recursive ^\\.\\/.*$"
 /*!***************************************************!*\
   !*** ./node_modules/moment/locale/ sync ^\.\/.*$ ***!
   \***************************************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 var map = {
 	"./af": "./node_modules/moment/locale/af.js",
@@ -32369,13 +32370,13 @@ webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
 webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/moment/moment.js":
+/***/ "./node_modules/moment/moment.js"
 /*!***************************************!*\
   !*** ./node_modules/moment/moment.js ***!
   \***************************************/
-/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+(module, __unused_webpack_exports, __webpack_require__) {
 
 /* module decorator */ module = __webpack_require__.nmd(module);
 //! moment.js
@@ -38067,13 +38068,13 @@ webpackContext.id = "./node_modules/moment/locale sync recursive ^\\.\\/.*$";
 })));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/2DgraphicsItems/DoubleRoundDotSolidShader.ts":
+/***/ "./src/2DgraphicsItems/DoubleRoundDotSolidShader.ts"
 /*!**********************************************************!*\
   !*** ./src/2DgraphicsItems/DoubleRoundDotSolidShader.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38115,13 +38116,13 @@ class DoubleRoundDotSolidShader {
 exports.DoubleRoundDotSolidShader = DoubleRoundDotSolidShader;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/2DgraphicsItems/InsertKnotButtonDialogShader.ts":
+/***/ "./src/2DgraphicsItems/InsertKnotButtonDialogShader.ts"
 /*!*************************************************************!*\
   !*** ./src/2DgraphicsItems/InsertKnotButtonDialogShader.ts ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38182,13 +38183,13 @@ exports.InsertKnotButtonDialogShader = InsertKnotButtonDialogShader;
 ;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/2DgraphicsItems/LineSegmentShader.ts":
+/***/ "./src/2DgraphicsItems/LineSegmentShader.ts"
 /*!**************************************************!*\
   !*** ./src/2DgraphicsItems/LineSegmentShader.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38226,13 +38227,13 @@ exports.LineSegmentShader = LineSegmentShader;
 ;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/2DgraphicsItems/PolylineShader.ts":
+/***/ "./src/2DgraphicsItems/PolylineShader.ts"
 /*!***********************************************!*\
   !*** ./src/2DgraphicsItems/PolylineShader.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38267,13 +38268,13 @@ exports.PolylineShader = PolylineShader;
 ;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/2DgraphicsItems/RoundDotSolidShader.ts":
+/***/ "./src/2DgraphicsItems/RoundDotSolidShader.ts"
 /*!****************************************************!*\
   !*** ./src/2DgraphicsItems/RoundDotSolidShader.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38315,13 +38316,13 @@ class RoundDotSolidShader {
 exports.RoundDotSolidShader = RoundDotSolidShader;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts":
+/***/ "./src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts"
 /*!********************************************************************!*\
   !*** ./src/2DgraphicsItems/RoundDotTwoLevelsTransparencyShader.ts ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38379,13 +38380,13 @@ class RoundDotTwoLevelsTransparencyShader {
 exports.RoundDotTwoLevelsTransparencyShader = RoundDotTwoLevelsTransparencyShader;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/2DgraphicsItems/SquareDotSolidShader.ts":
+/***/ "./src/2DgraphicsItems/SquareDotSolidShader.ts"
 /*!*****************************************************!*\
   !*** ./src/2DgraphicsItems/SquareDotSolidShader.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38423,13 +38424,13 @@ class SquareDotSolidShader {
 exports.SquareDotSolidShader = SquareDotSolidShader;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/Complex.ts":
+/***/ "./src/ErrorMessages/Complex.ts"
 /*!**************************************!*\
   !*** ./src/ErrorMessages/Complex.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38438,13 +38439,13 @@ exports.EM_MAGNITUDE_COMPLEX_TOO_SMALL = void 0;
 exports.EM_MAGNITUDE_COMPLEX_TOO_SMALL = "The magnitude of the complex number is smaller than the tolerance value and a division cannot be performed. Please consider reducing the current tolerance value if needed.";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/ComplexOperators.ts":
+/***/ "./src/ErrorMessages/ComplexOperators.ts"
 /*!***********************************************!*\
   !*** ./src/ErrorMessages/ComplexOperators.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38455,13 +38456,13 @@ exports.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY = 'The subtraction of compl
 exports.EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY = 'The subtraction of complex weights results into a negative real and imaginary parts. Cannot proceed';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/ComplexVectorSpace.ts":
+/***/ "./src/ErrorMessages/ComplexVectorSpace.ts"
 /*!*************************************************!*\
   !*** ./src/ErrorMessages/ComplexVectorSpace.ts ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38480,13 +38481,13 @@ exports.EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2 = 'Cannot apply dot product with comp
 exports.EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION = 'No default complex vector space found for the specified dimension.';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/ComplexWeight.ts":
+/***/ "./src/ErrorMessages/ComplexWeight.ts"
 /*!********************************************!*\
   !*** ./src/ErrorMessages/ComplexWeight.ts ***!
   \********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38496,13 +38497,13 @@ exports.EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT = 'The real and imaginary w
 exports.EM_NEGATIVE_REAL_IMAGINARY_PARTS = 'Negative real ad/or imaginary parts cannot be used to generate a complex weight. Cannot proceed.';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/DefaultSpaceResolvers.ts":
+/***/ "./src/ErrorMessages/DefaultSpaceResolvers.ts"
 /*!****************************************************!*\
   !*** ./src/ErrorMessages/DefaultSpaceResolvers.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38519,13 +38520,13 @@ exports.EM_INVALID_DEFAULT_VECTOR_SPACE_ID_STRUCTURE = "The vector space ID stru
 exports.EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE = "The vector space ID is invalid. Its string representation must be a number within the range of indices values: [min value, max value].";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/KnotSequences.ts":
+/***/ "./src/ErrorMessages/KnotSequences.ts"
 /*!********************************************!*\
   !*** ./src/ErrorMessages/KnotSequences.ts ***!
   \********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38633,13 +38634,13 @@ exports.EM_START_INDEX_OUTOF_RANGE = "Start index must be strictly lower than th
 exports.EM_START_INDEX_GREATER_THAN_END_INDEX = "Start index must be strictly lower than the end one. Cannot perform the extraction.";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/Knots.ts":
+/***/ "./src/ErrorMessages/Knots.ts"
 /*!************************************!*\
   !*** ./src/ErrorMessages/Knots.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38652,13 +38653,13 @@ exports.EM_KNOT_INDEX_VALUE = "Knot index is negative. Must be positive or null.
 exports.EM_KNOT_INCREMENT_DECREMENT = "Knot multiplicity cannot be incremented/decremented by an increment/decrement value smaller than one.";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/ProjectiveComplexVectorSpace.ts":
+/***/ "./src/ErrorMessages/ProjectiveComplexVectorSpace.ts"
 /*!***********************************************************!*\
   !*** ./src/ErrorMessages/ProjectiveComplexVectorSpace.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38676,13 +38677,13 @@ exports.EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT = "Projective complex ve
 exports.EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION = 'No default projective complex vector space found for the specified dimension.';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/ProjectiveVectorSpace.ts":
+/***/ "./src/ErrorMessages/ProjectiveVectorSpace.ts"
 /*!****************************************************!*\
   !*** ./src/ErrorMessages/ProjectiveVectorSpace.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38698,13 +38699,13 @@ exports.EM_PROJECTIVEVECTOR_WITH_NULL_WEIGHT = "Projective vector has a null wei
 exports.EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION = 'No default projective vector space found for the specified dimension.';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/RealVectorSpace.ts":
+/***/ "./src/ErrorMessages/RealVectorSpace.ts"
 /*!**********************************************!*\
   !*** ./src/ErrorMessages/RealVectorSpace.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38721,13 +38722,13 @@ exports.EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4 = 'Cannot apply cross product with 
 exports.EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION = 'No default real vector space found for the specified dimension.';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/VectorSpaceIdentifierManager.ts":
+/***/ "./src/ErrorMessages/VectorSpaceIdentifierManager.ts"
 /*!***********************************************************!*\
   !*** ./src/ErrorMessages/VectorSpaceIdentifierManager.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38738,13 +38739,13 @@ exports.EM_INVALID_VECTOR_SPACE_ID_STRUCTURE = "The vector space ID structure is
 exports.EM_INVALID_VECTOR_SPACE_INDEX_VALUE = "The vector space ID is invalid. Its string representation must be a number within the range of indices values: [min value, max value].";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/VectorSpaceResolvers.ts":
+/***/ "./src/ErrorMessages/VectorSpaceResolvers.ts"
 /*!***************************************************!*\
   !*** ./src/ErrorMessages/VectorSpaceResolvers.ts ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38754,13 +38755,13 @@ exports.EM_VECTOR_SPACE_ALREADY_REGISTERED = void 0;
 exports.EM_VECTOR_SPACE_ALREADY_REGISTERED = "A vector space is already registered of same type and same dimension. Vector spaces of a given type and dimension must be unique, cannot register another one";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/Weight.ts":
+/***/ "./src/ErrorMessages/Weight.ts"
 /*!*************************************!*\
   !*** ./src/ErrorMessages/Weight.ts ***!
   \*************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38770,13 +38771,13 @@ exports.EM_WEIGHT_VALUE_STRICTLY_POSITIVE = 'A weight value cannot be negative o
 exports.EM_WEIGHT_VALUE_POSITIVE = 'A weight value cannot be negative. Cannot proceed.';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/ErrorMessages/WeightManager.ts":
+/***/ "./src/ErrorMessages/WeightManager.ts"
 /*!********************************************!*\
   !*** ./src/ErrorMessages/WeightManager.ts ***!
   \********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38794,13 +38795,13 @@ exports.EM_TOGGLE_STATUS_INCOMPATIBLE = "Changing the weight status is incompati
 exports.EM_WEIGHT_MANAGEMENT_UNKOWN = "The weight management type is unknown. Cannot proceed.";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/WarningMessages/KnotSequences.ts":
+/***/ "./src/WarningMessages/KnotSequences.ts"
 /*!**********************************************!*\
   !*** ./src/WarningMessages/KnotSequences.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -38813,13 +38814,13 @@ exports.WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE = "Knot abscissa cannot be found into 
 exports.WM_GEOMETRIC_CONSTRAINTS_POLYGON_VERTICES = "Geometric constraints must exist on control polygon vertices to produce a closed curve.";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/WarningMessages/WeightManager.ts":
+/***/ "./src/WarningMessages/WeightManager.ts"
 /*!**********************************************!*\
   !*** ./src/WarningMessages/WeightManager.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -38830,13 +38831,13 @@ exports.WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE = `Weights have a value sma
 exports.WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE = `Weights may have either null values or values smaller than ${ProjectiveVectorSpace_1.NULL_WEIGHT_TOLERANCE}, please consider the assignment of a null value as result.`;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2.ts":
+/***/ "./src/bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2.ts"
 /*!****************************************************************************!*\
   !*** ./src/bsplineOptimizationProblems/AbstractOptProblemBSplineR1toR2.ts ***!
   \****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -39298,13 +39299,13 @@ function deepCopyAnalyticHighOrderCurveDerivatives(analyticHighOrderCurveDerivat
 exports.deepCopyAnalyticHighOrderCurveDerivatives = deepCopyAnalyticHighOrderCurveDerivatives;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2.ts":
+/***/ "./src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2.ts"
 /*!************************************************************************!*\
   !*** ./src/bsplineOptimizationProblems/OptProblemOpenBSplineR1toR2.ts ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -41205,13 +41206,13 @@ class OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace extends Op
 exports.OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace = OptProblemOpenBSplineR1toR2WithWeigthingFactorsStrictShapeSpace;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/bsplineOptimizationProblems/OptProblemPeriodicBSplineR1toR2.ts":
+/***/ "./src/bsplineOptimizationProblems/OptProblemPeriodicBSplineR1toR2.ts"
 /*!****************************************************************************!*\
   !*** ./src/bsplineOptimizationProblems/OptProblemPeriodicBSplineR1toR2.ts ***!
   \****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -41857,13 +41858,13 @@ class OptProblemPeriodicBSplineR1toR2NoInactiveConstraints extends OptProblemPer
 exports.OptProblemPeriodicBSplineR1toR2NoInactiveConstraints = OptProblemPeriodicBSplineR1toR2NoInactiveConstraints;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/bsplineOptimizationProblems/OptimizationProblemCtrlParameters.ts":
+/***/ "./src/bsplineOptimizationProblems/OptimizationProblemCtrlParameters.ts"
 /*!******************************************************************************!*\
   !*** ./src/bsplineOptimizationProblems/OptimizationProblemCtrlParameters.ts ***!
   \******************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -41906,13 +41907,13 @@ class OptimizationProblemCtrlParameters {
 exports.OptimizationProblemCtrlParameters = OptimizationProblemCtrlParameters;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/chartcontrollers/AbsCurvatureSceneController.ts":
+/***/ "./src/chartcontrollers/AbsCurvatureSceneController.ts"
 /*!*************************************************************!*\
   !*** ./src/chartcontrollers/AbsCurvatureSceneController.ts ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -41979,13 +41980,13 @@ class AbsCurvatureSceneController {
 exports.AbsCurvatureSceneController = AbsCurvatureSceneController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/chartcontrollers/ChartContentState.ts":
+/***/ "./src/chartcontrollers/ChartContentState.ts"
 /*!***************************************************!*\
   !*** ./src/chartcontrollers/ChartContentState.ts ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42112,13 +42113,13 @@ class ChartFunctionBsqrtScaled extends ChartContentState {
 exports.ChartFunctionBsqrtScaled = ChartFunctionBsqrtScaled;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/chartcontrollers/ChartController.ts":
+/***/ "./src/chartcontrollers/ChartController.ts"
 /*!*************************************************!*\
   !*** ./src/chartcontrollers/ChartController.ts ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42271,13 +42272,13 @@ class ChartController {
 exports.ChartController = ChartController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/chartcontrollers/ChartSceneController.ts":
+/***/ "./src/chartcontrollers/ChartSceneController.ts"
 /*!******************************************************!*\
   !*** ./src/chartcontrollers/ChartSceneController.ts ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42584,13 +42585,13 @@ class ChartSceneController {
 exports.ChartSceneController = ChartSceneController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/chartcontrollers/CurvatureSceneController.ts":
+/***/ "./src/chartcontrollers/CurvatureSceneController.ts"
 /*!**********************************************************!*\
   !*** ./src/chartcontrollers/CurvatureSceneController.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42656,13 +42657,13 @@ class CurvatureSceneController {
 exports.CurvatureSceneController = CurvatureSceneController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/chartcontrollers/FunctionASceneController.ts":
+/***/ "./src/chartcontrollers/FunctionASceneController.ts"
 /*!**********************************************************!*\
   !*** ./src/chartcontrollers/FunctionASceneController.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42724,13 +42725,13 @@ class FunctionASceneController {
 exports.FunctionASceneController = FunctionASceneController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/chartcontrollers/FunctionBSceneController.ts":
+/***/ "./src/chartcontrollers/FunctionBSceneController.ts"
 /*!**********************************************************!*\
   !*** ./src/chartcontrollers/FunctionBSceneController.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42791,13 +42792,13 @@ class FunctionBSceneController {
 exports.FunctionBSceneController = FunctionBSceneController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/chartcontrollers/FunctionBSceneControllerSqrtScaled.ts":
+/***/ "./src/chartcontrollers/FunctionBSceneControllerSqrtScaled.ts"
 /*!********************************************************************!*\
   !*** ./src/chartcontrollers/FunctionBSceneControllerSqrtScaled.ts ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42866,13 +42867,13 @@ class FunctionBSceneControllerSqrtScaled {
 exports.FunctionBSceneControllerSqrtScaled = FunctionBSceneControllerSqrtScaled;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/chartcontrollers/NoFunctionSceneController.ts":
+/***/ "./src/chartcontrollers/NoFunctionSceneController.ts"
 /*!***********************************************************!*\
   !*** ./src/chartcontrollers/NoFunctionSceneController.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42906,13 +42907,13 @@ class NoFunctionSceneController {
 exports.NoFunctionSceneController = NoFunctionSceneController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/containers/AbstractPolygonWithVerticesR1.ts":
+/***/ "./src/containers/AbstractPolygonWithVerticesR1.ts"
 /*!*********************************************************!*\
   !*** ./src/containers/AbstractPolygonWithVerticesR1.ts ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -42964,13 +42965,13 @@ class AbstractPolygonWithVerticesR1 {
 exports.AbstractPolygonWithVerticesR1 = AbstractPolygonWithVerticesR1;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/containers/AdjacentOscillatingPolygons.ts":
+/***/ "./src/containers/AdjacentOscillatingPolygons.ts"
 /*!*******************************************************!*\
   !*** ./src/containers/AdjacentOscillatingPolygons.ts ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -43090,13 +43091,13 @@ class AdjacentOscillatingPolygons {
 exports.AdjacentOscillatingPolygons = AdjacentOscillatingPolygons;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/containers/ChartDescriptorQueueItem.ts":
+/***/ "./src/containers/ChartDescriptorQueueItem.ts"
 /*!****************************************************!*\
   !*** ./src/containers/ChartDescriptorQueueItem.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -43133,13 +43134,13 @@ class ChartDescriptorQueueItem {
 exports.ChartDescriptorQueueItem = ChartDescriptorQueueItem;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/containers/OscillatingPolygonWithVerticesR1.ts":
+/***/ "./src/containers/OscillatingPolygonWithVerticesR1.ts"
 /*!************************************************************!*\
   !*** ./src/containers/OscillatingPolygonWithVerticesR1.ts ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -43279,13 +43280,13 @@ function extractAdjacentOscillatingPolygons(oscillatingPolygons) {
 exports.extractAdjacentOscillatingPolygons = extractAdjacentOscillatingPolygons;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/containers/PolygonWithVerticesR1.ts":
+/***/ "./src/containers/PolygonWithVerticesR1.ts"
 /*!*************************************************!*\
   !*** ./src/containers/PolygonWithVerticesR1.ts ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -43475,13 +43476,13 @@ function extractOscillatingPolygons(controlPoints) {
 exports.extractOscillatingPolygons = extractOscillatingPolygons;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/containers/Queue.ts":
+/***/ "./src/containers/Queue.ts"
 /*!*********************************!*\
   !*** ./src/containers/Queue.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -43623,13 +43624,13 @@ class QueueChartDescriptor extends Queue {
 exports.QueueChartDescriptor = QueueChartDescriptor;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/containers/VertexR1.ts":
+/***/ "./src/containers/VertexR1.ts"
 /*!************************************!*\
   !*** ./src/containers/VertexR1.ts ***!
   \************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -43667,13 +43668,13 @@ class VertexR1 {
 exports.VertexR1 = VertexR1;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/controllers/CurveConstraintSelectionState.ts":
+/***/ "./src/controllers/CurveConstraintSelectionState.ts"
 /*!**********************************************************!*\
   !*** ./src/controllers/CurveConstraintSelectionState.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -43856,13 +43857,13 @@ class HandleConstraintAtPoint1Point2ConstraintState extends CurveConstraintSelec
 exports.HandleConstraintAtPoint1Point2ConstraintState = HandleConstraintAtPoint1Point2ConstraintState;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/controllers/CurveControlState.ts":
+/***/ "./src/controllers/CurveControlState.ts"
 /*!**********************************************!*\
   !*** ./src/controllers/CurveControlState.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -44406,13 +44407,13 @@ class HandleNoDiffEventSlidingState extends CurveControlState {
 exports.HandleNoDiffEventSlidingState = HandleNoDiffEventSlidingState;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/controllers/CurveSceneController.ts":
+/***/ "./src/controllers/CurveSceneController.ts"
 /*!*************************************************!*\
   !*** ./src/controllers/CurveSceneController.ts ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -44721,13 +44722,13 @@ class CurveSceneController {
 exports.CurveSceneController = CurveSceneController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/controllers/CurveSceneControllerInteractionStrategy.ts":
+/***/ "./src/controllers/CurveSceneControllerInteractionStrategy.ts"
 /*!********************************************************************!*\
   !*** ./src/controllers/CurveSceneControllerInteractionStrategy.ts ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -45621,13 +45622,13 @@ class CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve extends 
 exports.CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve = CurveSceneControllerStrictlyInsideShapeSpaceCPDraggingClosedCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/controllers/CurveShapeMonitoringStrategy.ts":
+/***/ "./src/controllers/CurveShapeMonitoringStrategy.ts"
 /*!*********************************************************!*\
   !*** ./src/controllers/CurveShapeMonitoringStrategy.ts ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -46327,13 +46328,13 @@ class CCurveShapeMonitoringStrategyWithNoDiffEventSliding extends CCurveShapeMon
 exports.CCurveShapeMonitoringStrategyWithNoDiffEventSliding = CCurveShapeMonitoringStrategyWithNoDiffEventSliding;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor.ts":
+/***/ "./src/curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor.ts"
 /*!*********************************************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/AbstractCurveDifferentialEventsExtractor.ts ***!
   \*********************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -46404,13 +46405,13 @@ class AbstractCurveDifferentialEventsExtractor {
 exports.AbstractCurveDifferentialEventsExtractor = AbstractCurveDifferentialEventsExtractor;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor.ts":
+/***/ "./src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor.ts"
 /*!*******************************************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractor.ts ***!
   \*******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -46475,13 +46476,13 @@ class ClosedCurveDifferentialEventsExtractor extends AbstractCurveDifferentialEv
 exports.ClosedCurveDifferentialEventsExtractor = ClosedCurveDifferentialEventsExtractor;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractorWithoutSequence.ts":
+/***/ "./src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractorWithoutSequence.ts"
 /*!**********************************************************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/ClosedCurveDifferentialEventsExtractorWithoutSequence.ts ***!
   \**********************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -46518,13 +46519,13 @@ class ClosedCurveDifferentialEventsExtractorWithoutSequence extends ClosedCurveD
 exports.ClosedCurveDifferentialEventsExtractorWithoutSequence = ClosedCurveDifferentialEventsExtractorWithoutSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts":
+/***/ "./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts"
 /*!******************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/CurveAnalyzer.ts ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -46861,13 +46862,13 @@ class ClosedCurveDummyAnalyzer extends AbstractCurveAnalyzer {
 exports.ClosedCurveDummyAnalyzer = ClosedCurveDummyAnalyzer;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts":
+/***/ "./src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts"
 /*!*************************************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/CurveDifferentialEventsLocations.ts ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -46960,13 +46961,13 @@ function deepCopyEventsEuclideanLocations(euclideanLocations) {
 exports.deepCopyEventsEuclideanLocations = deepCopyEventsEuclideanLocations;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts":
+/***/ "./src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts"
 /*!************************************************************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/ExtractionCPClosestToZeroUnderEventSlidingAtExtremeties.ts ***!
   \************************************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -47124,13 +47125,13 @@ class CurveAnalyzerEventsNotSlidingOfInterval {
 exports.CurveAnalyzerEventsNotSlidingOfInterval = CurveAnalyzerEventsNotSlidingOfInterval;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts":
+/***/ "./src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts"
 /*!********************************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/ExtremumLocationClassifiier.ts ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -47202,13 +47203,13 @@ class ExtremumLocationClassifier {
 exports.ExtremumLocationClassifier = ExtremumLocationClassifier;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor.ts":
+/***/ "./src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor.ts"
 /*!*****************************************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractor.ts ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -47287,13 +47288,13 @@ class OpenCurveDifferentialEventsExtractor extends AbstractCurveDifferentialEven
 exports.OpenCurveDifferentialEventsExtractor = OpenCurveDifferentialEventsExtractor;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractorWithoutSequence.ts":
+/***/ "./src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractorWithoutSequence.ts"
 /*!********************************************************************************************!*\
   !*** ./src/curveShapeSpaceAnalysis/OpenCurveDifferentialEventsExtractorWithoutSequence.ts ***!
   \********************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -47329,13 +47330,13 @@ class OpenCurveDifferentialEventsExtractorWithoutSequence extends OpenCurveDiffe
 exports.OpenCurveDifferentialEventsExtractorWithoutSequence = OpenCurveDifferentialEventsExtractorWithoutSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts":
+/***/ "./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts"
 /*!******************************************************************!*\
   !*** ./src/curveShapeSpaceNavigation/CurveConstraintStrategy.ts ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -47795,13 +47796,13 @@ class CurveConstraintClampedFirstAndLastControlPoint extends CurveConstraintStra
 exports.CurveConstraintClampedFirstAndLastControlPoint = CurveConstraintClampedFirstAndLastControlPoint;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceNavigation/CurveConstraints.ts":
+/***/ "./src/curveShapeSpaceNavigation/CurveConstraints.ts"
 /*!***********************************************************!*\
   !*** ./src/curveShapeSpaceNavigation/CurveConstraints.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -48188,13 +48189,13 @@ class CurveConstraints {
 exports.CurveConstraints = CurveConstraints;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceNavigation/CurveShapeSpaceDescriptor.ts":
+/***/ "./src/curveShapeSpaceNavigation/CurveShapeSpaceDescriptor.ts"
 /*!********************************************************************!*\
   !*** ./src/curveShapeSpaceNavigation/CurveShapeSpaceDescriptor.ts ***!
   \********************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -48224,13 +48225,13 @@ class CurveShapeSpaceDescriptor {
 exports.CurveShapeSpaceDescriptor = CurveShapeSpaceDescriptor;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts":
+/***/ "./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts"
 /*!*******************************************************************!*\
   !*** ./src/curveShapeSpaceNavigation/CurveShapeSpaceNavigator.ts ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -48421,13 +48422,13 @@ class CurveShapeSpaceNavigator {
 exports.CurveShapeSpaceNavigator = CurveShapeSpaceNavigator;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceNavigation/NavigationCurveModel.ts":
+/***/ "./src/curveShapeSpaceNavigation/NavigationCurveModel.ts"
 /*!***************************************************************!*\
   !*** ./src/curveShapeSpaceNavigation/NavigationCurveModel.ts ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -48807,13 +48808,13 @@ class ClosedCurveShapeSpaceNavigator extends NavigationCurveModel {
 exports.ClosedCurveShapeSpaceNavigator = ClosedCurveShapeSpaceNavigator;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceNavigation/NavigationState.ts":
+/***/ "./src/curveShapeSpaceNavigation/NavigationState.ts"
 /*!**********************************************************!*\
   !*** ./src/curveShapeSpaceNavigation/NavigationState.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -49882,13 +49883,13 @@ class CCurveNavigationStrictlyInsideShapeSpace extends ClosedCurveNavigationStat
 exports.CCurveNavigationStrictlyInsideShapeSpace = CCurveNavigationStrictlyInsideShapeSpace;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer.ts":
+/***/ "./src/curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer.ts"
 /*!*********************************************************************!*\
   !*** ./src/curveShapeSpaceNavigation/ShapeSpaceBoundaryEnforcer.ts ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -50095,13 +50096,13 @@ class StrictShapeSpacesBoundaryEnforcerClosedCurve extends AbstractShapeSpaceBou
 exports.StrictShapeSpacesBoundaryEnforcerClosedCurve = StrictShapeSpacesBoundaryEnforcerClosedCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts":
+/***/ "./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts"
 /*!************************************************************************!*\
   !*** ./src/curveShapeSpaceNavigation/ShapeSpaceDiffEventsStructure.ts ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -50238,13 +50239,13 @@ class ShapeSpaceDiffEventsStructure {
 exports.ShapeSpaceDiffEventsStructure = ShapeSpaceDiffEventsStructure;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/errorProcessing/ErrorLoging.ts":
+/***/ "./src/errorProcessing/ErrorLoging.ts"
 /*!********************************************!*\
   !*** ./src/errorProcessing/ErrorLoging.ts ***!
   \********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -50287,13 +50288,13 @@ class WarningLog extends ErrorProcessing {
 exports.WarningLog = WarningLog;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/filecontrollers/FileController.ts":
+/***/ "./src/filecontrollers/FileController.ts"
 /*!***********************************************!*\
   !*** ./src/filecontrollers/FileController.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -50366,13 +50367,13 @@ class FileController {
 exports.FileController = FileController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/linearAlgebra/CholeskyDecomposition.ts":
+/***/ "./src/linearAlgebra/CholeskyDecomposition.ts"
 /*!****************************************************!*\
   !*** ./src/linearAlgebra/CholeskyDecomposition.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -50478,13 +50479,13 @@ class CholeskyDecomposition {
 exports.CholeskyDecomposition = CholeskyDecomposition;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/linearAlgebra/DenseMatrix.ts":
+/***/ "./src/linearAlgebra/DenseMatrix.ts"
 /*!******************************************!*\
   !*** ./src/linearAlgebra/DenseMatrix.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -50579,13 +50580,13 @@ class DenseMatrix {
 exports.DenseMatrix = DenseMatrix;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/linearAlgebra/DiagonalMatrix.ts":
+/***/ "./src/linearAlgebra/DiagonalMatrix.ts"
 /*!*********************************************!*\
   !*** ./src/linearAlgebra/DiagonalMatrix.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -50666,13 +50667,13 @@ function identityMatrix(n) {
 exports.identityMatrix = identityMatrix;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/linearAlgebra/MathVectorBasicOperations.ts":
+/***/ "./src/linearAlgebra/MathVectorBasicOperations.ts"
 /*!********************************************************!*\
   !*** ./src/linearAlgebra/MathVectorBasicOperations.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -50921,13 +50922,13 @@ function sign(x) {
 exports.sign = sign;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/linearAlgebra/SquareMatrix.ts":
+/***/ "./src/linearAlgebra/SquareMatrix.ts"
 /*!*******************************************!*\
   !*** ./src/linearAlgebra/SquareMatrix.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -51086,13 +51087,13 @@ class SquareMatrix {
 exports.SquareMatrix = SquareMatrix;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/linearAlgebra/SymmetricMatrix.ts":
+/***/ "./src/linearAlgebra/SymmetricMatrix.ts"
 /*!**********************************************!*\
   !*** ./src/linearAlgebra/SymmetricMatrix.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -51300,13 +51301,13 @@ class SymmetricMatrix {
 exports.SymmetricMatrix = SymmetricMatrix;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/Complex.ts":
+/***/ "./src/mathVector/Complex.ts"
 /*!***********************************!*\
   !*** ./src/mathVector/Complex.ts ***!
   \***********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -51410,13 +51411,13 @@ class Complex {
 exports.Complex = Complex;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ComplexNumberFactory.ts":
+/***/ "./src/mathVector/ComplexNumberFactory.ts"
 /*!************************************************!*\
   !*** ./src/mathVector/ComplexNumberFactory.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -51563,13 +51564,13 @@ function multiplyComplexWeightsUsingDescriptors(a, b) {
 exports.multiplyComplexWeightsUsingDescriptors = multiplyComplexWeightsUsingDescriptors;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ComplexVectorSpace.ts":
+/***/ "./src/mathVector/ComplexVectorSpace.ts"
 /*!**********************************************!*\
   !*** ./src/mathVector/ComplexVectorSpace.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -51765,13 +51766,13 @@ exports.ComplexVectorSpace = ComplexVectorSpace;
 ComplexVectorSpace._spaceType = BSplineR1toRn_1.VectorSpaceType.COMPLEX;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ComplexVectorSpace1DStrategy.ts":
+/***/ "./src/mathVector/ComplexVectorSpace1DStrategy.ts"
 /*!********************************************************!*\
   !*** ./src/mathVector/ComplexVectorSpace1DStrategy.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -51887,13 +51888,13 @@ class ComplexVectorSpace1DStrategy {
 exports.ComplexVectorSpace1DStrategy = ComplexVectorSpace1DStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ComplexVectorSpace2DStrategy.ts":
+/***/ "./src/mathVector/ComplexVectorSpace2DStrategy.ts"
 /*!********************************************************!*\
   !*** ./src/mathVector/ComplexVectorSpace2DStrategy.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -52013,13 +52014,13 @@ class ComplexVectorSpace2DStrategy {
 exports.ComplexVectorSpace2DStrategy = ComplexVectorSpace2DStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ComplexWeight.ts":
+/***/ "./src/mathVector/ComplexWeight.ts"
 /*!*****************************************!*\
   !*** ./src/mathVector/ComplexWeight.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -52073,13 +52074,13 @@ class ComplexWeight {
 exports.ComplexWeight = ComplexWeight;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ProjectiveComplexVectorSpace.ts":
+/***/ "./src/mathVector/ProjectiveComplexVectorSpace.ts"
 /*!********************************************************!*\
   !*** ./src/mathVector/ProjectiveComplexVectorSpace.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -52386,13 +52387,13 @@ exports.ProjectiveComplexVectorSpace = ProjectiveComplexVectorSpace;
 ProjectiveComplexVectorSpace._spaceType = BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ProjectiveComplexVectorSpace2DStrategy.ts":
+/***/ "./src/mathVector/ProjectiveComplexVectorSpace2DStrategy.ts"
 /*!******************************************************************!*\
   !*** ./src/mathVector/ProjectiveComplexVectorSpace2DStrategy.ts ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -52555,13 +52556,13 @@ class ProjectiveComplexVectorSpace2DStrategy {
 exports.ProjectiveComplexVectorSpace2DStrategy = ProjectiveComplexVectorSpace2DStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ProjectiveVectorSpace.ts":
+/***/ "./src/mathVector/ProjectiveVectorSpace.ts"
 /*!*************************************************!*\
   !*** ./src/mathVector/ProjectiveVectorSpace.ts ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -52764,13 +52765,13 @@ exports.ProjectiveVectorSpace = ProjectiveVectorSpace;
 ProjectiveVectorSpace._spaceType = BSplineR1toRn_1.VectorSpaceType.PROJECTIVE;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ProjectiveVectorSpace3DStrategy.ts":
+/***/ "./src/mathVector/ProjectiveVectorSpace3DStrategy.ts"
 /*!***********************************************************!*\
   !*** ./src/mathVector/ProjectiveVectorSpace3DStrategy.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -52940,13 +52941,13 @@ class ProjectiveVectorSpace3DStrategy {
 exports.ProjectiveVectorSpace3DStrategy = ProjectiveVectorSpace3DStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/ProjectiveVectorSpace4DStrategy.ts":
+/***/ "./src/mathVector/ProjectiveVectorSpace4DStrategy.ts"
 /*!***********************************************************!*\
   !*** ./src/mathVector/ProjectiveVectorSpace4DStrategy.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -53100,13 +53101,13 @@ class ProjectiveVectorSpace4DStrategy {
 exports.ProjectiveVectorSpace4DStrategy = ProjectiveVectorSpace4DStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/RealVectorSpace.ts":
+/***/ "./src/mathVector/RealVectorSpace.ts"
 /*!*******************************************!*\
   !*** ./src/mathVector/RealVectorSpace.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -53286,13 +53287,13 @@ exports.RealVectorSpace = RealVectorSpace;
 RealVectorSpace._spaceType = BSplineR1toRn_1.VectorSpaceType.REAL;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/RealVectorSpace1DStrategy.ts":
+/***/ "./src/mathVector/RealVectorSpace1DStrategy.ts"
 /*!*****************************************************!*\
   !*** ./src/mathVector/RealVectorSpace1DStrategy.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -53393,13 +53394,13 @@ class RealVectorSpace1DStrategy {
 exports.RealVectorSpace1DStrategy = RealVectorSpace1DStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/RealVectorSpace2DStrategy.ts":
+/***/ "./src/mathVector/RealVectorSpace2DStrategy.ts"
 /*!*****************************************************!*\
   !*** ./src/mathVector/RealVectorSpace2DStrategy.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -53532,13 +53533,13 @@ class RealVectorSpace2DStrategy {
 exports.RealVectorSpace2DStrategy = RealVectorSpace2DStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/RealVectorSpace3DStrategy.ts":
+/***/ "./src/mathVector/RealVectorSpace3DStrategy.ts"
 /*!*****************************************************!*\
   !*** ./src/mathVector/RealVectorSpace3DStrategy.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -53665,13 +53666,13 @@ class RealVectorSpace3DStrategy {
 exports.RealVectorSpace3DStrategy = RealVectorSpace3DStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/RealVectorSpace4DStrategy.ts":
+/***/ "./src/mathVector/RealVectorSpace4DStrategy.ts"
 /*!*****************************************************!*\
   !*** ./src/mathVector/RealVectorSpace4DStrategy.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -53779,26 +53780,26 @@ class RealVectorSpace4DStrategy {
 exports.RealVectorSpace4DStrategy = RealVectorSpace4DStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/VectorCollection1D.ts":
-/*!**********************************************!*\
-  !*** ./src/mathVector/VectorCollection1D.ts ***!
-  \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+/***/ "./src/mathVector/VectorDescriptorCollection1D.ts"
+/*!********************************************************!*\
+  !*** ./src/mathVector/VectorDescriptorCollection1D.ts ***!
+  \********************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createVectorCollection1D = exports.VectorCollection1D = void 0;
+exports.createVectorCollection1D = exports.VectorDescriptorCollection1D = void 0;
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
-class VectorCollection1D {
-    constructor(vectorArray) {
+class VectorDescriptorCollection1D {
+    constructor(vectorDescriptorArray) {
         this._spaceDimension = BSplineR1toRn_1.INVALID_VS_DIMENSION;
         this._vectorSpaceType = BSplineR1toRn_1.VectorSpaceType.UNKNOWN_VECTORSPACE;
-        if (vectorArray !== undefined && vectorArray.length > 0) {
-            this._vectorCollection = vectorArray;
+        if (vectorDescriptorArray !== undefined && vectorDescriptorArray.length > 0) {
+            this._vectorCollection = vectorDescriptorArray;
             this.checkTypeConsistency();
             this._type = (0, VectorSpaceUtilities_1.getVectorTypeInfo)(this._vectorCollection[0]).typeString;
             const { type: vectorSpaceType, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorTypeAndDimension)(this._vectorCollection[0]);
@@ -53902,7 +53903,7 @@ class VectorCollection1D {
         }
     }
     revert() {
-        const revertedVectorCollection = new VectorCollection1D();
+        const revertedVectorCollection = new VectorDescriptorCollection1D();
         for (const vector of this) {
             revertedVectorCollection.push(this.pop());
         }
@@ -53915,13 +53916,13 @@ class VectorCollection1D {
         else if (index < 0 || index > this._vectorCollection.length) {
             throw new RangeError();
         }
-        return new VectorCollection1D([...this._vectorCollection.slice(0, index), vector, ...this._vectorCollection.slice(index)]);
+        return new VectorDescriptorCollection1D([...this._vectorCollection.slice(0, index), vector, ...this._vectorCollection.slice(index)]);
     }
     remove(index) {
         if (index < 0 || index > this._vectorCollection.length) {
             throw new RangeError();
         }
-        return new VectorCollection1D([...this._vectorCollection.slice(0, index), ...this._vectorCollection.slice(index + 1)]);
+        return new VectorDescriptorCollection1D([...this._vectorCollection.slice(0, index), ...this._vectorCollection.slice(index + 1)]);
     }
     isNullLength() {
         let isNullLength = false;
@@ -53930,23 +53931,23 @@ class VectorCollection1D {
         return isNullLength;
     }
     clone() {
-        return new VectorCollection1D([...this._vectorCollection]);
+        return new VectorDescriptorCollection1D([...this._vectorCollection]);
     }
 }
-exports.VectorCollection1D = VectorCollection1D;
+exports.VectorDescriptorCollection1D = VectorDescriptorCollection1D;
 function createVectorCollection1D(vectors) {
-    return new VectorCollection1D(vectors);
+    return new VectorDescriptorCollection1D(vectors);
 }
 exports.createVectorCollection1D = createVectorCollection1D;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/VectorSpaceConstructorInterface.ts":
+/***/ "./src/mathVector/VectorSpaceConstructorInterface.ts"
 /*!***********************************************************!*\
   !*** ./src/mathVector/VectorSpaceConstructorInterface.ts ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -54031,13 +54032,13 @@ exports.VECTOR_TYPE_INFO = {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/VectorSpaceFactory.ts":
+/***/ "./src/mathVector/VectorSpaceFactory.ts"
 /*!**********************************************!*\
   !*** ./src/mathVector/VectorSpaceFactory.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -54057,13 +54058,13 @@ function createRealVectorSpace(dimension) {
 exports.createRealVectorSpace = createRealVectorSpace;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/VectorSpaceUtilities.ts":
+/***/ "./src/mathVector/VectorSpaceUtilities.ts"
 /*!************************************************!*\
   !*** ./src/mathVector/VectorSpaceUtilities.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -54282,13 +54283,13 @@ function getVectorTypeInfo(vector) {
 exports.getVectorTypeInfo = getVectorTypeInfo;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/Weight.ts":
+/***/ "./src/mathVector/Weight.ts"
 /*!**********************************!*\
   !*** ./src/mathVector/Weight.ts ***!
   \**********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -54352,13 +54353,13 @@ class Weight {
 exports.Weight = Weight;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/WeightManager.ts":
+/***/ "./src/mathVector/WeightManager.ts"
 /*!*****************************************!*\
   !*** ./src/mathVector/WeightManager.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -54509,13 +54510,13 @@ class WeightManager {
 exports.WeightManager = WeightManager;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/WeightManagerPositiveWeightStrategy.ts":
+/***/ "./src/mathVector/WeightManagerPositiveWeightStrategy.ts"
 /*!***************************************************************!*\
   !*** ./src/mathVector/WeightManagerPositiveWeightStrategy.ts ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -54608,13 +54609,13 @@ class WeightManagerPositiveWeightStrategy {
 exports.WeightManagerPositiveWeightStrategy = WeightManagerPositiveWeightStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/WeightManagerSomeNullWeightStrategy.ts":
+/***/ "./src/mathVector/WeightManagerSomeNullWeightStrategy.ts"
 /*!***************************************************************!*\
   !*** ./src/mathVector/WeightManagerSomeNullWeightStrategy.ts ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -54728,13 +54729,13 @@ class WeightManagerSomeNullWeightStrategy {
 exports.WeightManagerSomeNullWeightStrategy = WeightManagerSomeNullWeightStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/WeightManagerStrictPositiveWeightStrategy.ts":
+/***/ "./src/mathVector/WeightManagerStrictPositiveWeightStrategy.ts"
 /*!*********************************************************************!*\
   !*** ./src/mathVector/WeightManagerStrictPositiveWeightStrategy.ts ***!
   \*********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -54826,13 +54827,13 @@ class WeightManagerStrictPositiveWeightStrategy {
 exports.WeightManagerStrictPositiveWeightStrategy = WeightManagerStrictPositiveWeightStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/internal/DefaultSpaceResolvers.ts":
+/***/ "./src/mathVector/internal/DefaultSpaceResolvers.ts"
 /*!**********************************************************!*\
   !*** ./src/mathVector/internal/DefaultSpaceResolvers.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -54940,13 +54941,13 @@ function resolveDefaultVectorSpace(vectorSpace) {
 exports.resolveDefaultVectorSpace = resolveDefaultVectorSpace;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/internal/DefaultVectorSpaces.ts":
+/***/ "./src/mathVector/internal/DefaultVectorSpaces.ts"
 /*!********************************************************!*\
   !*** ./src/mathVector/internal/DefaultVectorSpaces.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -55158,13 +55159,13 @@ exports.DefaultVectorSpaces = DefaultVectorSpaces;
 DefaultVectorSpaces.instance = null;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/internal/VectorSpaceIdentifierManager.ts":
+/***/ "./src/mathVector/internal/VectorSpaceIdentifierManager.ts"
 /*!*****************************************************************!*\
   !*** ./src/mathVector/internal/VectorSpaceIdentifierManager.ts ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -55310,13 +55311,13 @@ exports.VectorSpaceIdentifierManager = VectorSpaceIdentifierManager;
 VectorSpaceIdentifierManager.instance = null;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVector/internal/VectorSpaceResolvers.ts":
+/***/ "./src/mathVector/internal/VectorSpaceResolvers.ts"
 /*!*********************************************************!*\
   !*** ./src/mathVector/internal/VectorSpaceResolvers.ts ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -55407,13 +55408,13 @@ function resolveVectorSpace(vectorSpace) {
 exports.resolveVectorSpace = resolveVectorSpace;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathVectorOld/Vector2d.ts":
+/***/ "./src/mathVectorOld/Vector2d.ts"
 /*!***************************************!*\
   !*** ./src/mathVectorOld/Vector2d.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -55521,13 +55522,13 @@ function scaleY(factor, v) {
 exports.scaleY = scaleY;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathematics/Optimizer.ts":
+/***/ "./src/mathematics/Optimizer.ts"
 /*!**************************************!*\
   !*** ./src/mathematics/Optimizer.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -55810,13 +55811,13 @@ class Optimizer {
 exports.Optimizer = Optimizer;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/mathematics/TrustRegionSubproblem.ts":
+/***/ "./src/mathematics/TrustRegionSubproblem.ts"
 /*!**************************************************!*\
   !*** ./src/mathematics/TrustRegionSubproblem.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -56379,13 +56380,13 @@ function updateLambda_using_equation_7_3_14(lowerBound, upperBound, theta = 0.01
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/models/CurveModelObserver.ts":
+/***/ "./src/models/CurveModelObserver.ts"
 /*!******************************************!*\
   !*** ./src/models/CurveModelObserver.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -56739,13 +56740,13 @@ class CurveModelObserverInCurveSceneController extends CurveModelObserver {
 exports.CurveModelObserverInCurveSceneController = CurveModelObserverInCurveSceneController;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/BSplineR1toRn.ts":
+/***/ "./src/namedConstants/BSplineR1toRn.ts"
 /*!*********************************************!*\
   !*** ./src/namedConstants/BSplineR1toRn.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -56764,13 +56765,13 @@ var VectorSpaceType;
 })(VectorSpaceType = exports.VectorSpaceType || (exports.VectorSpaceType = {}));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/Complex.ts":
+/***/ "./src/namedConstants/Complex.ts"
 /*!***************************************!*\
   !*** ./src/namedConstants/Complex.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -56785,13 +56786,13 @@ exports.TOLERANCE_MIN_MAGNITUDE = void 0;
 exports.TOLERANCE_MIN_MAGNITUDE = 1e-12;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/ComplexTypeTag.ts":
+/***/ "./src/namedConstants/ComplexTypeTag.ts"
 /*!**********************************************!*\
   !*** ./src/namedConstants/ComplexTypeTag.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -56800,13 +56801,13 @@ exports.COMPLEX = void 0;
 exports.COMPLEX = 'Complex';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/ComplexVectorSpace.ts":
+/***/ "./src/namedConstants/ComplexVectorSpace.ts"
 /*!**************************************************!*\
   !*** ./src/namedConstants/ComplexVectorSpace.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -56816,13 +56817,13 @@ exports.MIN_DIMENSION_COMPLEXVECTORSPACE = 1;
 exports.MAX_DIMENSION_COMPLEXVECTORSPACE = 2;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/DefaultVectorSpaces.ts":
+/***/ "./src/namedConstants/DefaultVectorSpaces.ts"
 /*!***************************************************!*\
   !*** ./src/namedConstants/DefaultVectorSpaces.ts ***!
   \***************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -56837,13 +56838,13 @@ exports.LOCATION_INDEX_INTO_DEFAULT_VECTOR_SPACE_ID = 4;
 exports.DEFAULT_VSPACE_INDEX_INITIAL_VALUE = 1;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/KnotSequences.ts":
+/***/ "./src/namedConstants/KnotSequences.ts"
 /*!*********************************************!*\
   !*** ./src/namedConstants/KnotSequences.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -56910,13 +56911,13 @@ var NormalizedBasisAtSequenceExtremity;
 ;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/Knots.ts":
+/***/ "./src/namedConstants/Knots.ts"
 /*!*************************************!*\
   !*** ./src/namedConstants/Knots.ts ***!
   \*************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -56927,13 +56928,13 @@ exports.DEFAULT_KNOT_ABSCISSA_VALUE = Infinity;
 exports.DEFAULT_MULTIPLICITY_VALUE = Infinity;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/ProjectiveComplexVectorSpace.ts":
+/***/ "./src/namedConstants/ProjectiveComplexVectorSpace.ts"
 /*!************************************************************!*\
   !*** ./src/namedConstants/ProjectiveComplexVectorSpace.ts ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -56943,13 +56944,13 @@ exports.MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE = 2;
 exports.MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE = 2;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/ProjectiveVectorSpace.ts":
+/***/ "./src/namedConstants/ProjectiveVectorSpace.ts"
 /*!*****************************************************!*\
   !*** ./src/namedConstants/ProjectiveVectorSpace.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -56987,13 +56988,13 @@ var WeightManagement;
 ;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/RealVectorSpace.ts":
+/***/ "./src/namedConstants/RealVectorSpace.ts"
 /*!***********************************************!*\
   !*** ./src/namedConstants/RealVectorSpace.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -57003,13 +57004,13 @@ exports.MIN_DIMENSION_REALVECTORSPACE = 1;
 exports.MAX_DIMENSION_REALVECTORSPACE = 4;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/VectorSpaceIdentifierManager.ts":
+/***/ "./src/namedConstants/VectorSpaceIdentifierManager.ts"
 /*!************************************************************!*\
   !*** ./src/namedConstants/VectorSpaceIdentifierManager.ts ***!
   \************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -57022,13 +57023,13 @@ exports.LOCATION_INDEX_INTO_VECTOR_SPACE_ID = 3;
 exports.VSPACE_INDEX_INITIAL_VALUE = 1;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/VectorSpaceResolvers.ts":
+/***/ "./src/namedConstants/VectorSpaceResolvers.ts"
 /*!****************************************************!*\
   !*** ./src/namedConstants/VectorSpaceResolvers.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -57040,13 +57041,13 @@ exports.PROJECTIVE_VECTOR_SPACE_NAME = "Projective Real Vector Space R^";
 exports.PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME = "Projective Complex Vector Space C^";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/VectorTypeTags.ts":
+/***/ "./src/namedConstants/VectorTypeTags.ts"
 /*!**********************************************!*\
   !*** ./src/namedConstants/VectorTypeTags.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -57075,13 +57076,13 @@ exports.UNDEFINED_VECTORTYPE = 'UndefinedVectorType';
 //   | typeof UNDEFINED_VECTORTYPE;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/Weight.ts":
+/***/ "./src/namedConstants/Weight.ts"
 /*!**************************************!*\
   !*** ./src/namedConstants/Weight.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -57091,13 +57092,13 @@ exports.DEFAULT_WEIGHT_VALUE = 1;
 exports.DEFAULT_IMAGINARY_WEIGHT_VALUE = 0;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/namedConstants/WeightTypeTags.ts":
+/***/ "./src/namedConstants/WeightTypeTags.ts"
 /*!**********************************************!*\
   !*** ./src/namedConstants/WeightTypeTags.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -57107,13 +57108,13 @@ exports.WEIGHT = 'Weight';
 exports.COMPLEXWEIGHT = 'ComplexWeight';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractBSplineR1toR1.ts":
+/***/ "./src/newBsplines/AbstractBSplineR1toR1.ts"
 /*!**************************************************!*\
   !*** ./src/newBsplines/AbstractBSplineR1toR1.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -57469,13 +57470,13 @@ function findControlPointsFollowingSignChanges(spline) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractBSplineR1toR2.ts":
+/***/ "./src/newBsplines/AbstractBSplineR1toR2.ts"
 /*!**************************************************!*\
   !*** ./src/newBsplines/AbstractBSplineR1toR2.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -57915,13 +57916,13 @@ function deepCopyControlPoints(controlPoints) {
 exports.deepCopyControlPoints = deepCopyControlPoints;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts":
+/***/ "./src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts"
 /*!************************************************************************!*\
   !*** ./src/newBsplines/AbstractBSplineR1toR2DifferentialProperties.ts ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -58041,13 +58042,13 @@ class AbstractBSplineR1toR2DifferentialProperties {
 exports.AbstractBSplineR1toR2DifferentialProperties = AbstractBSplineR1toR2DifferentialProperties;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractBSplineR1toRn.ts":
+/***/ "./src/newBsplines/AbstractBSplineR1toRn.ts"
 /*!**************************************************!*\
   !*** ./src/newBsplines/AbstractBSplineR1toRn.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -58110,13 +58111,13 @@ class AbstractBSplineR1toRn {
 exports.AbstractBSplineR1toRn = AbstractBSplineR1toRn;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractIncreasingOpenKnotSequence.ts":
+/***/ "./src/newBsplines/AbstractIncreasingOpenKnotSequence.ts"
 /*!***************************************************************!*\
   !*** ./src/newBsplines/AbstractIncreasingOpenKnotSequence.ts ***!
   \***************************************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -58321,13 +58322,13 @@ __decorate([
 exports.AbstractIncreasingOpenKnotSequence = AbstractIncreasingOpenKnotSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractKnotIndex.ts":
+/***/ "./src/newBsplines/AbstractKnotIndex.ts"
 /*!**********************************************!*\
   !*** ./src/newBsplines/AbstractKnotIndex.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -58393,13 +58394,13 @@ class AbstractKnotIndex {
 exports.AbstractKnotIndex = AbstractKnotIndex;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractKnotSequence.ts":
+/***/ "./src/newBsplines/AbstractKnotSequence.ts"
 /*!*************************************************!*\
   !*** ./src/newBsplines/AbstractKnotSequence.ts ***!
   \*************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -58861,13 +58862,13 @@ class AbstractKnotSequence {
 exports.AbstractKnotSequence = AbstractKnotSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractOPenBSplineR1toRnStrategy.ts":
+/***/ "./src/newBsplines/AbstractOPenBSplineR1toRnStrategy.ts"
 /*!**************************************************************!*\
   !*** ./src/newBsplines/AbstractOPenBSplineR1toRnStrategy.ts ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -58948,13 +58949,13 @@ class AbstractOPenBSplineR1toRnStrategy {
 exports.AbstractOPenBSplineR1toRnStrategy = AbstractOPenBSplineR1toRnStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractOpenKnotSequence.ts":
+/***/ "./src/newBsplines/AbstractOpenKnotSequence.ts"
 /*!*****************************************************!*\
   !*** ./src/newBsplines/AbstractOpenKnotSequence.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -59705,13 +59706,13 @@ class AbstractOpenKnotSequence extends AbstractKnotSequence_1.AbstractKnotSequen
 exports.AbstractOpenKnotSequence = AbstractOpenKnotSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractPeriodicKnotSequence.ts":
+/***/ "./src/newBsplines/AbstractPeriodicKnotSequence.ts"
 /*!*********************************************************!*\
   !*** ./src/newBsplines/AbstractPeriodicKnotSequence.ts ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -59859,13 +59860,13 @@ class AbstractPeriodicKnotSequence extends AbstractKnotSequence_1.AbstractKnotSe
 exports.AbstractPeriodicKnotSequence = AbstractPeriodicKnotSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AbstractStrictlyIncreasingOpenKnotSequence.ts":
+/***/ "./src/newBsplines/AbstractStrictlyIncreasingOpenKnotSequence.ts"
 /*!***********************************************************************!*\
   !*** ./src/newBsplines/AbstractStrictlyIncreasingOpenKnotSequence.ts ***!
   \***********************************************************************/
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -60039,13 +60040,13 @@ __decorate([
 exports.AbstractStrictlyIncreasingOpenKnotSequence = AbstractStrictlyIncreasingOpenKnotSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/AlgorithmBootstrap.ts":
+/***/ "./src/newBsplines/AlgorithmBootstrap.ts"
 /*!***********************************************!*\
   !*** ./src/newBsplines/AlgorithmBootstrap.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -60132,13 +60133,13 @@ exports.AlgorithmBootstrap = AlgorithmBootstrap;
 AlgorithmBootstrap.isInitialized = false;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/BSplineR1toR1.ts":
+/***/ "./src/newBsplines/BSplineR1toR1.ts"
 /*!******************************************!*\
   !*** ./src/newBsplines/BSplineR1toR1.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -60553,13 +60554,13 @@ class BSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
 exports.BSplineR1toR1 = BSplineR1toR1;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/BSplineR1toR2.ts":
+/***/ "./src/newBsplines/BSplineR1toR2.ts"
 /*!******************************************!*\
   !*** ./src/newBsplines/BSplineR1toR2.ts ***!
   \******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -61032,13 +61033,13 @@ exports.create_BSplineR1toR2V2d = create_BSplineR1toR2V2d;
 // }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts":
+/***/ "./src/newBsplines/BSplineR1toR2DifferentialProperties.ts"
 /*!****************************************************************!*\
   !*** ./src/newBsplines/BSplineR1toR2DifferentialProperties.ts ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -61057,13 +61058,13 @@ class BSplineR1toR2DifferentialProperties extends AbstractBSplineR1toR2Different
 exports.BSplineR1toR2DifferentialProperties = BSplineR1toR2DifferentialProperties;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/BSplineR1toRnConstructorInterface.ts":
+/***/ "./src/newBsplines/BSplineR1toRnConstructorInterface.ts"
 /*!**************************************************************!*\
   !*** ./src/newBsplines/BSplineR1toRnConstructorInterface.ts ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -61093,13 +61094,13 @@ exports.CLOSED_BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY = "ClosedBSPLR
 exports.BSPL_PH_QUINTIC_LINE_CIRCLE = "OpenBSpline_PH_quintic_line_circle";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/BernsteinDecompositionR1toR1.ts":
+/***/ "./src/newBsplines/BernsteinDecompositionR1toR1.ts"
 /*!*********************************************************!*\
   !*** ./src/newBsplines/BernsteinDecompositionR1toR1.ts ***!
   \*********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -61252,13 +61253,13 @@ function splineRecomposition(bernsteinDecomposiiton, distinctKnots) {
 exports.splineRecomposition = splineRecomposition;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/BinomialCoefficient.ts":
+/***/ "./src/newBsplines/BinomialCoefficient.ts"
 /*!************************************************!*\
   !*** ./src/newBsplines/BinomialCoefficient.ts ***!
   \************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -61301,26 +61302,26 @@ function memoizedBinomialCoefficient() {
 exports.memoizedBinomialCoefficient = memoizedBinomialCoefficient;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/ControlPolygon.ts":
+/***/ "./src/newBsplines/ControlPolygon.ts"
 /*!*******************************************!*\
   !*** ./src/newBsplines/ControlPolygon.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.createControlPolygon = exports.ControlPolygon = void 0;
-const VectorCollection1D_1 = __webpack_require__(/*! ../mathVector/VectorCollection1D */ "./src/mathVector/VectorCollection1D.ts");
+const VectorDescriptorCollection1D_1 = __webpack_require__(/*! ../mathVector/VectorDescriptorCollection1D */ "./src/mathVector/VectorDescriptorCollection1D.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ../mathVector/VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const ControlPolygonComplexProjectiveVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonComplexProjectiveVectorStrategy */ "./src/newBsplines/ControlPolygonComplexProjectiveVectorStrategy.ts");
 const ControlPolygonComplexVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonComplexVectorStrategy */ "./src/newBsplines/ControlPolygonComplexVectorStrategy.ts");
 const ControlPolygonRealProjectiveVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonRealProjectiveVectorStrategy */ "./src/newBsplines/ControlPolygonRealProjectiveVectorStrategy.ts");
 const ControlPolygonRealVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonRealVectorStrategy */ "./src/newBsplines/ControlPolygonRealVectorStrategy.ts");
-class ControlPolygon extends VectorCollection1D_1.VectorCollection1D {
+class ControlPolygon extends VectorDescriptorCollection1D_1.VectorDescriptorCollection1D {
     constructor(controlPoints) {
         super(controlPoints);
         const { type: vectorSpace, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorTypeAndDimension)(this._vectorCollection[0]);
@@ -61364,13 +61365,13 @@ function createControlPolygon(controlpPoints) {
 exports.createControlPolygon = createControlPolygon;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/ControlPolygonComplexProjectiveVectorStrategy.ts":
+/***/ "./src/newBsplines/ControlPolygonComplexProjectiveVectorStrategy.ts"
 /*!**************************************************************************!*\
   !*** ./src/newBsplines/ControlPolygonComplexProjectiveVectorStrategy.ts ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -61389,13 +61390,13 @@ class ControlPolygonComplexProjectiveVectorStrategy {
 exports.ControlPolygonComplexProjectiveVectorStrategy = ControlPolygonComplexProjectiveVectorStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/ControlPolygonComplexVectorStrategy.ts":
+/***/ "./src/newBsplines/ControlPolygonComplexVectorStrategy.ts"
 /*!****************************************************************!*\
   !*** ./src/newBsplines/ControlPolygonComplexVectorStrategy.ts ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -61414,13 +61415,13 @@ class ControlPolygonComplexVectorStrategy {
 exports.ControlPolygonComplexVectorStrategy = ControlPolygonComplexVectorStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/ControlPolygonRealProjectiveVectorStrategy.ts":
+/***/ "./src/newBsplines/ControlPolygonRealProjectiveVectorStrategy.ts"
 /*!***********************************************************************!*\
   !*** ./src/newBsplines/ControlPolygonRealProjectiveVectorStrategy.ts ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -61439,13 +61440,13 @@ class ControlPolygonRealProjectiveVectorStrategy {
 exports.ControlPolygonRealProjectiveVectorStrategy = ControlPolygonRealProjectiveVectorStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/ControlPolygonRealVectorStrategy.ts":
+/***/ "./src/newBsplines/ControlPolygonRealVectorStrategy.ts"
 /*!*************************************************************!*\
   !*** ./src/newBsplines/ControlPolygonRealVectorStrategy.ts ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -61464,13 +61465,13 @@ class ControlPolygonRealVectorStrategy {
 exports.ControlPolygonRealVectorStrategy = ControlPolygonRealVectorStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/CoxDeBoorAlgorithm.ts":
+/***/ "./src/newBsplines/CoxDeBoorAlgorithm.ts"
 /*!***********************************************!*\
   !*** ./src/newBsplines/CoxDeBoorAlgorithm.ts ***!
   \***********************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -61554,13 +61555,13 @@ class CoxDeBoorAlgorithm {
 exports.CoxDeBoorAlgorithm = CoxDeBoorAlgorithm;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/CoxDeBoorAlgorithmFactory.ts":
+/***/ "./src/newBsplines/CoxDeBoorAlgorithmFactory.ts"
 /*!******************************************************!*\
   !*** ./src/newBsplines/CoxDeBoorAlgorithmFactory.ts ***!
   \******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -61601,13 +61602,13 @@ class CoxDeBoorAlgorithmFactory {
 exports.CoxDeBoorAlgorithmFactory = CoxDeBoorAlgorithmFactory;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/IncreasingOpenKnotSequenceClosedCurve.ts":
+/***/ "./src/newBsplines/IncreasingOpenKnotSequenceClosedCurve.ts"
 /*!******************************************************************!*\
   !*** ./src/newBsplines/IncreasingOpenKnotSequenceClosedCurve.ts ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -61901,13 +61902,13 @@ class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSe
 exports.IncreasingOpenKnotSequenceClosedCurve = IncreasingOpenKnotSequenceClosedCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/IncreasingOpenKnotSequenceOpenCurve.ts":
+/***/ "./src/newBsplines/IncreasingOpenKnotSequenceOpenCurve.ts"
 /*!****************************************************************!*\
   !*** ./src/newBsplines/IncreasingOpenKnotSequenceOpenCurve.ts ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62022,13 +62023,13 @@ class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenKnotSequ
 exports.IncreasingOpenKnotSequenceOpenCurve = IncreasingOpenKnotSequenceOpenCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts":
+/***/ "./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts"
 /*!**********************************************************************!*\
   !*** ./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62250,13 +62251,13 @@ class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequ
 exports.IncreasingPeriodicKnotSequenceClosedCurve = IncreasingPeriodicKnotSequenceClosedCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/Knot.ts":
+/***/ "./src/newBsplines/Knot.ts"
 /*!*********************************!*\
   !*** ./src/newBsplines/Knot.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62395,13 +62396,13 @@ class Knot {
 exports.Knot = Knot;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotIndexConstructorInterface.ts":
+/***/ "./src/newBsplines/KnotIndexConstructorInterface.ts"
 /*!**********************************************************!*\
   !*** ./src/newBsplines/KnotIndexConstructorInterface.ts ***!
   \**********************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -62414,13 +62415,13 @@ exports.KNOT_INDEX_INCREASING_SEQUENCE = "KnotIndexIncreasingSequence";
 exports.KNOT_INDEX_STRICTLY_INCREASING_SEQUENCE = "KnotIndexStrictlyIncreasingSequence";
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotIndexIncreasingSequence.ts":
+/***/ "./src/newBsplines/KnotIndexIncreasingSequence.ts"
 /*!********************************************************!*\
   !*** ./src/newBsplines/KnotIndexIncreasingSequence.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62452,13 +62453,13 @@ class KnotIndexIncreasingSequence extends AbstractKnotIndex_1.AbstractKnotIndex 
 exports.KnotIndexIncreasingSequence = KnotIndexIncreasingSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts":
+/***/ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts"
 /*!****************************************************************!*\
   !*** ./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62490,13 +62491,13 @@ class KnotIndexStrictlyIncreasingSequence extends AbstractKnotIndex_1.AbstractKn
 exports.KnotIndexStrictlyIncreasingSequence = KnotIndexStrictlyIncreasingSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterDecrementKnotMultiplicity.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterDecrementKnotMultiplicity.ts"
 /*!*********************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/adaptParameterDecrementKnotMultiplicity.ts ***!
   \*********************************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -62514,13 +62515,13 @@ function adaptParameterDecrementKnotMultiplicity() {
 exports.adaptParameterDecrementKnotMultiplicity = adaptParameterDecrementKnotMultiplicity;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterInsertKnot.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterInsertKnot.ts"
 /*!******************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/adaptParameterInsertKnot.ts ***!
   \******************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -62538,13 +62539,13 @@ function adaptParameterInsertKnot() {
 exports.adaptParameterInsertKnot = adaptParameterInsertKnot;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterRaiseKnotMultiplicity.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/adaptParameterRaiseKnotMultiplicity.ts"
 /*!*****************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/adaptParameterRaiseKnotMultiplicity.ts ***!
   \*****************************************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -62562,13 +62563,13 @@ function adaptParameterRaiseKnotMultiplicity() {
 exports.adaptParameterRaiseKnotMultiplicity = adaptParameterRaiseKnotMultiplicity;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingOpentoIncreasingPeriodicKnotSequence.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingOpentoIncreasingPeriodicKnotSequence.ts"
 /*!********************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingOpentoIncreasingPeriodicKnotSequence.ts ***!
   \********************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62600,13 +62601,13 @@ function fromIncreasingOpentoIncreasingPeriodicKnotSequence(increasingSeq) {
 exports.fromIncreasingOpentoIncreasingPeriodicKnotSequence = fromIncreasingOpentoIncreasingPeriodicKnotSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC.ts"
 /*!**********************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC.ts ***!
   \**********************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62661,13 +62662,13 @@ function fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(increasingSeq) {
 exports.fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC = fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence.ts"
 /*!********************************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence.ts ***!
   \********************************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62682,13 +62683,13 @@ function fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(increasi
 exports.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC.ts"
 /*!**********************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC.ts ***!
   \**********************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62708,13 +62709,13 @@ function fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(increasingSeq) {
 exports.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC.ts"
 /*!**********************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC.ts ***!
   \**********************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62734,13 +62735,13 @@ function fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(increasingSeq) {
 exports.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC.ts"
 /*!**************************************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC.ts ***!
   \**************************************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62759,13 +62760,13 @@ function fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(st
 exports.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC = fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC.ts"
 /*!*******************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC.ts ***!
   \*******************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62793,13 +62794,13 @@ function fromStrictlyIncreasingtToIncreasingKnotSequenceOC(strictIncSeq) {
 exports.fromStrictlyIncreasingtToIncreasingKnotSequenceOC = fromStrictlyIncreasingtToIncreasingKnotSequenceOC;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq.ts"
 /*!*****************************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq.ts ***!
   \*****************************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62815,13 +62816,13 @@ function prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq(increasingS
 exports.prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq = prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSequenceCC.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSequenceCC.ts"
 /*!*****************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSequenceCC.ts ***!
   \*****************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62872,13 +62873,13 @@ function prepareIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameter
 exports.prepareIncreasingOpenKnotSequenceCC = prepareIncreasingOpenKnotSequenceCC;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq.ts"
 /*!*********************************************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq.ts ***!
   \*********************************************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62960,13 +62961,13 @@ function prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKno
 exports.prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq = prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSequenceCC.ts":
+/***/ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSequenceCC.ts"
 /*!*************************************************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSequenceCC.ts ***!
   \*************************************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -62995,13 +62996,13 @@ function prepareStrictlyIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotP
 exports.prepareStrictlyIncreasingOpenKnotSequenceCC = prepareStrictlyIncreasingOpenKnotSequenceCC;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/KnotSequenceConstructorInterface.ts":
+/***/ "./src/newBsplines/KnotSequenceConstructorInterface.ts"
 /*!*************************************************************!*\
   !*** ./src/newBsplines/KnotSequenceConstructorInterface.ts ***!
   \*************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -63464,13 +63465,13 @@ exports.INCREASINGPERIODICKNOTSEQUENCE = 'IncreasingPeriodicKnotSequence';
 exports.STRICTLYINCREASINGPERIODICKNOTSEQUENCE = 'StrictIncreasingPeriodicKnotSequence';
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/OpenBSplineR1toRn.ts":
+/***/ "./src/newBsplines/OpenBSplineR1toRn.ts"
 /*!**********************************************!*\
   !*** ./src/newBsplines/OpenBSplineR1toRn.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -63756,13 +63757,13 @@ exports.AlgorithmRegistry = AlgorithmRegistry;
 AlgorithmRegistry.algorithms = new Map();
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/OpenBSplineR1toRnComplexProjectiveVectorStrategy.ts":
+/***/ "./src/newBsplines/OpenBSplineR1toRnComplexProjectiveVectorStrategy.ts"
 /*!*****************************************************************************!*\
   !*** ./src/newBsplines/OpenBSplineR1toRnComplexProjectiveVectorStrategy.ts ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -63811,13 +63812,13 @@ class OpenBSplineR1toRnComplexProjectiveVectorStrategy extends AbstractOPenBSpli
 exports.OpenBSplineR1toRnComplexProjectiveVectorStrategy = OpenBSplineR1toRnComplexProjectiveVectorStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/OpenBSplineR1toRnComplexVectorStrategy.ts":
+/***/ "./src/newBsplines/OpenBSplineR1toRnComplexVectorStrategy.ts"
 /*!*******************************************************************!*\
   !*** ./src/newBsplines/OpenBSplineR1toRnComplexVectorStrategy.ts ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -63860,13 +63861,13 @@ class OpenBSplineR1toRnComplexVectorStrategy extends AbstractOPenBSplineR1toRnSt
 exports.OpenBSplineR1toRnComplexVectorStrategy = OpenBSplineR1toRnComplexVectorStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/OpenBSplineR1toRnRealProjectiveVectorStrategy.ts":
+/***/ "./src/newBsplines/OpenBSplineR1toRnRealProjectiveVectorStrategy.ts"
 /*!**************************************************************************!*\
   !*** ./src/newBsplines/OpenBSplineR1toRnRealProjectiveVectorStrategy.ts ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -63910,13 +63911,13 @@ class OpenBSplineR1toRnRealProjectiveVectorStrategy extends AbstractOPenBSplineR
 exports.OpenBSplineR1toRnRealProjectiveVectorStrategy = OpenBSplineR1toRnRealProjectiveVectorStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/OpenBSplineR1toRnRealVectorStrategy.ts":
+/***/ "./src/newBsplines/OpenBSplineR1toRnRealVectorStrategy.ts"
 /*!****************************************************************!*\
   !*** ./src/newBsplines/OpenBSplineR1toRnRealVectorStrategy.ts ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -63979,13 +63980,13 @@ class OpenBSplineR1toRnRealVectorStrategy extends AbstractOPenBSplineR1toRnStrat
 exports.OpenBSplineR1toRnRealVectorStrategy = OpenBSplineR1toRnRealVectorStrategy;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/PeriodicBSplineR1toR1.ts":
+/***/ "./src/newBsplines/PeriodicBSplineR1toR1.ts"
 /*!**************************************************!*\
   !*** ./src/newBsplines/PeriodicBSplineR1toR1.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -64099,13 +64100,13 @@ class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR
 exports.PeriodicBSplineR1toR1 = PeriodicBSplineR1toR1;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/PeriodicBSplineR1toR2.ts":
+/***/ "./src/newBsplines/PeriodicBSplineR1toR2.ts"
 /*!**************************************************!*\
   !*** ./src/newBsplines/PeriodicBSplineR1toR2.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -64978,13 +64979,13 @@ class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR
 exports.PeriodicBSplineR1toR2 = PeriodicBSplineR1toR2;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts":
+/***/ "./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts"
 /*!************************************************************************!*\
   !*** ./src/newBsplines/PeriodicBSplineR1toR2DifferentialProperties.ts ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -65020,13 +65021,13 @@ class PeriodicBSplineR1toR2DifferentialProperties extends AbstractBSplineR1toR2D
 exports.PeriodicBSplineR1toR2DifferentialProperties = PeriodicBSplineR1toR2DifferentialProperties;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts":
+/***/ "./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts"
 /*!**********************************************************************!*\
   !*** ./src/newBsplines/PeriodicBSplineR1toR2withOpenKnotSequence.ts ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -65640,13 +65641,13 @@ function create_PeriodicBSplineR1toR2(controlPoints, knots) {
 exports.create_PeriodicBSplineR1toR2 = create_PeriodicBSplineR1toR2;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/Piegl_Tiller_NURBS_Book.ts":
+/***/ "./src/newBsplines/Piegl_Tiller_NURBS_Book.ts"
 /*!****************************************************!*\
   !*** ./src/newBsplines/Piegl_Tiller_NURBS_Book.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -65934,13 +65935,13 @@ function resetKnotAbscissaeToOrigin(knotAbscissa, indexOrigin = new KnotIndexStr
 exports.resetKnotAbscissaeToOrigin = resetKnotAbscissaeToOrigin;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts":
+/***/ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts"
 /*!**************************************************************************!*\
   !*** ./src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -66211,13 +66212,13 @@ class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncr
 exports.StrictlyIncreasingOpenKnotSequenceClosedCurve = StrictlyIncreasingOpenKnotSequenceClosedCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts":
+/***/ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts"
 /*!************************************************************************!*\
   !*** ./src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -66326,13 +66327,13 @@ class StrictlyIncreasingOpenKnotSequenceOpenCurve extends AbstractStrictlyIncrea
 exports.StrictlyIncreasingOpenKnotSequenceOpenCurve = StrictlyIncreasingOpenKnotSequenceOpenCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve.ts":
+/***/ "./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve.ts"
 /*!******************************************************************************!*\
   !*** ./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve.ts ***!
   \******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -66472,13 +66473,13 @@ class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodic
 exports.StrictlyIncreasingPeriodicKnotSequenceClosedCurve = StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newModels/AbstractCurveModel.ts":
+/***/ "./src/newModels/AbstractCurveModel.ts"
 /*!*********************************************!*\
   !*** ./src/newModels/AbstractCurveModel.ts ***!
   \*********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -66600,13 +66601,13 @@ class AbstractCurveModel {
 exports.AbstractCurveModel = AbstractCurveModel;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newModels/ClosedCurveModel.ts":
+/***/ "./src/newModels/ClosedCurveModel.ts"
 /*!*******************************************!*\
   !*** ./src/newModels/ClosedCurveModel.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -66684,13 +66685,13 @@ class ClosedCurveModel extends AbstractCurveModel_1.AbstractCurveModel {
 exports.ClosedCurveModel = ClosedCurveModel;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/newModels/CurveModel.ts":
+/***/ "./src/newModels/CurveModel.ts"
 /*!*************************************!*\
   !*** ./src/newModels/CurveModel.ts ***!
   \*************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -66760,13 +66761,13 @@ class CurveModel extends AbstractCurveModel_1.AbstractCurveModel {
 exports.CurveModel = CurveModel;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts":
+/***/ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts"
 /*!*****************************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/ComparatorOfSequencesDiffEvents.ts ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -67590,13 +67591,13 @@ class ComparatorOfSequencesOfDiffEvents {
 exports.ComparatorOfSequencesOfDiffEvents = ComparatorOfSequencesOfDiffEvents;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts":
+/***/ "./src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts"
 /*!******************************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/ComparatorOfSequencesOfIntervals.ts ***!
   \******************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -67707,13 +67708,13 @@ class ComparatorOfSequencesOfIntervals {
 exports.ComparatorOfSequencesOfIntervals = ComparatorOfSequencesOfIntervals;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/DifferentialEvent.ts":
+/***/ "./src/sequenceOfDifferentialEvents/DifferentialEvent.ts"
 /*!***************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/DifferentialEvent.ts ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -67775,13 +67776,13 @@ class CurvatureExtremumEvent extends DifferentialEvent {
 exports.CurvatureExtremumEvent = CurvatureExtremumEvent;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/DifferentialEventVariation.ts":
+/***/ "./src/sequenceOfDifferentialEvents/DifferentialEventVariation.ts"
 /*!************************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/DifferentialEventVariation.ts ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -68024,13 +68025,13 @@ function deepCopyDifferentialEventVariation(diffEventVariation) {
 exports.deepCopyDifferentialEventVariation = deepCopyDifferentialEventVariation;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts":
+/***/ "./src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts"
 /*!***************************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/LocalizerOfDifferentialEvents.ts ***!
   \***************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -68764,13 +68765,13 @@ class LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum extends Localiz
 exports.LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum = LocalizerOfInflectionsAppearingInAdjacentCurvatureExtremum;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/MaxIntervalVariation.ts":
+/***/ "./src/sequenceOfDifferentialEvents/MaxIntervalVariation.ts"
 /*!******************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/MaxIntervalVariation.ts ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -68811,13 +68812,13 @@ class MaxIntervalVariation {
 exports.MaxIntervalVariation = MaxIntervalVariation;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents.ts":
+/***/ "./src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents.ts"
 /*!************************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/ModifiedDifferentialEvents.ts ***!
   \************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -68913,13 +68914,13 @@ class ModifiedInflectionEvents extends ModifiedDifferentialEvents {
 exports.ModifiedInflectionEvents = ModifiedInflectionEvents;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts":
+/***/ "./src/sequenceOfDifferentialEvents/NeighboringEvents.ts"
 /*!***************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/NeighboringEvents.ts ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -68998,13 +68999,13 @@ class NeighboringEvents {
 exports.NeighboringEvents = NeighboringEvents;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts":
+/***/ "./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts"
 /*!**************************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/SequenceOfDifferentialEvents.ts ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -69328,13 +69329,13 @@ function deepCopySequenceOfDifferentialEvents(sequenceDifEvents) {
 exports.deepCopySequenceOfDifferentialEvents = deepCopySequenceOfDifferentialEvents;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/sequenceOfDifferentialEvents/SequenceOfIntervals.ts":
+/***/ "./src/sequenceOfDifferentialEvents/SequenceOfIntervals.ts"
 /*!*****************************************************************!*\
   !*** ./src/sequenceOfDifferentialEvents/SequenceOfIntervals.ts ***!
   \*****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -69426,13 +69427,13 @@ class SequenceOfIntervals {
 exports.SequenceOfIntervals = SequenceOfIntervals;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/shapeNavigableCurve/CurveCategory.ts":
+/***/ "./src/shapeNavigableCurve/CurveCategory.ts"
 /*!**************************************************!*\
   !*** ./src/shapeNavigableCurve/CurveCategory.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -69597,13 +69598,13 @@ class ClosedPlanarCurve extends CurveCategory {
 exports.ClosedPlanarCurve = ClosedPlanarCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/shapeNavigableCurve/EventMgmtAtCurveExtremities.ts":
+/***/ "./src/shapeNavigableCurve/EventMgmtAtCurveExtremities.ts"
 /*!****************************************************************!*\
   !*** ./src/shapeNavigableCurve/EventMgmtAtCurveExtremities.ts ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -69678,13 +69679,13 @@ class EventMgmtAtCurveExtremities {
 exports.EventMgmtAtCurveExtremities = EventMgmtAtCurveExtremities;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/shapeNavigableCurve/EventStateAtCurveExtremity.ts":
+/***/ "./src/shapeNavigableCurve/EventStateAtCurveExtremity.ts"
 /*!***************************************************************!*\
   !*** ./src/shapeNavigableCurve/EventStateAtCurveExtremity.ts ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -69892,13 +69893,13 @@ class NoEventToManageForCurve extends EventStateAtCurveExtremity {
 exports.NoEventToManageForCurve = NoEventToManageForCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/shapeNavigableCurve/ShapeNavigableCurve.ts":
+/***/ "./src/shapeNavigableCurve/ShapeNavigableCurve.ts"
 /*!********************************************************!*\
   !*** ./src/shapeNavigableCurve/ShapeNavigableCurve.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -70051,13 +70052,13 @@ class ShapeNavigableCurve {
 exports.ShapeNavigableCurve = ShapeNavigableCurve;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/userInterfaceController/UserInterfaceEventListener.ts":
+/***/ "./src/userInterfaceController/UserInterfaceEventListener.ts"
 /*!*******************************************************************!*\
   !*** ./src/userInterfaceController/UserInterfaceEventListener.ts ***!
   \*******************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -71081,13 +71082,13 @@ class CurveSceneEventListener {
 exports.CurveSceneEventListener = CurveSceneEventListener;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/AbstractGraphicalEntityView.ts":
+/***/ "./src/views/AbstractGraphicalEntityView.ts"
 /*!**************************************************!*\
   !*** ./src/views/AbstractGraphicalEntityView.ts ***!
   \**************************************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -71101,13 +71102,13 @@ class AbstractGraphicalEntityView {
 exports.AbstractGraphicalEntityView = AbstractGraphicalEntityView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/AbstractMouseSelectableButtonView.ts":
+/***/ "./src/views/AbstractMouseSelectableButtonView.ts"
 /*!********************************************************!*\
   !*** ./src/views/AbstractMouseSelectableButtonView.ts ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -71192,13 +71193,13 @@ class AbstractMouseSelectableButtonView extends AbstractMouseSelectableGraphicEn
 exports.AbstractMouseSelectableButtonView = AbstractMouseSelectableButtonView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/AbstractMouseSelectableGraphicEntityView.ts":
+/***/ "./src/views/AbstractMouseSelectableGraphicEntityView.ts"
 /*!***************************************************************!*\
   !*** ./src/views/AbstractMouseSelectableGraphicEntityView.ts ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -71218,13 +71219,13 @@ class AbstractMouseSelectableGraphicEntityView extends AbstractGraphicalEntityVi
 exports.AbstractMouseSelectableGraphicEntityView = AbstractMouseSelectableGraphicEntityView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/AbstractMouseSelectablePointView.ts":
+/***/ "./src/views/AbstractMouseSelectablePointView.ts"
 /*!*******************************************************!*\
   !*** ./src/views/AbstractMouseSelectablePointView.ts ***!
   \*******************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -71335,13 +71336,13 @@ class AbstractMouseSelectablePointView extends AbstractMouseSelectableGraphicEnt
 exports.AbstractMouseSelectablePointView = AbstractMouseSelectablePointView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/AbstractPointView.ts":
+/***/ "./src/views/AbstractPointView.ts"
 /*!****************************************!*\
   !*** ./src/views/AbstractPointView.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -71421,13 +71422,13 @@ class AbstractPointView extends AbstractGraphicalEntityView_1.AbstractGraphicalE
 exports.AbstractPointView = AbstractPointView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/ClampedControlPointView.ts":
+/***/ "./src/views/ClampedControlPointView.ts"
 /*!**********************************************!*\
   !*** ./src/views/ClampedControlPointView.ts ***!
   \**********************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -71580,13 +71581,13 @@ class ClampedControlPointView extends AbstractMouseSelectablePointView_1.Abstrac
 exports.ClampedControlPointView = ClampedControlPointView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/ClickButtonView.ts":
+/***/ "./src/views/ClickButtonView.ts"
 /*!**************************************!*\
   !*** ./src/views/ClickButtonView.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -71688,13 +71689,13 @@ class ClickButtonView extends AbstractMouseSelectableButtonView_1.AbstractMouseS
 exports.ClickButtonView = ClickButtonView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/ControlPointsView.ts":
+/***/ "./src/views/ControlPointsView.ts"
 /*!****************************************!*\
   !*** ./src/views/ControlPointsView.ts ***!
   \****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -71824,13 +71825,13 @@ class ControlPointsView extends AbstractMouseSelectablePointView_1.AbstractMouse
 exports.ControlPointsView = ControlPointsView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/ControlPolygonView.ts":
+/***/ "./src/views/ControlPolygonView.ts"
 /*!*****************************************!*\
   !*** ./src/views/ControlPolygonView.ts ***!
   \*****************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -71975,13 +71976,13 @@ class ControlPolygonView {
 exports.ControlPolygonView = ControlPolygonView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/CurvatureExtremaView.ts":
+/***/ "./src/views/CurvatureExtremaView.ts"
 /*!*******************************************!*\
   !*** ./src/views/CurvatureExtremaView.ts ***!
   \*******************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -72088,13 +72089,13 @@ class CurvatureExtremaView extends AbstractPointView_1.AbstractPointView {
 exports.CurvatureExtremaView = CurvatureExtremaView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/CurveKnotsView.ts":
+/***/ "./src/views/CurveKnotsView.ts"
 /*!*************************************!*\
   !*** ./src/views/CurveKnotsView.ts ***!
   \*************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -72206,13 +72207,13 @@ class CurveKnotsView extends AbstractPointView_1.AbstractPointView {
 exports.CurveKnotsView = CurveKnotsView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/CurveView.ts":
+/***/ "./src/views/CurveView.ts"
 /*!********************************!*\
   !*** ./src/views/CurveView.ts ***!
   \********************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -72351,13 +72352,13 @@ class CurveView {
 exports.CurveView = CurveView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/HighlightedControlPolygonView.ts":
+/***/ "./src/views/HighlightedControlPolygonView.ts"
 /*!****************************************************!*\
   !*** ./src/views/HighlightedControlPolygonView.ts ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -72494,13 +72495,13 @@ class HighlightedControlPolygonView {
 exports.HighlightedControlPolygonView = HighlightedControlPolygonView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/InflectionsView.ts":
+/***/ "./src/views/InflectionsView.ts"
 /*!**************************************!*\
   !*** ./src/views/InflectionsView.ts ***!
   \**************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -72607,13 +72608,13 @@ class InflectionsView extends AbstractPointView_1.AbstractPointView {
 exports.InflectionsView = InflectionsView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/PhantomCurveView.ts":
+/***/ "./src/views/PhantomCurveView.ts"
 /*!***************************************!*\
   !*** ./src/views/PhantomCurveView.ts ***!
   \***************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -72745,13 +72746,13 @@ class PhantomCurveView {
 exports.PhantomCurveView = PhantomCurveView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/SelectedDifferentialEventsView.ts":
+/***/ "./src/views/SelectedDifferentialEventsView.ts"
 /*!*****************************************************!*\
   !*** ./src/views/SelectedDifferentialEventsView.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -72842,13 +72843,13 @@ class SelectedDifferentialEventsView extends AbstractPointView_1.AbstractPointVi
 exports.SelectedDifferentialEventsView = SelectedDifferentialEventsView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/SelectedEnteringShapeSpaceCurvExtremView.ts":
+/***/ "./src/views/SelectedEnteringShapeSpaceCurvExtremView.ts"
 /*!***************************************************************!*\
   !*** ./src/views/SelectedEnteringShapeSpaceCurvExtremView.ts ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -72961,13 +72962,13 @@ class SelectedEnteringShapeSpaceCurvExtremaView extends SelectedDifferentialEven
 exports.SelectedEnteringShapeSpaceCurvExtremaView = SelectedEnteringShapeSpaceCurvExtremaView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/SelectedEnteringShapeSpaceInflectionView.ts":
+/***/ "./src/views/SelectedEnteringShapeSpaceInflectionView.ts"
 /*!***************************************************************!*\
   !*** ./src/views/SelectedEnteringShapeSpaceInflectionView.ts ***!
   \***************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -73080,13 +73081,13 @@ class SelectedEnteringShapeSpaceInflectionView extends SelectedDifferentialEvent
 exports.SelectedEnteringShapeSpaceInflectionView = SelectedEnteringShapeSpaceInflectionView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/SelectedSlipOutOfShapeSpaceCurvExtremView.ts":
+/***/ "./src/views/SelectedSlipOutOfShapeSpaceCurvExtremView.ts"
 /*!****************************************************************!*\
   !*** ./src/views/SelectedSlipOutOfShapeSpaceCurvExtremView.ts ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -73199,13 +73200,13 @@ class SelectedSlipOutOfShapeSpaceCurvExtremaView extends SelectedDifferentialEve
 exports.SelectedSlipOutOfShapeSpaceCurvExtremaView = SelectedSlipOutOfShapeSpaceCurvExtremaView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/SelectedSlipOutOfShapeSpaceInflectionView.ts":
+/***/ "./src/views/SelectedSlipOutOfShapeSpaceInflectionView.ts"
 /*!****************************************************************!*\
   !*** ./src/views/SelectedSlipOutOfShapeSpaceInflectionView.ts ***!
   \****************************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -73318,13 +73319,13 @@ class SelectedSlipOutOfShapeSpaceInflectionView extends SelectedDifferentialEven
 exports.SelectedSlipOutOfShapeSpaceInflectionView = SelectedSlipOutOfShapeSpaceInflectionView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/views/TransitionCurvatureExtremaView.ts":
+/***/ "./src/views/TransitionCurvatureExtremaView.ts"
 /*!*****************************************************!*\
   !*** ./src/views/TransitionCurvatureExtremaView.ts ***!
   \*****************************************************/
-/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
@@ -73431,13 +73432,13 @@ class TransitionCurvatureExtremaView extends AbstractPointView_1.AbstractPointVi
 exports.TransitionCurvatureExtremaView = TransitionCurvatureExtremaView;
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/webgl/cuon-utils.ts":
+/***/ "./src/webgl/cuon-utils.ts"
 /*!*********************************!*\
   !*** ./src/webgl/cuon-utils.ts ***!
   \*********************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -73513,13 +73514,13 @@ function loadShader(gl, type, source) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./src/webgl/webgl-utils.ts":
+/***/ "./src/webgl/webgl-utils.ts"
 /*!**********************************!*\
   !*** ./src/webgl/webgl-utils.ts ***!
   \**********************************/
-/***/ ((__unused_webpack_module, exports) => {
+(__unused_webpack_module, exports) {
 
 "use strict";
 
@@ -73591,13 +73592,8 @@ function WebGLUtils() {
     var makeFailHTML = function (msg) {
         return '' +
             '<div style="margin: auto; width:500px;z-index:10000;margin-top:20em;text-align:center;">' + msg + '</div>';
-        return '' +
-            '<table style="background-color: #8CE; width: 100%; height: 100%;"><tr>' +
-            '<td align="center">' +
-            '<div style="display: table-cell; vertical-align: middle;">' +
-            '<div style="">' + msg + '</div>' +
-            '</div>' +
-            '</td></tr></table>';
+        // removed by dead control flow
+
     };
     /**
      * Mesasge for getting a webgl browser
@@ -73718,7 +73714,7 @@ if (!window.cancelAnimationFrame) {
 }
 
 
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
@@ -73731,6 +73727,12 @@ if (!window.cancelAnimationFrame) {
 /******/ 		var cachedModule = __webpack_module_cache__[moduleId];
 /******/ 		if (cachedModule !== undefined) {
 /******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Check if module exists (development only)
+/******/ 		if (__webpack_modules__[moduleId] === undefined) {
+/******/ 			var e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {

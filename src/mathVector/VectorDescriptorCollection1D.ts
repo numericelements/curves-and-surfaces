@@ -4,18 +4,18 @@ import { getVectorTypeAndDimension, getVectorTypeInfo } from "./VectorSpaceUtili
 
 
 
-export class VectorCollection1D <T extends Vector = Vector> {
+export class VectorDescriptorCollection1D <T extends Vector = Vector> {
 
     protected _vectorCollection: Array<T>;
     protected _type: string;
     protected _vectorSpaceType: VectorSpaceType;
     protected _spaceDimension: number;
 
-    constructor(vectorArray?: Array<T>) {
+    constructor(vectorDescriptorArray?: Array<T>) {
         this._spaceDimension = INVALID_VS_DIMENSION;
         this._vectorSpaceType = VectorSpaceType.UNKNOWN_VECTORSPACE;
-        if(vectorArray !== undefined && vectorArray.length > 0) {
-            this._vectorCollection = vectorArray;
+        if(vectorDescriptorArray !== undefined && vectorDescriptorArray.length > 0) {
+            this._vectorCollection = vectorDescriptorArray;
             this.checkTypeConsistency();
             this._type = getVectorTypeInfo(this._vectorCollection[0]).typeString;
             const { type: vectorSpaceType, dimension: spaceDimension } = getVectorTypeAndDimension(this._vectorCollection[0]);
@@ -65,19 +65,19 @@ export class VectorCollection1D <T extends Vector = Vector> {
         return this._spaceDimension;
     }
 
-    isRealVectorSpace(): this is VectorCollection1D<RealVector> {
+    isRealVectorSpace(): this is VectorDescriptorCollection1D<RealVector> {
         return this._vectorSpaceType === VectorSpaceType.REAL;
     }
 
-    isComplexVectorSpace(): this is VectorCollection1D<ComplexVector> {
+    isComplexVectorSpace(): this is VectorDescriptorCollection1D<ComplexVector> {
         return this._vectorSpaceType === VectorSpaceType.COMPLEX;
     }
 
-    isProjectiveVectorSpace(): this is VectorCollection1D<ProjectiveVector> {
+    isProjectiveVectorSpace(): this is VectorDescriptorCollection1D<ProjectiveVector> {
         return this._vectorSpaceType === VectorSpaceType.PROJECTIVE;
     }
 
-    isProjectiveComplexVectorSpace(): this is VectorCollection1D<ProjectiveComplexVector> {
+    isProjectiveComplexVectorSpace(): this is VectorDescriptorCollection1D<ProjectiveComplexVector> {
         return this._vectorSpaceType === VectorSpaceType.PROJECTIVECOMPLEX;
     }
 
@@ -133,28 +133,28 @@ export class VectorCollection1D <T extends Vector = Vector> {
         }
     }
 
-    revert(): VectorCollection1D {
-        const revertedVectorCollection = new VectorCollection1D();
+    revert(): VectorDescriptorCollection1D {
+        const revertedVectorCollection = new VectorDescriptorCollection1D();
         for(const vector of this) {
             revertedVectorCollection.push(this.pop());
         }
         return revertedVectorCollection;
     }
 
-    insert(index: number, vector: T): VectorCollection1D {
+    insert(index: number, vector: T): VectorDescriptorCollection1D {
         if (typeof vector !== typeof this._vectorCollection[0]) {
             throw new RangeError();
         } else if(index < 0 || index > this._vectorCollection.length) {
             throw new RangeError();
         }
-        return new VectorCollection1D([...this._vectorCollection.slice(0, index), vector, ...this._vectorCollection.slice(index)]);
+        return new VectorDescriptorCollection1D([...this._vectorCollection.slice(0, index), vector, ...this._vectorCollection.slice(index)]);
     }
 
-    remove(index: number): VectorCollection1D {
+    remove(index: number): VectorDescriptorCollection1D {
         if(index < 0 || index > this._vectorCollection.length) {
             throw new RangeError();
         }
-        return new VectorCollection1D([...this._vectorCollection.slice(0, index), ...this._vectorCollection.slice(index + 1)]);
+        return new VectorDescriptorCollection1D([...this._vectorCollection.slice(0, index), ...this._vectorCollection.slice(index + 1)]);
     }
 
     isNullLength(): boolean {
@@ -163,22 +163,22 @@ export class VectorCollection1D <T extends Vector = Vector> {
         return isNullLength;
     }   
 
-    clone(): VectorCollection1D {
-        return new VectorCollection1D([...this._vectorCollection]);
+    clone(): VectorDescriptorCollection1D {
+        return new VectorDescriptorCollection1D([...this._vectorCollection]);
     }
 }
 
-export function createVectorCollection1D(vectors: number[]): VectorCollection1D<number>;
-export function createVectorCollection1D(vectors: RealVector1D[]): VectorCollection1D<RealVector1D>;
-export function createVectorCollection1D(vectors: RealVector2D[]): VectorCollection1D<RealVector2D>;
-export function createVectorCollection1D(vectors: RealVector3D[]): VectorCollection1D<RealVector3D>;
-export function createVectorCollection1D(vectors: RealVector4D[]): VectorCollection1D<RealVector4D>;
-export function createVectorCollection1D(vectors: ComplexVector1D[]): VectorCollection1D<ComplexVector1D>;
-export function createVectorCollection1D(vectors: ComplexVector2D[]): VectorCollection1D<ComplexVector2D>;
-export function createVectorCollection1D(vectors: ProjectiveVector2D[]): VectorCollection1D<ProjectiveVector2D>;
-export function createVectorCollection1D(vectors: ProjectiveVector3D[]): VectorCollection1D<ProjectiveVector3D>;
-export function createVectorCollection1D(vectors: ProjectiveComplexVector1D[]): VectorCollection1D<ProjectiveComplexVector1D>;
-export function createVectorCollection1D<T extends Vector>(vectors: T[]): VectorCollection1D<T>;
-export function createVectorCollection1D<T extends Vector>(vectors: T[]): VectorCollection1D<T> {
-    return new VectorCollection1D(vectors);
+export function createVectorCollection1D(vectors: number[]): VectorDescriptorCollection1D<number>;
+export function createVectorCollection1D(vectors: RealVector1D[]): VectorDescriptorCollection1D<RealVector1D>;
+export function createVectorCollection1D(vectors: RealVector2D[]): VectorDescriptorCollection1D<RealVector2D>;
+export function createVectorCollection1D(vectors: RealVector3D[]): VectorDescriptorCollection1D<RealVector3D>;
+export function createVectorCollection1D(vectors: RealVector4D[]): VectorDescriptorCollection1D<RealVector4D>;
+export function createVectorCollection1D(vectors: ComplexVector1D[]): VectorDescriptorCollection1D<ComplexVector1D>;
+export function createVectorCollection1D(vectors: ComplexVector2D[]): VectorDescriptorCollection1D<ComplexVector2D>;
+export function createVectorCollection1D(vectors: ProjectiveVector2D[]): VectorDescriptorCollection1D<ProjectiveVector2D>;
+export function createVectorCollection1D(vectors: ProjectiveVector3D[]): VectorDescriptorCollection1D<ProjectiveVector3D>;
+export function createVectorCollection1D(vectors: ProjectiveComplexVector1D[]): VectorDescriptorCollection1D<ProjectiveComplexVector1D>;
+export function createVectorCollection1D<T extends Vector>(vectors: T[]): VectorDescriptorCollection1D<T>;
+export function createVectorCollection1D<T extends Vector>(vectors: T[]): VectorDescriptorCollection1D<T> {
+    return new VectorDescriptorCollection1D(vectors);
 }

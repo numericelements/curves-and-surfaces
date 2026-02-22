@@ -13,13 +13,18 @@ import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { ComplexWeight } from "./ComplexWeight";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
+import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
+import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { IVector } from "./Vector";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
-import { IComplex, ProjectiveComplexVector } from "./VectorSpaceConstructorInterface";
+import { IComplex, ProjectiveComplexVector, ProjectiveComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVector<2> {
+export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVector<2> 
+    implements IVector<2, ProjectiveComplexVector1D>
+{
 
     private static readonly DIMENSION = 2 as const;
     private static readonly _vectorType = PROJECTIVECOMPLEXVECTOR1D;
@@ -144,6 +149,10 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
     get weight(): ComplexWeight {
         return new ComplexWeight(this._descriptor.coordinates[1].real, this._descriptor.coordinates[1].imaginary);
     }
+
+    get weightManagement(): WeightManagement {
+        return this._vectorSpace.weightManagement;
+    }
     
     get homogeneousComplexCoordinates(): Complex[] {
         return [new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary), new Complex(this.weight.real.value, this.weight.imaginary.value)];
@@ -237,19 +246,19 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         return new ProjectiveVector1DTypeComplex(complexW.divide(this.coordinates[0]), normalizedWeight, this._vectorSpace);
     }
 
-    normalize(tolerance?: number): ProjectiveVector1DTypeComplex {
-        const result = super.normalize(tolerance) as ProjectiveVector1DTypeComplex;
-        return new ProjectiveVector1DTypeComplex(result.coordinates[0], result.weight, this._vectorSpace);
+    normalize(tolerance?: number): this {
+        const result = super.normalize(tolerance);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
-    add(other: ProjectiveVector1DTypeComplex): ProjectiveVector1DTypeComplex {
-        const result = super.add(other) as ProjectiveVector1DTypeComplex;
-        return new ProjectiveVector1DTypeComplex(result.coordinates[0], super.add(other).weight, this._vectorSpace);
+    add(other: ProjectiveVector1DTypeComplex): this {
+        const result = super.add(other);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
-    subtract(other: ProjectiveVector1DTypeComplex): ProjectiveVector1DTypeComplex {
-        const result = super.subtract(other) as ProjectiveVector1DTypeComplex;
-        return new ProjectiveVector1DTypeComplex(result.coordinates[0], super.subtract(other).weight, this._vectorSpace);
+    subtract(other: ProjectiveVector1DTypeComplex): this {
+        const result = super.subtract(other);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
     equals(other: ProjectiveVector1DTypeComplex, tolerance?: number): boolean {
@@ -281,21 +290,31 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         }
     }
 
+    toProjectiveVector(projectiveVectorSpace?: ProjectiveVectorSpace<3>): ProjectiveVector2DTypeReal {
+        if(projectiveVectorSpace !== undefined) {
+            const projVect =  new ProjectiveVector2DTypeReal(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary, this.weight.real, projectiveVectorSpace);
+            const weiht = projVect.weight;
+            const weightManagement = projVect.weightManagement;
+            return projVect;
+        }
+        return new ProjectiveVector2DTypeReal(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary, this.weight.real, projectiveVectorSpace);
+    }
+
     toString(): string {
         return this.vectorType + `(${this.getCoordinate(0).toString()}, ${this.weight.toString()})` + ` ` + this._vectorSpace.toString();
     }
     
-    clone(): ProjectiveVector1DTypeComplex {
+    clone(): this {
         return new ProjectiveVector1DTypeComplex(
             this._descriptor.coordinates[0].real,
             this._descriptor.coordinates[0].imaginary,
             new Weight(this.weight.real.value, this.weight.real.strictlyPositive),
             new Weight(this.weight.imaginary.value, this.weight.imaginary.strictlyPositive),
             this._vectorSpace
-        );
+        ) as this;
     }
 
-    createVectorFromDescriptor(descriptor: ProjectiveComplexVector): ProjectiveVector1DTypeComplex {
-        return new ProjectiveVector1DTypeComplex(descriptor.coordinates[0].real, descriptor.coordinates[0].imaginary, descriptor.coordinates[1].real, descriptor.coordinates[1].imaginary, this.vectorSpace);
+    createVectorFromDescriptor(descriptor: ProjectiveComplexVector): this {
+        return new ProjectiveVector1DTypeComplex(descriptor.coordinates[0].real, descriptor.coordinates[0].imaginary, descriptor.coordinates[1].real, descriptor.coordinates[1].imaginary, this.vectorSpace) as this;
     }
 }

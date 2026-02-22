@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { createVectorCollection1D, VectorCollection1D } from "../../src/mathVector/VectorCollection1D";
+import { createVectorCollection1D, VectorDescriptorCollection1D } from "../../src/mathVector/VectorDescriptorCollection1D";
 import { INVALID_VS_DIMENSION, VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
@@ -12,45 +12,45 @@ describe('VectorCollection1D', () => {
 
     describe('Constructor', () => {
         it('can generate a valid VectorCollection1D without input data', () => {
-            expect(() => new VectorCollection1D()).to.not.throw()
+            expect(() => new VectorDescriptorCollection1D()).to.not.throw()
         });
 
         it('generates a valid VectorCollection1D with a null length array without input data', () => {
-            const vectorCollection = new VectorCollection1D();
+            const vectorCollection = new VectorDescriptorCollection1D();
             expect(vectorCollection.length).to.eql(0);
         });
 
         it(`generates a valid VectorCollection1D without input data. Corresponding vector space dimension is invalid and vector space type is UNKNOWN_VECTORSPACE and vector type is ${UNDEFINED_VECTORTYPE}`, () => {
-            const vectorCollection = new VectorCollection1D();
+            const vectorCollection = new VectorDescriptorCollection1D();
             expect(vectorCollection.spaceDimension).to.eql(INVALID_VS_DIMENSION);
             expect(vectorCollection.type).to.eql(UNDEFINED_VECTORTYPE);
             expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.UNKNOWN_VECTORSPACE);
         });
 
         it(`generates a valid VectorCollection1D without input data. Corresponding vector collection has null length`, () => {
-            const vectorCollection = new VectorCollection1D();
+            const vectorCollection = new VectorDescriptorCollection1D();
             expect(vectorCollection.vectorCollection).to.eql([]);
             expect(vectorCollection.length).to.eql(0);
         });
 
         it('can generate a valid VectorCollection1D with an input array of null length', () => {
-            expect(() => new VectorCollection1D([])).to.not.throw()
+            expect(() => new VectorDescriptorCollection1D([])).to.not.throw()
         });
 
         it('generates a valid VectorCollection1D with a null length array with a null length array as input', () => {
-            const vectorCollection = new VectorCollection1D([]);
+            const vectorCollection = new VectorDescriptorCollection1D([]);
             expect(vectorCollection.length).to.eql(0);
         });
 
         it(`generates a valid VectorCollection1D with a null length array as input. Corresponding vector space dimension is invalid and vector space type is UNKNOWN_VECTORSPACE and vector type is ${UNDEFINED_VECTORTYPE}`, () => {
-            const vectorCollection = new VectorCollection1D([]);
+            const vectorCollection = new VectorDescriptorCollection1D([]);
             expect(vectorCollection.spaceDimension).to.eql(INVALID_VS_DIMENSION);
             expect(vectorCollection.type).to.eql(UNDEFINED_VECTORTYPE);
             expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.UNKNOWN_VECTORSPACE);
         });
 
         it(`generates a valid VectorCollection1D with a null length array as input. Corresponding vector collection has null length`, () => {
-            const vectorCollection = new VectorCollection1D([]);
+            const vectorCollection = new VectorDescriptorCollection1D([]);
             expect(vectorCollection.vectorCollection).to.eql([]);
             expect(vectorCollection.length).to.eql(0);
         });
@@ -58,7 +58,7 @@ describe('VectorCollection1D', () => {
         describe('Real vector space', () => {
 
             it('can generate a valid VectorCollection1D with an input array of length 1. Use type assertion to fix typescript limitation with type inferencing for number[]', () => {
-                const vectorCollection = new VectorCollection1D([1.5] as number[]);
+                const vectorCollection = new VectorDescriptorCollection1D([1.5] as number[]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(1);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.REAL);
@@ -68,7 +68,7 @@ describe('VectorCollection1D', () => {
 
             it(`can generate a valid VectorCollection1D with an input array of length greater than one that defauts to ${REALVECTOR1D} type collection. Consistent type inference is achieved`, () => {
                 const vectors = [1, 2, 1.5];
-                const vectorCollection = new VectorCollection1D(vectors);
+                const vectorCollection = new VectorDescriptorCollection1D(vectors);
                 expect(vectorCollection.length).to.eql(3);
                 expect(vectorCollection.spaceDimension).to.eql(1);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.REAL);
@@ -82,7 +82,7 @@ describe('VectorCollection1D', () => {
             });
 
             it(`can generate a valid VectorCollection1D with an input array of length greater than one that defauts to ${REALVECTOR1D} type collection. Use type assertion`, () => {
-                const vectorCollection = new VectorCollection1D([1, 2, 1.5] as number[]);
+                const vectorCollection = new VectorDescriptorCollection1D([1, 2, 1.5] as number[]);
                 expect(vectorCollection.length).to.eql(3);
                 expect(vectorCollection.spaceDimension).to.eql(1);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.REAL);
@@ -92,7 +92,7 @@ describe('VectorCollection1D', () => {
             it(`can generate a valid VectorCollection1D with an input array of ${REALVECTOR1D} of length 1`, () => {
                 const realVS = new RealVectorSpace(1);
                 const vec1D = realVS.createVector([1]);
-                const vectorCollection = new VectorCollection1D([vec1D]);
+                const vectorCollection = new VectorDescriptorCollection1D([vec1D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(1);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.REAL);
@@ -103,7 +103,7 @@ describe('VectorCollection1D', () => {
             it(`can generate a valid VectorCollection1D with an input array of ${REALVECTOR2D} of length 1`, () => {
                 const realVS = new RealVectorSpace(2);
                 const vec2D = realVS.createVector([1, 2]);
-                const vectorCollection = new VectorCollection1D([vec2D]);
+                const vectorCollection = new VectorDescriptorCollection1D([vec2D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(2);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.REAL);
@@ -114,7 +114,7 @@ describe('VectorCollection1D', () => {
             it(`can generate a valid VectorCollection1D with an input array of ${REALVECTOR3D} of length 1`, () => {
                 const realVS = new RealVectorSpace(3);
                 const vec3D = realVS.createVector([1, 2, 3]);
-                const vectorCollection = new VectorCollection1D([vec3D]);
+                const vectorCollection = new VectorDescriptorCollection1D([vec3D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(3);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.REAL);
@@ -125,7 +125,7 @@ describe('VectorCollection1D', () => {
             it(`can generate a valid VectorCollection1D with an input array of ${REALVECTOR4D} of length 1`, () => {
                 const realVS = new RealVectorSpace(4);
                 const vec4D = realVS.createVector([1, 2, 3, 0]);
-                const vectorCollection = new VectorCollection1D([vec4D]);
+                const vectorCollection = new VectorDescriptorCollection1D([vec4D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(4);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.REAL);
@@ -139,7 +139,7 @@ describe('VectorCollection1D', () => {
                 const complexVS = new ComplexVectorSpace(1);
                 const vec1D = complexVS.createVector([[1, 0]]);
                 expect(vec1D).to.eql({type: COMPLEX, real: 1, imaginary: 0});
-                const vectorCollection = new VectorCollection1D([vec1D]);
+                const vectorCollection = new VectorDescriptorCollection1D([vec1D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(1);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.COMPLEX);
@@ -151,7 +151,7 @@ describe('VectorCollection1D', () => {
                 const complexVS = new ComplexVectorSpace(2);
                 const vec2D = complexVS.createVector([[1, 0], [-1, 1.5]]);
                 expect(vec2D).to.eql({type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 1, imaginary: 0}, {type: COMPLEX, real: -1, imaginary: 1.5}]});
-                const vectorCollection = new VectorCollection1D([vec2D]);
+                const vectorCollection = new VectorDescriptorCollection1D([vec2D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(2);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.COMPLEX);
@@ -171,7 +171,7 @@ describe('VectorCollection1D', () => {
                 expect(weight.type).to.eql(WEIGHT);
                 expect(weight.weight.value).to.eql(1);
                 expect(weight.weight.strictlyPositive).to.eql(true);
-                const vectorCollection = new VectorCollection1D([vec2D]);
+                const vectorCollection = new VectorDescriptorCollection1D([vec2D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(3);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.PROJECTIVE);
@@ -190,7 +190,7 @@ describe('VectorCollection1D', () => {
                 expect(weight.type).to.eql(WEIGHT);
                 expect(weight.weight.value).to.eql(1.5);
                 expect(weight.weight.strictlyPositive).to.eql(true);
-                const vectorCollection = new VectorCollection1D([vec3D]);
+                const vectorCollection = new VectorDescriptorCollection1D([vec3D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(4);
                 expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.PROJECTIVE);

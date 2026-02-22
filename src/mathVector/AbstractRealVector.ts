@@ -3,19 +3,26 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { RealVectorSpace } from "./RealVectorSpace";
 import type { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector, IVector } from "./Vector";
-import type { RealVector } from "./VectorSpaceConstructorInterface";
+import type { RealVector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
+import { IdentifiableVectorSpace } from "./IVectorSpace";
 
 /**
  * Abstract base for real vectors
  */
 
-export abstract class AbstractRealVector<D extends number> extends AbstractVector implements IRealVector {
+export abstract class AbstractRealVector<D extends number> 
+    extends AbstractVector<D, RealVectorOfDimension<D>, RealVectorSpace<D>> 
+    implements IRealVector<D>
+    {
     
     private static readonly _spaceType = VectorSpaceType.REAL;
+
+    protected abstract readonly _vectorSpace: RealVectorSpace<D>;
+    // protected abstract readonly _vectorSpace: IdentifiableVectorSpace<RealVector>;
 
     get spaceType(): VectorSpaceType.REAL { return AbstractRealVector._spaceType; }
     
@@ -23,10 +30,11 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
     get x(): number { return this.getCoordinate(0) }
 
     abstract get vectorSpace(): RealVectorSpace<D>;   
-    abstract get descriptor(): RealVector;
+    // abstract get descriptor(): RealVector;
+    abstract get descriptor(): RealVectorOfDimension<D>;
     abstract get coordinates(): number[];
     abstract getCoordinate(index: number): number;
-    abstract clone(): IRealVector;
+    abstract clone(): this;
 
     protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: RealVectorSpace<D>): void {
         if(vSpace.dimension() !== vectorDim) {
@@ -42,30 +50,37 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
         }
     }
     
-    add(other: IRealVector): IRealVector {
-        return super.add(other) as IRealVector;
-    }
+    // abstract add(other: IVector<D, RealVectorOfDimension<D>>): IVector<D, RealVectorOfDimension<D>>;
+    // add(other: IRealVector<D>): IRealVector<D> {
+    //     return super.add(other) as IRealVector<D>;
+    // }
 
-    subtract(other: IRealVector): IRealVector {
-        return super.subtract(other) as IRealVector;
-    }
+    // abstract subtract(other: IVector<D, RealVectorOfDimension<D>>): IVector<D, RealVectorOfDimension<D>>
+    // subtract(other: IRealVector): IRealVector<D> {
+    //     return super.subtract(other) as IRealVector<D>;
+    // }
 
-    scale(scalar: number): IRealVector {
+    // scale(scalar: number): IRealVector {
+    // scale(scalar: number): IVector<D, RealVectorOfDimension<D>> {
+    scale(scalar: number): this {
         const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
         return this.createVectorFromDescriptor(result);
     }
 
-    normalize(tolerance?: number): IRealVector {
-        return super.normalize(tolerance) as IRealVector;
-    }
+    // abstract normalize(tolerance?: number): IVector<D, RealVectorOfDimension<D>>
+    // normalize(tolerance?: number): IRealVector {
+    //     return super.normalize(tolerance) as IRealVector;
+    // }
 
-    dot(other: IRealVector): number {
-        return super.dot(other);
-    }
+    // abstract dot(other: IVector<D, RealVectorOfDimension<D>>): number
+    // dot(other: IRealVector): number {
+    //     return super.dot(other);
+    // }
 
-    revert(): IRealVector {
-        return super.revert() as IRealVector;
-    }
+    // abstract revert(): IVector<D, RealVectorOfDimension<D>>;
+    // revert(): IRealVector {
+    //     return super.revert() as IRealVector;
+    // }
 
     toArray(): number[] {
         return this.coordinates;
@@ -75,11 +90,12 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
         return this.vectorType + `(${this.toArray().join(', ')})` + ` ` + this._vectorSpace.toString();
     }
 
-    equals(other: IRealVector, tolerance?: number): boolean {
+    equals(other: IRealVector<D>, tolerance?: number): boolean {
         return super.equals(other, tolerance);
     }
 
-    isParallel(other: IRealVector, angularTolerance?: number): boolean {
+    isParallel(other: IRealVector<D>, angularTolerance?: number): boolean {
+    // isParallel(other: IVector<D, RealVectorOfDimension<D>>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();
@@ -93,7 +109,8 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
         return angle <= angularTolerance;
     }
 
-    isOrthogonal(other: IRealVector, angularTolerance?: number): boolean {
+    isOrthogonal(other: IRealVector<D>, angularTolerance?: number): boolean {
+    // isOrthogonal(other: IVector<D, RealVectorOfDimension<D>>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if(this.dimension === 1) {
             const error = sendRangeErrorMessage(this.constructor.name, 'isOrthogonal', EM_ISORTHOGONAL_NOT_APPLICABLE);
@@ -113,20 +130,21 @@ export abstract class AbstractRealVector<D extends number> extends AbstractVecto
         return (halfPi - angle) <= angularTolerance;
     }
 
-    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector {
+    toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector<any> {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
 
-    toComplexVector(complexVectorSpace?: ComplexVectorSpace<any>): IComplexVector {
+    toComplexVector(complexVectorSpace?: ComplexVectorSpace<any>): IComplexVector<any> {
         const error = sendRangeErrorMessage(this.constructor.name, 'toComplexVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
 
-    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector {
+    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector<any> {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveComplexVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
 
-    protected abstract createVectorFromDescriptor(descriptor: RealVector): IRealVector;
+    // protected abstract createVectorFromDescriptor(descriptor: RealVector): IRealVector;
+    // protected abstract createVectorFromDescriptor(descriptor: RealVector): IVector<D, RealVectorOfDimension<D>>;
 }

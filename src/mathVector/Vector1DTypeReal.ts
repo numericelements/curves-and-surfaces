@@ -4,12 +4,14 @@ import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import type { IProjectiveVector } from "./Vector";
-import type { RealVector1D } from "./VectorSpaceConstructorInterface";
+import type { IProjectiveVector, IVector } from "./Vector";
+import type { RealVector1D, RealVector2D, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
-export class Vector1DTypeReal extends AbstractRealVector<1> {
+export class Vector1DTypeReal extends AbstractRealVector<1> 
+    implements IVector<1, RealVector1D>
+{
 
     private static readonly DIMENSION = 1 as const;
     private static readonly _vectorType = REALVECTOR1D;
@@ -69,20 +71,24 @@ export class Vector1DTypeReal extends AbstractRealVector<1> {
         return this.value;
     }
     
-    clone(): Vector1DTypeReal {
-        return new Vector1DTypeReal(this.value, this.vectorSpace);
+    clone(): this {
+        // return new Vector1DTypeReal(this.value, this.vectorSpace);
+        return this.createVectorFromDescriptor(this.descriptor);
     }
 
-    add(other: Vector1DTypeReal): Vector1DTypeReal {
-        return new Vector1DTypeReal(super.add(other).coordinates[0], this.vectorSpace);
+    add(other: Vector1DTypeReal): this {
+        const result = super.add(other);
+        return this.createVectorFromDescriptor(result.coordinates[0]);
+   }
+
+    subtract(other: Vector1DTypeReal): this {
+        const result = super.subtract(other);
+        return this.createVectorFromDescriptor(result.coordinates[0]);
     }
 
-    subtract(other: Vector1DTypeReal): Vector1DTypeReal {
-        return new Vector1DTypeReal(super.subtract(other).coordinates[0], this.vectorSpace);
-    }
-
-    scale(factor: number): Vector1DTypeReal {
-        return new Vector1DTypeReal(super.scale(factor).coordinates[0], this.vectorSpace);
+    scale(factor: number): this {
+        const result = super.scale(factor);
+        return this.createVectorFromDescriptor(result.coordinates[0]);
     }
 
     dot(other: Vector1DTypeReal): number {
@@ -101,7 +107,8 @@ export class Vector1DTypeReal extends AbstractRealVector<1> {
         return super.isOrthogonal(other, angularTolerance);
     }
 
-    createVectorFromDescriptor(value: number): Vector1DTypeReal {
-        return new Vector1DTypeReal(value, this.vectorSpace);
+    // createVectorFromDescriptor(value: number): Vector1DTypeReal {
+    createVectorFromDescriptor(value: number): this {
+        return new Vector1DTypeReal(value, this.vectorSpace) as this;
     }
 }

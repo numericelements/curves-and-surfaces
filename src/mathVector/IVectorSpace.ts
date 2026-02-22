@@ -1,4 +1,5 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import type { ComplexVectorOfDimension, IComplex, ProjectiveComplexVectorOfDimension, ProjectiveVectorOfDimension, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";
 
 /**
@@ -87,7 +88,8 @@ export interface ProjectiveVectorSpaceInterface<D extends number>
     extends IdentifiableVectorSpace<ProjectiveVectorOfDimension<D>> {
     // readonly dimension: D;
 
-    readonly spaceType: VectorSpaceType.PROJECTIVE; 
+    readonly spaceType: VectorSpaceType.PROJECTIVE;
+    readonly weightManagement: WeightManagement;
     // defaultVect(): ProjectiveVectorOfDimension<D>;
     // toString(): string
     // addDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D>;

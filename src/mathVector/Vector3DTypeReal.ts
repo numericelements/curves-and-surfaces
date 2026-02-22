@@ -8,13 +8,15 @@ import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import type { IProjectiveVector } from "./Vector";
+import type { IProjectiveVector, IVector } from "./Vector";
 import type { RealVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class Vector3DTypeReal extends AbstractRealVector<3> {
+export class Vector3DTypeReal extends AbstractRealVector<3> 
+    implements IVector<3, RealVector3D>
+{
 
     private static readonly DIMENSION = 3 as const;
     private static readonly _vectorType = REALVECTOR3D;
@@ -76,16 +78,22 @@ export class Vector3DTypeReal extends AbstractRealVector<3> {
         return this._descriptor.coordinates[index];
     }
 
-    add(other: Vector3DTypeReal): Vector3DTypeReal {
-        return new Vector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], this.vectorSpace);
+    add(other: Vector3DTypeReal): this {
+        const result = super.add(other);
+        return this.createVectorFromDescriptor(result.descriptor);
+        // return new Vector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], this.vectorSpace);
     }
 
-    subtract(other: Vector3DTypeReal): Vector3DTypeReal {
-        return new Vector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], this.vectorSpace);
+    subtract(other: Vector3DTypeReal): this {
+        const result = super.subtract(other);
+        return this.createVectorFromDescriptor(result.descriptor);
+        // return new Vector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], this.vectorSpace);
     }
 
-    scale(scalar: number): Vector3DTypeReal {
-        return new Vector3DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], this.vectorSpace);
+    scale(scalar: number): this {
+        const result = super.scale(scalar);
+        return this.createVectorFromDescriptor(result.descriptor);
+        // return new Vector3DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], this.vectorSpace);
     }
 
     dot(other: Vector3DTypeReal): number {
@@ -114,11 +122,12 @@ export class Vector3DTypeReal extends AbstractRealVector<3> {
         return new ProjectiveVector3DTypeReal(this.x, this.y, this.z, new Weight(DEFAULT_WEIGHT_VALUE));
     }
     
-    clone(): Vector3DTypeReal {
-        return new Vector3DTypeReal(this.x!, this.y!, this.z!, this.vectorSpace);
+    clone(): this {
+        return this.createVectorFromDescriptor(this.descriptor);
+        // return new Vector3DTypeReal(this.x!, this.y!, this.z!, this.vectorSpace);
     }
 
-    createVectorFromDescriptor(descriptor: RealVector3D): Vector3DTypeReal {
-        return new Vector3DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], this.vectorSpace);
+    createVectorFromDescriptor(descriptor: RealVector3D): this {
+        return new Vector3DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], this.vectorSpace) as this;
     }
 }

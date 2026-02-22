@@ -63,8 +63,9 @@ export function createCommonComplexVectorTests(
                 } else {
                     const descriptor = complexVector.descriptor as ComplexVector2D;
                     for (let i = 0; i < dimension; i++) {
-                        expect(descriptor.coordinates[i].real).to.eql(complexVector.coordinates[i].real);
-                        expect(descriptor.coordinates[i].imaginary).to.eql(complexVector.coordinates[i].imaginary);
+                        const complex = complexVector.coordinates[i] as Complex;
+                        expect(descriptor.coordinates[i].real).to.eql(complex.real);
+                        expect(descriptor.coordinates[i].imaginary).to.eql(complex.imaginary);
                     }
                 }
             });

@@ -9,13 +9,16 @@ import { AbstractProjectiveVector } from "./AbstractProjectiveVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
+import { IVector } from "./Vector";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import type { ProjectiveVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
+export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> 
+    implements IVector<4, ProjectiveVector3D>
+{
 
     private static readonly DIMENSION = 4 as const;
     private static readonly _vectorType = PROJECTIVEVECTOR3D;
@@ -97,6 +100,10 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
     get weight(): Weight {
         return this._descriptor.coordinates[3].weight;
     }
+
+    // get weightManagement(): WeightManagement {
+    //     return this._vectorSpace.weightManagement;
+    // }
     
     get homogeneousCoordinates(): number[] {
         return [this._descriptor.coordinates[0], this._descriptor.coordinates[1], this._descriptor.coordinates[2], this.weight.value];
@@ -123,16 +130,20 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
         return new ProjectiveVector3DTypeReal(normalizedCoord[0], normalizedCoord[1], normalizedCoord[2], this._vectorSpace);
     }
 
-    add(other: ProjectiveVector3DTypeReal): ProjectiveVector3DTypeReal {
-        return new ProjectiveVector3DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).weight, this._vectorSpace);
+    add(other: ProjectiveVector3DTypeReal): this {
+        const result = super.add(other);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
-    subtract(other: ProjectiveVector3DTypeReal): ProjectiveVector3DTypeReal {
-        return new ProjectiveVector3DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).weight, this._vectorSpace);
+    subtract(other: ProjectiveVector3DTypeReal): this {
+        const result = super.subtract(other);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
-    scale(factor: number): ProjectiveVector3DTypeReal {
-        return new ProjectiveVector3DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).coordinates[2], super.scale(factor).weight, this._vectorSpace);
+    scale(factor: number): this {
+        const result = super.scale(factor);
+        return this.createVectorFromDescriptor(result.descriptor);
+        // return new ProjectiveVector3DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).coordinates[2], super.scale(factor).weight, this._vectorSpace);
     }
     
     equals(other: ProjectiveVector3DTypeReal, tolerance?: number): boolean {
@@ -178,7 +189,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
         return this.vectorType + `(${this._descriptor.coordinates[0]}, ${this._descriptor.coordinates[1]}, ${this._descriptor.coordinates[2]}, ${this.weight.toString()})` + ` ` + this._vectorSpace.toString();
     }
     
-    clone(): ProjectiveVector3DTypeReal {
+    clone(): this {
         let strictlyPosWeight = true;
         if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
         if(this._vectorSpace.weightManagement === WeightManagement.SomeNullWeights) strictlyPosWeight = this.weight.strictlyPositive;
@@ -188,10 +199,10 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> {
             this._descriptor.coordinates[2],
             new Weight(this.weight.value, strictlyPosWeight),
             this._vectorSpace
-        );
+        ) as this;
     }
 
-    createVectorFromDescriptor(descriptor: ProjectiveVector3D): ProjectiveVector3DTypeReal {
-        return new ProjectiveVector3DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], descriptor.coordinates[3].weight, this.vectorSpace);
+    createVectorFromDescriptor(descriptor: ProjectiveVector3D): this {
+        return new ProjectiveVector3DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], descriptor.coordinates[3].weight, this.vectorSpace) as this;
     }
 }

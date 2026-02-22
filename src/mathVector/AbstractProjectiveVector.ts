@@ -3,20 +3,27 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
+import { IdentifiableVectorSpace } from "./IVectorSpace";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { RealVectorSpace } from "./RealVectorSpace";
 import type { IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
-import type { ProjectiveVector } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveVector, ProjectiveVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Weight } from "./Weight";
 
 /**
  * Abstract base for projective vectors
  */
-export abstract class AbstractProjectiveVector<D extends number> extends AbstractVector implements IProjectiveVector {
+export abstract class AbstractProjectiveVector<D extends number> 
+    extends AbstractVector<D, ProjectiveVectorOfDimension<D>, ProjectiveVectorSpace<D>>
+    implements IProjectiveVector<D>
+{
 
-    private static  readonly _spaceType = VectorSpaceType.PROJECTIVE;
-
+    private static readonly _spaceType = VectorSpaceType.PROJECTIVE;
+    protected abstract readonly _vectorSpace: ProjectiveVectorSpace<D>;
+    // protected abstract readonly _vectorSpace: IdentifiableVectorSpace<ProjectiveVector>;
+    
     get spaceType(): VectorSpaceType.PROJECTIVE { return AbstractProjectiveVector._spaceType; }
 
     // Default implementations for coordinate accessors
@@ -25,14 +32,21 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
     get w(): number { return this.getCoordinate(this.dimension - 1) };
 
     abstract get vectorSpace(): ProjectiveVectorSpace<D>;
-    abstract get descriptor(): ProjectiveVector;
+    // abstract get descriptor(): ProjectiveVector;
+    abstract get descriptor(): ProjectiveVectorOfDimension<D>;
     abstract get coordinates(): number[];
     abstract get weight(): Weight;
+    // abstract get weightManagement(): WeightManagement;
+    get weightManagement(): WeightManagement {
+        return this._vectorSpace.weightManagement;
+    }
+
     abstract get homogeneousCoordinates(): number[];
     abstract getCoordinate(index: number): number;
-    abstract clone(): IProjectiveVector;
-    abstract toRealVector(): IRealVector;
-    abstract homogeneousTransform(tolerance?: number): IProjectiveVector;
+    // abstract clone(): IProjectiveVector;
+    abstract clone(): this;
+    abstract toRealVector(vectorSpace?: RealVectorSpace<any>): IRealVector;
+    abstract homogeneousTransform(tolerance?: number): IProjectiveVector<D>;
     abstract toString(): string;
 
     protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveVectorSpace<D>): void {
@@ -87,41 +101,41 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
         return realCoordinates;
     }
     
-    add(other: IProjectiveVector): IProjectiveVector {
-        return super.add(other) as IProjectiveVector;
-    }
+    // add(other: IProjectiveVector): IProjectiveVector {
+    //     return super.add(other) as IProjectiveVector;
+    // }
 
-    subtract(other: IProjectiveVector): IProjectiveVector {
-        return super.subtract(other) as IProjectiveVector;
-    }
+    // subtract(other: IProjectiveVector): IProjectiveVector {
+    //     return super.subtract(other) as IProjectiveVector;
+    // }
 
-    scale(scalar: number): IProjectiveVector {
+    scale(scalar: number): this {
         const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
         return this.createVectorFromDescriptor(result);
     }
 
-    dot(other: IProjectiveVector): number {
-        return super.dot(other);
-    }
+    // dot(other: IProjectiveVector): number {
+    //     return super.dot(other);
+    // }
 
-    revert(): IProjectiveVector {
+    revert(): this {
         const error = sendRangeErrorMessage(this.constructor.name, 'revert', EM_REVERT_NOT_APPLICABLE);
         throw new RangeError(error.generateMessageString());
     }
 
-    normalize(): IProjectiveVector {
-        return super.normalize() as IProjectiveVector;
-    }
+    // normalize(): IProjectiveVector {
+    //     return super.normalize() as IProjectiveVector;
+    // }
 
     toArray(): number[] {
         return this.homogeneousCoordinates;
     }
 
-    equals(other: IProjectiveVector, tolerance?: number): boolean {
-        return super.equals(other, tolerance);
-    }
+    // equals(other: IProjectiveVector, tolerance?: number): boolean {
+    //     return super.equals(other, tolerance);
+    // }
 
-    isParallel(other: IProjectiveVector, angularTolerance?: number): boolean {
+    isParallel(other: IProjectiveVector<D>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();
@@ -135,7 +149,7 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
         return angle <= angularTolerance;
     }
 
-    isOrthogonal(other: IProjectiveVector, angularTolerance?: number): boolean {
+    isOrthogonal(other: IProjectiveVector<D>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();
@@ -155,5 +169,5 @@ export abstract class AbstractProjectiveVector<D extends number> extends Abstrac
         throw new RangeError(error.generateMessageString());
     }
 
-    protected abstract createVectorFromDescriptor(descriptor: ProjectiveVector): IProjectiveVector;
+    // protected abstract createVectorFromDescriptor(descriptor: ProjectiveVector): IProjectiveVector;
 }

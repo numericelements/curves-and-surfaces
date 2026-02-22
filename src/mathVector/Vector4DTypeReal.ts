@@ -6,13 +6,15 @@ import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import type { IComplexVector, IProjectiveVector } from "./Vector";
+import type { IComplexVector, IProjectiveVector, IVector } from "./Vector";
 import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
 import type { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
-export class Vector4DTypeReal extends AbstractRealVector<4> {
+export class Vector4DTypeReal extends AbstractRealVector<4> 
+     implements IVector<4, RealVector4D>
+{
 
     private static readonly DIMENSION = 4 as const;
     private static readonly _vectorType = REALVECTOR4D;
@@ -75,16 +77,19 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
         return this._descriptor.coordinates[index];
     }
 
-    add(other: Vector4DTypeReal): Vector4DTypeReal {
-        return new Vector4DTypeReal(super.add(other).coordinates[0], super.add(other).coordinates[1], super.add(other).coordinates[2], super.add(other).coordinates[3], this.vectorSpace);
+    add(other: Vector4DTypeReal): this {
+        const result = super.add(other);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
-    subtract(other: Vector4DTypeReal): Vector4DTypeReal {
-        return new Vector4DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).coordinates[2], super.subtract(other).coordinates[3], this.vectorSpace);
+    subtract(other: Vector4DTypeReal): this {
+        const result = super.subtract(other);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
-    scale(scalar: number): Vector4DTypeReal {
-        return new Vector4DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], super.scale(scalar).coordinates[2], super.scale(scalar).coordinates[3], this.vectorSpace);
+    scale(scalar: number): this {
+        const result = super.scale(scalar);
+        return this.createVectorFromDescriptor(result.descriptor);
     }
 
     dot(other: Vector4DTypeReal): number {
@@ -115,11 +120,12 @@ export class Vector4DTypeReal extends AbstractRealVector<4> {
         return new Vector2DTypeComplex(new Complex(this.x, this.y), new Complex(this.z, this.t));
     }
     
-    clone(): Vector4DTypeReal {
-        return new Vector4DTypeReal(this.x!, this.y!, this.z!, this.t!, this.vectorSpace);
+    clone(): this {
+        return this.createVectorFromDescriptor(this.descriptor);
+        // return new Vector4DTypeReal(this.x, this.y, this.z, this.t, this.vectorSpace);
     }
 
-    createVectorFromDescriptor(descriptor: RealVector4D): Vector4DTypeReal {
-        return new Vector4DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], descriptor.coordinates[3], this.vectorSpace);
+    createVectorFromDescriptor(descriptor: RealVector4D): this {
+        return new Vector4DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], descriptor.coordinates[2], descriptor.coordinates[3], this.vectorSpace) as this;
     }
 }

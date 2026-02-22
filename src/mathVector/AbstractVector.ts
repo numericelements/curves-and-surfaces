@@ -11,9 +11,13 @@ import type { IdentifiableVectorSpace } from "./IVectorSpace";
  * Base abstract class implementing common IVector functionality
  */
 
-export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = IdentifiableVectorSpace<any>, V extends Vector = Vector> implements IVector {
+export abstract class AbstractVector <
+        D extends number = number,
+        V extends Vector = Vector,
+        VS extends IdentifiableVectorSpace<V> = IdentifiableVectorSpace<V>
+    > implements IVector<D, V> {
     
-    protected abstract _vectorSpace: VS;
+    protected abstract readonly _vectorSpace: VS;
 
     abstract get dimension(): number;
     abstract get vectorType(): string;
@@ -23,24 +27,24 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
     abstract get coordinates(): (number | Complex)[];
 
     abstract getCoordinate(index: number): number | Complex;
-    abstract clone(): IVector;
-    
+    abstract clone(): this;
+    // abstract clone(): IVector;
 
-    add(other: IVector): IVector {
+    add(other: IVector<D, V>): this {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.addDescriptors(this.descriptor, other. descriptor as V);
+        const result = this._vectorSpace.addDescriptors(this.descriptor, other.descriptor);
         return this.createVectorFromDescriptor(result);
     }
 
-    subtract(other: IVector): IVector {
+    subtract(other: IVector<D, V>): this {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.subtractDescriptors(this.descriptor, other. descriptor as V);
+        const result = this._vectorSpace.subtractDescriptors(this.descriptor, other. descriptor);
         return this.createVectorFromDescriptor(result);
     }
 
-    abstract scale(scalar: number | Complex): IVector;
+    abstract scale(scalar: number | Complex): this;
 
-    revert(): IVector {
+    revert(): this {
         const scale = -1;
         const result = this._vectorSpace.scaleDescriptor(scale, this.descriptor);
         return this.createVectorFromDescriptor(result);
@@ -56,7 +60,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
         return norm;
     }
 
-    normalize(tolerance?: number): IVector {
+    normalize(tolerance?: number): this {
         if(tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
         const currentNorm = this.norm(tolerance);
         if (currentNorm < tolerance) {
@@ -66,7 +70,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
         return this.scale(1 / currentNorm);
     }
 
-    dot(other: IVector): number {
+    dot(other: IVector<D, V>): number {
         this.validateCompatibility(other);
         if ('dotDescriptors' in this._vectorSpace && typeof this._vectorSpace.dotDescriptors === 'function') {
             return this._vectorSpace.dotDescriptors(this.descriptor, other.descriptor);
@@ -74,7 +78,7 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
         throw new Error('Dot product not available for this vector space');
     }
 
-    equals(other: IVector, tolerance?: number): boolean {
+    equals(other: IVector<D, V>, tolerance?: number): boolean {
         if(this._vectorSpace !== other.vectorSpace) {
             const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_VECTORS_DIFFERENT_VECTOR_SPACES);
             throw new RangeError(error.generateMessageString());
@@ -94,15 +98,15 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
     // abstract distanceToPoint(point: Point): number;
     // abstract angleTo(other: IVector): number;
     // abstract isColinear(other: IVector, tolerance?: number): boolean;
-    abstract isOrthogonal(other: IVector, tolerance?: number): boolean;
-    abstract isParallel(other: IVector, tolerance?: number): boolean;
+    abstract isOrthogonal(other: IVector<D, V>, tolerance?: number): boolean;
+    abstract isParallel(other: IVector<D, V>, tolerance?: number): boolean;
     
     abstract toArray(): number[];
     
     abstract toString(): string;
 
     // Enhanced validation that checks space identity
-    protected validateCompatibility(other: IVector): void {
+    protected validateCompatibility(other: IVector<D, V>): void {
         if (this.dimension !== other.dimension) {
             const error = sendRangeErrorMessage(this.constructor.name, 'validateCompatibility', EM_VECTORS_DIFFERENT_DIM);
             throw new RangeError(error.generateMessageString());
@@ -128,5 +132,5 @@ export abstract class AbstractVector<VS extends IdentifiableVectorSpace<V> = Ide
     //     }
     // }
 
-    protected abstract createVectorFromDescriptor(descriptor: Vector): IVector;
+    protected abstract createVectorFromDescriptor(descriptor: V): this;
 }

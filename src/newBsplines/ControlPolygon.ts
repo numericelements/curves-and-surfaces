@@ -1,4 +1,4 @@
-import { VectorCollection1D } from "../mathVector/VectorCollection1D";
+import { VectorDescriptorCollection1D } from "../mathVector/VectorDescriptorCollection1D";
 import { ComplexVector1D, ComplexVector2D, ProjectiveComplexVector1D, ProjectiveVector2D, ProjectiveVector3D, RealVector1D, RealVector2D, RealVector3D, RealVector4D, Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { areSameVSpaceAndDimension, getVectorTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
@@ -13,7 +13,7 @@ export interface ControlPolygonStrategy<T extends Vector> {
     moveControlPoint(index: number, displacement: T): void;
 }
 
-export class ControlPolygon <T extends Vector = Vector> extends VectorCollection1D {
+export class ControlPolygon <T extends Vector = Vector> extends VectorDescriptorCollection1D {
 
     protected _vectorSpaceType: VectorSpaceType;
     protected _spaceDimension: number;
