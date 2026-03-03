@@ -6,6 +6,7 @@ import type { Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Complex } from "./Complex";
 import type { IdentifiableVectorSpace } from "./IVectorSpace";
+import { EM_DOT_PRODUCT_NOT_AVAILABLE } from "../ErrorMessages/ProjectiveVectors";
 
 /**
  * Base abstract class implementing common IVector functionality
@@ -28,7 +29,6 @@ export abstract class AbstractVector <
 
     abstract getCoordinate(index: number): number | Complex;
     abstract clone(): this;
-    // abstract clone(): IVector;
 
     add(other: IVector<D, V>): this {
         this.validateCompatibility(other);
@@ -38,7 +38,7 @@ export abstract class AbstractVector <
 
     subtract(other: IVector<D, V>): this {
         this.validateCompatibility(other);
-        const result = this._vectorSpace.subtractDescriptors(this.descriptor, other. descriptor);
+        const result = this._vectorSpace.subtractDescriptors(this.descriptor, other.descriptor);
         return this.createVectorFromDescriptor(result);
     }
 
@@ -75,7 +75,8 @@ export abstract class AbstractVector <
         if ('dotDescriptors' in this._vectorSpace && typeof this._vectorSpace.dotDescriptors === 'function') {
             return this._vectorSpace.dotDescriptors(this.descriptor, other.descriptor);
         }
-        throw new Error('Dot product not available for this vector space');
+        const error = sendRangeErrorMessage(this.constructor.name, 'dot', EM_DOT_PRODUCT_NOT_AVAILABLE);
+        throw new RangeError(error.generateMessageString());
     }
 
     equals(other: IVector<D, V>, tolerance?: number): boolean {

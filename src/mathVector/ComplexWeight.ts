@@ -1,5 +1,3 @@
-import { EM_INCOMPATIBLE_WEIGHT_POSITIVITY_MANAGEMENT } from "../ErrorMessages/ComplexWeight";
-import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { Complex } from "./Complex";

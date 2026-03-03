@@ -3,12 +3,11 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { ComplexVectorSpace } from "./ComplexVectorSpace";
 import type { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
-import type { ComplexVector, ComplexVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { ComplexVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Complex } from "./Complex";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
-import { IdentifiableVectorSpace } from "./IVectorSpace";
 
 /**
  * Abstract base for complex vectors
@@ -22,13 +21,11 @@ export abstract class AbstractComplexVector<D extends number>
     private static readonly _spaceType = VectorSpaceType.COMPLEX;
     
     protected abstract readonly _vectorSpace: ComplexVectorSpace<D>;
-    // protected abstract readonly _vectorSpace: IdentifiableVectorSpace<ComplexVector>;
     
     get spaceType(): VectorSpaceType.COMPLEX { return AbstractComplexVector._spaceType; }
 
     abstract get vectorSpace(): ComplexVectorSpace<D>;
     abstract get descriptor(): ComplexVectorOfDimension<D>;
-    // abstract get descriptor(): ComplexVector;
     abstract get coordinates(): Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): this;
@@ -48,30 +45,10 @@ export abstract class AbstractComplexVector<D extends number>
             throw new RangeError(error.generateMessageString());
         }
     }
-    
-    // add(other: IComplexVector): IComplexVector {
-    //     return super.add(other) as IComplexVector;
-    // }
 
-    // subtract(other: IComplexVector): IComplexVector {
-    //     return super.subtract(other) as IComplexVector;
-    // }
-
-    // normalize(tolerance?: number): IComplexVector {
-    //     return super.normalize(tolerance) as IComplexVector;
-    // }
-
-    // dot(other: IComplexVector): number {
-    //     return super.dot(other);
-    // }
-
-    // scale(scalar: number): IComplexVector;
-    // scale(scalar: Complex): IComplexVector;
-    // scale(scalar: number | Complex): IComplexVector {
     scale(scalar: number): this;
     scale(scalar: Complex): this;
     scale(scalar: number | Complex): this {
-        // let result: ComplexVector;
         let result: ComplexVectorOfDimension<D>;
         if(scalar instanceof Complex) {
             const scalarDescriptor = scalar.toDescriptor();
@@ -82,10 +59,6 @@ export abstract class AbstractComplexVector<D extends number>
         return this.createVectorFromDescriptor(result);
     }
     
-    // revert(): IComplexVector {
-    //     return super.revert() as IComplexVector;   
-    // }
-
     // Complex-specific implementations
     getReal(index: number): number {
         const coord = this.getCoordinate(index);
@@ -148,6 +121,4 @@ export abstract class AbstractComplexVector<D extends number>
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
-
-    // protected abstract createVectorFromDescriptor(descriptor: ComplexVector): IComplexVector;
 }

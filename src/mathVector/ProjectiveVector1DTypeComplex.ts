@@ -17,6 +17,7 @@ import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { IVector } from "./Vector";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
+import { copyDescriptorVector2DProjectiveComplex } from "./VectorDescriptorFactory";
 import { IComplex, ProjectiveComplexVector, ProjectiveComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -144,14 +145,10 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
     get vectorType(): string { return ProjectiveVector1DTypeComplex._vectorType; }
     get vectorSpace(): ProjectiveComplexVectorSpace<2> { return this._vectorSpace; }
     get coordinates(): Complex[] { return [new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary), new Complex(this._descriptor.coordinates[1].real.value, this._descriptor.coordinates[1].imaginary.value)]; }
-    get descriptor(): ProjectiveComplexVector { return { ...this._descriptor }; }
+    get descriptor(): ProjectiveComplexVector { return copyDescriptorVector2DProjectiveComplex(this._descriptor); }
     
     get weight(): ComplexWeight {
         return new ComplexWeight(this._descriptor.coordinates[1].real, this._descriptor.coordinates[1].imaginary);
-    }
-
-    get weightManagement(): WeightManagement {
-        return this._vectorSpace.weightManagement;
     }
     
     get homogeneousComplexCoordinates(): Complex[] {
@@ -294,7 +291,7 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         if(projectiveVectorSpace !== undefined) {
             const projVect =  new ProjectiveVector2DTypeReal(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary, this.weight.real, projectiveVectorSpace);
             const weiht = projVect.weight;
-            const weightManagement = projVect.weightManagement;
+            const weightManagement = projVect.vectorSpace.weightManagement;
             return projVect;
         }
         return new ProjectiveVector2DTypeReal(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary, this.weight.real, projectiveVectorSpace);

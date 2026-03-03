@@ -9,6 +9,7 @@ import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { IVector } from "./Vector";
 import { Vector4DTypeReal } from "./Vector4DTypeReal";
+import { copyDescriptorVector2DComplex } from "./VectorDescriptorFactory";
 import type { IComplex, ComplexVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
@@ -100,7 +101,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2>
         return result;
     }
 
-    get descriptor(): ComplexVector2D { return this._descriptor; }
+    get descriptor(): ComplexVector2D { return copyDescriptorVector2DComplex(this._descriptor); }
     
     getCoordinate(index: number): Complex {
         if (index < 0 || index >= Vector2DTypeComplex.DIMENSION) {
@@ -113,13 +114,11 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2>
     add(other: Vector2DTypeComplex): this {
         const result = super.add(other);
         return this.createVectorFromDescriptor(result.descriptor);
-        // return new Vector2DTypeComplex(super.add(other).coordinates[0], super.add(other).coordinates[1], this.vectorSpace);
     }
 
     subtract(other: Vector2DTypeComplex): this {
         const result = super.subtract(other);
         return this.createVectorFromDescriptor(result.descriptor);
-        // return new Vector2DTypeComplex(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], this.vectorSpace);
     }
 
     dot(other: Vector2DTypeComplex): number {
@@ -151,7 +150,6 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2>
     }
 
     clone(): this {
-        // return new Vector2DTypeComplex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary, this._descriptor.coordinates[1].real, this._descriptor.coordinates[1].imaginary, this.vectorSpace);
         return this.createVectorFromDescriptor(this.descriptor);
     }
 

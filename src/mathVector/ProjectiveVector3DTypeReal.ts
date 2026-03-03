@@ -11,6 +11,7 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { IVector } from "./Vector";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
+import { copyDescriptorVector4DProjectiveReal } from "./VectorDescriptorFactory";
 import type { ProjectiveVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -92,18 +93,13 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4>
     get vectorType(): string { return ProjectiveVector3DTypeReal._vectorType; }
     get vectorSpace(): ProjectiveVectorSpace<4> { return this._vectorSpace; }
     get coordinates(): number[] { return this.homogeneousCoordinates; }
-
-    get descriptor(): ProjectiveVector3D { return { ...this._descriptor }; }
+    get descriptor(): ProjectiveVector3D { return copyDescriptorVector4DProjectiveReal(this._descriptor); }
 
     get z(): number { return this.getCoordinate(2) };
     
     get weight(): Weight {
         return this._descriptor.coordinates[3].weight;
     }
-
-    // get weightManagement(): WeightManagement {
-    //     return this._vectorSpace.weightManagement;
-    // }
     
     get homogeneousCoordinates(): number[] {
         return [this._descriptor.coordinates[0], this._descriptor.coordinates[1], this._descriptor.coordinates[2], this.weight.value];
@@ -143,7 +139,6 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4>
     scale(factor: number): this {
         const result = super.scale(factor);
         return this.createVectorFromDescriptor(result.descriptor);
-        // return new ProjectiveVector3DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).coordinates[2], super.scale(factor).weight, this._vectorSpace);
     }
     
     equals(other: ProjectiveVector3DTypeReal, tolerance?: number): boolean {

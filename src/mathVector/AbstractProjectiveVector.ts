@@ -3,12 +3,11 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { ANGULAR_TOL_VECTOR, EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_INCOMPATIBLE, LINEAR_TOL_VECTOR } from "../namedConstants/Vectors";
 import { AbstractVector } from "./AbstractVector";
-import { IdentifiableVectorSpace } from "./IVectorSpace";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import type { IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
-import type { ProjectiveVector, ProjectiveVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Weight } from "./Weight";
 
@@ -22,7 +21,6 @@ export abstract class AbstractProjectiveVector<D extends number>
 
     private static readonly _spaceType = VectorSpaceType.PROJECTIVE;
     protected abstract readonly _vectorSpace: ProjectiveVectorSpace<D>;
-    // protected abstract readonly _vectorSpace: IdentifiableVectorSpace<ProjectiveVector>;
     
     get spaceType(): VectorSpaceType.PROJECTIVE { return AbstractProjectiveVector._spaceType; }
 
@@ -32,18 +30,12 @@ export abstract class AbstractProjectiveVector<D extends number>
     get w(): number { return this.getCoordinate(this.dimension - 1) };
 
     abstract get vectorSpace(): ProjectiveVectorSpace<D>;
-    // abstract get descriptor(): ProjectiveVector;
     abstract get descriptor(): ProjectiveVectorOfDimension<D>;
     abstract get coordinates(): number[];
     abstract get weight(): Weight;
-    // abstract get weightManagement(): WeightManagement;
-    get weightManagement(): WeightManagement {
-        return this._vectorSpace.weightManagement;
-    }
 
     abstract get homogeneousCoordinates(): number[];
     abstract getCoordinate(index: number): number;
-    // abstract clone(): IProjectiveVector;
     abstract clone(): this;
     abstract toRealVector(vectorSpace?: RealVectorSpace<any>): IRealVector;
     abstract homogeneousTransform(tolerance?: number): IProjectiveVector<D>;
@@ -61,6 +53,14 @@ export abstract class AbstractProjectiveVector<D extends number>
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
+    }
+
+    private dotForGeometricProperties(other: IProjectiveVector<D>): number {
+        let dotProduct = 0;
+        for (let i = 0; i < this.dimension; i++) {
+            dotProduct += this.coordinates[i] * other.coordinates[i];
+        }
+        return dotProduct;
     }
 
     checkValidityWeightStatus(weightOrVSpace: Weight, vectorSpace: ProjectiveVectorSpace<any>): boolean {
@@ -100,40 +100,20 @@ export abstract class AbstractProjectiveVector<D extends number>
         }
         return realCoordinates;
     }
-    
-    // add(other: IProjectiveVector): IProjectiveVector {
-    //     return super.add(other) as IProjectiveVector;
-    // }
-
-    // subtract(other: IProjectiveVector): IProjectiveVector {
-    //     return super.subtract(other) as IProjectiveVector;
-    // }
 
     scale(scalar: number): this {
         const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
         return this.createVectorFromDescriptor(result);
     }
 
-    // dot(other: IProjectiveVector): number {
-    //     return super.dot(other);
-    // }
-
     revert(): this {
         const error = sendRangeErrorMessage(this.constructor.name, 'revert', EM_REVERT_NOT_APPLICABLE);
         throw new RangeError(error.generateMessageString());
     }
 
-    // normalize(): IProjectiveVector {
-    //     return super.normalize() as IProjectiveVector;
-    // }
-
     toArray(): number[] {
         return this.homogeneousCoordinates;
     }
-
-    // equals(other: IProjectiveVector, tolerance?: number): boolean {
-    //     return super.equals(other, tolerance);
-    // }
 
     isParallel(other: IProjectiveVector<D>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
@@ -144,7 +124,7 @@ export abstract class AbstractProjectiveVector<D extends number>
             const error = sendRangeErrorMessage(this.constructor.name, 'isParallel', EM_VECTOR_NORM_TOO_SMALL);
             throw new RangeError(error.generateMessageString());
         }
-        const dotProduct = this.dot(other);
+        const dotProduct = this.dotForGeometricProperties(other);
         const angle = Math.acos(Math.abs(dotProduct / (thisNorm * otherNorm)));
         return angle <= angularTolerance;
     }
@@ -154,20 +134,17 @@ export abstract class AbstractProjectiveVector<D extends number>
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();
         const otherNorm = other.norm();
-        if(thisNorm < LINEAR_TOL_VECTOR || otherNorm < LINEAR_TOL_VECTOR) {
+        if (thisNorm < LINEAR_TOL_VECTOR || otherNorm < LINEAR_TOL_VECTOR) {
             const error = sendRangeErrorMessage(this.constructor.name, 'isOrthogonal', EM_VECTOR_NORM_TOO_SMALL);
             throw new RangeError(error.generateMessageString());
         }
-        // better to use cross product if available
-        const dotProduct = this.dot(other);
-        const ratio = Math.abs(dotProduct / (thisNorm * otherNorm));
-        return ratio <= angularTolerance;
+        const dotProduct = this.dotForGeometricProperties(other);
+        const angle = Math.acos(Math.abs(dotProduct / (thisNorm * otherNorm)));
+        return Math.abs(angle - Math.PI / 2) <= angularTolerance;
     }
 
     toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveComplexVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
-
-    // protected abstract createVectorFromDescriptor(descriptor: ProjectiveVector): IProjectiveVector;
 }

@@ -1,6 +1,6 @@
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { COMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { AbstractComplexVector } from "./AbstractComplexVector";
@@ -13,8 +13,9 @@ import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
 import { ProjectiveVector2DTypeReal } from "./ProjectiveVector2DTypeReal";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IProjectiveVector, IRealVector, IVector } from "./Vector";
+import { IVector } from "./Vector";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
+import { copyDescriptorVector1DComplex } from "./VectorDescriptorFactory";
 import type { IComplex, ComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -97,7 +98,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1>
     get real(): number { return this._descriptor.real; }
     get imaginary(): number { return this._descriptor.imaginary; }
     get coordinates(): Complex[] { return [new Complex(this._descriptor.real, this._descriptor.imaginary)]; }
-    get descriptor(): ComplexVector1D { return this._descriptor; }
+    get descriptor(): ComplexVector1D { return copyDescriptorVector1DComplex(this._descriptor); }
     
     getCoordinate(index: number): Complex {
         if (index !== 0) {
@@ -163,7 +164,6 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1>
     }
     
     clone(): this {
-        // return new Vector1DTypeComplex(this._descriptor.real, this._descriptor.imaginary, this.vectorSpace);
         return this.createVectorFromDescriptor(this.descriptor);
     }
 

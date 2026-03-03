@@ -1,11 +1,10 @@
-import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_DIMENSION_INCOMPATIBLE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
+import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { REALVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { AbstractRealVector } from "./AbstractRealVector";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
-import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import type { IProjectiveVector, IVector } from "./Vector";
-import type { RealVector1D, RealVector2D, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { IVector } from "./Vector";
+import type { RealVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
@@ -72,7 +71,6 @@ export class Vector1DTypeReal extends AbstractRealVector<1>
     }
     
     clone(): this {
-        // return new Vector1DTypeReal(this.value, this.vectorSpace);
         return this.createVectorFromDescriptor(this.descriptor);
     }
 
@@ -107,7 +105,6 @@ export class Vector1DTypeReal extends AbstractRealVector<1>
         return super.isOrthogonal(other, angularTolerance);
     }
 
-    // createVectorFromDescriptor(value: number): Vector1DTypeReal {
     createVectorFromDescriptor(value: number): this {
         return new Vector1DTypeReal(value, this.vectorSpace) as this;
     }

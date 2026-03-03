@@ -1624,7 +1624,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
         it(`cannot revert a vector because it would produce negative weights `, () => {
             const complex = new Complex(-1, 2);
             const realW = new Weight(2);
-            const imaginaryW = new Weight();
+            const imaginaryW = new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
             const complexW = new ComplexWeight(realW, imaginaryW);
             const vSpace = new ProjectiveComplexVectorSpace(dimension);
             const projectiveComplexVector1 = new ProjectiveVector1DTypeComplex(complex, complexW, vSpace);

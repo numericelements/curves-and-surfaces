@@ -9,7 +9,7 @@ describe('ProjectiveRealVector', () => {
             for(let dim = MIN_DIMENSION_PROJECTIVEVECTORSPACE; dim <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; dim++) {
                 // dim D RealVector Space Tests
                 describe(`${dim}D Vector Space`, () => {
-                    createCommonProjectiveVectorTests(dim);
+                    createCommonProjectiveVectorTests(dim as 3 | 4);
                 });
             }
 

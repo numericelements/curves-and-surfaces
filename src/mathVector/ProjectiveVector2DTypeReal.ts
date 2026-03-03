@@ -15,6 +15,7 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { IVector } from "./Vector";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
+import { copyDescriptorVector3DProjectiveReal } from "./VectorDescriptorFactory";
 import type { ProjectiveVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -96,18 +97,11 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
     get vectorType(): string { return ProjectiveVector2DTypeReal._vectorType; }
     get vectorSpace(): ProjectiveVectorSpace<3> { return this._vectorSpace; }
     get coordinates(): number[] { return this.homogeneousCoordinates; }
-    get descriptor(): ProjectiveVector2D { return { ...this._descriptor }; }
+    get descriptor(): ProjectiveVector2D { return copyDescriptorVector3DProjectiveReal(this._descriptor); }
 
     get weight(): Weight {
         return this._descriptor.coordinates[2].weight;
-        // return this._descriptor.coordinates[2] instanceof Weight 
-        //     ? this._descriptor.coordinates[2]
-        //     : this._weight;
     }
-
-    // get weightManagement(): WeightManagement {
-    //     return this._vectorSpace.weightManagement;
-    // }
     
     get homogeneousCoordinates(): number[] {
         return [this._descriptor.coordinates[0], this._descriptor.coordinates[1], this.weight.value];
@@ -137,18 +131,15 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
     add(other: ProjectiveVector2DTypeReal): this {
         const result = super.add(other);
         const weight = result.descriptor.coordinates[2].weight;
-        // return new ProjectiveVector2DTypeReal(result.coordinates[0], result.coordinates[1], weight, this._vectorSpace);
         return this.createVectorFromDescriptor(result.descriptor);
     }
 
     subtract(other: ProjectiveVector2DTypeReal): this {
         const result = super.subtract(other);
-        // return new ProjectiveVector2DTypeReal(super.subtract(other).coordinates[0], super.subtract(other).coordinates[1], super.subtract(other).weight, this._vectorSpace);
         return this.createVectorFromDescriptor(result.descriptor);
     }
 
     scale(factor: number): this {
-        // return new ProjectiveVector2DTypeReal(super.scale(factor).coordinates[0], super.scale(factor).coordinates[1], super.scale(factor).weight, this._vectorSpace);
         const result = super.scale(factor);
         return this.createVectorFromDescriptor(result.descriptor);
     }

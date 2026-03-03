@@ -14,7 +14,8 @@ import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { IVector } from "./Vector";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
-import type { RealVector2D, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import { copyDescriptorVector2DReal } from "./VectorDescriptorFactory";
+import type { RealVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -71,7 +72,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2>
     get vectorType(): string { return Vector2DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<2> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
-    get descriptor(): RealVector2D { return { ...this._descriptor }; }
+    get descriptor(): RealVector2D { return copyDescriptorVector2DReal(this._descriptor); }
     get y(): number { return this.getCoordinate(Vector2DTypeReal.DIMENSION - 1); }
 
     getCoordinate(index: number): number {
@@ -85,20 +86,16 @@ export class Vector2DTypeReal extends AbstractRealVector<2>
     add(other: Vector2DTypeReal): this {
         const result = super.add(other);
         return this.createVectorFromDescriptor(result.descriptor);
-        // return new Vector2DTypeReal(result.coordinates[0], result.coordinates[1], this.vectorSpace);
-
     }
 
     subtract(other: Vector2DTypeReal): this {
         const result = super.subtract(other);
         return this.createVectorFromDescriptor(result.descriptor);
-        // return new Vector2DTypeReal(result.coordinates[0], result.coordinates[1], this.vectorSpace);
     }
 
     scale(scalar: number): this {
         const result = super.scale(scalar);
         return this.createVectorFromDescriptor(result.descriptor);
-        // return new Vector2DTypeReal(super.scale(scalar).coordinates[0], super.scale(scalar).coordinates[1], this.vectorSpace);
     }
 
     dot(other: Vector2DTypeReal): number {
@@ -145,12 +142,10 @@ export class Vector2DTypeReal extends AbstractRealVector<2>
     }
     
     clone(): this {
-        // return new Vector2DTypeReal(this.x!, this.y!, this.vectorSpace);
         return this.createVectorFromDescriptor(this.descriptor);
     }
 
     createVectorFromDescriptor(descriptor: RealVector2D): this {
-    // createVectorFromDescriptor(descriptor: RealVector2D): IVector<2, RealVectorOfDimension<2>> {
         return new Vector2DTypeReal(descriptor.coordinates[0], descriptor.coordinates[1], this.vectorSpace) as this;
     }
 }

@@ -6,8 +6,9 @@ import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { getDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import type { IComplexVector, IProjectiveVector, IVector } from "./Vector";
+import type { IProjectiveVector, IVector } from "./Vector";
 import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
+import { copyDescriptorVector4DReal } from "./VectorDescriptorFactory";
 import type { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
@@ -64,7 +65,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4>
     get vectorType(): string { return Vector4DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<4> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
-    get descriptor(): RealVector4D { return { ...this._descriptor }; }
+    get descriptor(): RealVector4D { return copyDescriptorVector4DReal(this._descriptor); }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(2); }
     get t(): number { return this.getCoordinate(Vector4DTypeReal.DIMENSION - 1); }
@@ -122,7 +123,6 @@ export class Vector4DTypeReal extends AbstractRealVector<4>
     
     clone(): this {
         return this.createVectorFromDescriptor(this.descriptor);
-        // return new Vector4DTypeReal(this.x, this.y, this.z, this.t, this.vectorSpace);
     }
 
     createVectorFromDescriptor(descriptor: RealVector4D): this {

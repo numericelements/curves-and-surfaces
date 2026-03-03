@@ -1,3 +1,4 @@
 export const EM_WEIGHT_TOO_SMALL = `The weight value is smaller than the minimum weight value. Cannot accurately transform the projective vector into a real one.`;
 export const EM_REVERT_NOT_APPLICABLE = `The revert operator is not applicable into projective vector space because it would produce negative weights that would be incompatible with all the weight managements available.`;
 export const EM_INCOMPATIBLE_WEIGHT_MANAGEMENT = `The weight managements of the projective vector space and the projective complex vector space differ. The transformation is not possible.`;
+export const EM_DOT_PRODUCT_NOT_AVAILABLE = `The dot product is not available into this vector space.`;
