@@ -1,75 +1,44 @@
-import { VectorDescriptorCollection1D } from "../mathVector/VectorDescriptorCollection1D";
-import { ComplexVector1D, ComplexVector2D, ProjectiveComplexVector1D, ProjectiveVector2D, ProjectiveVector3D, RealVector1D, RealVector2D, RealVector3D, RealVector4D, Vector } from "../mathVector/VectorSpaceConstructorInterface";
-import { areSameVSpaceAndDimension, getVectorTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
-import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import { ControlPolygonComplexProjectiveVectorStrategy } from "./ControlPolygonComplexProjectiveVectorStrategy";
-import { ControlPolygonComplexVectorStrategy } from "./ControlPolygonComplexVectorStrategy";
-import { ControlPolygonRealProjectiveVectorStrategy } from "./ControlPolygonRealProjectiveVectorStrategy";
-import { ControlPolygonRealVectorStrategy } from "./ControlPolygonRealVectorStrategy";
+import { isIterable } from "../core-utils/TypeChecking";
+import { IVector } from "../mathVector/Vector";
+import { VectorCollection1D } from "../mathVector/VectorCollection1D";
+import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
 
-
-// Strategy interface
-export interface ControlPolygonStrategy<T extends Vector> {
-    moveControlPoint(index: number, displacement: T): void;
-}
-
-export class ControlPolygon <T extends Vector = Vector> extends VectorDescriptorCollection1D {
-
-    protected _vectorSpaceType: VectorSpaceType;
-    protected _spaceDimension: number;
-    // protected _vectorSpace: VectorSpace;
-    protected strategy: ControlPolygonStrategy<T>;
-
-    constructor(controlPoints: Array<T>) {
-        super(controlPoints);
-        const {type: vectorSpace, dimension: spaceDimension} = getVectorTypeAndDimension(this._vectorCollection[0]);
-        this._vectorSpaceType = vectorSpace;
-        this._spaceDimension = spaceDimension;
-        switch(this._vectorSpaceType) {
-            case VectorSpaceType.REAL:
-                this.strategy = new ControlPolygonRealVectorStrategy(this) as ControlPolygonStrategy<T>;
-                break;
-            case VectorSpaceType.COMPLEX:
-                this.strategy = new ControlPolygonComplexVectorStrategy(this) as ControlPolygonStrategy<T>;
-                break;
-            case VectorSpaceType.PROJECTIVE:
-                this.strategy = new ControlPolygonRealProjectiveVectorStrategy(this) as ControlPolygonStrategy<T>;
-                break;
-            case VectorSpaceType.PROJECTIVECOMPLEX:
-                this.strategy = new ControlPolygonComplexProjectiveVectorStrategy(this) as ControlPolygonStrategy<T>;
-                break;
-            default:
-                throw new Error("Invalid vector space for OpenBSplineR1toRn constructor");
+export class ControlPolygon < V extends IVector<any, Vector>>  extends VectorCollection1D<V>
+{
+    constructor(controlPoints: V);
+    constructor(controlPoints: Iterable<V>);
+    constructor(controlPoints: V | Iterable<V>) {
+        if (isIterable<V>(controlPoints)) {
+            // controlPoints is iterable
+            super(controlPoints);
+        } else {
+            // single control point
+            super(controlPoints);
         }
     }
 
-    get spaceDimension(): number {
-        return this._spaceDimension;
+    get controlPoints(): ReadonlyArray<V> {
+        return this.vectorCollection;
     }
-    
-    moveControlPoint(index: number, displacement: T) {
-        const firstVector = this._vectorCollection[0];
-        if(!areSameVSpaceAndDimension(displacement, firstVector)) {
-            throw new Error(`Displacement type mismatch. Expected ${firstVector.constructor.name}, got ${displacement.constructor.name}`);
+
+    withMovedControlPoint(index: number, displacement: V): ControlPolygon<V> {
+        if (index < 0 || index >= this._vectors.length) {
+            throw new RangeError(`withMovedControlPoint: index ${index} out of range [0, ${this._vectors.length - 1}]`);
         }
-        this.strategy.moveControlPoint(index, displacement);
+        const tmp: V[] = [...this._vectors];
+        tmp[index] = tmp[index].add(displacement) as V;
+        return new ControlPolygon<V>(tmp);
     }
 
-    private isSameVectorType(v1: Vector, v2: Vector): boolean {
-        return v1.constructor === v2.constructor;
+    translated(transVector: V): ControlPolygon<V> {
+        const tmp: V[] = [];
+        this._vectors.forEach((cp, index) => {
+            tmp[index] = cp.add(transVector) as V;
+        });
+        return new ControlPolygon<V>([...tmp]);
     }
-}
 
-export function createControlPolygon(controlpPoints: RealVector1D[]): ControlPolygon<RealVector1D>;
-export function createControlPolygon(controlpPoints: RealVector2D[]): ControlPolygon<RealVector2D>;
-export function createControlPolygon(controlpPoints: RealVector3D[]): ControlPolygon<RealVector3D>;
-export function createControlPolygon(controlpPoints: RealVector4D[]): ControlPolygon<RealVector4D>;
-export function createControlPolygon(controlpPoints: ComplexVector1D[]): ControlPolygon<ComplexVector1D>;
-export function createControlPolygon(controlpPoints: ComplexVector2D[]): ControlPolygon<ComplexVector2D>;
-export function createControlPolygon(controlpPoints: ProjectiveVector2D[]): ControlPolygon<ProjectiveVector2D>;
-export function createControlPolygon(controlpPoints: ProjectiveVector3D[]): ControlPolygon<ProjectiveVector3D>;
-export function createControlPolygon(controlpPoints: ProjectiveComplexVector1D[]): ControlPolygon<ProjectiveComplexVector1D>;
-export function createControlPolygon<T extends Vector>(controlpPoints: T[]): ControlPolygon<T>;
-export function createControlPolygon<T extends Vector>(controlpPoints: T[]): ControlPolygon<T> {
-    return new ControlPolygon(controlpPoints);
+    reverted(): ControlPolygon<V> {
+        return new ControlPolygon<V>([...this._vectors].reverse());
+    }
 }

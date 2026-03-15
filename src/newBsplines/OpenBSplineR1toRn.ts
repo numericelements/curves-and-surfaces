@@ -8,7 +8,7 @@ import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { AbstractBSplineR1toRn } from "./AbstractBSplineR1toRn";
 import { AlgorithmBootstrap } from "./AlgorithmBootstrap";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type } from "./BSplineR1toRnConstructorInterface";
-import { ControlPolygon } from "./ControlPolygon";
+import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { CoxDeBoorAlgorithm } from "./CoxDeBoorAlgorithm";
 import { NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { OpenBSplineR1toRnComplexProjectiveVectorStrategy } from "./OpenBSplineR1toRnComplexProjectiveVectorStrategy";
@@ -44,7 +44,7 @@ export class CoxDeBoorEvaluator<T extends Vector = Vector> extends BSplineEvalua
     private _isDirty: boolean = true;
     private _flatCoordinates: Float64Array | null = null;
 
-    constructor(private controlPolygon: ControlPolygon) {
+    constructor(private controlPolygon: ControlPolygonFromDescriptors) {
         super();
         // this.vectorSpace = new RealVectorSpace(controlPolygon.spaceDimension);
         this.vectorSpace = createRealVectorSpace(controlPolygon.spaceDimension)
@@ -91,7 +91,7 @@ export class CoxDeBoorProjectiveEvaluator extends BSplineEvaluator {
     private vectorSpace: ProjectiveVectorSpace;
     
     constructor(
-        private controlPolygon: ControlPolygon,
+        private controlPolygon: ControlPolygonFromDescriptors,
         private knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         private degree: number
     ) {
@@ -128,7 +128,7 @@ export class CoxDeBoorRealEvaluator extends BSplineEvaluator {
     private _lastResult: RealVector | null = null;
 
     constructor(
-        private controlPolygon: ControlPolygon,
+        private controlPolygon: ControlPolygonFromDescriptors,
         private knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         private degree: number,
         vectorSpace: RealVectorSpace
@@ -183,7 +183,7 @@ export class CoxDeBoorRealEvaluator extends BSplineEvaluator {
 
 export class OpenBSplineR1toRn extends AbstractBSplineR1toRn {
 
-    protected _controlPolygon: ControlPolygon;
+    protected _controlPolygon: ControlPolygonFromDescriptors;
     protected _curveOrigin: number;
     protected _degree: number;
     protected _knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;
@@ -212,10 +212,10 @@ export class OpenBSplineR1toRn extends AbstractBSplineR1toRn {
         }
         if(curveParameters.type === BSPL_CP_NO_KNOT || curveParameters.type === BSPL_CP_DEG_UNIFORM ||
             curveParameters.type === BSPL_CP_DEG_UNIFORM_EUCLIDEAN || curveParameters.type === BSPL_CP_DEG_NONUNIFORM) {
-            if(curveParameters.controlPoints instanceof ControlPolygon) {
+            if(curveParameters.controlPoints instanceof ControlPolygonFromDescriptors) {
                 this._controlPolygon = curveParameters.controlPoints;
             } else {
-                this._controlPolygon = new ControlPolygon(curveParameters.controlPoints);
+                this._controlPolygon = new ControlPolygonFromDescriptors(curveParameters.controlPoints);
             }
             if(curveParameters.type === BSPL_CP_NO_KNOT) {
                 this._degree = this._controlPolygon.length - 1;
@@ -237,7 +237,7 @@ export class OpenBSplineR1toRn extends AbstractBSplineR1toRn {
 
     }
 
-    get controlPolygon(): ControlPolygon {
+    get controlPolygon(): ControlPolygonFromDescriptors {
         return this._controlPolygon;
     }
 
@@ -245,7 +245,7 @@ export class OpenBSplineR1toRn extends AbstractBSplineR1toRn {
         return this._knotSequence;
     }
 
-    set controlPolygon(controlPolygon: ControlPolygon) {
+    set controlPolygon(controlPolygon: ControlPolygonFromDescriptors) {
         this._controlPolygon = controlPolygon;
     }
 
@@ -310,7 +310,7 @@ export interface AlgorithmDescriptor {
 
 export interface AlgorithmFactory {
     createEvaluator(
-        controlPolygon: ControlPolygon,
+        controlPolygon: ControlPolygonFromDescriptors,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         degree: number,
         vectorSpace: any

@@ -1,14 +1,14 @@
 import { ComplexVectorSpace } from "../mathVector/ComplexVectorSpace";
 import { ComplexVector } from "../mathVector/VectorSpaceConstructorInterface";
-import { ControlPolygon, ControlPolygonStrategy } from "./ControlPolygon";
+import { ControlPolygonFromDescriptors, ControlPolygonStrategy } from "./ControlPolygonFromDescriptors";
 
 
 export class ControlPolygonComplexVectorStrategy implements ControlPolygonStrategy<ComplexVector> {
 
     private vectorSpace: ComplexVectorSpace;
-    private controlPolygon: ControlPolygon;
+    private controlPolygon: ControlPolygonFromDescriptors;
 
-    constructor(controlPolygon: ControlPolygon ) {
+    constructor(controlPolygon: ControlPolygonFromDescriptors ) {
         this.controlPolygon = controlPolygon;
         this.vectorSpace = new ComplexVectorSpace(controlPolygon.spaceDimension);
     }

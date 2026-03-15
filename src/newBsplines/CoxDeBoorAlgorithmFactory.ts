@@ -1,11 +1,11 @@
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
-import { ControlPolygon } from "./ControlPolygon";
+import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { AlgorithmFactory, BSplineEvaluator, CoxDeBoorProjectiveEvaluator, CoxDeBoorRealEvaluator } from "./OpenBSplineR1toRn";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 
 export class CoxDeBoorAlgorithmFactory implements AlgorithmFactory {
     createEvaluator(
-        controlPolygon: ControlPolygon,
+        controlPolygon: ControlPolygonFromDescriptors,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         degree: number,
         vectorSpace: any

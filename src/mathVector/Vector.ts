@@ -79,6 +79,7 @@ export interface IComplexVector<D extends number = number>
 {
     readonly vectorSpace: ComplexVectorSpace<D>;
     readonly spaceType: VectorSpaceType.COMPLEX;
+    readonly coordinates: Complex[];
   
     // Complex-specific methods
     getReal(index: number): number;
@@ -95,6 +96,9 @@ export interface IProjectiveVector<D extends number = number>
     readonly vectorSpace: ProjectiveVectorSpace<D>;
     readonly spaceType: VectorSpaceType.PROJECTIVE;
     readonly coordinates: number[];
+    readonly x: number;
+    readonly y: number;
+    readonly z?: number;
     readonly weight: Weight;
     readonly homogeneousCoordinates: number[];
     
@@ -109,10 +113,11 @@ export interface IProjectiveComplexVector<D extends number = number>
 {
     readonly vectorSpace: ProjectiveComplexVectorSpace<D>;
     readonly spaceType: VectorSpaceType.PROJECTIVECOMPLEX;
+    readonly coordinates: Complex[];
     readonly weight: ComplexWeight;
     readonly homogeneousComplexCoordinates: Complex[];
     
     // Projective-specific methods
-    toComplexVector(vectorSpace?: ComplexVectorSpace<D>): IComplexVector<any>;
+    toComplexVector(vectorSpace?: ComplexVectorSpace<any>): IComplexVector<any>;
     // toRealVector(): IRealVector<any>;
 }

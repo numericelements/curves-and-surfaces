@@ -165,7 +165,7 @@ export function getVectorTypeAndDimension(vector: Vector): {type: VectorSpaceTyp
     }
 }
 
-export function getVectorTypeInfo(vector: any): typeof VECTOR_TYPE_INFO[keyof typeof VECTOR_TYPE_INFO] {
+export function getVectorTypeInfo(vector: Vector): typeof VECTOR_TYPE_INFO[keyof typeof VECTOR_TYPE_INFO] {
     if (typeof vector === 'number') {
         return VECTOR_TYPE_INFO.RealVector1D;
     }

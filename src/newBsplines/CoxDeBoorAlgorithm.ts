@@ -1,4 +1,4 @@
-import { ControlPolygon } from "./ControlPolygon";
+import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 
 
@@ -8,7 +8,7 @@ import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasin
  */
 export class CoxDeBoorAlgorithm {
     constructor(
-        private controlPolygon: ControlPolygon,
+        private controlPolygon: ControlPolygonFromDescriptors,
         private knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         private degree: number
     ) {}

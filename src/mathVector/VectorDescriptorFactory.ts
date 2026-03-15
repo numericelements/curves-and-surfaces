@@ -8,8 +8,8 @@ import { ComplexVector1D, ComplexVector2D, ProjectiveComplexVector1D, Projective
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-export function createVector1DRealDescriptor(x: number): RealVector1D {
-    const result = x;
+export function createVector1DRealDescriptor(x?: number): RealVector1D {
+    const result = x ?? 0;
     return result;
 }
 
@@ -19,6 +19,7 @@ export function copyDescriptorVector1DReal(descriptor: RealVector1D): RealVector
 }
 
 export function createVector2DRealDescriptor(): RealVector2D;
+export function createVector2DRealDescriptor(x: number, y: number): RealVector2D;
 export function createVector2DRealDescriptor(x?: number, y?: number): RealVector2D {
     const x1 = x ?? 0;
     const y1 = y ?? 0;
@@ -30,6 +31,7 @@ export function copyDescriptorVector2DReal(descriptor: RealVector2D): RealVector
 }
 
 export function createVector3DRealDescriptor(): RealVector3D;
+export function createVector3DRealDescriptor(x: number, y: number, z: number): RealVector3D;
 export function createVector3DRealDescriptor(x?: number, y?: number, z?: number): RealVector3D {
     const x1 = x ?? 0;
     const y1 = y ?? 0;
@@ -43,6 +45,7 @@ export function copyDescriptorVector3DReal(descriptor: RealVector3D): RealVector
 
 
 export function createVector4DRealDescriptor(): RealVector4D;
+export function createVector4DRealDescriptor(x: number, y: number, z: number, t: number): RealVector4D;
 export function createVector4DRealDescriptor(x?: number, y?: number, z?: number, t?: number): RealVector4D {
     const x1 = x ?? 0;
     const y1 = y ?? 0;
@@ -57,15 +60,19 @@ export function copyDescriptorVector4DReal(descriptor: RealVector4D): RealVector
 
 export function createVector3DProjectiveRealDescriptor(): ProjectiveVector2D;
 export function createVector3DProjectiveRealDescriptor(x: number, y: number): ProjectiveVector2D;
+export function createVector3DProjectiveRealDescriptor(x: number, y: number, w: number): ProjectiveVector2D;
 export function createVector3DProjectiveRealDescriptor(x?: number, y?: number, w?: number): ProjectiveVector2D {
     const x1 = x ?? 0;
     const y1 = y ?? 0;
     const w1 = w ?? DEFAULT_WEIGHT_VALUE;
-    let weight = new Weight(w1);
-    if(w1 === 0) weight = new Weight(w1, false);
+    let weight = new Weight(DEFAULT_WEIGHT_VALUE);
     if(w1 < 0) {
         const error = sendRangeErrorMessage(('function'), 'createVector3DProjectiveRealDescriptor', EM_WEIGHT_VALUE_POSITIVE);
         throw new RangeError(error.generateMessageString());
+    } else if(w1 === 0) {
+        weight = new Weight(w1, false);
+    } else {
+        weight = new Weight(w1);
     }
     return {type: PROJECTIVEVECTOR2D, coordinates: [x1, y1, weight.toDescriptor()]};
 }
@@ -76,16 +83,20 @@ export function copyDescriptorVector3DProjectiveReal(descriptor: ProjectiveVecto
 
 export function createVector4DProjectiveRealDescriptor(): ProjectiveVector3D;
 export function createVector4DProjectiveRealDescriptor(x: number, y: number, z: number): ProjectiveVector3D;
+export function createVector4DProjectiveRealDescriptor(x: number, y: number, z: number, w: number): ProjectiveVector3D;
 export function createVector4DProjectiveRealDescriptor(x?: number, y?: number, z?: number, w?: number): ProjectiveVector3D {
     const x1 = x ?? 0;
     const y1 = y ?? 0;
     const z1 = z ?? 0;
     const w1 = w ?? DEFAULT_WEIGHT_VALUE;
-    let weight = new Weight(w1);
-    if(w1 === 0) weight = new Weight(w1, false);
+    let weight = new Weight(DEFAULT_WEIGHT_VALUE);
     if(w1 < 0) {
-        const error = sendRangeErrorMessage(('function'), 'createVector4DProjectiveRealDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+        const error = sendRangeErrorMessage('function', 'createVector4DProjectiveRealDescriptor', EM_WEIGHT_VALUE_POSITIVE);
         throw new RangeError(error.generateMessageString());
+    } else if(w1 === 0) {
+        weight = new Weight(w1, false);
+    } else {
+        weight = new Weight(w1);
     }
     return {type: PROJECTIVEVECTOR3D, coordinates: [x1, y1, z1, weight.toDescriptor()]};
 }
@@ -95,6 +106,7 @@ export function copyDescriptorVector4DProjectiveReal(descriptor: ProjectiveVecto
 }
 
 export function createVector1DComplexDescriptor(): ComplexVector1D;
+export function createVector1DComplexDescriptor(x: number, y: number): ComplexVector1D;
 export function createVector1DComplexDescriptor(x?: number, y?: number): ComplexVector1D {
     const x1 = x ?? 0;
     const y1 = y ?? 0;
@@ -106,6 +118,7 @@ export function copyDescriptorVector1DComplex(descriptor: ComplexVector1D): Comp
 }
 
 export function createVector2DComplexDescriptor(): ComplexVector2D;
+export function createVector2DComplexDescriptor(x1: number, y1: number, x2: number, y2: number): ComplexVector2D;
 export function createVector2DComplexDescriptor(x1?: number, y1?: number, x2?: number, y2?: number): ComplexVector2D {
     const c1Real = x1 ?? 0;
     const c1Imaginary = y1 ?? 0;
@@ -127,17 +140,23 @@ export function createVector2DProjectiveComplexDescriptor(real?: number, imagina
     const cImaginary = imaginary ?? 0;
     const wReal = realW ?? DEFAULT_WEIGHT_VALUE;
     const wImaginary = imaginaryW ?? DEFAULT_IMAGINARY_WEIGHT_VALUE;
-    let weightReal = new Weight(wReal);
-    if(wReal === 0) weightReal = new Weight(wReal, false);
+    let weightReal = new Weight(DEFAULT_WEIGHT_VALUE);
     if(wReal < 0) {
-        const error = sendRangeErrorMessage(('function'), 'createVector2DProjectiveComplexDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+        const error = sendRangeErrorMessage('function', 'createVector2DProjectiveComplexDescriptor', EM_WEIGHT_VALUE_POSITIVE);
         throw new RangeError(error.generateMessageString());
+    } else if(wReal === 0) {
+        weightReal = new Weight(wReal, false);
+    } else {
+        weightReal = new Weight(wReal);
     }
-    let weightImaginary = new Weight(wImaginary);
-    if(wImaginary === 0) weightImaginary = new Weight(wImaginary, false);
+    let weightImaginary = new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false);
     if(wImaginary < 0) {
-        const error = sendRangeErrorMessage(('function'), 'createVector2DProjectiveComplexDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+        const error = sendRangeErrorMessage('function', 'createVector2DProjectiveComplexDescriptor', EM_WEIGHT_VALUE_POSITIVE);
         throw new RangeError(error.generateMessageString());
+    } else if(wImaginary === 0) {
+        weightImaginary = new Weight(wImaginary, false);
+    } else {
+        weightImaginary = new Weight(wImaginary);
     }
     return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [new Complex(cReal, cImaginary).toDescriptor(), new ComplexWeight(weightReal, weightImaginary).toDescriptor()]};
 }

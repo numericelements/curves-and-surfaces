@@ -1,0 +1,3 @@
+export const EM_VECTORSPACE_TYPE_OR_DIMENSION_INCONSISTENT = `The vector space type or dimension is inconsistent with the expected type or dimension for the vector being created.`;
+export const EM_VECTOR_DESCRIPTOR_INCOMPATIBLE_WITH_VECTORSPACE = `The provided vector descriptor is incompatible with the expected vector space for the vector being created.`;
+export const EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT = `The content of the provided vector descriptor is inconsistent with the expected content for the vector being created.`;

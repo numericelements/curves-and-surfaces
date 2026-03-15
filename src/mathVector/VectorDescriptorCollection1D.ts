@@ -23,7 +23,7 @@ export class VectorDescriptorCollection1D <T extends Vector = Vector> {
             this._spaceDimension = spaceDimension;
         } else {
             this._vectorCollection = [];
-            this._type = getVectorTypeInfo(this._vectorCollection).typeString;
+            this._type = getVectorTypeInfo(this._vectorCollection[0]).typeString;
         }
     }
 

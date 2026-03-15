@@ -1,14 +1,14 @@
 import { ProjectiveComplexVectorSpace } from "../mathVector/ProjectiveComplexVectorSpace";
 import { ProjectiveComplexVector } from "../mathVector/VectorSpaceConstructorInterface";
-import { ControlPolygon, ControlPolygonStrategy } from "./ControlPolygon";
+import { ControlPolygonFromDescriptors, ControlPolygonStrategy } from "./ControlPolygonFromDescriptors";
 
 
 export class ControlPolygonComplexProjectiveVectorStrategy implements ControlPolygonStrategy<ProjectiveComplexVector> {
 
     private vectorSpace: ProjectiveComplexVectorSpace;
-    private controlPolygon: ControlPolygon;
+    private controlPolygon: ControlPolygonFromDescriptors;
 
-    constructor(controlPolygon: ControlPolygon ) {
+    constructor(controlPolygon: ControlPolygonFromDescriptors ) {
         this.controlPolygon = controlPolygon;
         this.vectorSpace = new ProjectiveComplexVectorSpace(controlPolygon.spaceDimension);
     }

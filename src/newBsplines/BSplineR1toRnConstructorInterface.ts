@@ -1,5 +1,5 @@
 import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
-import { ControlPolygon } from "./ControlPolygon";
+import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { IncreasingOpenKnotSequence, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots, IncreasingOpenKnotSequenceUpToC0Discontinuity, IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots, IncreasingPeriodicKnotSequence, StrictIncreasingPeriodicKnotSequence, StrictlyIncreasingOpenKnotSequence, StrictlyIncreasingOpenKnotSequenceCCurve, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity, StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots } from "./KnotSequenceConstructorInterface";
 
 
@@ -143,7 +143,7 @@ export interface OpenBSpline_PH_quintic_line_circle {
 }
 
 export type ControlPoint = Vector;
-export type ControlPoints = ControlPolygon | ControlPoint[];
+export type ControlPoints = ControlPolygonFromDescriptors | ControlPoint[];
 export type OpenKnotSequenceInterface_type = IncreasingOpenKnotSequence | StrictlyIncreasingOpenKnotSequence;
 export type OpenKnotSequenceUpToC0DiscontinuityInterface_type = IncreasingOpenKnotSequenceUpToC0Discontinuity | StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity;
 export type OpenKnotSequenceCCurveInterface_type = IncreasingOpenKnotSequenceCCurve | StrictlyIncreasingOpenKnotSequenceCCurve;

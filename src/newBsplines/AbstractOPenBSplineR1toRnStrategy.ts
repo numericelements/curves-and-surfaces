@@ -1,6 +1,6 @@
 import { RealVector } from "../mathVector/VectorSpaceConstructorInterface";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type } from "./BSplineR1toRnConstructorInterface";
-import { ControlPolygon } from "./ControlPolygon";
+import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { BSplineEvaluator, OpenBSplineR1toRn } from "./OpenBSplineR1toRn";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
@@ -20,10 +20,10 @@ export abstract class AbstractOPenBSplineR1toRnStrategy {
     private initializeControlPolygonAndKnots(curveParameters: BSpline_type): void {
         if(curveParameters.type === BSPL_CP_NO_KNOT || curveParameters.type === BSPL_CP_DEG_UNIFORM ||
             curveParameters.type === BSPL_CP_DEG_UNIFORM_EUCLIDEAN || curveParameters.type === BSPL_CP_DEG_NONUNIFORM) {
-            if(curveParameters.controlPoints instanceof ControlPolygon) {
+            if(curveParameters.controlPoints instanceof ControlPolygonFromDescriptors) {
                 this.openBSplineR1toRn.controlPolygon = curveParameters.controlPoints;
             } else {
-                this.openBSplineR1toRn.controlPolygon = new ControlPolygon(curveParameters.controlPoints);
+                this.openBSplineR1toRn.controlPolygon = new ControlPolygonFromDescriptors(curveParameters.controlPoints);
             }
             if(curveParameters.type === BSPL_CP_NO_KNOT) {
                 this.openBSplineR1toRn.degree = this.openBSplineR1toRn.controlPolygon.length - 1;

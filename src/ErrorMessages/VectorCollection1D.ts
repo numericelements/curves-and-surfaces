@@ -1,0 +1,3 @@
+export const EM_VECTOR_SPACE_TYPE_DIFFER = `The vector space type of the current vector of the collection differs from the vector space type of the first vector of the collection: this is inconsistent.`;
+export const EM_VECTOR_SPACE_DIMENSION_DIFFER = `The vector space dimension of the current vector of the collection differs from the vector space dimension of the first vector of the collection: this is inconsistent.`;
+export const EM_VECTOR_SPACE_IDENTIFIER_DIFFER = `The vector space identifier of the current vector of the collection differs from the vector space identifier of the first vector of the collection: this is inconsistent.`;

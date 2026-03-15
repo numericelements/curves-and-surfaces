@@ -2,13 +2,13 @@ import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { getVectorTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type, BSplineR1toR1_type, BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY, ControlPoints } from "./BSplineR1toRnConstructorInterface";
-import { ControlPolygon } from "./ControlPolygon";
+import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 
 
 export abstract class AbstractBSplineR1toRn {
 
     protected abstract _curveOrigin: number;
-    protected abstract _controlPolygon: ControlPolygon | number[];
+    protected abstract _controlPolygon: ControlPolygonFromDescriptors | number[];
     protected abstract _degree: number;
     // protected abstract _evaluator: CoxDeBoorView | null;
     protected _vectorSpace: VectorSpaceType;
@@ -20,7 +20,7 @@ export abstract class AbstractBSplineR1toRn {
         if(curveParameters.type === BSPL_CP_NO_KNOT || curveParameters.type === BSPL_CP_DEG_UNIFORM ||
             curveParameters.type === BSPL_CP_DEG_UNIFORM_EUCLIDEAN || curveParameters.type === BSPL_CP_DEG_NONUNIFORM) {
             let vector: Vector;
-            if(curveParameters.controlPoints instanceof ControlPolygon) {
+            if(curveParameters.controlPoints instanceof ControlPolygonFromDescriptors) {
                 vector = curveParameters.controlPoints.pop();
             } else {
                 vector = curveParameters.controlPoints[0]

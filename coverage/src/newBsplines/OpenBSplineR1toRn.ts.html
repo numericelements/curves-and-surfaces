@@ -779,7 +779,7 @@ import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { AbstractBSplineR1toRn } from "./AbstractBSplineR1toRn";
 import { AlgorithmBootstrap } from "./AlgorithmBootstrap";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type } from "./BSplineR1toRnConstructorInterface";
-import { ControlPolygon } from "./ControlPolygon";
+import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { CoxDeBoorAlgorithm } from "./CoxDeBoorAlgorithm";
 import { NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { OpenBSplineR1toRnComplexProjectiveVectorStrategy } from "./OpenBSplineR1toRnComplexProjectiveVectorStrategy";
@@ -815,7 +815,7 @@ export class CoxDeBoorEvaluator&lt;T extends Vector = Vector&gt; extends BSpline
     private _isDirty: boolean = true;
     private _flatCoordinates: Float64Array | null = null;
 &nbsp;
-<span class="fstat-no" title="function not covered" >    constructor(private controlPolygon: ControlPolygon) {</span>
+<span class="fstat-no" title="function not covered" >    constructor(private controlPolygon: ControlPolygonFromDescriptors) {</span>
 <span class="cstat-no" title="statement not covered" >        super();</span>
 <span class="cstat-no" title="statement not covered" >        // this.vectorSpace = new RealVectorSpace(controlPolygon.spaceDimension);</span>
 <span class="cstat-no" title="statement not covered" >        this.vectorSpace = createRealVectorSpace(controlPolygon.spaceDimension)</span>
@@ -862,7 +862,7 @@ export class CoxDeBoorProjectiveEvaluator extends BSplineEvaluator {
     private vectorSpace: ProjectiveVectorSpace;
     
 <span class="fstat-no" title="function not covered" >    constructor(</span>
-<span class="cstat-no" title="statement not covered" >        private controlPolygon: ControlPolygon,</span>
+<span class="cstat-no" title="statement not covered" >        private controlPolygon: ControlPolygonFromDescriptors,</span>
 <span class="cstat-no" title="statement not covered" >        private knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,</span>
 <span class="cstat-no" title="statement not covered" >        private degree: number</span>
 <span class="cstat-no" title="statement not covered" >    ) {</span>
@@ -899,7 +899,7 @@ export class CoxDeBoorRealEvaluator extends BSplineEvaluator {
     private _lastResult: RealVector | null = null;
 &nbsp;
 <span class="fstat-no" title="function not covered" >    constructor(</span>
-<span class="cstat-no" title="statement not covered" >        private controlPolygon: ControlPolygon,</span>
+<span class="cstat-no" title="statement not covered" >        private controlPolygon: ControlPolygonFromDescriptors,</span>
 <span class="cstat-no" title="statement not covered" >        private knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,</span>
 <span class="cstat-no" title="statement not covered" >        private degree: number,</span>
 <span class="cstat-no" title="statement not covered" >        vectorSpace: RealVectorSpace</span>
@@ -954,7 +954,7 @@ export class CoxDeBoorRealEvaluator extends BSplineEvaluator {
 &nbsp;
 export class OpenBSplineR1toRn extends AbstractBSplineR1toRn {
 &nbsp;
-    protected _controlPolygon: ControlPolygon;
+    protected _controlPolygon: ControlPolygonFromDescriptors;
     protected _curveOrigin: number;
     protected _degree: number;
     protected _knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;
@@ -983,10 +983,10 @@ export class OpenBSplineR1toRn extends AbstractBSplineR1toRn {
         }
         if(curveParameters.type === BSPL_CP_NO_KNOT<span class="branch-0 cbranch-no" title="branch not covered" > || curveParameters.type === BSPL_CP_DEG_UNIFORM<span class="branch-0 cbranch-no" title="branch not covered" > </span>||</span>
             curveParameters.type === BSPL_CP_DEG_UNIFORM_EUCLIDEAN<span class="branch-0 cbranch-no" title="branch not covered" > || curveParameters.type === BSPL_CP_DEG_NONUNIFORM)</span> {
-            if(curveParameters.controlPoints instanceof ControlPolygon) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
+            if(curveParameters.controlPoints instanceof ControlPolygonFromDescriptors) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >                this._controlPolygon = curveParameters.controlPoints;</span>
             } else {
-                this._controlPolygon = new ControlPolygon(curveParameters.controlPoints);
+                this._controlPolygon = new ControlPolygonFromDescriptors(curveParameters.controlPoints);
             }
             if(curveParameters.type === BSPL_CP_NO_KNOT) {
                 this._degree = this._controlPolygon.length - 1;
@@ -1008,7 +1008,7 @@ export class OpenBSplineR1toRn extends AbstractBSplineR1toRn {
 &nbsp;
     }
 &nbsp;
-    get controlPolygon(): ControlPolygon {
+    get controlPolygon(): ControlPolygonFromDescriptors {
         return this._controlPolygon;
     }
 &nbsp;
@@ -1016,7 +1016,7 @@ export class OpenBSplineR1toRn extends AbstractBSplineR1toRn {
 <span class="cstat-no" title="statement not covered" >        return this._knotSequence;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-    set controlPolygon(controlPolygon: ControlPolygon) {
+    set controlPolygon(controlPolygon: ControlPolygonFromDescriptors) {
         this._controlPolygon = controlPolygon;
     }
 &nbsp;
@@ -1081,7 +1081,7 @@ export interface AlgorithmDescriptor {
 &nbsp;
 export interface AlgorithmFactory {
     createEvaluator(
-        controlPolygon: ControlPolygon,
+        controlPolygon: ControlPolygonFromDescriptors,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         degree: number,
         vectorSpace: any
@@ -1129,7 +1129,7 @@ export class AlgorithmRegistry {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-03T09:26:10.345Z
+                at 2026-03-13T18:15:40.504Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

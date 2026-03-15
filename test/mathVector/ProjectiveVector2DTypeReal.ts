@@ -14,11 +14,10 @@ import { PROJECTIVEVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 import { Complex } from "../../src/mathVector/Complex";
 import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
 import { EM_DOT_PRODUCT_NOT_AVAILABLE, EM_INCOMPATIBLE_WEIGHT_MANAGEMENT } from "../../src/ErrorMessages/ProjectiveVectors";
-import { createTestProjectiveVector } from "./ProjectiveVectorSpaceTestFactory";
 import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS } from "../../src/ErrorMessages/WeightManager";
 import { EM_PROJECTIVEVECTOR_WITH_NEGATIVE_WEIGHT } from "../../src/ErrorMessages/ProjectiveVectorSpace";
 
-describe('Projective vector 2D in real vector space: generation and operators in this vector space', () => {
+describe('Projective vector 3D in real vector space: generation and operators in this vector space', () => {
     const dimension = 3;
 
     beforeEach(() => {

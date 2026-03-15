@@ -53808,7 +53808,7 @@ class VectorDescriptorCollection1D {
         }
         else {
             this._vectorCollection = [];
-            this._type = (0, VectorSpaceUtilities_1.getVectorTypeInfo)(this._vectorCollection).typeString;
+            this._type = (0, VectorSpaceUtilities_1.getVectorTypeInfo)(this._vectorCollection[0]).typeString;
         }
     }
     [Symbol.iterator]() {
@@ -54043,9 +54043,12 @@ exports.VECTOR_TYPE_INFO = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createRealVectorSpace = void 0;
+exports.isProjectiveComplexVectorSpace = exports.isComplexVectorSpace = exports.isProjectiveVectorSpace = exports.isRealVectorSpace = exports.createRealVectorSpace = void 0;
 const RealVectorSpace_1 = __webpack_require__(/*! ../ErrorMessages/RealVectorSpace */ "./src/ErrorMessages/RealVectorSpace.ts");
 const RealVectorSpace_2 = __webpack_require__(/*! ../namedConstants/RealVectorSpace */ "./src/namedConstants/RealVectorSpace.ts");
+const ComplexVectorSpace_1 = __webpack_require__(/*! ./ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
+const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ./ProjectiveComplexVectorSpace */ "./src/mathVector/ProjectiveComplexVectorSpace.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ./ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
 const RealVectorSpace_3 = __webpack_require__(/*! ./RealVectorSpace */ "./src/mathVector/RealVectorSpace.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 function createRealVectorSpace(dimension) {
@@ -54056,6 +54059,22 @@ function createRealVectorSpace(dimension) {
     return new RealVectorSpace_3.RealVectorSpace(dimension);
 }
 exports.createRealVectorSpace = createRealVectorSpace;
+function isRealVectorSpace(vectorSpace, dimension) {
+    return vectorSpace instanceof RealVectorSpace_3.RealVectorSpace && vectorSpace.dimension() === dimension;
+}
+exports.isRealVectorSpace = isRealVectorSpace;
+function isProjectiveVectorSpace(vectorSpace, dimension) {
+    return vectorSpace instanceof ProjectiveVectorSpace_1.ProjectiveVectorSpace && vectorSpace.dimension() === dimension;
+}
+exports.isProjectiveVectorSpace = isProjectiveVectorSpace;
+function isComplexVectorSpace(vectorSpace, dimension) {
+    return vectorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace && vectorSpace.dimension() === dimension;
+}
+exports.isComplexVectorSpace = isComplexVectorSpace;
+function isProjectiveComplexVectorSpace(vectorSpace, dimension) {
+    return vectorSpace instanceof ProjectiveComplexVectorSpace_1.ProjectiveComplexVectorSpace && vectorSpace.dimension() === dimension;
+}
+exports.isProjectiveComplexVectorSpace = isProjectiveComplexVectorSpace;
 
 
 /***/ },
@@ -58057,7 +58076,7 @@ exports.AbstractBSplineR1toRn = void 0;
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ../mathVector/VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
 const BSplineR1toRnConstructorInterface_1 = __webpack_require__(/*! ./BSplineR1toRnConstructorInterface */ "./src/newBsplines/BSplineR1toRnConstructorInterface.ts");
-const ControlPolygon_1 = __webpack_require__(/*! ./ControlPolygon */ "./src/newBsplines/ControlPolygon.ts");
+const ControlPolygonFromDescriptors_1 = __webpack_require__(/*! ./ControlPolygonFromDescriptors */ "./src/newBsplines/ControlPolygonFromDescriptors.ts");
 class AbstractBSplineR1toRn {
     // protected _isDirty: boolean;
     constructor(curveParameters) {
@@ -58065,7 +58084,7 @@ class AbstractBSplineR1toRn {
         if (curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_NO_KNOT || curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_DEG_UNIFORM ||
             curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_DEG_UNIFORM_EUCLIDEAN || curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_DEG_NONUNIFORM) {
             let vector;
-            if (curveParameters.controlPoints instanceof ControlPolygon_1.ControlPolygon) {
+            if (curveParameters.controlPoints instanceof ControlPolygonFromDescriptors_1.ControlPolygonFromDescriptors) {
                 vector = curveParameters.controlPoints.pop();
             }
             else {
@@ -58875,7 +58894,7 @@ exports.AbstractKnotSequence = AbstractKnotSequence;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AbstractOPenBSplineR1toRnStrategy = void 0;
 const BSplineR1toRnConstructorInterface_1 = __webpack_require__(/*! ./BSplineR1toRnConstructorInterface */ "./src/newBsplines/BSplineR1toRnConstructorInterface.ts");
-const ControlPolygon_1 = __webpack_require__(/*! ./ControlPolygon */ "./src/newBsplines/ControlPolygon.ts");
+const ControlPolygonFromDescriptors_1 = __webpack_require__(/*! ./ControlPolygonFromDescriptors */ "./src/newBsplines/ControlPolygonFromDescriptors.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ./KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const StrictlyIncreasingOpenKnotSequenceOpenCurve_1 = __webpack_require__(/*! ./StrictlyIncreasingOpenKnotSequenceOpenCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts");
 class AbstractOPenBSplineR1toRnStrategy {
@@ -58889,11 +58908,11 @@ class AbstractOPenBSplineR1toRnStrategy {
     initializeControlPolygonAndKnots(curveParameters) {
         if (curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_NO_KNOT || curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_DEG_UNIFORM ||
             curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_DEG_UNIFORM_EUCLIDEAN || curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_DEG_NONUNIFORM) {
-            if (curveParameters.controlPoints instanceof ControlPolygon_1.ControlPolygon) {
+            if (curveParameters.controlPoints instanceof ControlPolygonFromDescriptors_1.ControlPolygonFromDescriptors) {
                 this.openBSplineR1toRn.controlPolygon = curveParameters.controlPoints;
             }
             else {
-                this.openBSplineR1toRn.controlPolygon = new ControlPolygon_1.ControlPolygon(curveParameters.controlPoints);
+                this.openBSplineR1toRn.controlPolygon = new ControlPolygonFromDescriptors_1.ControlPolygonFromDescriptors(curveParameters.controlPoints);
             }
             if (curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_NO_KNOT) {
                 this.openBSplineR1toRn.degree = this.openBSplineR1toRn.controlPolygon.length - 1;
@@ -61304,69 +61323,6 @@ exports.memoizedBinomialCoefficient = memoizedBinomialCoefficient;
 
 /***/ },
 
-/***/ "./src/newBsplines/ControlPolygon.ts"
-/*!*******************************************!*\
-  !*** ./src/newBsplines/ControlPolygon.ts ***!
-  \*******************************************/
-(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createControlPolygon = exports.ControlPolygon = void 0;
-const VectorDescriptorCollection1D_1 = __webpack_require__(/*! ../mathVector/VectorDescriptorCollection1D */ "./src/mathVector/VectorDescriptorCollection1D.ts");
-const VectorSpaceUtilities_1 = __webpack_require__(/*! ../mathVector/VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
-const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
-const ControlPolygonComplexProjectiveVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonComplexProjectiveVectorStrategy */ "./src/newBsplines/ControlPolygonComplexProjectiveVectorStrategy.ts");
-const ControlPolygonComplexVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonComplexVectorStrategy */ "./src/newBsplines/ControlPolygonComplexVectorStrategy.ts");
-const ControlPolygonRealProjectiveVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonRealProjectiveVectorStrategy */ "./src/newBsplines/ControlPolygonRealProjectiveVectorStrategy.ts");
-const ControlPolygonRealVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonRealVectorStrategy */ "./src/newBsplines/ControlPolygonRealVectorStrategy.ts");
-class ControlPolygon extends VectorDescriptorCollection1D_1.VectorDescriptorCollection1D {
-    constructor(controlPoints) {
-        super(controlPoints);
-        const { type: vectorSpace, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorTypeAndDimension)(this._vectorCollection[0]);
-        this._vectorSpaceType = vectorSpace;
-        this._spaceDimension = spaceDimension;
-        switch (this._vectorSpaceType) {
-            case BSplineR1toRn_1.VectorSpaceType.REAL:
-                this.strategy = new ControlPolygonRealVectorStrategy_1.ControlPolygonRealVectorStrategy(this);
-                break;
-            case BSplineR1toRn_1.VectorSpaceType.COMPLEX:
-                this.strategy = new ControlPolygonComplexVectorStrategy_1.ControlPolygonComplexVectorStrategy(this);
-                break;
-            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVE:
-                this.strategy = new ControlPolygonRealProjectiveVectorStrategy_1.ControlPolygonRealProjectiveVectorStrategy(this);
-                break;
-            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
-                this.strategy = new ControlPolygonComplexProjectiveVectorStrategy_1.ControlPolygonComplexProjectiveVectorStrategy(this);
-                break;
-            default:
-                throw new Error("Invalid vector space for OpenBSplineR1toRn constructor");
-        }
-    }
-    get spaceDimension() {
-        return this._spaceDimension;
-    }
-    moveControlPoint(index, displacement) {
-        const firstVector = this._vectorCollection[0];
-        if (!(0, VectorSpaceUtilities_1.areSameVSpaceAndDimension)(displacement, firstVector)) {
-            throw new Error(`Displacement type mismatch. Expected ${firstVector.constructor.name}, got ${displacement.constructor.name}`);
-        }
-        this.strategy.moveControlPoint(index, displacement);
-    }
-    isSameVectorType(v1, v2) {
-        return v1.constructor === v2.constructor;
-    }
-}
-exports.ControlPolygon = ControlPolygon;
-function createControlPolygon(controlpPoints) {
-    return new ControlPolygon(controlpPoints);
-}
-exports.createControlPolygon = createControlPolygon;
-
-
-/***/ },
-
 /***/ "./src/newBsplines/ControlPolygonComplexProjectiveVectorStrategy.ts"
 /*!**************************************************************************!*\
   !*** ./src/newBsplines/ControlPolygonComplexProjectiveVectorStrategy.ts ***!
@@ -61417,6 +61373,70 @@ exports.ControlPolygonComplexVectorStrategy = ControlPolygonComplexVectorStrateg
 
 /***/ },
 
+/***/ "./src/newBsplines/ControlPolygonFromDescriptors.ts"
+/*!**********************************************************!*\
+  !*** ./src/newBsplines/ControlPolygonFromDescriptors.ts ***!
+  \**********************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.createControlPolygon = exports.ControlPolygonFromDescriptors = void 0;
+const VectorDescriptorCollection1D_1 = __webpack_require__(/*! ../mathVector/VectorDescriptorCollection1D */ "./src/mathVector/VectorDescriptorCollection1D.ts");
+const VectorSpaceUtilities_1 = __webpack_require__(/*! ../mathVector/VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
+const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
+const ControlPolygonComplexProjectiveVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonComplexProjectiveVectorStrategy */ "./src/newBsplines/ControlPolygonComplexProjectiveVectorStrategy.ts");
+const ControlPolygonComplexVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonComplexVectorStrategy */ "./src/newBsplines/ControlPolygonComplexVectorStrategy.ts");
+const ControlPolygonRealProjectiveVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonRealProjectiveVectorStrategy */ "./src/newBsplines/ControlPolygonRealProjectiveVectorStrategy.ts");
+const ControlPolygonRealVectorStrategy_1 = __webpack_require__(/*! ./ControlPolygonRealVectorStrategy */ "./src/newBsplines/ControlPolygonRealVectorStrategy.ts");
+class ControlPolygonFromDescriptors extends VectorDescriptorCollection1D_1.VectorDescriptorCollection1D {
+    constructor(controlPoints) {
+        super(controlPoints);
+        const { type: vectorSpace, dimension: spaceDimension } = (0, VectorSpaceUtilities_1.getVectorTypeAndDimension)(this._vectorCollection[0]);
+        this._vectorSpaceType = vectorSpace;
+        this._spaceDimension = spaceDimension;
+        switch (this._vectorSpaceType) {
+            case BSplineR1toRn_1.VectorSpaceType.REAL:
+                const collection = this.vectorCollection;
+                this.strategy = new ControlPolygonRealVectorStrategy_1.ControlPolygonRealVectorStrategy(collection, this._spaceDimension);
+                break;
+            case BSplineR1toRn_1.VectorSpaceType.COMPLEX:
+                this.strategy = new ControlPolygonComplexVectorStrategy_1.ControlPolygonComplexVectorStrategy(this);
+                break;
+            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVE:
+                this.strategy = new ControlPolygonRealProjectiveVectorStrategy_1.ControlPolygonRealProjectiveVectorStrategy(this);
+                break;
+            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX:
+                this.strategy = new ControlPolygonComplexProjectiveVectorStrategy_1.ControlPolygonComplexProjectiveVectorStrategy(this);
+                break;
+            default:
+                throw new Error("Invalid vector space for ControlPolygonFromDescriptors constructor");
+        }
+    }
+    get spaceDimension() {
+        return this._spaceDimension;
+    }
+    moveControlPoint(index, displacement) {
+        const firstVector = this._vectorCollection[0];
+        if (!(0, VectorSpaceUtilities_1.areSameVSpaceAndDimension)(displacement, firstVector)) {
+            throw new Error(`Displacement type mismatch. Expected ${firstVector.constructor.name}, got ${displacement.constructor.name}`);
+        }
+        this.strategy.moveControlPoint(index, displacement);
+    }
+    isSameVectorType(v1, v2) {
+        return v1.constructor === v2.constructor;
+    }
+}
+exports.ControlPolygonFromDescriptors = ControlPolygonFromDescriptors;
+function createControlPolygon(controlpPoints) {
+    return new ControlPolygonFromDescriptors(controlpPoints);
+}
+exports.createControlPolygon = createControlPolygon;
+
+
+/***/ },
+
 /***/ "./src/newBsplines/ControlPolygonRealProjectiveVectorStrategy.ts"
 /*!***********************************************************************!*\
   !*** ./src/newBsplines/ControlPolygonRealProjectiveVectorStrategy.ts ***!
@@ -61454,12 +61474,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ControlPolygonRealVectorStrategy = void 0;
 const RealVectorSpace_1 = __webpack_require__(/*! ../mathVector/RealVectorSpace */ "./src/mathVector/RealVectorSpace.ts");
 class ControlPolygonRealVectorStrategy {
-    constructor(controlPolygon) {
+    // constructor(controlPolygon: ControlPolygonFromDescriptors<RealVector> ) {
+    constructor(controlPolygon, dimension) {
         this.controlPolygon = controlPolygon;
-        this.vectorSpace = new RealVectorSpace_1.RealVectorSpace(controlPolygon.spaceDimension);
+        // this.vectorSpace = new RealVectorSpace(controlPolygon.spaceDimension);
+        this.vectorSpace = new RealVectorSpace_1.RealVectorSpace(dimension);
     }
     moveControlPoint(index, displacement) {
-        // this.controlPolygon.vectorCollection[index] = this.vectorSpace.addDescriptors(this.controlPolygon.vectorCollection[index] as RealVector, displacement);
+        this.controlPolygon[index] = this.vectorSpace.addDescriptors(this.controlPolygon[index], displacement);
     }
 }
 exports.ControlPolygonRealVectorStrategy = ControlPolygonRealVectorStrategy;
@@ -63485,7 +63507,7 @@ const KnotSequences_1 = __webpack_require__(/*! ../namedConstants/KnotSequences 
 const AbstractBSplineR1toRn_1 = __webpack_require__(/*! ./AbstractBSplineR1toRn */ "./src/newBsplines/AbstractBSplineR1toRn.ts");
 const AlgorithmBootstrap_1 = __webpack_require__(/*! ./AlgorithmBootstrap */ "./src/newBsplines/AlgorithmBootstrap.ts");
 const BSplineR1toRnConstructorInterface_1 = __webpack_require__(/*! ./BSplineR1toRnConstructorInterface */ "./src/newBsplines/BSplineR1toRnConstructorInterface.ts");
-const ControlPolygon_1 = __webpack_require__(/*! ./ControlPolygon */ "./src/newBsplines/ControlPolygon.ts");
+const ControlPolygonFromDescriptors_1 = __webpack_require__(/*! ./ControlPolygonFromDescriptors */ "./src/newBsplines/ControlPolygonFromDescriptors.ts");
 const CoxDeBoorAlgorithm_1 = __webpack_require__(/*! ./CoxDeBoorAlgorithm */ "./src/newBsplines/CoxDeBoorAlgorithm.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ./KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const OpenBSplineR1toRnComplexProjectiveVectorStrategy_1 = __webpack_require__(/*! ./OpenBSplineR1toRnComplexProjectiveVectorStrategy */ "./src/newBsplines/OpenBSplineR1toRnComplexProjectiveVectorStrategy.ts");
@@ -63645,11 +63667,11 @@ class OpenBSplineR1toRn extends AbstractBSplineR1toRn_1.AbstractBSplineR1toRn {
         }
         if (curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_NO_KNOT || curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_DEG_UNIFORM ||
             curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_DEG_UNIFORM_EUCLIDEAN || curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_DEG_NONUNIFORM) {
-            if (curveParameters.controlPoints instanceof ControlPolygon_1.ControlPolygon) {
+            if (curveParameters.controlPoints instanceof ControlPolygonFromDescriptors_1.ControlPolygonFromDescriptors) {
                 this._controlPolygon = curveParameters.controlPoints;
             }
             else {
-                this._controlPolygon = new ControlPolygon_1.ControlPolygon(curveParameters.controlPoints);
+                this._controlPolygon = new ControlPolygonFromDescriptors_1.ControlPolygonFromDescriptors(curveParameters.controlPoints);
             }
             if (curveParameters.type === BSplineR1toRnConstructorInterface_1.BSPL_CP_NO_KNOT) {
                 this._degree = this._controlPolygon.length - 1;
