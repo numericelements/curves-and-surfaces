@@ -8,7 +8,7 @@ import { ProjectiveVector3DTypeReal } from "./ProjectiveVector3DTypeReal";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import type { IProjectiveVector, IVector } from "./Vector";
-import { copyDescriptorVector3DReal } from "./VectorDescriptorFactory";
+import { copyDescriptorRealVector3D, createRealVector3DDescriptor } from "./VectorDescriptorFactory";
 import type { RealVector3D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -31,7 +31,7 @@ export class Vector3DTypeReal extends AbstractRealVector<3>
         super();
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this._descriptor = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
+            this._descriptor = createRealVector3DDescriptor(0, 0, 0);
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -40,7 +40,7 @@ export class Vector3DTypeReal extends AbstractRealVector<3>
         if(xOrVectorSpace instanceof RealVectorSpace && y === undefined) {
             super.checkVectorSpaceDimensionConsistency(Vector3DTypeReal.DIMENSION, xOrVectorSpace);
             this._vectorSpace = xOrVectorSpace;
-            this._descriptor = { type: REALVECTOR3D, coordinates: [0, 0, 0] };
+            this._descriptor = createRealVector3DDescriptor(0, 0, 0);
             return;
         }
 
@@ -50,7 +50,7 @@ export class Vector3DTypeReal extends AbstractRealVector<3>
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
-        this._descriptor = { type: REALVECTOR3D, coordinates: [xOrVectorSpace, y!, z!] };
+        this._descriptor = createRealVector3DDescriptor(xOrVectorSpace, y!, z!);
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 
@@ -66,7 +66,7 @@ export class Vector3DTypeReal extends AbstractRealVector<3>
     get vectorType(): string { return Vector3DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<3> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
-    get descriptor(): RealVector3D { return copyDescriptorVector3DReal(this._descriptor); }
+    get descriptor(): RealVector3D { return copyDescriptorRealVector3D(this._descriptor); }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(Vector3DTypeReal.DIMENSION - 1); }
     

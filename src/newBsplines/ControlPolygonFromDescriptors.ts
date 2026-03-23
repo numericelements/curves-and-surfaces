@@ -10,18 +10,18 @@ import { ControlPolygonRealVectorStrategy } from "./ControlPolygonRealVectorStra
 
 
 // Strategy interface
-export interface ControlPolygonStrategy<T extends Vector> {
-    moveControlPoint(index: number, displacement: T): void;
+export interface ControlPolygonStrategy<V extends Vector> {
+    moveControlPoint(index: number, displacement: V): void;
 }
 
-export class ControlPolygonFromDescriptors <T extends Vector = Vector, D extends number = number> extends VectorDescriptorCollection1D {
+export class ControlPolygonFromDescriptors <V extends Vector = Vector, D extends number = number> extends VectorDescriptorCollection1D {
 
     protected _vectorSpaceType: VectorSpaceType;
     protected _spaceDimension: number;
     // protected _vectorSpace: VectorSpace;
-    protected strategy: ControlPolygonStrategy<T>;
+    protected strategy: ControlPolygonStrategy<V>;
 
-    constructor(controlPoints: Array<T>) {
+    constructor(controlPoints: Array<V>) {
         super(controlPoints);
         const {type: vectorSpace, dimension: spaceDimension} = getVectorTypeAndDimension(this._vectorCollection[0]);
         this._vectorSpaceType = vectorSpace;
@@ -29,16 +29,16 @@ export class ControlPolygonFromDescriptors <T extends Vector = Vector, D extends
         switch(this._vectorSpaceType) {
             case VectorSpaceType.REAL:
                 const collection =  this.vectorCollection as RealVectorOfDimension<D>[]
-                this.strategy = new ControlPolygonRealVectorStrategy(collection, this._spaceDimension) as ControlPolygonStrategy<T>;
+                this.strategy = new ControlPolygonRealVectorStrategy(collection, this._spaceDimension) as ControlPolygonStrategy<V>;
                 break;
             case VectorSpaceType.COMPLEX:
-                this.strategy = new ControlPolygonComplexVectorStrategy(this) as ControlPolygonStrategy<T>;
+                this.strategy = new ControlPolygonComplexVectorStrategy(this) as ControlPolygonStrategy<V>;
                 break;
             case VectorSpaceType.PROJECTIVE:
-                this.strategy = new ControlPolygonRealProjectiveVectorStrategy(this) as ControlPolygonStrategy<T>;
+                this.strategy = new ControlPolygonRealProjectiveVectorStrategy(this) as ControlPolygonStrategy<V>;
                 break;
             case VectorSpaceType.PROJECTIVECOMPLEX:
-                this.strategy = new ControlPolygonComplexProjectiveVectorStrategy(this) as ControlPolygonStrategy<T>;
+                this.strategy = new ControlPolygonComplexProjectiveVectorStrategy(this) as ControlPolygonStrategy<V>;
                 break;
             default:
                 throw new Error("Invalid vector space for ControlPolygonFromDescriptors constructor");
@@ -49,7 +49,7 @@ export class ControlPolygonFromDescriptors <T extends Vector = Vector, D extends
         return this._spaceDimension;
     }
     
-    moveControlPoint(index: number, displacement: T) {
+    moveControlPoint(index: number, displacement: V) {
         const firstVector = this._vectorCollection[0];
         if(!areSameVSpaceAndDimension(displacement, firstVector)) {
             throw new Error(`Displacement type mismatch. Expected ${firstVector.constructor.name}, got ${displacement.constructor.name}`);
@@ -71,7 +71,7 @@ export function createControlPolygon(controlpPoints: ComplexVector2D[]): Control
 export function createControlPolygon(controlpPoints: ProjectiveVector2D[]): ControlPolygonFromDescriptors<ProjectiveVector2D>;
 export function createControlPolygon(controlpPoints: ProjectiveVector3D[]): ControlPolygonFromDescriptors<ProjectiveVector3D>;
 export function createControlPolygon(controlpPoints: ProjectiveComplexVector1D[]): ControlPolygonFromDescriptors<ProjectiveComplexVector1D>;
-export function createControlPolygon<T extends Vector>(controlpPoints: T[]): ControlPolygonFromDescriptors<T>;
-export function createControlPolygon<T extends Vector>(controlpPoints: T[]): ControlPolygonFromDescriptors<T> {
+export function createControlPolygon<V extends Vector>(controlpPoints: V[]): ControlPolygonFromDescriptors<V>;
+export function createControlPolygon<V extends Vector>(controlpPoints: V[]): ControlPolygonFromDescriptors<V> {
     return new ControlPolygonFromDescriptors(controlpPoints);
 }

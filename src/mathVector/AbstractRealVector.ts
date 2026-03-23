@@ -2,7 +2,7 @@ import { ANGULAR_TOL_VECTOR, EM_ISORTHOGONAL_NOT_APPLICABLE, EM_VECTOR_NORM_TOO_
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { RealVectorSpace } from "./RealVectorSpace";
-import type { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
+import type { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector, IVector } from "./Vector";
 import type { RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
@@ -52,16 +52,26 @@ export abstract class AbstractRealVector<D extends number>
         return this.createVectorFromDescriptor(result);
     }
 
+    distanceTo(other: IRealVector<D>): number {
+        return this.affineDistance(other);
+    }
+
+    affineDistance(other: IRealVector<D>): number {
+        let sum = 0;
+        const diffrence = this.subtract(other);
+        for (let i = 0; i < this.dimension; i++) {
+            const diff = diffrence.getCoordinate(i);
+            sum += diff * diff;
+        }
+        return Math.sqrt(sum);
+    }
+
     toArray(): number[] {
         return this.coordinates;
     }
 
     toString(): string {
         return this.vectorType + `(${this.toArray().join(', ')})` + ` ` + this._vectorSpace.toString();
-    }
-
-    equals(other: IRealVector<D>, tolerance?: number): boolean {
-        return super.equals(other, tolerance);
     }
 
     isParallel(other: IRealVector<D>, angularTolerance?: number): boolean {

@@ -1,10 +1,9 @@
 import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/ProjectiveVectorSpace";
-import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
-import { COMPLEXWEIGHT, WEIGHT } from "../namedConstants/WeightTypeTags";
 import type { IProjectiveVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveVectorSpaceStrategy";
+import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor, createProjectiveVector2DDescriptor, createRealVector2DDescriptor, createWeightDescriptor } from "./VectorDescriptorFactory";
 import type { IComplexWeight, ProjectiveVector, ProjectiveVector2D, Real, IWeight, RealVector2D, ProjectiveComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -50,23 +49,29 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
 
     createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVector2D {
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[2])}]};
+            const weightDescriptor = createWeightDescriptor(coordinates[2], false);
+            const vector: ProjectiveVector = createProjectiveVector2DDescriptor(coordinates[0], coordinates[1], weightDescriptor);
             return vector;
         } else {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR2D, coordinates: [coordinates[0], coordinates[1], {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[2])}]};
+            if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights && coordinates[2] === 0) {
+                const error = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_WEIGHT_VALUE_STRICTLY_POSITIVE);
+                throw new RangeError(error.generateMessageString());
+            }
+            const weightDescriptor = createWeightDescriptor(coordinates[2]);
+            const vector: ProjectiveVector = createProjectiveVector2DDescriptor(coordinates[0], coordinates[1], weightDescriptor);
             return vector;
         }
     }
 
     defaultVect(weightManager: WeightManager): ProjectiveVector2D {
-        let vector: ProjectiveVector = {type: PROJECTIVEVECTOR2D, coordinates: [0, 0, {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE)}]};
+        let vector: ProjectiveVector = createProjectiveVector2DDescriptor(0, 0, weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE));
         return vector;
     }
 
     addDescriptors(a: ProjectiveVector2D, b: ProjectiveVector2D, weightManager: WeightManager): ProjectiveVector2D {
         if(isVector3D(a) && isVector3D(b)) {
             const sumWeights = weightManager.addWeights(a.coordinates[2].weight, b.coordinates[2].weight);
-            return {type: PROJECTIVEVECTOR2D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], {type: WEIGHT, weight: sumWeights}]};
+            return createProjectiveVector2DDescriptor(a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], sumWeights);
         } else {
             throw new RangeError();
         }
@@ -76,7 +81,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         if(isVector3D(a) && isVector3D(b)) {
             try {
                 const diffWeights = weightManager.subtractWeights(a.coordinates[2].weight, b.coordinates[2].weight);
-                return {type: PROJECTIVEVECTOR2D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], {type: WEIGHT, weight: diffWeights}]};
+                return createProjectiveVector2DDescriptor(a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], diffWeights);
             } catch(error) {
                 throw error;
             }
@@ -109,7 +114,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         if(isVector3D(v)) {
             try{
                 const scaledWeight = weightManager.scaleWeight(v.coordinates[2].weight, scalar);
-                return {type: PROJECTIVEVECTOR2D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], {type: WEIGHT, weight: scaledWeight}]};
+                return createProjectiveVector2DDescriptor(scalar * v.coordinates[0], scalar * v.coordinates[1], scaledWeight);
             } catch(error) {
                 throw error;
             }
@@ -121,7 +126,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
     cloneVector(v: ProjectiveVector2D): ProjectiveVector2D {
         if(isVector3D(v)) {
             const clonedWeight = v.coordinates[2].weight.clone();
-            return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, weight: clonedWeight}]};
+            return createProjectiveVector2DDescriptor(v.coordinates[0], v.coordinates[1], clonedWeight);
         } else {
             throw new RangeError();
         }
@@ -132,12 +137,12 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
             const result: number[] = [];
             const weight = v.coordinates[2].weight.value;
             if(weight === 0) {
-                return {type: REALVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1]]};
+                return createRealVector2DDescriptor(v.coordinates[0], v.coordinates[1]);
             } else {
                 for( let i = 0; i < v.coordinates.length - 1; i++) {
                     result.push(v.coordinates[i] as number / weight) ;
                 }
-                return {type: REALVECTOR2D, coordinates: [result[0], result[1]]};
+                return createRealVector2DDescriptor(result[0], result[1]);
             }
         } else {
             throw new RangeError();
@@ -149,11 +154,11 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
             const result: number[] = [];
             const weight = v.coordinates[2].weight;
             if(weight.value === 0) {
-                const cWeight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(0, false)};
-                return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]}, cWeight]};  
+                const cWeight: IComplexWeight = createComplexWeightDescriptor(new Weight(0, false), new Weight(0, false));
+                return createProjectiveComplexVector1DDescriptor(createComplexVector1DDescriptor(v.coordinates[0], v.coordinates[1]), cWeight);  
             } else {
-                return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]},
-                {type: COMPLEXWEIGHT, real: weight, imaginary: weight}]};
+                return createProjectiveComplexVector1DDescriptor(createComplexVector1DDescriptor(v.coordinates[0], v.coordinates[1]),
+                createComplexWeightDescriptor(weight, weight));
             }
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromProjectiveVectorSpaceToProjectiveComplexVectorSpace', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);

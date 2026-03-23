@@ -30,19 +30,21 @@ export interface IVector <
     getCoordinate(index: number): number | Complex;
 
     // Basic operations - now can be performed directly on vectors
-    clone(): IVector<D, V>;
-    equals(other: IVector<D, V>): boolean;
-    add(other: IVector<D, V>): IVector<D, V>;
-    subtract(other: IVector<D, V>): IVector<D, V>;
-    scale(scalar: number | Complex): IVector<D, V>;
-    revert(): IVector<D, V>;
+    clone(): this;
+    equals(other: IVector<D, V>, tolerance?: number): boolean;
+    add(other: IVector<D, V>): this;
+    subtract(other: IVector<D, V>): this;
+    scale(scalar: number | Complex): this;
+    revert(): this;
     
     // Vector space operations
     norm(tolerance?: number): number;
-    normalize(tolerance?: number): IVector<D, V>;
+    normalize(tolerance?: number): this;
     dot(other: IVector<D, V>): number;
     isParallel(other: IVector<D, V>, tolerance?: number): boolean;
     isOrthogonal(other: IVector<D, V>, tolerance?: number): boolean;
+    distanceTo(other: IVector<D, V>): number;
+    affineDistance(other: IVector<D, V>): number;
     
     // Conversion utilities
     toArray(): number[];
@@ -59,12 +61,14 @@ export interface IRealVector<D extends number = number>
     {
     readonly vectorSpace: RealVectorSpace<D>;
     readonly spaceType: VectorSpaceType.REAL;
-
+    readonly coordinates: number[];
     // Real vector specific accessors
     readonly x?: number;
     readonly y?: number;
     readonly z?: number;
     readonly t?: number;
+    getCoordinate(index: number): number;
+
     toProjectiveVector(projectiveRealVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector<any>;
     toComplexVector(complexVectorSpace?: ComplexVectorSpace<any>): IComplexVector<any>;
     toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector<any>;
@@ -80,10 +84,15 @@ export interface IComplexVector<D extends number = number>
     readonly vectorSpace: ComplexVectorSpace<D>;
     readonly spaceType: VectorSpaceType.COMPLEX;
     readonly coordinates: Complex[];
-  
-    // Complex-specific methods
+    // Complex vector specific accessors
+    readonly real?: number;
+    readonly imaginary?: number;
+    getCoordinate(index: number): Complex;
     getReal(index: number): number;
     getImaginary(index: number): number;
+
+    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector<any>;
+    toProjectiveVector(projectiveVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector<any>;
 }
 
 /**
@@ -101,9 +110,9 @@ export interface IProjectiveVector<D extends number = number>
     readonly z?: number;
     readonly weight: Weight;
     readonly homogeneousCoordinates: number[];
-    
-    // Projective-specific methods
-    homogeneousTransform(tolerance?: number): IProjectiveVector<D>;
+    getCoordinate(index: number): number;
+    homogeneousTransform(tolerance?: number): this;
+
     toRealVector(vectorSpace?: RealVectorSpace<any>): IRealVector<any>;
     toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector<any>;
 }

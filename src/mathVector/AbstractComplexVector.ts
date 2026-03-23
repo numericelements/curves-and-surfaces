@@ -59,6 +59,24 @@ export abstract class AbstractComplexVector<D extends number>
         return this.createVectorFromDescriptor(result);
     }
     
+    distanceTo(other: IComplexVector<D>): number {
+        return this.affineDistance(other);
+    }
+
+    affineDistance(other: IComplexVector<D>): number {
+        // Hermitian Distance  (≡ Euclidean in ℝ²ⁿ)
+        let sum = 0;
+        for (let i = 0; i < this.dimension; i++) {
+            const z1 = this.getCoordinate(i);
+            const z2 = other.getCoordinate(i);
+            // |z1 - z2|² = (a1-a2)² + (b1-b2)²
+            const diffReal = z1.real - z2.real;
+            const diffImag = z1.imaginary - z2.imaginary;
+            sum += diffReal * diffReal + diffImag * diffImag;
+        }
+        return Math.sqrt(sum);
+    }
+
     // Complex-specific implementations
     getReal(index: number): number {
         const coord = this.getCoordinate(index);
@@ -112,12 +130,12 @@ export abstract class AbstractComplexVector<D extends number>
         return ratio <= angularTolerance;
     }
 
-    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector {
+    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector<any> {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveComplexVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
 
-    toProjectiveVector(projectiveVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector {
+    toProjectiveVector(projectiveVectorSpace?: ProjectiveVectorSpace<any>): IProjectiveVector<any> {
         const error = sendRangeErrorMessage(this.constructor.name, 'toProjectiveVector', EM_VECTORSPACE_DIMENSION_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }

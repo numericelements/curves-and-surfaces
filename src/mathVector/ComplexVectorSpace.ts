@@ -13,6 +13,7 @@ import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import type { ComplexVectorSpaceInterface, IdentifiableVectorSpace } from "./IVectorSpace";
 import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
+import { createComplexWeightDescriptor } from "./VectorDescriptorFactory";
 import type { IComplex, ComplexVector, ComplexVectorOfDimension, IComplexWeight, ProjectiveComplexVector, RealVector, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -99,7 +100,7 @@ export class ComplexVectorSpace<D extends number = number> implements ComplexVec
         try {
             const realWeight = this.createWeight(a);
             const imagWeight = this.createWeight(b);
-            return { type: COMPLEXWEIGHT, real: realWeight, imaginary: imagWeight };
+            return createComplexWeightDescriptor(realWeight, imagWeight);
         } catch(error) {
             if(error instanceof RangeError && error.message.includes(EM_WEIGHT_VALUE_STRICTLY_POSITIVE) && a < 0) {
                 const message = sendRangeErrorMessage(this.constructor.name, 'createComplexWeight', EM_REALWEIGHT_NEGATIVE);

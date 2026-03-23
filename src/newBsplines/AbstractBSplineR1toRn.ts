@@ -1,70 +1,162 @@
+import { IVector } from "../mathVector/Vector";
+import { createVector } from "../mathVector/VectorFactory";
+import { createComplexVector1DFromDescriptor, createComplexVector2DFromDescriptor, createProjectiveComplexVector1DFromDescriptor, createProjectiveVector2DFromDescriptor, createProjectiveVector3DFromDescriptor, createRealVector1DFromDescriptor, createRealVector2DFromDescriptor, createRealVector3DFromDescriptor, createRealVector4DFromDescriptor, createRealVectorFromDescriptor } from "../mathVector/VectorFromDescriptorFactory";
 import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { getVectorTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { COMPLEX } from "../namedConstants/ComplexTypeTag";
+import { COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type, BSplineR1toR1_type, BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY, ControlPoints } from "./BSplineR1toRnConstructorInterface";
+import { ControlPolygon } from "./ControlPolygon";
 import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 
+type WrappedDescriptor = { vector: Vector };
 
-export abstract class AbstractBSplineR1toRn {
+function unwrapDescriptor(d: unknown): number | Vector {
+    if (typeof d === "object" && d !== null && "vector" in d) {
+        return (d as WrappedDescriptor).vector;
+    }
+    return d as number | Vector;
+}
 
-    protected abstract _curveOrigin: number;
-    protected abstract _controlPolygon: ControlPolygonFromDescriptors | number[];
-    protected abstract _degree: number;
-    // protected abstract _evaluator: CoxDeBoorView | null;
-    protected _vectorSpace: VectorSpaceType;
-    protected _spaceDimension: number;
-    // protected _isDirty: boolean;
- 
-    constructor(curveParameters: BSpline_type | BSplineR1toR1_type) {
-        // this._isDirty = true;
-        if(curveParameters.type === BSPL_CP_NO_KNOT || curveParameters.type === BSPL_CP_DEG_UNIFORM ||
-            curveParameters.type === BSPL_CP_DEG_UNIFORM_EUCLIDEAN || curveParameters.type === BSPL_CP_DEG_NONUNIFORM) {
-            let vector: Vector;
-            if(curveParameters.controlPoints instanceof ControlPolygonFromDescriptors) {
-                vector = curveParameters.controlPoints.pop();
-            } else {
-                vector = curveParameters.controlPoints[0]
-            }
-            try {
-            const vSpaceDim = getVectorTypeAndDimension(vector);
-            this._vectorSpace = vSpaceDim.type;
-            this._spaceDimension = vSpaceDim.dimension;
-            } catch(error) {
-                throw new Error("Control points are not valid");
-            }
-        } else if(curveParameters.type === BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY) {
-            let controlPoint: number;
-            // for(const vector of curveParameters.controlPoints) {
-            //     this._controlPolygon.push(vector);
-            // }
-            this._vectorSpace = VectorSpaceType.REAL;
-            this._spaceDimension = 1;
+function hasCoordinates(d: unknown): d is { coordinates: readonly number[] } {
+    return typeof d === "object" && d !== null && "coordinates" in d;
+}
+
+export function hasType<T extends string>(d: unknown, t: T): d is { type: T } {
+    return typeof d === "object" && d !== null && "type" in d && (d as { type: unknown }).type === t;
+}
+
+// Normalize a ControlPolygonFromDescriptors into a canonical ControlPolygon<Vector, number>
+export function normalizeDescriptorsToControlPolygon(
+    descriptors: ControlPolygonFromDescriptors
+): ControlPolygon<Vector, number> {
+    const vectors: IVector<any, Vector>[] = [];
+
+    for (const item of descriptors) {
+        const descriptor = unwrapDescriptor(item);
+
+        if (typeof descriptor === "number") {
+            vectors.push(createRealVector1DFromDescriptor(descriptor));
+            continue;
+        }
+
+        if (hasType(descriptor, REALVECTOR2D) && hasCoordinates(descriptor)) {
+            vectors.push(createRealVector2DFromDescriptor(descriptor));
+        } else if (hasType(descriptor, REALVECTOR3D) && hasCoordinates(descriptor)) {
+            vectors.push(createRealVector3DFromDescriptor(descriptor));
+        } else if (hasType(descriptor, REALVECTOR4D) && hasCoordinates(descriptor)) {
+            vectors.push(createRealVector4DFromDescriptor(descriptor));
+        } else if (hasType(descriptor, COMPLEX) && hasCoordinates(descriptor)) {
+            vectors.push(createComplexVector1DFromDescriptor(descriptor));
+        } else if (hasType(descriptor, COMPLEXVECTOR2D) && hasCoordinates(descriptor)) {
+            vectors.push(createComplexVector2DFromDescriptor(descriptor));
+        } else if (hasType(descriptor, PROJECTIVEVECTOR2D) && hasCoordinates(descriptor)) {
+            vectors.push(createProjectiveVector2DFromDescriptor(descriptor));
+        } else if (hasType(descriptor, PROJECTIVEVECTOR3D) && hasCoordinates(descriptor)) {
+            vectors.push(createProjectiveVector3DFromDescriptor(descriptor));
+        } else if (hasType(descriptor, PROJECTIVECOMPLEXVECTOR1D) && hasCoordinates(descriptor)) {
+            vectors.push(createProjectiveComplexVector1DFromDescriptor(descriptor));
         } else {
-            throw new Error("Control polygon is required");
+            throw new RangeError("Unsupported or invalid vector descriptor");
         }
     }
 
-    get vectorSpace(): VectorSpaceType {
-        return this._vectorSpace;
-    }
+    if (vectors.length === 0) throw new Error("Control polygon must contain at least one vector");
+    return new ControlPolygon<Vector, number>(vectors);
+}
 
-    get spaceDimension(): number {
-        return this._spaceDimension;
-    }
+// Derive degree from knot sequence length and control point count
+export function deriveDegree(knotCount: number, controlPointCount: number): number {
+    const degree = knotCount - controlPointCount - 1;
+    if (degree < 1) throw new RangeError(
+        `Inconsistent knot/control-point counts: knotCount=${knotCount}, controlPointCount=${controlPointCount}, derived degree=${degree}`
+    );
+    return degree;
+}
 
-    get curveOrigin(): number {
-        return this._curveOrigin;
-    }
+// Derive degree for Bézier (no-knot) case
+export function deriveBezierDegree(controlPointCount: number): number {
+    if (controlPointCount < 2) throw new RangeError(
+        `Control polygon must have at least 2 points for a Bézier curve, got ${controlPointCount}`
+    );
+    return controlPointCount - 1;
+}
 
-    get degree(): number {
-        return this._degree;
+// Check control polygon / knot sequence consistency
+function isValidVectorSpaceType(value: VectorSpaceType): boolean {
+    switch (value) {
+        case VectorSpaceType.REAL:
+        case VectorSpaceType.COMPLEX:
+        case VectorSpaceType.PROJECTIVE:
+        case VectorSpaceType.PROJECTIVECOMPLEX:
+            return true;
+        default:
+            return false;
     }
+}
 
-    set degree(degree: number) {
+export function checkConsistency(
+    degree: number,
+    knotCount: number,
+    controlPointCount: number,
+    vectorSpace: VectorSpaceType,
+    spaceDimension: number
+    ): void {
+
+    const expected = knotCount - controlPointCount - 1;
+    if (expected !== degree) {
+        throw new RangeError(
+            `Inconsistency: degree=${degree}, knotCount=${knotCount}, controlPointCount=${controlPointCount}`
+        );
+    }
+    if (spaceDimension < 1) throw new RangeError(`Invalid space dimension: ${spaceDimension}`);
+    if (!isValidVectorSpaceType(vectorSpace)) {
+        throw new RangeError(`Invalid vector space type: ${vectorSpace}`);
+    }
+}
+
+
+export abstract class AbstractBSplineR1toRn<V extends Vector = Vector, D extends number = number> {
+
+    protected readonly abstract _curveOrigin: number;
+
+    // canonical internal model: always IVector-based
+    protected readonly _controlPolygon: ControlPolygon<V, D>;
+    protected readonly _degree: number;
+    protected readonly _vectorSpace: VectorSpaceType;
+    protected readonly _spaceDimension: number;
+    protected readonly _knots: readonly number[];
+
+    // protected _isDirty: boolean; // reserved for cache invalidation
+
+    constructor(
+        controlPolygon: ControlPolygon<V, D>,
+        knots: readonly number[],
+        degree: number,
+        vectorSpace: VectorSpaceType,
+        spaceDimension: number
+    ) {
+        checkConsistency(degree, knots.length, controlPolygon.length, vectorSpace, spaceDimension);
+
+        this._controlPolygon = controlPolygon;
+        this._knots = knots;
         this._degree = degree;
+        this._vectorSpace = vectorSpace;
+        this._spaceDimension = spaceDimension;
+        // this._isDirty = true;
     }
 
-    // protected invalidate(): void {
-    //     this._isDirty = true;
-    // }
+    get degree(): number { return this._degree; }
+    get vectorSpace(): VectorSpaceType { return this._vectorSpace; }
+    get spaceDimension(): number { return this._spaceDimension; }
+    get knots(): readonly number[] { return this._knots; }
+    get curveOrigin(): number { return this._curveOrigin; }
+    get controlPoints(): ReadonlyArray<IVector<D, V>> { return this._controlPolygon.controlPoints; }
+
+    // immutable "update" operations
+    abstract withControlPolygon(controlPolygon: ControlPolygon<V, D>): AbstractBSplineR1toRn<V, D>;
+    abstract withKnots(knots: readonly number[]): AbstractBSplineR1toRn<V, D>;
+
+    // protected invalidate(): void { this._isDirty = true; }
 }

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>70/70</span>
+                <span class='fraction'>71/71</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>70/70</span>
+                <span class='fraction'>71/71</span>
             </div>
         
             
@@ -132,7 +132,8 @@
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -148,41 +149,42 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">909x</span>
-<span class="cline-any cline-yes">909x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">865x</span>
+<span class="cline-any cline-yes">865x</span>
 <span class="cline-any cline-yes">27x</span>
-<span class="cline-any cline-yes">909x</span>
-<span class="cline-any cline-yes">882x</span>
-<span class="cline-any cline-yes">882x</span>
-<span class="cline-any cline-yes">909x</span>
+<span class="cline-any cline-yes">865x</span>
+<span class="cline-any cline-yes">838x</span>
+<span class="cline-any cline-yes">838x</span>
+<span class="cline-any cline-yes">865x</span>
 <span class="cline-any cline-yes">30x</span>
-<span class="cline-any cline-yes">909x</span>
-<span class="cline-any cline-yes">879x</span>
-<span class="cline-any cline-yes">879x</span>
-<span class="cline-any cline-yes">879x</span>
-<span class="cline-any cline-yes">879x</span>
-<span class="cline-any cline-yes">879x</span>
-<span class="cline-any cline-yes">909x</span>
+<span class="cline-any cline-yes">865x</span>
+<span class="cline-any cline-yes">835x</span>
+<span class="cline-any cline-yes">835x</span>
+<span class="cline-any cline-yes">835x</span>
+<span class="cline-any cline-yes">835x</span>
+<span class="cline-any cline-yes">835x</span>
+<span class="cline-any cline-yes">865x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1185x</span>
-<span class="cline-any cline-yes">1185x</span>
+<span class="cline-any cline-yes">742x</span>
+<span class="cline-any cline-yes">742x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">979x</span>
-<span class="cline-any cline-yes">979x</span>
+<span class="cline-any cline-yes">549x</span>
+<span class="cline-any cline-yes">549x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">170x</span>
+<span class="cline-any cline-yes">170x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">71x</span>
@@ -204,6 +206,7 @@
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { Complex } from "./Complex";
+import { createComplexWeightDescriptor } from "./VectorDescriptorFactory";
 import { IComplexWeight } from "./VectorSpaceConstructorInterface";
 import { Weight } from "./Weight";
 &nbsp;
@@ -250,7 +253,7 @@ export class ComplexWeight {
     }
 &nbsp;
     toDescriptor(): IComplexWeight {
-        return { type: COMPLEXWEIGHT, real: this._real.clone(), imaginary: this._imaginary.clone() };
+        return createComplexWeightDescriptor(this._real.clone(), this._imaginary.clone());
     }
 &nbsp;
     toComplex(): Complex {
@@ -277,7 +280,7 @@ export class ComplexWeight {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T18:15:40.504Z
+                at 2026-03-23T07:44:07.832Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

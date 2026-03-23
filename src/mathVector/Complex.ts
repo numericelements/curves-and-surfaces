@@ -3,6 +3,7 @@ import { EM_NEGATIVE_REAL_IMAGINARY_PARTS } from "../ErrorMessages/ComplexWeight
 import { TOLERANCE_MIN_MAGNITUDE } from "../namedConstants/Complex";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { createComplexDescriptor } from "./ComplexNumberFactory";
 import { ComplexWeight } from "./ComplexWeight";
 import type { IComplex } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
@@ -32,7 +33,7 @@ export class Complex {
     }
 
     toDescriptor(): IComplex {
-        return { type: COMPLEX, real: this._real, imaginary: this._imaginary };
+        return createComplexDescriptor(this._real, this._imaginary);
     }
 
     add(other: Complex): Complex {

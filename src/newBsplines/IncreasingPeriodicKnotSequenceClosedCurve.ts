@@ -26,6 +26,10 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         this.checkNormalizedBasisOrigin();
     }
 
+    get indexKnotOrigin(): KnotIndexStrictlyIncreasingSequence {
+        return this._indexKnotOrigin;
+    }
+
     get allAbscissae(): number[] {
         const abscissae: number[] = [];
         for(const knot of this) {

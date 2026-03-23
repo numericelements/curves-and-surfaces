@@ -2,9 +2,10 @@ import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasi
 
 export interface KnotSequenceInterface {
 
-    maxMultiplicityOrder: number;
-    isKnotSpacingUniform: boolean;
-    isKnotMultiplicityUniform: boolean;
+    readonly maxMultiplicityOrder: number;
+    readonly isKnotSpacingUniform: boolean;
+    readonly isKnotMultiplicityUniform: boolean;
+    readonly indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
     // throwRangeErrorMessage(functionName: string, message: string): void;
     distinctAbscissae(): number[];
     multiplicities(): number[];

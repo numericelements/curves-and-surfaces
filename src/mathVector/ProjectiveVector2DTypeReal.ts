@@ -15,7 +15,7 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { IVector } from "./Vector";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
-import { copyDescriptorVector3DProjectiveReal } from "./VectorDescriptorFactory";
+import { cloneDescriptorProjectiveRealVector2D, createProjectiveVector2DDescriptor } from "./VectorDescriptorFactory";
 import type { ProjectiveVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -40,7 +40,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
         let strictlyPosWeight = true;
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this._descriptor = { type: PROJECTIVEVECTOR2D, coordinates: [0, 0,  { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
+            this._descriptor = createProjectiveVector2DDescriptor(0, 0, new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight));
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -50,7 +50,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
             super.checkVectorSpaceDimensionConsistency(ProjectiveVector2DTypeReal.DIMENSION, xOrVectorSpace);
             this._vectorSpace = xOrVectorSpace;
             if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
-            this._descriptor = { type: PROJECTIVEVECTOR2D, coordinates: [0, 0, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] };
+            this._descriptor = createProjectiveVector2DDescriptor(0, 0, new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight));
             return;
         }
 
@@ -58,10 +58,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
         if (typeof xOrVectorSpace === 'number' && typeof y === 'number' && weightOrVSpace instanceof Weight) {
             super.checkVectorSpaceConsistency(ProjectiveVector2DTypeReal.DIMENSION, vectorSpace);
             strictlyPosWeight = this.checkValidityWeightStatus(weightOrVSpace, vectorSpace as ProjectiveVectorSpace<3>);
-            this._descriptor = { 
-                type: PROJECTIVEVECTOR2D, 
-                coordinates: [xOrVectorSpace, y!, { type: WEIGHT, weight: weightOrVSpace }] 
-            };
+            this._descriptor = createProjectiveVector2DDescriptor(xOrVectorSpace, y!, weightOrVSpace);
             this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
             return;
         }
@@ -75,10 +72,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
             super.checkVectorSpaceConsistency(ProjectiveVector2DTypeReal.DIMENSION, weightOrVSpace);
             this._vectorSpace = weightOrVSpace ?? this.getDefaultVectorSpace();
             if(this._vectorSpace.weightManagement === WeightManagement.AllPositiveWeights) strictlyPosWeight = false;
-            this._descriptor = { 
-                type: PROJECTIVEVECTOR2D, 
-                coordinates: [xOrVectorSpace, y!, { type: WEIGHT, weight: new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight) }] 
-            };
+            this._descriptor = createProjectiveVector2DDescriptor(xOrVectorSpace, y!, new Weight(DEFAULT_WEIGHT_VALUE, strictlyPosWeight));
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
@@ -97,7 +91,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
     get vectorType(): string { return ProjectiveVector2DTypeReal._vectorType; }
     get vectorSpace(): ProjectiveVectorSpace<3> { return this._vectorSpace; }
     get coordinates(): number[] { return this.homogeneousCoordinates; }
-    get descriptor(): ProjectiveVector2D { return copyDescriptorVector3DProjectiveReal(this._descriptor); }
+    get descriptor(): ProjectiveVector2D { return cloneDescriptorProjectiveRealVector2D(this._descriptor); }
 
     get weight(): Weight {
         return this._descriptor.coordinates[2].weight;
@@ -118,14 +112,15 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
         }
     }
 
-    homogeneousTransform(tolerance?: number): ProjectiveVector2DTypeReal {
+    homogeneousTransform(tolerance?: number): this {
         if(tolerance === undefined) tolerance = NULL_WEIGHT_TOLERANCE;
         if(this.weight.value < tolerance) {
             const error = sendRangeErrorMessage(this.constructor.name, 'homogeneousTransform', EM_WEIGHT_TOO_SMALL);
             throw new RangeError(error.generateMessageString());
         }
         const normalizedCoord = this.applyHomogeneousTransformation(tolerance);
-        return new ProjectiveVector2DTypeReal(normalizedCoord[0], normalizedCoord[1], this._vectorSpace);
+        const newDescriptor: ProjectiveVector2D = createProjectiveVector2DDescriptor(normalizedCoord[0], normalizedCoord[1], new Weight(DEFAULT_WEIGHT_VALUE, this.weight.strictlyPositive));
+        return this.createVectorFromDescriptor(newDescriptor);
     }
 
     add(other: ProjectiveVector2DTypeReal): this {

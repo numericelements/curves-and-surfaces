@@ -6,7 +6,7 @@ import { AbstractVector } from "./AbstractVector";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
-import type { IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
+import type { IProjectiveComplexVector, IProjectiveVector, IRealVector, IVector } from "./Vector";
 import type { ProjectiveVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Weight } from "./Weight";
@@ -38,7 +38,7 @@ export abstract class AbstractProjectiveVector<D extends number>
     abstract getCoordinate(index: number): number;
     abstract clone(): this;
     abstract toRealVector(vectorSpace?: RealVectorSpace<any>): IRealVector;
-    abstract homogeneousTransform(tolerance?: number): IProjectiveVector<D>;
+    abstract homogeneousTransform(tolerance?: number): this;
     abstract toString(): string;
 
     protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveVectorSpace<D>): void {
@@ -104,6 +104,33 @@ export abstract class AbstractProjectiveVector<D extends number>
     scale(scalar: number): this {
         const result = this._vectorSpace.scaleDescriptor(scalar, this.descriptor);
         return this.createVectorFromDescriptor(result);
+    }
+
+    distanceTo(other: IProjectiveVector<D>): number {
+        return this.affineDistance(other);
+    }
+
+    affineDistance(other: IProjectiveVector<D>): number {
+        // Denormalization then compute Euclidean distance
+        const realVector1 = this.applyHomogeneousTransformation();
+        const realVector2 = other.homogeneousTransform().toRealVector().coordinates;
+        
+        let sum = 0;
+        for (let i = 0; i < realVector1.length; i++) {
+            const diff = realVector1[i] - realVector2[i];
+            sum += diff * diff;
+        }
+        return Math.sqrt(sum);
+    }
+
+    private ambientDistance(other: IProjectiveVector<D>): number {
+        // Distance between projective vectors (without denormalization)
+        let sum = 0;
+        for (let i = 0; i <= this.dimension; i++) {
+            const diff = this.coordinates[i] - other.coordinates[i];
+            sum += diff * diff;
+        }
+        return Math.sqrt(sum);
     }
 
     revert(): this {

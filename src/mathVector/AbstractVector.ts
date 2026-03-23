@@ -70,6 +70,18 @@ export abstract class AbstractVector <
         return this.scale(1 / currentNorm);
     }
 
+    /**
+     * Euclidean distance between points
+     * 
+     * For projective spaces: computed after projection into the affine space
+     * For complex spaces: uses the Hermitian norm (equivalent to Euclidean in ℝ²ⁿ)
+     * 
+     * @returns Distance in the user geometric space (2D/3D)
+     */
+    abstract distanceTo(other: IVector<D, V>): number;
+
+    abstract affineDistance(other: IVector<D, V>): number;
+
     dot(other: IVector<D, V>): number {
         this.validateCompatibility(other);
         if ('dotDescriptors' in this._vectorSpace && typeof this._vectorSpace.dotDescriptors === 'function') {

@@ -1,9 +1,7 @@
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/RealVectorSpace";
-import { COMPLEX } from "../namedConstants/ComplexTypeTag";
-import { PROJECTIVEVECTOR2D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
-import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import type { ComplexVector1D, ProjectiveVector2D, Real, RealVector, RealVector2D, Vector } from "./VectorSpaceConstructorInterface";
+import { createComplexVector1DDescriptor, createProjectiveVector2DDescriptor, createRealVector2DDescriptor } from "./VectorDescriptorFactory";
+import type { ComplexVector1D, ProjectiveVector2D, Real, RealVector, RealVector2D } from "./VectorSpaceConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -24,16 +22,16 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
     }
 
     createVector(coordinates: [number, number]): RealVector2D {
-    return {type: REALVECTOR2D, coordinates};
-}
+        return createRealVector2DDescriptor(coordinates[0], coordinates[1]);
+    }
 
     defaultVect(): RealVector2D {
-        return {type: REALVECTOR2D, coordinates: [0, 0]};
+        return createRealVector2DDescriptor();
     }
 
     addDescriptors(a: RealVector2D, b: RealVector2D): RealVector2D {
         if(isVector2D(a) && isVector2D(b)) {
-            return {type: REALVECTOR2D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1]]};
+            return createRealVector2DDescriptor(a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1]);
         } else {
             throw new RangeError();
         }
@@ -41,7 +39,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
 
     subtractDescriptors(a: RealVector2D, b: RealVector2D): RealVector2D {
         if(isVector2D(a) && isVector2D(b)) {
-            return {type: REALVECTOR2D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1]]};
+            return createRealVector2DDescriptor(a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1]);
         } else {
             throw new RangeError();
         }
@@ -49,7 +47,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
 
     scaleDescriptor(scalar: Real, v: RealVector2D): RealVector2D {
         if(isVector2D(v)) {
-            return {type: REALVECTOR2D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1]]};
+            return createRealVector2DDescriptor(scalar * v.coordinates[0], scalar * v.coordinates[1]);
         } else {
             throw new RangeError();
         }
@@ -57,7 +55,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
 
     cloneVector(v: RealVector2D): RealVector2D {
         if(isVector2D(v)) {
-            return {type: REALVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1]]};
+            return createRealVector2DDescriptor(v.coordinates[0], v.coordinates[1]);
         } else {
             throw new RangeError();
         }
@@ -79,7 +77,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
     normalizeDescriptor(v: RealVector2D): RealVector2D {
         if(isVector2D(v)) {
             const norm = this.normDescriptor(v);
-            return {type: REALVECTOR2D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm]};
+            return createRealVector2DDescriptor(v.coordinates[0] / norm, v.coordinates[1] / norm);
         } else {
             throw new RangeError();
         }
@@ -109,9 +107,9 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
     fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector2D, weight: Weight = new Weight()): ProjectiveVector2D {
         if(isVector2D(v)) {
             if(weight.value === 0) {
-                return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0], v.coordinates[1], {type: WEIGHT, weight: weight}]};
+                return createProjectiveVector2DDescriptor(v.coordinates[0], v.coordinates[1], weight);
             }
-            return {type: PROJECTIVEVECTOR2D, coordinates: [v.coordinates[0] * weight.value, v.coordinates[1] * weight.value, {type: WEIGHT, weight: weight}]};
+            return createProjectiveVector2DDescriptor(v.coordinates[0] * weight.value, v.coordinates[1] * weight.value, weight);
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveVectorSpace', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(error.generateMessageString());
@@ -120,7 +118,7 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
 
     fromRealVectorSpaceToComplexVectorSpace(v: RealVector2D): ComplexVector1D {
         if(isVector2D(v)) {
-            return {type: COMPLEX, real: v.coordinates[0], imaginary: v.coordinates[1]};
+            return createComplexVector1DDescriptor(v.coordinates[0], v.coordinates[1]);
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToComplexVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());

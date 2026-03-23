@@ -4,6 +4,7 @@ import { Vector2DTypeReal } from "../../src/mathVector/Vector2DTypeReal";
 import { REALVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
 import { Vector1DTypeReal } from "../../src/mathVector/Vector1DTypeReal";
 import { IRealVector } from "../../src/mathVector/Vector";
+import { RealVector } from "../../src/mathVector/VectorSpaceConstructorInterface";
 
 describe('Control polygon of vectors of same type and dimension', () => {
     describe('Constructor', () => {
@@ -30,7 +31,7 @@ describe('Control polygon of vectors of same type and dimension', () => {
 
         it(`can generate a control polygon using genrics parameters with only one vector`, () => {
             const realV2D = new Vector2DTypeReal(1, 2);
-            const collection = new ControlPolygon<IRealVector<2>>(realV2D);
+            const collection = new ControlPolygon<RealVector, 2>(realV2D);
             expect(collection.length).to.eql(1);
             expect(collection.vectorSpace).to.eql(realV2D.vectorSpace);
             expect(collection.spaceDimension).to.eql(realV2D.dimension);

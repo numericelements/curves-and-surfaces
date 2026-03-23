@@ -14,7 +14,7 @@ import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { IVector } from "./Vector";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
-import { copyDescriptorVector2DReal } from "./VectorDescriptorFactory";
+import { copyDescriptorRealVector2D, createRealVector2DDescriptor } from "./VectorDescriptorFactory";
 import type { RealVector2D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -37,7 +37,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2>
         super();
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this._descriptor = { type: REALVECTOR2D, coordinates: [0, 0] };
+            this._descriptor = createRealVector2DDescriptor(0, 0);
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -46,7 +46,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2>
         if(xOrVectorSpace instanceof RealVectorSpace && y === undefined) {
             super.checkVectorSpaceDimensionConsistency(Vector2DTypeReal.DIMENSION, xOrVectorSpace);
             this._vectorSpace = xOrVectorSpace;
-            this._descriptor = { type: REALVECTOR2D, coordinates: [0, 0] };
+            this._descriptor = createRealVector2DDescriptor(0, 0);
             return;
         }
 
@@ -56,7 +56,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2>
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
-        this._descriptor = { type: REALVECTOR2D, coordinates: [xOrVectorSpace, y!] };
+        this._descriptor = createRealVector2DDescriptor(xOrVectorSpace, y!);
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 
@@ -72,7 +72,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2>
     get vectorType(): string { return Vector2DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<2> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
-    get descriptor(): RealVector2D { return copyDescriptorVector2DReal(this._descriptor); }
+    get descriptor(): RealVector2D { return copyDescriptorRealVector2D(this._descriptor); }
     get y(): number { return this.getCoordinate(Vector2DTypeReal.DIMENSION - 1); }
 
     getCoordinate(index: number): number {

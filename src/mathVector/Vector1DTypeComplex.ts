@@ -1,4 +1,3 @@
-import { COMPLEX } from "../namedConstants/ComplexTypeTag";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE } from "../namedConstants/Vectors";
 import { COMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
@@ -15,7 +14,7 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import { IVector } from "./Vector";
 import { Vector2DTypeReal } from "./Vector2DTypeReal";
-import { copyDescriptorVector1DComplex } from "./VectorDescriptorFactory";
+import { copyDescriptorComplexVector1D, createComplexVector1DDescriptor } from "./VectorDescriptorFactory";
 import type { IComplex, ComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -39,7 +38,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1>
         super();
         // Case 1: no arguments
         if(realOrComplexOrVectorSpace === undefined) {
-            this._descriptor = { type: COMPLEX, real: 0, imaginary: 0 };
+            this._descriptor = createComplexVector1DDescriptor();
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -48,7 +47,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1>
         if (realOrComplexOrVectorSpace instanceof ComplexVectorSpace && imaginaryOrVectorSpace === undefined) {
             super.checkVectorSpaceDimensionConsistency(Vector1DTypeComplex.DIMENSION, realOrComplexOrVectorSpace);
             this._vectorSpace = realOrComplexOrVectorSpace;
-            this._descriptor = { type: COMPLEX, real: 0, imaginary: 0 };
+            this._descriptor = createComplexVector1DDescriptor();
             return;
         }
         
@@ -58,7 +57,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1>
                 super.checkVectorSpaceConsistency(Vector1DTypeComplex.DIMENSION, imaginaryOrVectorSpace);
             } 
             const complex = realOrComplexOrVectorSpace;
-            this._descriptor = { type: COMPLEX, real: complex.real, imaginary: complex.imaginary };
+            this._descriptor = createComplexVector1DDescriptor(complex.real, complex.imaginary);
             this._vectorSpace = (imaginaryOrVectorSpace instanceof ComplexVectorSpace) 
                 ? imaginaryOrVectorSpace 
                 : this.getDefaultVectorSpace();
@@ -79,7 +78,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1>
                 const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
                 throw new RangeError(error.generateMessageString());
             }
-            this._descriptor = { type: COMPLEX, real: realOrComplexOrVectorSpace, imaginary: imaginaryOrVectorSpace! };
+            this._descriptor = createComplexVector1DDescriptor(realOrComplexOrVectorSpace, imaginaryOrVectorSpace!);
             this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
         }
     }
@@ -98,7 +97,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1>
     get real(): number { return this._descriptor.real; }
     get imaginary(): number { return this._descriptor.imaginary; }
     get coordinates(): Complex[] { return [new Complex(this._descriptor.real, this._descriptor.imaginary)]; }
-    get descriptor(): ComplexVector1D { return copyDescriptorVector1DComplex(this._descriptor); }
+    get descriptor(): ComplexVector1D { return copyDescriptorComplexVector1D(this._descriptor); }
     
     getCoordinate(index: number): Complex {
         if (index !== 0) {

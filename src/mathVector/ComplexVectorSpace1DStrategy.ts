@@ -1,11 +1,10 @@
 import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../ErrorMessages/ComplexVectorSpace";
-import { COMPLEX } from "../namedConstants/ComplexTypeTag";
-import { DEFAULT } from "../namedConstants/VectorSpaceIdentifierManager";
-import { PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../namedConstants/VectorTypeTags";
+import { PROJECTIVECOMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
+import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor, createRealVector2DDescriptor } from "./VectorDescriptorFactory";
 import type { IComplex, ComplexVector, ComplexVector1D, IComplexWeight, RealVector2D, ProjectiveComplexVector1D } from "./VectorSpaceConstructorInterface";
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -25,12 +24,12 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
     }
 
     createVector(coordinates: number[][]): ComplexVector1D {
-        let vector: IComplex = {type: COMPLEX, real: coordinates[0][0], imaginary: coordinates[0][1]};
+        let vector: IComplex = createComplexVector1DDescriptor(coordinates[0][0], coordinates[0][1]);
         return vector;
     }
 
     defaultVect(): ComplexVector1D {
-        const nullComplex: IComplex = {type: COMPLEX, real: 0, imaginary: 0};
+        const nullComplex: IComplex = createComplexVector1DDescriptor();
         return nullComplex;
     }
 
@@ -64,15 +63,14 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
     scaleDescriptor(scaleFactor: IComplex | number, vector: ComplexVector1D): ComplexVector1D {
         if (typeof scaleFactor === 'number') {
             if(isVector1D(vector)) {
-                return {type: COMPLEX, real: scaleFactor * vector.real, imaginary: scaleFactor * vector.imaginary};
+                return createComplexVector1DDescriptor(scaleFactor * vector.real, scaleFactor * vector.imaginary);
             } else {
                 throw new RangeError();
             }
         } else {
             if(isVector1D(vector)) {
-                return {type: COMPLEX,
-                    real: multiplyComplexUsingDescriptors(scaleFactor, vector).real,
-                    imaginary: multiplyComplexUsingDescriptors(scaleFactor, vector).imaginary}
+                const result = multiplyComplexUsingDescriptors(scaleFactor, vector);
+                return createComplexVector1DDescriptor(result.real, result.imaginary);
             } else {
                 throw new RangeError();
             }
@@ -89,7 +87,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
 
     cloneVector(vector: ComplexVector1D): ComplexVector1D {
         if(isVector1D(vector)) {
-            return {type: COMPLEX, real: vector.real, imaginary: vector.imaginary};
+            return createComplexVector1DDescriptor(vector.real, vector.imaginary);
         } else {
             throw new RangeError();
         }
@@ -97,16 +95,18 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
 
     fromComplexVectorSpaceToRealVectorSpace(vector: ComplexVector1D): RealVector2D {
         if(isVector1D(vector)) {
-            return {type: REALVECTOR2D, coordinates: [vector.real, vector.imaginary]};
+            return createRealVector2DDescriptor(vector.real, vector.imaginary);
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromComplexVectorSpaceToRealVectorSpace', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(error.generateMessageString());
         }
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector1D, weight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(DEFAULT_WEIGHT_VALUE), imaginary: new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false)}): ProjectiveComplexVector1D {
-        if(isVector1D(vector)) {
-            return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [vector, weight]};
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector1D,
+        weight: IComplexWeight = createComplexWeightDescriptor(new Weight(DEFAULT_WEIGHT_VALUE), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false))): ProjectiveComplexVector1D {
+        
+            if(isVector1D(vector)) {
+            return createProjectiveComplexVector1DDescriptor(vector, weight);
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromComplexVectorSpaceToProjectiveComplexVectorSpace', EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(error.generateMessageString());

@@ -1,12 +1,12 @@
 import { EM_PROJECTIVEVECTORS_DIFFERENT_DIM, EM_PROJECTIVEVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/ProjectiveVectorSpace";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { PROJECTIVEVECTOR3D, REALVECTOR3D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
-import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import type { IProjectiveVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveVectorSpaceStrategy";
 import type { ProjectiveVector, ProjectiveVector3D, Real, IWeight, RealVector3D } from "./VectorSpaceConstructorInterface";
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { WeightManager } from "./WeightManager";
+import { createProjectiveVector3DDescriptor, createRealVector3DDescriptor } from "./VectorDescriptorFactory";
+
 
 export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceStrategy<4> {
     // Implementation for 4D vectors
@@ -47,23 +47,23 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
 
     createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVector3D {
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[3] === 0)) {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[3])}]};
+            let vector: ProjectiveVector = createProjectiveVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], weightManager.createWeightFromValueOnly(coordinates[3]).toDescriptor());
             return vector;
         } else {
-            let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [coordinates[0], coordinates[1], coordinates[2], {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(coordinates[3])}]};
+            let vector: ProjectiveVector = createProjectiveVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], weightManager.createWeightFromValueOnly(coordinates[3]).toDescriptor());
             return vector;
         }
     }
 
     defaultVect(weightManager: WeightManager): ProjectiveVector3D {
-        let vector: ProjectiveVector = {type: PROJECTIVEVECTOR3D, coordinates: [0, 0, 0, {type: WEIGHT, weight: weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE)}]};
+        let vector: ProjectiveVector = createProjectiveVector3DDescriptor(0, 0, 0, weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE).toDescriptor());
         return vector;
     }
 
     addDescriptors(a: ProjectiveVector3D, b: ProjectiveVector3D, weightManager: WeightManager): ProjectiveVector3D {
         if(isVector4D(a) && isVector4D(b)) {
             const sumWeights = weightManager.addWeights(a.coordinates[3].weight, b.coordinates[3].weight);
-            return {type: PROJECTIVEVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], {type: WEIGHT, weight: sumWeights}]};
+            return createProjectiveVector3DDescriptor(a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], sumWeights.toDescriptor());
         } else {
             throw new RangeError();
         }
@@ -73,7 +73,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         if(isVector4D(a) && isVector4D(b)) {
             try {
                 const diffWeights = weightManager.subtractWeights(a.coordinates[3].weight, b.coordinates[3].weight);
-                return {type: PROJECTIVEVECTOR3D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2], {type: WEIGHT, weight: diffWeights}]};
+                return createProjectiveVector3DDescriptor(a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2], diffWeights.toDescriptor());
             } catch(error) {
                 throw error;
             }
@@ -106,7 +106,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
         if(isVector4D(v)) {
             try{
                 const scaledWeight = weightManager.scaleWeight(v.coordinates[3].weight, scalar);
-                return {type: PROJECTIVEVECTOR3D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2], {type: WEIGHT, weight: scaledWeight}]};
+                return createProjectiveVector3DDescriptor(scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2], scaledWeight.toDescriptor());
             } catch(error) {
                 throw error;
             }
@@ -118,7 +118,7 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
     cloneVector(v: ProjectiveVector3D): ProjectiveVector3D {
         if(isVector4D(v)) {
             const cloneWeight = v.coordinates[3].weight.clone();
-            return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, weight: cloneWeight}]};
+            return createProjectiveVector3DDescriptor(v.coordinates[0], v.coordinates[1], v.coordinates[2], cloneWeight.toDescriptor());
         } else {
             throw new RangeError();
         }
@@ -129,12 +129,12 @@ export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceSt
             const result: number[] = [];
             const weight = v.coordinates[3].weight.value;
             if(weight === 0) {
-                return {type: REALVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2]]};
+                return createRealVector3DDescriptor(v.coordinates[0], v.coordinates[1], v.coordinates[2]);
             } else {
                 for( let i = 0; i < v.coordinates.length - 1; i++) {
                     result.push(v.coordinates[i] as number / weight) ;
                 }
-                return {type: REALVECTOR3D, coordinates: [result[0], result[1], result[2]]};
+                return createRealVector3DDescriptor(result[0], result[1], result[2]);
             }
         } else {
             throw new RangeError();

@@ -19,6 +19,9 @@ import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
 import { EM_VECTORSPACE_TYPE_OR_DIMENSION_INCONSISTENT, EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT, EM_VECTOR_DESCRIPTOR_INCOMPATIBLE_WITH_VECTORSPACE } from "../ErrorMessages/VectorFromDescriptorFactory";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
+/**
+ * Helpers for the creation of vectors from vector descriptors
+ */
 
 export function createRealVector1DFromDescriptor(descriptor: RealVector1D, vectorSpace?: RealVectorSpace<1>): IRealVector<1> {
     if (vectorSpace !== undefined && !isRealVectorSpace(vectorSpace, 1)) {
@@ -80,10 +83,9 @@ export function createRealVectorFromDescriptor(descriptor: RealVector,
         return createRealVector1DFromDescriptor(descriptor);
     }
     if (descriptor === null || typeof descriptor !== 'object' || !('type' in descriptor)) {
-        const error = sendRangeErrorMessage('function', 'createProjectiveComplexVectorFromDescriptor', EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT);
+        const error = sendRangeErrorMessage('function', 'createRealVectorFromDescriptor', EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
     }
-    const string = descriptor.type;
     switch (descriptor.type) {
         case REALVECTOR2D:
             if (isRealVectorSpace(vectorSpace, 2)) {
@@ -141,7 +143,6 @@ export function createComplexVectorFromDescriptor(descriptor: ComplexVector,
         const error = sendRangeErrorMessage('function', 'createProjectiveComplexVectorFromDescriptor', EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
     }
-    const string = descriptor.type; 
     switch (descriptor.type) {
         case COMPLEX:
             // Handle the case where descriptor is a complex number for 1D vector currently typed as Complex
@@ -161,7 +162,7 @@ export function createComplexVectorFromDescriptor(descriptor: ComplexVector,
 }
 
 
-export function createProjectiveVector2DFromDescriptor(descriptor: ProjectiveVector2D, vectorSpace?: ProjectiveVectorSpace<3>): IProjectiveVector<3> {
+export function createProjectiveVector2DFromDescriptor(descriptor: ProjectiveVector2D, vectorSpace?: ProjectiveVectorSpace<3>): ProjectiveVector2DTypeReal {
     if (vectorSpace !== undefined && !isProjectiveVectorSpace(vectorSpace, 3)) {
         const error = sendRangeErrorMessage('function', 'createProjectiveVector2DFromDescriptor', EM_VECTORSPACE_TYPE_OR_DIMENSION_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
@@ -173,7 +174,7 @@ export function createProjectiveVector2DFromDescriptor(descriptor: ProjectiveVec
             vectorSpace);
 }
 
-export function createProjectiveVector3DFromDescriptor(descriptor: ProjectiveVector3D, vectorSpace?: ProjectiveVectorSpace<4>): IProjectiveVector<4> {
+export function createProjectiveVector3DFromDescriptor(descriptor: ProjectiveVector3D, vectorSpace?: ProjectiveVectorSpace<4>): ProjectiveVector3DTypeReal {
     if (vectorSpace !== undefined && !isProjectiveVectorSpace(vectorSpace, 4)) {
         const error = sendRangeErrorMessage('function', 'createProjectiveVector3DFromDescriptor', EM_VECTORSPACE_TYPE_OR_DIMENSION_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
@@ -195,7 +196,6 @@ export function createProjectiveVectorFromDescriptor(descriptor: ProjectiveVecto
         const error = sendRangeErrorMessage('function', 'createProjectiveComplexVectorFromDescriptor', EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
     }
-    const string = descriptor.type; 
     switch (descriptor.type) {
         case PROJECTIVEVECTOR2D:
             if (isProjectiveVectorSpace(vectorSpace, 3)) {

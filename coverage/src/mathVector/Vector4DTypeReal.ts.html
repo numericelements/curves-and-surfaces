@@ -223,42 +223,39 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">141x</span>
-<span class="cline-any cline-yes">141x</span>
-<span class="cline-any cline-yes">141x</span>
+<span class="cline-any cline-yes">134x</span>
+<span class="cline-any cline-yes">134x</span>
+<span class="cline-any cline-yes">134x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">139x</span>
-<span class="cline-any cline-yes">139x</span>
-<span class="cline-any cline-yes">141x</span>
+<span class="cline-any cline-yes">132x</span>
+<span class="cline-any cline-yes">132x</span>
+<span class="cline-any cline-yes">134x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
-<span class="cline-any cline-yes">136x</span>
-<span class="cline-any cline-yes">136x</span>
-<span class="cline-any cline-yes">136x</span>
-<span class="cline-any cline-yes">141x</span>
+<span class="cline-any cline-yes">129x</span>
+<span class="cline-any cline-yes">129x</span>
+<span class="cline-any cline-yes">129x</span>
+<span class="cline-any cline-yes">134x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">10x</span>
-<span class="cline-any cline-yes">120x</span>
-<span class="cline-any cline-yes">141x</span>
-<span class="cline-any cline-yes">141x</span>
+<span class="cline-any cline-yes">113x</span>
+<span class="cline-any cline-yes">134x</span>
+<span class="cline-any cline-yes">134x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">32x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -267,12 +264,15 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">82x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">74x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">80x</span>
-<span class="cline-any cline-yes">80x</span>
+<span class="cline-any cline-yes">72x</span>
+<span class="cline-any cline-yes">72x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">3x</span>
@@ -335,7 +335,7 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import type { IProjectiveVector, IVector } from "./Vector";
 import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
-import { copyDescriptorVector4DReal } from "./VectorDescriptorFactory";
+import { copyDescriptorRealVector4D, createRealVector4DDescriptor } from "./VectorDescriptorFactory";
 import type { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 &nbsp;
@@ -357,7 +357,7 @@ export class Vector4DTypeReal extends AbstractRealVector&lt;4&gt;
         super();
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
+            this._descriptor = createRealVector4DDescriptor(0, 0, 0, 0);
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -366,7 +366,7 @@ export class Vector4DTypeReal extends AbstractRealVector&lt;4&gt;
         if(xOrVectorSpace instanceof RealVectorSpace &amp;&amp; y === undefined) {
             super.checkVectorSpaceDimensionConsistency(Vector4DTypeReal.DIMENSION, xOrVectorSpace);
             this._vectorSpace = xOrVectorSpace;
-            this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
+            this._descriptor = createRealVector4DDescriptor(0, 0, 0, 0);
             return;
         }
 &nbsp;
@@ -376,7 +376,7 @@ export class Vector4DTypeReal extends AbstractRealVector&lt;4&gt;
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
-        this._descriptor = { type: REALVECTOR4D, coordinates: [xOrVectorSpace, y!, z!, t!] };
+        this._descriptor = createRealVector4DDescriptor(xOrVectorSpace, y!, z!, t!);
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 &nbsp;
@@ -392,7 +392,7 @@ export class Vector4DTypeReal extends AbstractRealVector&lt;4&gt;
     get vectorType(): string { return Vector4DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace&lt;4&gt; { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
-    get descriptor(): RealVector4D { return copyDescriptorVector4DReal(this._descriptor); }
+    get descriptor(): RealVector4D { return copyDescriptorRealVector4D(this._descriptor); }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(2); }
     get t(): number { return this.getCoordinate(Vector4DTypeReal.DIMENSION - 1); }
@@ -463,7 +463,7 @@ export class Vector4DTypeReal extends AbstractRealVector&lt;4&gt;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T18:15:40.504Z
+                at 2026-03-23T07:44:07.832Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

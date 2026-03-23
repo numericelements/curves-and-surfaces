@@ -8,7 +8,7 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import type { IProjectiveVector, IVector } from "./Vector";
 import { Vector2DTypeComplex } from "./Vector2DTypeComplex";
-import { copyDescriptorVector4DReal } from "./VectorDescriptorFactory";
+import { copyDescriptorRealVector4D, createRealVector4DDescriptor } from "./VectorDescriptorFactory";
 import type { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
@@ -30,7 +30,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4>
         super();
         // Case 1: no arguments
         if(xOrVectorSpace === undefined) {
-            this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
+            this._descriptor = createRealVector4DDescriptor(0, 0, 0, 0);
             this._vectorSpace = this.getDefaultVectorSpace();
             return;
         }
@@ -39,7 +39,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4>
         if(xOrVectorSpace instanceof RealVectorSpace && y === undefined) {
             super.checkVectorSpaceDimensionConsistency(Vector4DTypeReal.DIMENSION, xOrVectorSpace);
             this._vectorSpace = xOrVectorSpace;
-            this._descriptor = { type: REALVECTOR4D, coordinates: [0, 0, 0, 0] };
+            this._descriptor = createRealVector4DDescriptor(0, 0, 0, 0);
             return;
         }
 
@@ -49,7 +49,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4>
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
-        this._descriptor = { type: REALVECTOR4D, coordinates: [xOrVectorSpace, y!, z!, t!] };
+        this._descriptor = createRealVector4DDescriptor(xOrVectorSpace, y!, z!, t!);
         this._vectorSpace = vectorSpace ?? this.getDefaultVectorSpace();
     }
 
@@ -65,7 +65,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4>
     get vectorType(): string { return Vector4DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<4> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
-    get descriptor(): RealVector4D { return copyDescriptorVector4DReal(this._descriptor); }
+    get descriptor(): RealVector4D { return copyDescriptorRealVector4D(this._descriptor); }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(2); }
     get t(): number { return this.getCoordinate(Vector4DTypeReal.DIMENSION - 1); }

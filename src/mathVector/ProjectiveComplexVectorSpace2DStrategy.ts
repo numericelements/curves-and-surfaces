@@ -6,6 +6,7 @@ import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
 import { ComplexWeight } from "./ComplexWeight";
 import type { IProjectiveComplexVectorSpaceStrategy } from "./strategies/interfaces/IProjectiveComplexVectorSpaceStrategy";
+import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor } from "./VectorDescriptorFactory";
 import type { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVector1D, Real, } from "./VectorSpaceConstructorInterface";
 import { isVector2D } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -39,20 +40,26 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
     }
 
     createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveComplexVector1D {
+        const coordinatesDescriptor: IComplex = createComplexVector1DDescriptor(coordinates[0], coordinates[1]);
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
-            let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: coordinates[0], imaginary: coordinates[1]}, {type: COMPLEXWEIGHT,
-                real: weightManager.createWeightFromValueOnly(coordinates[2]), imaginary: weightManager.createWeightFromValueOnly(coordinates[3])}]};
+            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(weightManager.createWeightFromValueOnly(coordinates[2]), weightManager.createWeightFromValueOnly(coordinates[3]));
+            const vector: ProjectiveComplexVector = createProjectiveComplexVector1DDescriptor(coordinatesDescriptor, complexWeightDescriptor);
             return vector;
         } else {
-            let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: coordinates[0], imaginary: coordinates[1]}, {type: COMPLEXWEIGHT, 
-                real: weightManager.createWeightFromValueOnly(coordinates[2]), imaginary: weightManager.createWeightFromValueOnly(coordinates[3])}]};
+            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(weightManager.createWeightFromValueOnly(coordinates[2]), weightManager.createWeightFromValueOnly(coordinates[3]));
+            const vector: ProjectiveComplexVector = createProjectiveComplexVector1DDescriptor(coordinatesDescriptor, complexWeightDescriptor);
             return vector;
         }
     }
 
     defaultVect(weightManager: WeightManager): ProjectiveComplexVector1D {
-        let vector: ProjectiveComplexVector = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 0, imaginary: 1}, {type: COMPLEXWEIGHT, 
-            real: weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE), imaginary: weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE)}]};
+        let vector: ProjectiveComplexVector = createProjectiveComplexVector1DDescriptor(
+            createComplexVector1DDescriptor(),
+            createComplexWeightDescriptor(
+                weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE),
+                weightManager.createWeightFromValueOnly(DEFAULT_WEIGHT_VALUE)
+            )
+        );
         return vector;
     }
 
@@ -61,10 +68,10 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
             const complexWa = new ComplexWeight(a.coordinates[1].real, a.coordinates[1].imaginary);
             const complexWb = new ComplexWeight(b.coordinates[1].real, b.coordinates[1].imaginary);
             const sumWeights = weightManager.addComplexWeights(complexWa, complexWb);
-            return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
+            return createProjectiveComplexVector1DDescriptor(
                 addComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-                {type: COMPLEXWEIGHT, real: sumWeights.real, imaginary: sumWeights.imaginary}]
-            };
+                createComplexWeightDescriptor(sumWeights.real, sumWeights.imaginary)
+            );
         } else {
             throw new RangeError();
         }
@@ -85,28 +92,33 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
     scaleDescriptor(scaleFactor: IComplex | number, vector: ProjectiveComplexVector, weightManager: WeightManager): ProjectiveComplexVector {
         if (typeof scaleFactor === 'number') {
             if(vector.coordinates[1].real.strictlyPositive) {
-                const scaledWeight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.value * scaleFactor), imaginary: new Weight(vector.coordinates[1].imaginary.value * scaleFactor)};
-                return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [ {type: COMPLEX, real: vector.coordinates[0].real * scaleFactor, imaginary: vector.coordinates[0].imaginary * scaleFactor},
-                    scaledWeight]};
+                const scaledWeight: IComplexWeight = createComplexWeightDescriptor(new Weight(vector.coordinates[1].real.value * scaleFactor), new Weight(vector.coordinates[1].imaginary.value * scaleFactor));
+                return createProjectiveComplexVector1DDescriptor(
+                    createComplexVector1DDescriptor(vector.coordinates[0].real * scaleFactor, vector.coordinates[0].imaginary * scaleFactor),
+                    scaledWeight
+                );
             } else if (weightManager.weightManagement === WeightManagement.AllPositiveWeights) {
-                const scaledWeight: IComplexWeight = {type: COMPLEXWEIGHT, real: new Weight(vector.coordinates[1].real.value * scaleFactor, false), imaginary: new Weight(vector.coordinates[1].imaginary.value * scaleFactor, false)};
-                return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [ {type: COMPLEX, real: vector.coordinates[0].real * scaleFactor, imaginary: vector.coordinates[0].imaginary * scaleFactor},
-                    scaledWeight]};
+                const scaledWeight: IComplexWeight = createComplexWeightDescriptor(new Weight(vector.coordinates[1].real.value * scaleFactor, false), new Weight(vector.coordinates[1].imaginary.value * scaleFactor, false));
+                return createProjectiveComplexVector1DDescriptor(
+                    createComplexVector1DDescriptor(vector.coordinates[0].real * scaleFactor, vector.coordinates[0].imaginary * scaleFactor),
+                    scaledWeight
+                );
             } else {
                 throw new RangeError();
             }
         } else {
             let scaledWeight = multiplyComplexWeightsUsingDescriptors(scaleFactor, vector.coordinates[1]);
             if(weightManager.weightManagement === WeightManagement.AllPositiveWeights && (!scaledWeight.real.strictlyPositive && scaledWeight.imaginary.strictlyPositive)) {
-                scaledWeight = {type: COMPLEXWEIGHT, real: scaledWeight.real, imaginary: new Weight(scaledWeight.imaginary.value, false)};
-                // scaledWeight.imaginary = new Weight(scaledWeight.imaginary.value, false);
+                scaledWeight = createComplexWeightDescriptor(scaledWeight.real, new Weight(scaledWeight.imaginary.value, false));
             } else if(weightManager.weightManagement === WeightManagement.AllStrictlyPositiveWeights) {
                 if(!scaledWeight.real.strictlyPositive || !scaledWeight.imaginary.strictlyPositive) {
                     throw new RangeError();
                 }
             }
-            return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [ {type: COMPLEX, real: multiplyComplexUsingDescriptors(vector.coordinates[0], scaleFactor).real, imaginary: multiplyComplexUsingDescriptors(vector.coordinates[0], scaleFactor).imaginary},
-            scaledWeight]};
+            return createProjectiveComplexVector1DDescriptor(
+                createComplexVector1DDescriptor(multiplyComplexUsingDescriptors(vector.coordinates[0], scaleFactor).real, multiplyComplexUsingDescriptors(vector.coordinates[0], scaleFactor).imaginary),
+                scaledWeight
+            );
         }
     }
 
@@ -115,20 +127,20 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
             const complexWa = new ComplexWeight(a.coordinates[1].real, a.coordinates[1].imaginary);
             const complexWb = new ComplexWeight(b.coordinates[1].real, b.coordinates[1].imaginary);
             const sumWeights = weightManager.subtractComplexWeights(complexWa, complexWb);
-            return {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [
+            return createProjectiveComplexVector1DDescriptor(
                 subtractComplexUsingDescriptors(a.coordinates[0], b.coordinates[0]),
-                {type: COMPLEXWEIGHT, real: sumWeights.real, imaginary: sumWeights.imaginary}]
-            };
+                createComplexWeightDescriptor(sumWeights.real, sumWeights.imaginary)
+            );
         } else {
             throw new RangeError();
         }
     }
 
     cloneVector(vector: ProjectiveComplexVector): ProjectiveComplexVector {
-        return {type: vector.type, coordinates: [
-            {type: vector.coordinates[0].type, real: vector.coordinates[0].real, imaginary: vector.coordinates[0].imaginary},
-            {type: vector.coordinates[1].type, real: vector.coordinates[1].real, imaginary: vector.coordinates[1].imaginary}
-        ]};
+        return createProjectiveComplexVector1DDescriptor(
+            createComplexVector1DDescriptor(vector.coordinates[0].real, vector.coordinates[0].imaginary),
+            createComplexWeightDescriptor(vector.coordinates[1].real, vector.coordinates[1].imaginary)
+        );
     }
 
     fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector: ProjectiveComplexVector, weightManager: WeightManager): ComplexVector1D {
@@ -148,6 +160,6 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
         } else {
             throw new RangeError();
         }
-        return {type: COMPLEX, real: real, imaginary: imaginary};
+        return createComplexVector1DDescriptor(real, imaginary);
     }
 }

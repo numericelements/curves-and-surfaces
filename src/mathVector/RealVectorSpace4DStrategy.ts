@@ -1,9 +1,9 @@
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../ErrorMessages/RealVectorSpace";
-import { REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
 import type { Real, RealVector, RealVector4D } from "./VectorSpaceConstructorInterface";
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
+import { createRealVector4DDescriptor } from "./VectorDescriptorFactory";
 
 export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
 
@@ -22,16 +22,17 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
     }
 
     createVector(coordinates: [number, number, number, number]): RealVector4D {
-        return {type: REALVECTOR4D, coordinates};
+        return createRealVector4DDescriptor(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
     }
 
     defaultVect(): RealVector4D {
-        return {type: REALVECTOR4D, coordinates: [0, 0, 0, 0]};
+        return createRealVector4DDescriptor(0, 0, 0, 0);
     }
 
     addDescriptors(a: RealVector4D, b: RealVector4D): RealVector4D {
         if(isVector4D(a) && isVector4D(b)) {
-            return {type: REALVECTOR4D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2], a.coordinates[3] + b.coordinates[3]]};
+            return createRealVector4DDescriptor(a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1],
+                a.coordinates[2] + b.coordinates[2], a.coordinates[3] + b.coordinates[3]);
         } else {
             throw new RangeError();
         }
@@ -39,7 +40,8 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
 
     subtractDescriptors(a: RealVector4D, b: RealVector4D): RealVector4D {
         if(isVector4D(a) && isVector4D(b)) {
-            return {type: REALVECTOR4D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2], a.coordinates[3] - b.coordinates[3]]};
+            return createRealVector4DDescriptor(a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1],
+                a.coordinates[2] - b.coordinates[2], a.coordinates[3] - b.coordinates[3]);
         } else {
             throw new RangeError();
         }
@@ -47,7 +49,8 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
 
     scaleDescriptor(scalar: Real, v: RealVector4D): RealVector4D {
         if(isVector4D(v)) {
-            return {type: REALVECTOR4D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2], scalar * v.coordinates[3]]};
+            return createRealVector4DDescriptor(scalar * v.coordinates[0], scalar * v.coordinates[1],
+                scalar * v.coordinates[2], scalar * v.coordinates[3]);
         } else {
             throw new RangeError();
         }
@@ -55,7 +58,7 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
 
     cloneVector(v: RealVector4D): RealVector4D {
         if(isVector4D(v)) {
-            return {type: REALVECTOR4D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], v.coordinates[3]]};
+            return createRealVector4DDescriptor(v.coordinates[0], v.coordinates[1], v.coordinates[2], v.coordinates[3]);
         } else {
             throw new RangeError();
         }
@@ -77,7 +80,7 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
     normalizeDescriptor(v: RealVector4D): RealVector4D {
         if(isVector4D(v)) {
             const norm = this.normDescriptor(v);
-            return {type: REALVECTOR4D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm, v.coordinates[3] / norm]};
+            return createRealVector4DDescriptor(v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm, v.coordinates[3] / norm);
         } else {
             throw new RangeError();
         }

@@ -10,6 +10,16 @@ import { AlgorithmRegistry } from "./OpenBSplineR1toRn";
  */
 export class AlgorithmBootstrap {
     private static isInitialized = false;
+    private static _instance: AlgorithmBootstrap | undefined;
+
+    private constructor() {}
+    
+    public static getInstance(): AlgorithmBootstrap {
+        if (!AlgorithmBootstrap._instance) {
+            AlgorithmBootstrap._instance = new AlgorithmBootstrap();
+        }
+        return AlgorithmBootstrap._instance;
+    }
 
     static initialize(): void {
         if (this.isInitialized) {

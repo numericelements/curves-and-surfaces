@@ -61,6 +61,25 @@ export abstract class AbstractProjectiveComplexVector<D extends number>
         return this.createVectorFromDescriptor(result);
     }
 
+    distanceTo(other: IProjectiveComplexVector<D>): number {
+        return this.affineDistance(other);
+    }
+
+    affineDistance(other: IProjectiveComplexVector<D>): number {
+        // Denormalization then compute Hermitian distance
+        const complexVector1 = this.toComplexVector(); // complex
+        const complexVector2 = other.toComplexVector(); // complex
+        
+        let sum = 0;
+        for (let i = 0; i < this.dimension; i++) {
+            // z1/w1 - z2/w2
+            const diff = complexVector1.subtract(complexVector2);
+            // |diff|²
+            sum += diff.getReal(i) * diff.getReal(i) + diff.getImaginary(i) * diff.getImaginary(i);
+        }
+        return Math.sqrt(sum);
+    }
+
     toArray(): number[] {
         const coord: number[] = [];
         for (let i = 0; i < this.dimension; i++) {

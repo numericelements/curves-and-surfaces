@@ -488,7 +488,7 @@ export const STRICTLYINCREASINGPERIODICKNOTSEQUENCE = 'StrictIncreasingPeriodicK
  * @property {typeof NO_KNOT_OPEN_CURVE} type - Must be set to NO_KNOT_OPEN_CURVE constant
  */
 export interface OpenKnotSequenceOpenCurve {
-    type: typeof NO_KNOT_OPEN_CURVE;
+    readonly type: typeof NO_KNOT_OPEN_CURVE;
 }
 
 /**
@@ -506,7 +506,7 @@ export interface OpenKnotSequenceOpenCurve {
  * @property {typeof NO_KNOT_CLOSED_CURVE} type - Must be set to NO_KNOT_CLOSED_CURVE constant
  */
 export interface OpenKnotSequenceClosedCurve {
-    type: typeof NO_KNOT_CLOSED_CURVE;
+    readonly type: typeof NO_KNOT_CLOSED_CURVE;
 }
 
 /**
@@ -525,8 +525,8 @@ export interface OpenKnotSequenceClosedCurve {
  * @property {number} BsplBasisSize - Size of the B-spline basis, must be greater than maxMultiplicityOrder
  */
 export interface Uniform_OpenKnotSequence {
-    type: typeof UNIFORM_OPENKNOTSEQUENCE;
-    BsplBasisSize: number;
+    readonly type: typeof UNIFORM_OPENKNOTSEQUENCE;
+    readonly BsplBasisSize: number;
 }
 
 /**
@@ -545,8 +545,8 @@ export interface Uniform_OpenKnotSequence {
  * @property {number} BsplBasisSize - Size of the B-spline basis, must be greater than maxMultiplicityOrder
  */
 export interface UniformlySpreadInterKnots_OpenKnotSequence {
-    type: typeof UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE;
-    BsplBasisSize: number;
+    readonly type: typeof UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE;
+    readonly BsplBasisSize: number;
 }
 
 /**
@@ -568,8 +568,8 @@ export interface UniformlySpreadInterKnots_OpenKnotSequence {
  * @property {number[]} knots - Array of knot values in non-decreasing order
  */
 export interface IncreasingOpenKnotSequence {
-    type: typeof INCREASINGOPENKNOTSEQUENCE;
-    knots: number[];
+    readonly type: typeof INCREASINGOPENKNOTSEQUENCE;
+    readonly knots: number[];
 }
 
 /**
@@ -592,8 +592,8 @@ export interface IncreasingOpenKnotSequence {
  * @property {number[]} knots - Array of knot values in non-decreasing order
  */
 export interface IncreasingOpenKnotSequenceUpToC0Discontinuity {
-    type: typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY;
-    knots: number[];
+    readonly type: typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY;
+    readonly knots: number[];
 }
 
 /**
@@ -615,8 +615,8 @@ export interface IncreasingOpenKnotSequenceUpToC0Discontinuity {
  * @property {number[]} periodicKnots - Array of periodic knot values in non-decreasing order that define the normalized basis interval
  */
 export interface IncreasingOpenKnotSequenceCCurve {
-    type: typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVE;
-    periodicKnots: number[];
+    readonly type: typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVE;
+    readonly periodicKnots: number[];
 }
 
 /**
@@ -637,8 +637,8 @@ export interface IncreasingOpenKnotSequenceCCurve {
  * @property {number[]} knots - Array of all knot values in non-decreasing order, including end knots
  */
 export interface IncreasingOpenKnotSequenceCCurve_allKnots {
-    type: typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS;
-    knots: number[];
+    readonly type: typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS;
+    readonly knots: number[];
 }
 
 /**
@@ -660,8 +660,8 @@ export interface IncreasingOpenKnotSequenceCCurve_allKnots {
  * @property {number[]} knots - Array of all knot values in non-decreasing order, including end knots
  */
 export interface IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots {
-    type: typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS;
-    knots: number[];
+    readonly type: typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS;
+    readonly knots: number[];
 }
 
 /**
@@ -685,9 +685,9 @@ export interface IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots {
  * @property {number[]} multiplicities - Array of multiplicity values for each knot
  */
 export interface StrictlyIncreasingOpenKnotSequence {
-    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE;
-    knots: number[];
-    multiplicities: number[];
+    readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE;
+    readonly knots: number[];
+    readonly multiplicities: number[];
 }
 
 /**
@@ -712,9 +712,9 @@ export interface StrictlyIncreasingOpenKnotSequence {
  * @property {number[]} multiplicities - Array of multiplicity values for each knot
  */
 export interface StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity {
-    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY;
-    knots: number[];
-    multiplicities: number[];
+    readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY;
+    readonly knots: number[];
+    readonly multiplicities: number[];
 }
 
 /**
@@ -737,9 +737,9 @@ export interface StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity {
  * @property {number[]} multiplicities - Array of multiplicity values for each periodic knot
  */
 export interface StrictlyIncreasingOpenKnotSequenceCCurve {
-    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE;
-    periodicKnots: number[];
-    multiplicities: number[];
+    readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE;
+    readonly periodicKnots: number[];
+    readonly multiplicities: number[];
 }
 
 /**
@@ -761,9 +761,9 @@ export interface StrictlyIncreasingOpenKnotSequenceCCurve {
  * @property {number[]} multiplicities - Array of multiplicity values for each knot
  */
 export interface StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots {
-    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS;
-    knots: number[];
-    multiplicities: number[];
+    readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS;
+    readonly knots: number[];
+    readonly multiplicities: number[];
 }
 
 /**
@@ -786,9 +786,9 @@ export interface StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots {
  * @property {number[]} multiplicities - Array of multiplicity values for each knot
  */
 export interface StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots {
-    type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS;
-    knots: number[];
-    multiplicities: number[];
+    readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS;
+    readonly knots: number[];
+    readonly multiplicities: number[];
 }
 
 /**
@@ -1120,7 +1120,7 @@ export type AbstractOpenKnotSequence_type = AbstractIncreasingOpenKnotSequence_t
  * }; // produces a knot array [0,1,2,3] with maxMultiplicityOrder = 3
  */
 export interface PeriodicKnotSequence {
-    type: typeof NO_KNOT_PERIODIC_CURVE;
+    readonly type: typeof NO_KNOT_PERIODIC_CURVE;
 }
 
 /**
@@ -1146,8 +1146,8 @@ export interface PeriodicKnotSequence {
  * };   // produces a knot array [0,1,2,3,4,5] with maxMultiplicityOrder = 3
  */
 export interface Uniform_PeriodicKnotSequence {
-    type: typeof UNIFORM_PERIODICKNOTSEQUENCE;
-    BsplBasisSize: number;
+    readonly type: typeof UNIFORM_PERIODICKNOTSEQUENCE;
+    readonly BsplBasisSize: number;
 }
 
 /**
@@ -1179,8 +1179,8 @@ export interface Uniform_PeriodicKnotSequence {
  * };
  */
 export interface IncreasingPeriodicKnotSequence {
-    type: typeof INCREASINGPERIODICKNOTSEQUENCE;
-    periodicKnots: number[];
+    readonly type: typeof INCREASINGPERIODICKNOTSEQUENCE;
+    readonly periodicKnots: number[];
 }
 
 /**
@@ -1216,9 +1216,9 @@ export interface IncreasingPeriodicKnotSequence {
  * };
  */
 export interface StrictIncreasingPeriodicKnotSequence {
-    type: typeof STRICTLYINCREASINGPERIODICKNOTSEQUENCE;
-    periodicKnots: number[];
-    multiplicities: number[];
+    readonly type: typeof STRICTLYINCREASINGPERIODICKNOTSEQUENCE;
+    readonly periodicKnots: number[];
+    readonly multiplicities: number[];
 }
 
 

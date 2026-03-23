@@ -1,10 +1,9 @@
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/RealVectorSpace";
-import { PROJECTIVEVECTOR3D, REALVECTOR3D } from "../namedConstants/VectorTypeTags";
-import { WEIGHT } from "../namedConstants/WeightTypeTags";
 import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
 import type { ProjectiveVector3D, Real, RealVector, RealVector3D } from "./VectorSpaceConstructorInterface";
 import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
+import { createProjectiveVector3DDescriptor, createRealVector3DDescriptor, createWeightDescriptor } from "./VectorDescriptorFactory";
 
   
 export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
@@ -24,16 +23,17 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
     }
 
     createVector(coordinates: [number, number, number]): RealVector3D {
-        return {type: REALVECTOR3D, coordinates};
+        return createRealVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2]);
     }
 
     defaultVect(): RealVector3D {
-        return {type: REALVECTOR3D, coordinates: [0, 0, 0]};
+        return createRealVector3DDescriptor();
     }
 
     addDescriptors(a: RealVector3D, b: RealVector3D): RealVector3D {
         if(isVector3D(a) && isVector3D(b)) {
-            return {type: REALVECTOR3D, coordinates: [a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1], a.coordinates[2] + b.coordinates[2]]};
+            return createRealVector3DDescriptor(a.coordinates[0] + b.coordinates[0], a.coordinates[1] + b.coordinates[1],
+                a.coordinates[2] + b.coordinates[2]);
         } else {
             throw new RangeError();
         }
@@ -41,7 +41,8 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
 
     subtractDescriptors(a: RealVector3D, b: RealVector3D): RealVector3D {
         if(isVector3D(a) && isVector3D(b)) {
-            return {type: REALVECTOR3D, coordinates: [a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1], a.coordinates[2] - b.coordinates[2]]};
+            return createRealVector3DDescriptor(a.coordinates[0] - b.coordinates[0], a.coordinates[1] - b.coordinates[1],
+                a.coordinates[2] - b.coordinates[2]);
         } else {
             throw new RangeError();
         }
@@ -49,7 +50,8 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
 
     scaleDescriptor(scalar: Real, v: RealVector3D): RealVector3D {
         if(isVector3D(v)) {
-            return {type: REALVECTOR3D, coordinates: [scalar * v.coordinates[0], scalar * v.coordinates[1], scalar * v.coordinates[2]]};
+            return createRealVector3DDescriptor(scalar * v.coordinates[0], scalar * v.coordinates[1],
+                scalar * v.coordinates[2]);
         } else {
             throw new RangeError();
         }
@@ -57,7 +59,7 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
 
     cloneVector(v: RealVector3D): RealVector3D {
         if(isVector3D(v)) {
-            return {type: REALVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2]]};
+            return createRealVector3DDescriptor(v.coordinates[0], v.coordinates[1], v.coordinates[2]);
         } else {
             throw new RangeError();
         }
@@ -79,7 +81,8 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
     normalizeDescriptor(v: RealVector3D): RealVector3D {
         if(isVector3D(v)) {
             const norm = this.normDescriptor(v);
-            return {type: REALVECTOR3D, coordinates: [v.coordinates[0] / norm, v.coordinates[1] / norm, v.coordinates[2] / norm]};
+            return createRealVector3DDescriptor(v.coordinates[0] / norm, v.coordinates[1] / norm,
+                v.coordinates[2] / norm);
         } else {
             throw new RangeError();
         }
@@ -87,7 +90,8 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
 
     crossProductRaw(a: RealVector3D, b: RealVector3D): RealVector3D {
         if(isVector3D(a) && isVector3D(b)) {
-            return {type: REALVECTOR3D, coordinates: [a.coordinates[1] * b.coordinates[2] - a.coordinates[2] * b.coordinates[1], a.coordinates[2] * b.coordinates[0] - a.coordinates[0] * b.coordinates[2], a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]]};
+            return createRealVector3DDescriptor(a.coordinates[1] * b.coordinates[2] - a.coordinates[2] * b.coordinates[1],
+                a.coordinates[2] * b.coordinates[0] - a.coordinates[0] * b.coordinates[2], a.coordinates[0] * b.coordinates[1] - a.coordinates[1] * b.coordinates[0]);
         } else {
             if(!this.isInVectorSpace(a) && !this.isInVectorSpace(b)) {
                 const error = sendRangeErrorMessage(this.constructor.name, 'crossProduct', EM_REALVECTORS_NOT_IN_VECTORSPACE);
@@ -109,9 +113,10 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
     fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector3D, weight: Weight = new Weight()): ProjectiveVector3D {
         if(isVector3D(v)) {
             if(weight.value === 0) {
-                return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0], v.coordinates[1], v.coordinates[2], {type: WEIGHT, weight: weight}]};
+                const weightDescriptor = weight.toDescriptor();
+                return createProjectiveVector3DDescriptor(v.coordinates[0], v.coordinates[1], v.coordinates[2], weightDescriptor);
             }
-            return {type: PROJECTIVEVECTOR3D, coordinates: [v.coordinates[0] * weight.value, v.coordinates[1] * weight.value, v.coordinates[2] * weight.value, {type: WEIGHT, weight: weight}]};
+            return createProjectiveVector3DDescriptor(v.coordinates[0] * weight.value, v.coordinates[1] * weight.value, v.coordinates[2] * weight.value, weight.toDescriptor());
         } else {
             const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveVectorSpace', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(error.generateMessageString());

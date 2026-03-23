@@ -361,6 +361,9 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -425,7 +428,6 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -483,7 +485,6 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -536,7 +537,6 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -636,6 +636,9 @@ import { ProjectiveVector1DTypeComplex } from "./ProjectiveVector1DTypeComplex";
 import { EM_VECTORSPACE_TYPE_OR_DIMENSION_INCONSISTENT, EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT, EM_VECTOR_DESCRIPTOR_INCOMPATIBLE_WITH_VECTORSPACE } from "../ErrorMessages/VectorFromDescriptorFactory";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 &nbsp;
+/**
+ * Helpers for the creation of vectors from vector descriptors
+ */
 &nbsp;
 export function createRealVector1DFromDescriptor(descriptor: RealVector1D, vectorSpace?: RealVectorSpace&lt;1&gt;): IRealVector&lt;1&gt; {
     if (vectorSpace !== undefined &amp;&amp; !isRealVectorSpace(vectorSpace, 1)) {
@@ -697,10 +700,9 @@ export function createRealVectorFromDescriptor(descriptor: RealVector,
         return createRealVector1DFromDescriptor(descriptor);
     }
     if (descriptor === null || typeof descriptor !== 'object' || !('type' in descriptor)) {
-        const error = sendRangeErrorMessage('function', 'createProjectiveComplexVectorFromDescriptor', EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT);
+        const error = sendRangeErrorMessage('function', 'createRealVectorFromDescriptor', EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
     }
-    const string = descriptor.type;
     switch (descriptor.type) {
         case REALVECTOR2D:
             if (isRealVectorSpace(vectorSpace, 2)) {
@@ -758,7 +760,6 @@ export function createComplexVectorFromDescriptor(descriptor: ComplexVector,
         const error = sendRangeErrorMessage('function', 'createProjectiveComplexVectorFromDescriptor', EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
     }
-    const string = descriptor.type; 
     switch (descriptor.type) {
         case COMPLEX:
             // Handle the case where descriptor is a complex number for 1D vector currently typed as Complex
@@ -778,7 +779,7 @@ export function createComplexVectorFromDescriptor(descriptor: ComplexVector,
 }
 &nbsp;
 &nbsp;
-export function createProjectiveVector2DFromDescriptor(descriptor: ProjectiveVector2D, vectorSpace?: ProjectiveVectorSpace&lt;3&gt;): IProjectiveVector&lt;3&gt; {
+export function createProjectiveVector2DFromDescriptor(descriptor: ProjectiveVector2D, vectorSpace?: ProjectiveVectorSpace&lt;3&gt;): ProjectiveVector2DTypeReal {
     if (vectorSpace !== undefined &amp;&amp; !isProjectiveVectorSpace(vectorSpace, 3)) {
         const error = sendRangeErrorMessage('function', 'createProjectiveVector2DFromDescriptor', EM_VECTORSPACE_TYPE_OR_DIMENSION_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
@@ -790,7 +791,7 @@ export function createProjectiveVector2DFromDescriptor(descriptor: ProjectiveVec
             vectorSpace);
 }
 &nbsp;
-export function createProjectiveVector3DFromDescriptor(descriptor: ProjectiveVector3D, vectorSpace?: ProjectiveVectorSpace&lt;4&gt;): IProjectiveVector&lt;4&gt; {
+export function createProjectiveVector3DFromDescriptor(descriptor: ProjectiveVector3D, vectorSpace?: ProjectiveVectorSpace&lt;4&gt;): ProjectiveVector3DTypeReal {
     if (vectorSpace !== undefined &amp;&amp; !isProjectiveVectorSpace(vectorSpace, 4)) {
         const error = sendRangeErrorMessage('function', 'createProjectiveVector3DFromDescriptor', EM_VECTORSPACE_TYPE_OR_DIMENSION_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
@@ -812,7 +813,6 @@ export function createProjectiveVectorFromDescriptor(descriptor: ProjectiveVecto
         const error = sendRangeErrorMessage('function', 'createProjectiveComplexVectorFromDescriptor', EM_VECTOR_DESCRIPTOR_CONTENT_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
     }
-    const string = descriptor.type; 
     switch (descriptor.type) {
         case PROJECTIVEVECTOR2D:
             if (isProjectiveVectorSpace(vectorSpace, 3)) {
@@ -898,7 +898,7 @@ export function createProjectiveComplexVectorFromDescriptor(descriptor: Projecti
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-13T18:15:39.398Z
+                at 2026-03-23T07:44:06.455Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
