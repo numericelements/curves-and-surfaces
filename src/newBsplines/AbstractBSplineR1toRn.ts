@@ -9,6 +9,8 @@ import { COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVE
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type, BSplineR1toR1_type, BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY, ControlPoints } from "./BSplineR1toRnConstructorInterface";
 import { ControlPolygon } from "./ControlPolygon";
 import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
+import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
+import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyIncreasingPeriodicKnotSequenceClosedCurve";
 
 type WrappedDescriptor = { vector: Vector };
 
@@ -126,31 +128,30 @@ export abstract class AbstractBSplineR1toRn<V extends Vector = Vector, D extends
     protected readonly _degree: number;
     protected readonly _vectorSpace: VectorSpaceType;
     protected readonly _spaceDimension: number;
-    protected readonly _knots: readonly number[];
+    protected readonly abstract _knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
 
-    // protected _isDirty: boolean; // reserved for cache invalidation
+    protected _isDirty: boolean; // reserved for cache invalidation
 
     constructor(
         controlPolygon: ControlPolygon<V, D>,
-        knots: readonly number[],
+        knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
         degree: number,
         vectorSpace: VectorSpaceType,
         spaceDimension: number
     ) {
-        checkConsistency(degree, knots.length, controlPolygon.length, vectorSpace, spaceDimension);
+        // checkConsistency(degree, knotSequence.length(), controlPolygon.length, vectorSpace, spaceDimension);
 
         this._controlPolygon = controlPolygon;
-        this._knots = knots;
         this._degree = degree;
         this._vectorSpace = vectorSpace;
         this._spaceDimension = spaceDimension;
-        // this._isDirty = true;
+        this._isDirty = true;
     }
 
     get degree(): number { return this._degree; }
     get vectorSpace(): VectorSpaceType { return this._vectorSpace; }
     get spaceDimension(): number { return this._spaceDimension; }
-    get knots(): readonly number[] { return this._knots; }
+    abstract get knotSequence(): StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
     get curveOrigin(): number { return this._curveOrigin; }
     get controlPoints(): ReadonlyArray<IVector<D, V>> { return this._controlPolygon.controlPoints; }
 
@@ -158,5 +159,5 @@ export abstract class AbstractBSplineR1toRn<V extends Vector = Vector, D extends
     abstract withControlPolygon(controlPolygon: ControlPolygon<V, D>): AbstractBSplineR1toRn<V, D>;
     abstract withKnots(knots: readonly number[]): AbstractBSplineR1toRn<V, D>;
 
-    // protected invalidate(): void { this._isDirty = true; }
+    protected invalidate(): void { this._isDirty = true; }
 }

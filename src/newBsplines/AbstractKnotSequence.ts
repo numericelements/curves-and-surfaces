@@ -377,7 +377,7 @@ export abstract class AbstractKnotSequence {
      * @param knots - Array of knot values to check
      * @throws {RangeError} If knots are not in increasing order
      */
-    checkKnotIncreasingValues(knots: number[]): void {
+    checkKnotIncreasingValues(knots: readonly number[]): void {
         if(knots.length > 1) {
             for(let i = 1; i < knots.length; i++) {
                 if(knots[i] < knots[i -1]) this.throwRangeErrorMessage("checkKnotIncreasingValues", EM_NON_INCREASING_KNOT_VALUES);
@@ -391,7 +391,7 @@ export abstract class AbstractKnotSequence {
      * @param knots - Array of knot values to check
      * @throws {RangeError} If knots are not in strictly increasing order
      */
-    checkKnotStrictlyIncreasingValues(knots: number[]): void {
+    checkKnotStrictlyIncreasingValues(knots: readonly number[]): void {
         if(knots.length > 1) {
             for(let i = 1; i < knots.length; i++) {
                 if(knots[i] <= knots[i -1]) this.throwRangeErrorMessage("checkKnotStrictlyIncreasingValues", EM_NON_STRICTLY_INCREASING_VALUES);

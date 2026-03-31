@@ -4,8 +4,8 @@ import { Vector2DTypeReal } from "./Vector2DTypeReal";
 import { Vector3DTypeReal } from "./Vector3DTypeReal";
 import { Vector4DTypeReal } from "./Vector4DTypeReal";
 import { RealVectorSpace } from "./RealVectorSpace";
-import { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
-import { ComplexVector, ComplexVector1D, ComplexVector2D, ProjectiveComplexVector, ProjectiveComplexVector1D, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D } from "./VectorSpaceConstructorInterface";
+import { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector, IVector } from "./Vector";
+import { ComplexVector, ComplexVector1D, ComplexVector2D, ProjectiveComplexVector, ProjectiveComplexVector1D, ProjectiveVector, ProjectiveVector2D, ProjectiveVector3D, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D, Vector } from "./VectorSpaceConstructorInterface";
 import { isComplexVectorSpace, isProjectiveComplexVectorSpace, isProjectiveVectorSpace, isRealVectorSpace } from "./VectorSpaceFactory";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
 import { Vector1DTypeComplex } from "./Vector1DTypeComplex";
@@ -245,6 +245,52 @@ export function createProjectiveComplexVectorFromDescriptor(descriptor: Projecti
     }
     const error = sendRangeErrorMessage('function', 'createProjectiveComplexVectorFromDescriptor', EM_VECTOR_DESCRIPTOR_INCOMPATIBLE_WITH_VECTORSPACE);
     throw new RangeError(error.generateMessageString());
+}
+
+export function createVectorFromAnyDescriptor(descriptor: Vector,
+    vectorSpace: RealVectorSpace<number> | ProjectiveVectorSpace<number> | ComplexVectorSpace<number> | ProjectiveComplexVectorSpace<number>): IVector<number, any>
+{
+    if (vectorSpace instanceof RealVectorSpace) {
+        if (typeof descriptor === "number") {
+            return createRealVectorFromDescriptor(descriptor as RealVector1D, vectorSpace as RealVectorSpace<1>);
+        }
+        if (typeof descriptor === "object" && "type" in descriptor) {
+            if (descriptor.type === REALVECTOR2D) {
+                return createRealVectorFromDescriptor(descriptor as RealVector2D, vectorSpace as RealVectorSpace<2>);
+            }
+            if (descriptor.type === REALVECTOR3D) {
+                return createRealVectorFromDescriptor(descriptor as RealVector3D, vectorSpace as RealVectorSpace<3>);
+            }
+            if (descriptor.type === REALVECTOR4D) {
+                return createRealVectorFromDescriptor(descriptor as RealVector4D, vectorSpace as RealVectorSpace<4>);
+            }
+        }
+    } else if (vectorSpace instanceof ProjectiveVectorSpace) {
+        if (typeof descriptor === "object" && "type" in descriptor) {
+            if (descriptor.type === PROJECTIVEVECTOR2D) {
+                return createProjectiveVectorFromDescriptor(descriptor as ProjectiveVector2D, vectorSpace as ProjectiveVectorSpace<3>);
+            }
+            if (descriptor.type === PROJECTIVEVECTOR3D) {
+                return createProjectiveVectorFromDescriptor(descriptor as ProjectiveVector3D, vectorSpace as ProjectiveVectorSpace<4>);
+            }
+        }
+    } else if (vectorSpace instanceof ComplexVectorSpace) {
+        if (typeof descriptor === "object" && "type" in descriptor) {
+            if (descriptor.type === COMPLEX) {
+                return createComplexVectorFromDescriptor(descriptor as ComplexVector1D, vectorSpace as ComplexVectorSpace<1>);
+            }
+            if (descriptor.type === COMPLEXVECTOR2D) {
+                return createComplexVectorFromDescriptor(descriptor as ComplexVector2D, vectorSpace as ComplexVectorSpace<2>);
+            }
+        }
+    } else if (vectorSpace instanceof ProjectiveComplexVectorSpace) {
+        if (typeof descriptor === "object" && "type" in descriptor) {
+            if (descriptor.type === PROJECTIVECOMPLEXVECTOR1D) {
+                return createProjectiveComplexVectorFromDescriptor(descriptor as ProjectiveComplexVector1D, vectorSpace as ProjectiveComplexVectorSpace<2>);
+            }
+        }
+    }
+    throw new RangeError(`createVectorFromAnyDescriptor: descriptor type incompatible with vector space`);
 }
 
 // methods from ProjectiveComplexVectorSpace  to be adapted

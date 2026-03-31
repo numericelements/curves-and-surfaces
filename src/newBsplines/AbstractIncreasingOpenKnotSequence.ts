@@ -136,7 +136,7 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         if(normalizedBasisAtEnd.knot.knotIndex <= normalizedBasisAtStart.knot.knotIndex) this.throwRangeErrorMessage("generateKnotSequence", EM_NORMALIZED_BASIS_INTERVAL_NOTSUFFICIENT);
     }
 
-    checkSizeConsistency(knots: number[]): void {
+    checkSizeConsistency(knots: readonly number[]): void {
         let size = 0;
         for(const multiplicity of this.multiplicities()) {
             size += multiplicity;

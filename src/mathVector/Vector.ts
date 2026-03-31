@@ -7,13 +7,22 @@ import type { IdentifiableVectorSpace } from "./IVectorSpace";
 import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import type { RealVectorSpace } from "./RealVectorSpace";
-import type { ComplexVectorOfDimension, ProjectiveComplexVectorOfDimension, ProjectiveVectorOfDimension, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector, ComplexVectorOfDimension, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, ProjectiveVector, ProjectiveVectorOfDimension, RealVector, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";
 import type { Weight } from "./Weight";
 
 
 /**
  * Core vector interface - all vector classes implement this
  */
+/**
+ * Maps a Vector descriptor type to its coordinate scalar type.
+ * Useful as a return-type annotation at call sites, not inside IVector itself,
+ * because TypeScript defers resolution of conditional types over generic params.
+ */
+export type CoordinateType<V extends Vector> =
+    V extends (RealVector | ProjectiveVector) ? number :
+    V extends (ComplexVector | ProjectiveComplexVector) ? Complex :
+    number | Complex;
 
 export interface IVector <
         D extends number = number,

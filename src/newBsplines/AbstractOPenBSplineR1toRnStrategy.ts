@@ -3,6 +3,7 @@ import { RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterfac
 import { AbstractBSplineR1toRn } from "./AbstractBSplineR1toRn";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type } from "./BSplineR1toRnConstructorInterface";
 import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
+import { CurvePoint } from "./CurveEntitiesTypes";
 import { NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { BSplineEvaluator, OpenBSplineR1toRn } from "./OpenBSplineR1toRn";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
@@ -10,12 +11,12 @@ import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasin
 export abstract class AbstractOPenBSplineR1toRnStrategy<V extends Vector, D extends number> {
 
     protected _isDirty: boolean = true;
-    private _evaluatorCache: Map<string, BSplineEvaluator> = new Map();
+    private _evaluatorCache: Map<string, BSplineEvaluator<V, D>> = new Map();
     // protected openBSplineR1toRn: OpenBSplineR1toRn<V, D>;
     protected _defaultAlgorithm: string = 'coxdeboor';
     // strategy owns its own working copy: mutable, derived from the immutable curve
     protected readonly _controlPoints: ReadonlyArray<IVector<D, V>>;
-    protected readonly _knots: readonly number[];
+    // protected readonly _knots: readonly number[];
     protected readonly _degree: number;
 
     // constructor(curveParameters: BSpline_type, openBSplineR1toRn: OpenBSplineR1toRn<V, D>) {
@@ -26,7 +27,7 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<V extends Vector, D exte
         // initialize from immutable curve getters (read only, no write)
         // this.initializeControlPolygonAndKnots();
         this._controlPoints = curve.controlPoints;
-        this._knots = curve.knots;
+        // this._knots = curve.knots;
         this._degree = curve.degree;
     }
 
@@ -68,7 +69,7 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<V extends Vector, D exte
     //     }
     // }
 
-    evaluateWithAlgorithm(u: number, algorithmName: string): RealVector {
+    evaluateWithAlgorithm(u: number, algorithmName: string): CurvePoint<V, D> {
         const evaluator = this.getEvaluatorView(algorithmName);
         return evaluator.evaluate(u);
     }
@@ -79,15 +80,15 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<V extends Vector, D exte
         this.invalidate();
     }
 
-    abstract evaluate(u: number): ReadonlyArray<number>;
+    abstract evaluate(u: number): CurvePoint<V, D>;
 
     // evaluate(u: number): RealVector {
     //     return this.evaluateWithAlgorithm(u, this._defaultAlgorithm);
     // }
 
-    protected abstract createEvaluator(algorithmName: string): BSplineEvaluator;
+    protected abstract createEvaluator(algorithmName: string): BSplineEvaluator<V, D>;
 
-    getEvaluatorView<T extends BSplineEvaluator>(algorithmName: string): T {
+    getEvaluatorView<T extends BSplineEvaluator<V, D>>(algorithmName: string): T {
         if (this._isDirty || !this._evaluatorCache.has(algorithmName)) {
             const evaluator = this.createEvaluator(algorithmName);
             this._evaluatorCache.set(algorithmName, evaluator);

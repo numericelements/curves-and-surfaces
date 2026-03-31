@@ -147,18 +147,18 @@ export class ProjectiveComplexVectorSpace<D extends number = number> implements 
         return createProjectiveComplexVector1DDescriptor(nullComplex, defaultComplexWeight);
     }
 
-    createVector(coordinates: number[][], weightManager: WeightManager): ProjectiveComplexVector {
+    createVector(coordinates: number[][]): ProjectiveComplexVector {
         const complex1: IComplex = createComplexVector1DDescriptor(coordinates[0][0], coordinates[0][1]);
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
-        if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
-            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(weightManager.createWeightFromValueOnly(coordinates[1][0]), weightManager.createWeightFromValueOnly(coordinates[1][1]));
+        if(this.weightManager.weightManagement === WeightManagement.AllPositiveWeights || (this.weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
+            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(this.weightManager.createWeightFromValueOnly(coordinates[1][0]), this.weightManager.createWeightFromValueOnly(coordinates[1][1]));
             const vector: ProjectiveComplexVector = createProjectiveComplexVector1DDescriptor(complex1, complexWeightDescriptor);
             return vector;
         } else {
-            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(weightManager.createWeightFromValueOnly(coordinates[1][0]), weightManager.createWeightFromValueOnly(coordinates[1][1]));
+            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(this.weightManager.createWeightFromValueOnly(coordinates[1][0]), this.weightManager.createWeightFromValueOnly(coordinates[1][1]));
             const vector: ProjectiveComplexVector = createProjectiveComplexVector1DDescriptor(complex1, complexWeightDescriptor);
             return vector;
         }

@@ -2,7 +2,7 @@ import { isIterable } from "../core-utils/TypeChecking";
 import { IVector } from "../mathVector/Vector";
 import { VectorCollection1D } from "../mathVector/VectorCollection1D";
 import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
-import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { ControlPoint } from "./CurveEntitiesTypes";
 
 // export class ControlPolygon < V extends IVector<any, Vector>>  extends VectorCollection1D<V>
 export class ControlPolygon < V extends Vector, D extends number>  extends VectorCollection1D<IVector<D, V>>
@@ -53,5 +53,14 @@ export class ControlPolygon < V extends Vector, D extends number>  extends Vecto
             length += v1.distanceTo(v2);
         }
         return length;
+    }
+
+    edgeLength(index: number): number {
+        if (index < 0 || index >= this._vectors.length - 1) {
+            throw new RangeError(`edgeLength: index ${index} out of range [0, ${this._vectors.length - 2}]`);
+        }
+        const v1 = this._vectors[index];
+        const v2 = this._vectors[index + 1];
+        return v1.distanceTo(v2);
     }
 }

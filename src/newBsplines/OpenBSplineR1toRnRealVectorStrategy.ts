@@ -4,7 +4,7 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractOPenBSplineR1toRnStrategy } from "./AbstractOPenBSplineR1toRnStrategy";
 // import { AbstractOPenBSplineR1toRnStrategy } from "./AbstractOPenBSplineR1toRnStrategy";
 import { BSpline_type } from "./BSplineR1toRnConstructorInterface";
-import { AlgorithmRegistry, BSplineEvaluator } from "./OpenBSplineR1toRn";
+import { BSplineEvaluator } from "./OpenBSplineR1toRn";
 // import { AlgorithmRegistry, BSplineEvaluator, CoxDeBoorEvaluator, OpenBSplineR1toRn, OpenBSplineR1toRnStrategy } from "./OpenBSplineR1toRn";
 
 

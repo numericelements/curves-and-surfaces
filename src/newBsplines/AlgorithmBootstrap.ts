@@ -1,15 +1,47 @@
+import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, RealVector2D, RealVector3D, RealVector4D, Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
+import { AlgorithmRegistry } from "./AlgorithmRegistry";
+import { ControlPolygon } from "./ControlPolygon";
 // import { BoehmAlgorithmFactory } from "./algorithms/BoehmAlgorithmFactory";
 // import { NURBSBookAlgorithmFactory } from "./algorithms/NURBSBookAlgorithmFactory";
 import { CoxDeBoorAlgorithmFactory } from "./CoxDeBoorAlgorithmFactory";
-import { AlgorithmRegistry } from "./OpenBSplineR1toRn";
+import { CoxDeBoorComplexCoordinatesEvaluator } from "./CoxDeBoorComplexCoordinatesEvaluator";
+import { CoxDeBoorRealCoordinatesEvaluator } from "./CoxDeBoorRealCoordinatesEvaluator";
+import { RealVectorN } from "./CurveEntitiesTypes";
+import { AlgorithmFactoryInterface, BSplineEvaluator } from "./OpenBSplineR1toRn";
+import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 
 /**
  * Bootstrap class to register all available algorithms
  * This should be called once during application initialization
  */
+
+export function isRealControlPolygon<D extends number>(
+    controlPolygon: ControlPolygon<Vector, D>
+): controlPolygon is ControlPolygon<RealVectorN, D> {
+    return controlPolygon.vectorSpace.spaceType === VectorSpaceType.REAL;
+}
+
+export function isProjectiveControlPolygon<D extends number>(
+    controlPolygon: ControlPolygon<Vector, D>
+): controlPolygon is ControlPolygon<ProjectiveVector, D> {
+    return controlPolygon.vectorSpace.spaceType === VectorSpaceType.PROJECTIVE;
+}
+
+export function isComplexControlPolygon<D extends number>(
+    controlPolygon: ControlPolygon<Vector, D>
+): controlPolygon is ControlPolygon<ComplexVector, D> {
+    return controlPolygon.vectorSpace.spaceType === VectorSpaceType.COMPLEX;
+}
+
+export function isProjectiveComplexControlPolygon<D extends number>(
+    controlPolygon: ControlPolygon<Vector, D>
+): controlPolygon is ControlPolygon<ProjectiveComplexVector, D> {
+    return controlPolygon.vectorSpace.spaceType === VectorSpaceType.PROJECTIVECOMPLEX;
+}
+
 export class AlgorithmBootstrap {
-    private static isInitialized = false;
+    private static _initialized = false;
     private static _instance: AlgorithmBootstrap | undefined;
 
     private constructor() {}
@@ -22,10 +54,30 @@ export class AlgorithmBootstrap {
     }
 
     static initialize(): void {
-        if (this.isInitialized) {
-            return;
-        }
+        if (this._initialized) return;
 
+        const coxFactory: AlgorithmFactoryInterface = {
+            createEvaluator(controlPolygon, knotSequence, degree) {
+                // if (isRealControlPolygon(controlPolygon)) {
+                    if(knotSequence instanceof StrictlyIncreasingOpenKnotSequenceOpenCurve) {
+                        if(isRealControlPolygon(controlPolygon)) {
+                            return new CoxDeBoorRealCoordinatesEvaluator(controlPolygon, knotSequence, degree);
+                        } else if (isProjectiveControlPolygon(controlPolygon)) {
+                            return new CoxDeBoorRealCoordinatesEvaluator(controlPolygon, knotSequence, degree);
+                        } else if (isComplexControlPolygon(controlPolygon)) {
+                            return new CoxDeBoorComplexCoordinatesEvaluator(controlPolygon, knotSequence, degree);
+                        } else if (isProjectiveComplexControlPolygon(controlPolygon)) {
+                            return new CoxDeBoorComplexCoordinatesEvaluator(controlPolygon, knotSequence, degree);
+                        } else {
+                            throw new Error(`Unsupported vector space type for Cox-de Boor algorithm`);
+                        }
+                    }
+                    else {
+                        throw new Error(`Cox-de Boor algorithm currently only supports open curves with strictly increasing knot sequences`);
+                    }
+                // return new CoxDeBoorEvaluator(controlPolygon);
+            }
+        };
         // Register Cox-de Boor algorithm for all vector space types
         AlgorithmRegistry.register({
             name: 'coxdeboor',
@@ -36,7 +88,7 @@ export class AlgorithmBootstrap {
                 VectorSpaceType.PROJECTIVECOMPLEX
             ],
             description: 'Cox-de Boor algorithm - Standard B-spline evaluation',
-            factory: new CoxDeBoorAlgorithmFactory()
+            factory: coxFactory
         });
 
         // Register Boehm algorithm (example of another algorithm)
@@ -71,16 +123,24 @@ export class AlgorithmBootstrap {
         //     factory: new SIMDOptimizedAlgorithmFactory()
         // });
 
-        this.isInitialized = true;
+        this._initialized = true;
+    }
+
+    private static ensureInitialized(): void {
+        if (!this._initialized) this.initialize();
     }
 
     /**
      * Get algorithm recommendations based on use case
      */
+    // static getRecommendedAlgorithm(vectorSpaceType: VectorSpaceType, _useCase: string): string {
+    //     return AlgorithmRegistry.getDefaultAlgorithm(vectorSpaceType);
+    // }
     static getRecommendedAlgorithm(
         vectorSpaceType: VectorSpaceType,
         useCase: 'general' | 'performance' | 'precision' | 'subdivision'
     ): string {
+        this.ensureInitialized();
         switch (useCase) {
             case 'performance':
                 if (vectorSpaceType === VectorSpaceType.REAL) {
@@ -96,7 +156,7 @@ export class AlgorithmBootstrap {
             
             case 'general':
             default:
-                return 'coxdeboor';
+                return AlgorithmRegistry.getDefaultAlgorithm(vectorSpaceType);
         }
     }
 }

@@ -400,7 +400,7 @@ export const NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve' as const;
  * 
  * @constant {Uniform_PeriodicKnotSequence} UNIFORM_PERIODICKNOTSEQUENCE
  * @description
- * Used to specify an periodic knot sequence that is increaing where:
+ * Used to specify a periodic knot sequence that is increaing where:
  * - All knots are uniformly spaced
  * - All knots have multiplicity of 1
  * - Sequence starts at KNOT_SEQUENCE_ORIGIN
@@ -569,7 +569,7 @@ export interface UniformlySpreadInterKnots_OpenKnotSequence {
  */
 export interface IncreasingOpenKnotSequence {
     readonly type: typeof INCREASINGOPENKNOTSEQUENCE;
-    readonly knots: number[];
+    readonly knots: readonly number[];
 }
 
 /**
@@ -686,8 +686,8 @@ export interface IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots {
  */
 export interface StrictlyIncreasingOpenKnotSequence {
     readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE;
-    readonly knots: number[];
-    readonly multiplicities: number[];
+    readonly knots: readonly number[];
+    readonly multiplicities: readonly number[];
 }
 
 /**

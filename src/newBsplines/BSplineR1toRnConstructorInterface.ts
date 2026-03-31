@@ -162,8 +162,8 @@ export type PeriodicKnotSequenceCCurveInterface_type = IncreasingPeriodicKnotSeq
 
 export type OpenBSpline_type = BSpline_CP | BSpline_CP_Deg_Uniform | BSpline_CP_Deg_Uniform_EuclideanDist | BSpline_CP_Deg_NonUniform | BSpline_CP_Deg_NonUniform_EuclideanDist | BSpline_CP_IncreasingKnotSeq_AllKnots | BSpline_CP_StrctIncreasingKnotSeq_AllKnots | BSpline_CP_KnotSeqInterface | BSpline_CP_KnotSequenceInterface_C0Discontinuity
 export type PeriodicBSplineOpenSeq_type = ClosedBSpline_CP_OpenKnotSeq | ClosedBSpline_CP_OpenKnotSeq_allKnots | ClosedBSpline_CP_OpenKnotSeq_allKnots_C0Discontinuity;
-export type PeriodicBSpline_type = ClosedBSpline_CP | ClosedBSpline_CP_Deg_PeriodicUniformKnotSeq | ClosedBSpline_CP_Deg_PeriodicUniformKnotSeq_EuclideanDist | ClosedBSpline_CP_PeriodicKnotSeq;
-export type BSpline_type = OpenBSpline_type | PeriodicBSplineOpenSeq_type | PeriodicBSpline_type;
+export type ClosedBSpline_type = ClosedBSpline_CP | ClosedBSpline_CP_Deg_PeriodicUniformKnotSeq | ClosedBSpline_CP_Deg_PeriodicUniformKnotSeq_EuclideanDist | ClosedBSpline_CP_PeriodicKnotSeq;
+export type BSpline_type = OpenBSpline_type | PeriodicBSplineOpenSeq_type | ClosedBSpline_type;
 
 export type BSplineR1toR1_type = OpenBSPLR1toR1_CP_OpenKnotSeq_C0Discontinuity | ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity;
 

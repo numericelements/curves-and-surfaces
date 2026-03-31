@@ -5,7 +5,7 @@ import { WeightManager } from "../mathVector/WeightManager";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 // import { AbstractOPenBSplineR1toRnStrategy } from "./AbstractOPenBSplineR1toRnStrategy";
 import { BSpline_type } from "./BSplineR1toRnConstructorInterface";
-import { BSplineEvaluator, CoxDeBoorProjectiveEvaluator } from "./OpenBSplineR1toRn";
+import { BSplineEvaluator } from "./OpenBSplineR1toRn";
 
 // export class OpenBSplineR1toRnComplexProjectiveVectorStrategy extends AbstractOPenBSplineR1toRnStrategy<ProjectiveComplexVector, number> implements OpenBSplineR1toRnStrategy<ProjectiveComplexVector, number> {
 

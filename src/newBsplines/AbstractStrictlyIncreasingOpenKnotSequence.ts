@@ -69,7 +69,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
 
     abstract checkNonUniformKnotMultiplicityOrder(): void;
 
-    checkKnotMultiplicities(multiplicities: number[]): void {
+    checkKnotMultiplicities(multiplicities: readonly number[]): void {
         for(let i = 0; i < multiplicities.length; i++) {
             if(multiplicities[i] <= 0) this.throwRangeErrorMessage("checkKnotMultiplicities", EM_KNOT_MULTIPLICITY_OUT_OF_RANGE);
         }

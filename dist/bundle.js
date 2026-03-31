@@ -52871,19 +52871,19 @@ class ProjectiveComplexVectorSpace {
         const defaultComplexWeight = (0, VectorDescriptorFactory_1.createComplexWeightDescriptor)(new Weight_1.Weight(), new Weight_1.Weight());
         return (0, VectorDescriptorFactory_1.createProjectiveComplexVector1DDescriptor)(nullComplex, defaultComplexWeight);
     }
-    createVector(coordinates, weightManager) {
+    createVector(coordinates) {
         const complex1 = (0, VectorDescriptorFactory_1.createComplexVector1DDescriptor)(coordinates[0][0], coordinates[0][1]);
         if (coordinates.length !== this.dim) {
             const message = (0, VectorSpaceUtilities_1.sendRangeErrorMessage)(this.constructor.name, 'createVector', ProjectiveComplexVectorSpace_1.EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
         }
-        if (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights || (weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
-            const complexWeightDescriptor = (0, VectorDescriptorFactory_1.createComplexWeightDescriptor)(weightManager.createWeightFromValueOnly(coordinates[1][0]), weightManager.createWeightFromValueOnly(coordinates[1][1]));
+        if (this.weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.AllPositiveWeights || (this.weightManager.weightManagement === ProjectiveVectorSpace_1.WeightManagement.SomeNullWeights && coordinates[1][0] === 0)) {
+            const complexWeightDescriptor = (0, VectorDescriptorFactory_1.createComplexWeightDescriptor)(this.weightManager.createWeightFromValueOnly(coordinates[1][0]), this.weightManager.createWeightFromValueOnly(coordinates[1][1]));
             const vector = (0, VectorDescriptorFactory_1.createProjectiveComplexVector1DDescriptor)(complex1, complexWeightDescriptor);
             return vector;
         }
         else {
-            const complexWeightDescriptor = (0, VectorDescriptorFactory_1.createComplexWeightDescriptor)(weightManager.createWeightFromValueOnly(coordinates[1][0]), weightManager.createWeightFromValueOnly(coordinates[1][1]));
+            const complexWeightDescriptor = (0, VectorDescriptorFactory_1.createComplexWeightDescriptor)(this.weightManager.createWeightFromValueOnly(coordinates[1][0]), this.weightManager.createWeightFromValueOnly(coordinates[1][1]));
             const vector = (0, VectorDescriptorFactory_1.createProjectiveComplexVector1DDescriptor)(complex1, complexWeightDescriptor);
             return vector;
         }
@@ -56422,18 +56422,22 @@ exports.cloneDescriptorProjectiveComplexVector1D = cloneDescriptorProjectiveComp
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createProjectiveComplexVectorFromDescriptor = exports.createProjectiveComplexVector1DFromDescriptor = exports.createProjectiveVectorFromDescriptor = exports.createProjectiveVector3DFromDescriptor = exports.createProjectiveVector2DFromDescriptor = exports.createComplexVectorFromDescriptor = exports.createComplexVector2DFromDescriptor = exports.createComplexVector1DFromDescriptor = exports.createRealVectorFromDescriptor = exports.createRealVector4DFromDescriptor = exports.createRealVector3DFromDescriptor = exports.createRealVector2DFromDescriptor = exports.createRealVector1DFromDescriptor = void 0;
+exports.createVectorFromAnyDescriptor = exports.createProjectiveComplexVectorFromDescriptor = exports.createProjectiveComplexVector1DFromDescriptor = exports.createProjectiveVectorFromDescriptor = exports.createProjectiveVector3DFromDescriptor = exports.createProjectiveVector2DFromDescriptor = exports.createComplexVectorFromDescriptor = exports.createComplexVector2DFromDescriptor = exports.createComplexVector1DFromDescriptor = exports.createRealVectorFromDescriptor = exports.createRealVector4DFromDescriptor = exports.createRealVector3DFromDescriptor = exports.createRealVector2DFromDescriptor = exports.createRealVector1DFromDescriptor = void 0;
 const VectorTypeTags_1 = __webpack_require__(/*! ../namedConstants/VectorTypeTags */ "./src/namedConstants/VectorTypeTags.ts");
 const Vector1DTypeReal_1 = __webpack_require__(/*! ./Vector1DTypeReal */ "./src/mathVector/Vector1DTypeReal.ts");
 const Vector2DTypeReal_1 = __webpack_require__(/*! ./Vector2DTypeReal */ "./src/mathVector/Vector2DTypeReal.ts");
 const Vector3DTypeReal_1 = __webpack_require__(/*! ./Vector3DTypeReal */ "./src/mathVector/Vector3DTypeReal.ts");
 const Vector4DTypeReal_1 = __webpack_require__(/*! ./Vector4DTypeReal */ "./src/mathVector/Vector4DTypeReal.ts");
+const RealVectorSpace_1 = __webpack_require__(/*! ./RealVectorSpace */ "./src/mathVector/RealVectorSpace.ts");
 const VectorSpaceFactory_1 = __webpack_require__(/*! ./VectorSpaceFactory */ "./src/mathVector/VectorSpaceFactory.ts");
+const ComplexVectorSpace_1 = __webpack_require__(/*! ./ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
 const Vector1DTypeComplex_1 = __webpack_require__(/*! ./Vector1DTypeComplex */ "./src/mathVector/Vector1DTypeComplex.ts");
 const Vector2DTypeComplex_1 = __webpack_require__(/*! ./Vector2DTypeComplex */ "./src/mathVector/Vector2DTypeComplex.ts");
 const ComplexTypeTag_1 = __webpack_require__(/*! ../namedConstants/ComplexTypeTag */ "./src/namedConstants/ComplexTypeTag.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ./ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
 const ProjectiveVector2DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector2DTypeReal */ "./src/mathVector/ProjectiveVector2DTypeReal.ts");
 const ProjectiveVector3DTypeReal_1 = __webpack_require__(/*! ./ProjectiveVector3DTypeReal */ "./src/mathVector/ProjectiveVector3DTypeReal.ts");
+const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ./ProjectiveComplexVectorSpace */ "./src/mathVector/ProjectiveComplexVectorSpace.ts");
 const ProjectiveVector1DTypeComplex_1 = __webpack_require__(/*! ./ProjectiveVector1DTypeComplex */ "./src/mathVector/ProjectiveVector1DTypeComplex.ts");
 const VectorFromDescriptorFactory_1 = __webpack_require__(/*! ../ErrorMessages/VectorFromDescriptorFactory */ "./src/ErrorMessages/VectorFromDescriptorFactory.ts");
 const VectorSpaceUtilities_1 = __webpack_require__(/*! ./VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
@@ -56608,6 +56612,53 @@ function createProjectiveComplexVectorFromDescriptor(descriptor, vectorSpace) {
     throw new RangeError(error.generateMessageString());
 }
 exports.createProjectiveComplexVectorFromDescriptor = createProjectiveComplexVectorFromDescriptor;
+function createVectorFromAnyDescriptor(descriptor, vectorSpace) {
+    if (vectorSpace instanceof RealVectorSpace_1.RealVectorSpace) {
+        if (typeof descriptor === "number") {
+            return createRealVectorFromDescriptor(descriptor, vectorSpace);
+        }
+        if (typeof descriptor === "object" && "type" in descriptor) {
+            if (descriptor.type === VectorTypeTags_1.REALVECTOR2D) {
+                return createRealVectorFromDescriptor(descriptor, vectorSpace);
+            }
+            if (descriptor.type === VectorTypeTags_1.REALVECTOR3D) {
+                return createRealVectorFromDescriptor(descriptor, vectorSpace);
+            }
+            if (descriptor.type === VectorTypeTags_1.REALVECTOR4D) {
+                return createRealVectorFromDescriptor(descriptor, vectorSpace);
+            }
+        }
+    }
+    else if (vectorSpace instanceof ProjectiveVectorSpace_1.ProjectiveVectorSpace) {
+        if (typeof descriptor === "object" && "type" in descriptor) {
+            if (descriptor.type === VectorTypeTags_1.PROJECTIVEVECTOR2D) {
+                return createProjectiveVectorFromDescriptor(descriptor, vectorSpace);
+            }
+            if (descriptor.type === VectorTypeTags_1.PROJECTIVEVECTOR3D) {
+                return createProjectiveVectorFromDescriptor(descriptor, vectorSpace);
+            }
+        }
+    }
+    else if (vectorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace) {
+        if (typeof descriptor === "object" && "type" in descriptor) {
+            if (descriptor.type === ComplexTypeTag_1.COMPLEX) {
+                return createComplexVectorFromDescriptor(descriptor, vectorSpace);
+            }
+            if (descriptor.type === VectorTypeTags_1.COMPLEXVECTOR2D) {
+                return createComplexVectorFromDescriptor(descriptor, vectorSpace);
+            }
+        }
+    }
+    else if (vectorSpace instanceof ProjectiveComplexVectorSpace_1.ProjectiveComplexVectorSpace) {
+        if (typeof descriptor === "object" && "type" in descriptor) {
+            if (descriptor.type === VectorTypeTags_1.PROJECTIVECOMPLEXVECTOR1D) {
+                return createProjectiveComplexVectorFromDescriptor(descriptor, vectorSpace);
+            }
+        }
+    }
+    throw new RangeError(`createVectorFromAnyDescriptor: descriptor type incompatible with vector space`);
+}
+exports.createVectorFromAnyDescriptor = createVectorFromAnyDescriptor;
 // methods from ProjectiveComplexVectorSpace  to be adapted
 // getWeight(v: ProjectiveComplexVector): IComplexWeight {
 //     if(this.isInVectorSpace(v)) {
@@ -60908,22 +60959,20 @@ function checkConsistency(degree, knotCount, controlPointCount, vectorSpace, spa
 }
 exports.checkConsistency = checkConsistency;
 class AbstractBSplineR1toRn {
-    // protected _isDirty: boolean; // reserved for cache invalidation
-    constructor(controlPolygon, knots, degree, vectorSpace, spaceDimension) {
-        checkConsistency(degree, knots.length, controlPolygon.length, vectorSpace, spaceDimension);
+    constructor(controlPolygon, knotSequence, degree, vectorSpace, spaceDimension) {
+        // checkConsistency(degree, knotSequence.length(), controlPolygon.length, vectorSpace, spaceDimension);
         this._controlPolygon = controlPolygon;
-        this._knots = knots;
         this._degree = degree;
         this._vectorSpace = vectorSpace;
         this._spaceDimension = spaceDimension;
-        // this._isDirty = true;
+        this._isDirty = true;
     }
     get degree() { return this._degree; }
     get vectorSpace() { return this._vectorSpace; }
     get spaceDimension() { return this._spaceDimension; }
-    get knots() { return this._knots; }
     get curveOrigin() { return this._curveOrigin; }
     get controlPoints() { return this._controlPolygon.controlPoints; }
+    invalidate() { this._isDirty = true; }
 }
 exports.AbstractBSplineR1toRn = AbstractBSplineR1toRn;
 
@@ -62781,16 +62830,32 @@ exports.AbstractStrictlyIncreasingOpenKnotSequence = AbstractStrictlyIncreasingO
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AlgorithmBootstrap = void 0;
+exports.AlgorithmBootstrap = exports.isProjectiveComplexControlPolygon = exports.isComplexControlPolygon = exports.isProjectiveControlPolygon = exports.isRealControlPolygon = void 0;
 const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
-// import { BoehmAlgorithmFactory } from "./algorithms/BoehmAlgorithmFactory";
-// import { NURBSBookAlgorithmFactory } from "./algorithms/NURBSBookAlgorithmFactory";
-const CoxDeBoorAlgorithmFactory_1 = __webpack_require__(/*! ./CoxDeBoorAlgorithmFactory */ "./src/newBsplines/CoxDeBoorAlgorithmFactory.ts");
-const OpenBSplineR1toRn_1 = __webpack_require__(/*! ./OpenBSplineR1toRn */ "./src/newBsplines/OpenBSplineR1toRn.ts");
+const AlgorithmRegistry_1 = __webpack_require__(/*! ./AlgorithmRegistry */ "./src/newBsplines/AlgorithmRegistry.ts");
+const CoxDeBoorComplexCoordinatesEvaluator_1 = __webpack_require__(/*! ./CoxDeBoorComplexCoordinatesEvaluator */ "./src/newBsplines/CoxDeBoorComplexCoordinatesEvaluator.ts");
+const CoxDeBoorRealCoordinatesEvaluator_1 = __webpack_require__(/*! ./CoxDeBoorRealCoordinatesEvaluator */ "./src/newBsplines/CoxDeBoorRealCoordinatesEvaluator.ts");
+const StrictlyIncreasingOpenKnotSequenceOpenCurve_1 = __webpack_require__(/*! ./StrictlyIncreasingOpenKnotSequenceOpenCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts");
 /**
  * Bootstrap class to register all available algorithms
  * This should be called once during application initialization
  */
+function isRealControlPolygon(controlPolygon) {
+    return controlPolygon.vectorSpace.spaceType === BSplineR1toRn_1.VectorSpaceType.REAL;
+}
+exports.isRealControlPolygon = isRealControlPolygon;
+function isProjectiveControlPolygon(controlPolygon) {
+    return controlPolygon.vectorSpace.spaceType === BSplineR1toRn_1.VectorSpaceType.PROJECTIVE;
+}
+exports.isProjectiveControlPolygon = isProjectiveControlPolygon;
+function isComplexControlPolygon(controlPolygon) {
+    return controlPolygon.vectorSpace.spaceType === BSplineR1toRn_1.VectorSpaceType.COMPLEX;
+}
+exports.isComplexControlPolygon = isComplexControlPolygon;
+function isProjectiveComplexControlPolygon(controlPolygon) {
+    return controlPolygon.vectorSpace.spaceType === BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX;
+}
+exports.isProjectiveComplexControlPolygon = isProjectiveComplexControlPolygon;
 class AlgorithmBootstrap {
     constructor() { }
     static getInstance() {
@@ -62800,11 +62865,36 @@ class AlgorithmBootstrap {
         return AlgorithmBootstrap._instance;
     }
     static initialize() {
-        if (this.isInitialized) {
+        if (this._initialized)
             return;
-        }
+        const coxFactory = {
+            createEvaluator(controlPolygon, knotSequence, degree) {
+                // if (isRealControlPolygon(controlPolygon)) {
+                if (knotSequence instanceof StrictlyIncreasingOpenKnotSequenceOpenCurve_1.StrictlyIncreasingOpenKnotSequenceOpenCurve) {
+                    if (isRealControlPolygon(controlPolygon)) {
+                        return new CoxDeBoorRealCoordinatesEvaluator_1.CoxDeBoorRealCoordinatesEvaluator(controlPolygon, knotSequence, degree);
+                    }
+                    else if (isProjectiveControlPolygon(controlPolygon)) {
+                        return new CoxDeBoorRealCoordinatesEvaluator_1.CoxDeBoorRealCoordinatesEvaluator(controlPolygon, knotSequence, degree);
+                    }
+                    else if (isComplexControlPolygon(controlPolygon)) {
+                        return new CoxDeBoorComplexCoordinatesEvaluator_1.CoxDeBoorComplexCoordinatesEvaluator(controlPolygon, knotSequence, degree);
+                    }
+                    else if (isProjectiveComplexControlPolygon(controlPolygon)) {
+                        return new CoxDeBoorComplexCoordinatesEvaluator_1.CoxDeBoorComplexCoordinatesEvaluator(controlPolygon, knotSequence, degree);
+                    }
+                    else {
+                        throw new Error(`Unsupported vector space type for Cox-de Boor algorithm`);
+                    }
+                }
+                else {
+                    throw new Error(`Cox-de Boor algorithm currently only supports open curves with strictly increasing knot sequences`);
+                }
+                // return new CoxDeBoorEvaluator(controlPolygon);
+            }
+        };
         // Register Cox-de Boor algorithm for all vector space types
-        OpenBSplineR1toRn_1.AlgorithmRegistry.register({
+        AlgorithmRegistry_1.AlgorithmRegistry.register({
             name: 'coxdeboor',
             vectorSpaceTypes: [
                 BSplineR1toRn_1.VectorSpaceType.REAL,
@@ -62813,7 +62903,7 @@ class AlgorithmBootstrap {
                 BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX
             ],
             description: 'Cox-de Boor algorithm - Standard B-spline evaluation',
-            factory: new CoxDeBoorAlgorithmFactory_1.CoxDeBoorAlgorithmFactory()
+            factory: coxFactory
         });
         // Register Boehm algorithm (example of another algorithm)
         // AlgorithmRegistry.register({
@@ -62844,12 +62934,20 @@ class AlgorithmBootstrap {
         //     description: 'SIMD-optimized Cox-de Boor for real vectors',
         //     factory: new SIMDOptimizedAlgorithmFactory()
         // });
-        this.isInitialized = true;
+        this._initialized = true;
+    }
+    static ensureInitialized() {
+        if (!this._initialized)
+            this.initialize();
     }
     /**
      * Get algorithm recommendations based on use case
      */
+    // static getRecommendedAlgorithm(vectorSpaceType: VectorSpaceType, _useCase: string): string {
+    //     return AlgorithmRegistry.getDefaultAlgorithm(vectorSpaceType);
+    // }
     static getRecommendedAlgorithm(vectorSpaceType, useCase) {
+        this.ensureInitialized();
         switch (useCase) {
             case 'performance':
                 if (vectorSpaceType === BSplineR1toRn_1.VectorSpaceType.REAL) {
@@ -62862,12 +62960,85 @@ class AlgorithmBootstrap {
                 return 'nurbsbook';
             case 'general':
             default:
-                return 'coxdeboor';
+                return AlgorithmRegistry_1.AlgorithmRegistry.getDefaultAlgorithm(vectorSpaceType);
         }
     }
 }
 exports.AlgorithmBootstrap = AlgorithmBootstrap;
-AlgorithmBootstrap.isInitialized = false;
+AlgorithmBootstrap._initialized = false;
+
+
+/***/ },
+
+/***/ "./src/newBsplines/AlgorithmRegistry.ts"
+/*!**********************************************!*\
+  !*** ./src/newBsplines/AlgorithmRegistry.ts ***!
+  \**********************************************/
+(__unused_webpack_module, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AlgorithmRegistry = void 0;
+class AlgorithmRegistry {
+    static register(registration) {
+        if (this._registry.has(registration.name)) {
+            throw new Error(`Algorithm '${registration.name}' is already registered`);
+        }
+        this._registry.set(registration.name, registration);
+    }
+    static isRegistered(algorithmName) {
+        return this._registry.has(algorithmName);
+    }
+    static registeredNames() {
+        return [...this._registry.keys()];
+    }
+    static getAvailableAlgorithms(vectorSpaceType) {
+        const names = [];
+        this._registry.forEach((reg, name) => {
+            if (!vectorSpaceType || reg.vectorSpaceTypes.some(v => v === vectorSpaceType)) {
+                names.push(name);
+            }
+        });
+        return names;
+    }
+    static getDefaultAlgorithm(vectorSpaceType) {
+        const explicit = this._defaults.get(vectorSpaceType);
+        if (explicit)
+            return explicit;
+        const available = this.getAvailableAlgorithms(vectorSpaceType);
+        if (available.some(a => a === "coxdeboor"))
+            return "coxdeboor";
+        if (available.length > 0)
+            return available[0];
+        throw new Error(`No algorithm registered for vector space '${vectorSpaceType}'`);
+    }
+    static setDefaultAlgorithm(vectorSpaceType, algorithmName) {
+        const reg = this._registry.get(algorithmName);
+        if (!reg)
+            throw new Error(`Algorithm '${algorithmName}' is not registered`);
+        if (!reg.vectorSpaceTypes.some(v => v === vectorSpaceType)) {
+            throw new Error(`Algorithm '${algorithmName}' does not support vector space type '${vectorSpaceType}'`);
+        }
+        this._defaults.set(vectorSpaceType, algorithmName);
+    }
+    // static getFactory(algorithmName: string, vectorSpaceType: VectorSpaceType): AlgorithmFactory | undefined {
+    //     return this.algorithms.get(algorithmName)?.get(vectorSpaceType);
+    // }
+    static createEvaluator(algorithmName, controlPolygon, knotSequence, degree, vectorSpaceType) {
+        const reg = this._registry.get(algorithmName);
+        if (!reg) {
+            throw new Error(`Algorithm '${algorithmName}' is not registered. Did you call AlgorithmBootstrap.initialize()?`);
+        }
+        if (!reg.vectorSpaceTypes.some(v => v === vectorSpaceType)) {
+            throw new Error(`Algorithm '${algorithmName}' does not support vector space type '${vectorSpaceType}'`);
+        }
+        return reg.factory.createEvaluator(controlPolygon, knotSequence, degree);
+    }
+}
+exports.AlgorithmRegistry = AlgorithmRegistry;
+AlgorithmRegistry._registry = new Map();
+AlgorithmRegistry._defaults = new Map();
 
 
 /***/ },
@@ -64099,6 +64270,14 @@ class ControlPolygon extends VectorCollection1D_1.VectorCollection1D {
         }
         return length;
     }
+    edgeLength(index) {
+        if (index < 0 || index >= this._vectors.length - 1) {
+            throw new RangeError(`edgeLength: index ${index} out of range [0, ${this._vectors.length - 2}]`);
+        }
+        const v1 = this._vectors[index];
+        const v2 = this._vectors[index + 1];
+        return v1.distanceTo(v2);
+    }
 }
 exports.ControlPolygon = ControlPolygon;
 
@@ -64271,139 +64450,342 @@ exports.ControlPolygonRealVectorStrategy = ControlPolygonRealVectorStrategy;
 
 /***/ },
 
-/***/ "./src/newBsplines/CoxDeBoorAlgorithm.ts"
-/*!***********************************************!*\
-  !*** ./src/newBsplines/CoxDeBoorAlgorithm.ts ***!
-  \***********************************************/
-(__unused_webpack_module, exports) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CoxDeBoorAlgorithm = void 0;
-/**
- * Pure algorithm implementation - no caching, no performance optimizations
- * Just the mathematical algorithm
- */
-class CoxDeBoorAlgorithm {
-    constructor(controlPolygon, knotSequence, degree) {
-        this.controlPolygon = controlPolygon;
-        this.knotSequence = knotSequence;
-        this.degree = degree;
-    }
-    /**
-     * Pure Cox-de Boor algorithm implementation
-     * @param parameter - Parameter value
-     * @param flatCoordinates - Flattened control point coordinates
-     * @returns Computed coordinates
-     */
-    compute(parameter, flatCoordinates) {
-        const n = this.controlPolygon.length - 1;
-        const p = this.degree;
-        const knots = this.knotSequence.allAbscissae; // Assuming this method exists
-        // Find the knot span
-        const span = this.findSpan(parameter, knots, p);
-        // Compute basis functions
-        const basisFunctions = this.computeBasisFunctions(span, parameter, p, knots);
-        // Compute curve point
-        const dimension = this.controlPolygon.spaceDimension;
-        const result = new Array(dimension).fill(0);
-        for (let i = 0; i <= p; i++) {
-            const cpIndex = span - p + i;
-            for (let d = 0; d < dimension; d++) {
-                result[d] += basisFunctions[i] * flatCoordinates[cpIndex * dimension + d];
-            }
-        }
-        return result;
-    }
-    findSpan(u, knots, degree) {
-        // Standard span finding algorithm
-        const n = knots.length - degree - 2;
-        if (u >= knots[n + 1])
-            return n;
-        if (u <= knots[degree])
-            return degree;
-        let low = degree;
-        let high = n + 1;
-        let mid = Math.floor((low + high) / 2);
-        while (u < knots[mid] || u >= knots[mid + 1]) {
-            if (u < knots[mid]) {
-                high = mid;
-            }
-            else {
-                low = mid;
-            }
-            mid = Math.floor((low + high) / 2);
-        }
-        return mid;
-    }
-    computeBasisFunctions(span, u, degree, knots) {
-        const basis = new Array(degree + 1);
-        const left = new Array(degree + 1);
-        const right = new Array(degree + 1);
-        basis[0] = 1.0;
-        for (let j = 1; j <= degree; j++) {
-            left[j] = u - knots[span + 1 - j];
-            right[j] = knots[span + j] - u;
-            let saved = 0.0;
-            for (let r = 0; r < j; r++) {
-                const temp = basis[r] / (right[r + 1] + left[j - r]);
-                basis[r] = saved + right[r + 1] * temp;
-                saved = left[j - r] * temp;
-            }
-            basis[j] = saved;
-        }
-        return basis;
-    }
-}
-exports.CoxDeBoorAlgorithm = CoxDeBoorAlgorithm;
-
-
-/***/ },
-
-/***/ "./src/newBsplines/CoxDeBoorAlgorithmFactory.ts"
-/*!******************************************************!*\
-  !*** ./src/newBsplines/CoxDeBoorAlgorithmFactory.ts ***!
-  \******************************************************/
+/***/ "./src/newBsplines/CoxDeBoorComplexCoordinatesEvaluator.ts"
+/*!*****************************************************************!*\
+  !*** ./src/newBsplines/CoxDeBoorComplexCoordinatesEvaluator.ts ***!
+  \*****************************************************************/
 (__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.CoxDeBoorAlgorithmFactory = void 0;
+exports.CoxDeBoorComplexCoordinatesEvaluator = void 0;
+const ComplexVectorSpace_1 = __webpack_require__(/*! ../mathVector/ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
+const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../mathVector/ProjectiveComplexVectorSpace */ "./src/mathVector/ProjectiveComplexVectorSpace.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../mathVector/ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
+const RealVectorSpace_1 = __webpack_require__(/*! ../mathVector/RealVectorSpace */ "./src/mathVector/RealVectorSpace.ts");
+const VectorFromDescriptorFactory_1 = __webpack_require__(/*! ../mathVector/VectorFromDescriptorFactory */ "./src/mathVector/VectorFromDescriptorFactory.ts");
+const fromStrictlyIncreasingtToIncreasingKnotSequenceOC_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC */ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC.ts");
 const OpenBSplineR1toRn_1 = __webpack_require__(/*! ./OpenBSplineR1toRn */ "./src/newBsplines/OpenBSplineR1toRn.ts");
-const BSplineR1toRn_1 = __webpack_require__(/*! ../namedConstants/BSplineR1toRn */ "./src/namedConstants/BSplineR1toRn.ts");
-class CoxDeBoorAlgorithmFactory {
-    createEvaluator(controlPolygon, knotSequence, degree, vectorSpace) {
-        // Determine vector space type from the vectorSpace parameter
-        const vectorSpaceType = this.getVectorSpaceType(vectorSpace);
-        switch (vectorSpaceType) {
-            case BSplineR1toRn_1.VectorSpaceType.REAL:
-                return new OpenBSplineR1toRn_1.CoxDeBoorRealEvaluator(controlPolygon, knotSequence, degree, vectorSpace);
-            case BSplineR1toRn_1.VectorSpaceType.PROJECTIVE:
-                return new OpenBSplineR1toRn_1.CoxDeBoorProjectiveEvaluator(controlPolygon, knotSequence, degree);
-            // case VectorSpaceType.COMPLEX:
-            //     return new CoxDeBoorComplexEvaluator(controlPolygon, knotSequence, degree, vectorSpace);
-            // case VectorSpaceType.PROJECTIVECOMPLEX:
-            //     return new CoxDeBoorComplexProjectiveEvaluator(controlPolygon, knotSequence, degree, vectorSpace);
-            default:
-                throw new Error(`Unsupported vector space type for Cox-de Boor algorithm`);
-        }
+class CoxDeBoorComplexCoordinatesEvaluator extends OpenBSplineR1toRn_1.BSplineEvaluator {
+    constructor(controlPolygon, knotSequence, degree) {
+        super();
+        this.controlPolygon = controlPolygon;
+        this.degree = degree;
+        this._pointCache = null;
+        this._rangeCache = null;
+        this._curveCache = null;
+        this.knotSequence = (0, fromStrictlyIncreasingtToIncreasingKnotSequenceOC_1.fromStrictlyIncreasingtToIncreasingKnotSequenceOC)(knotSequence);
     }
-    getVectorSpaceType(vectorSpace) {
-        // Determine type based on vectorSpace instance
-        if (vectorSpace.constructor.name.some('Real'))
-            return BSplineR1toRn_1.VectorSpaceType.REAL;
-        if (vectorSpace.constructor.name.some('Projective') && vectorSpace.constructor.name.some('Complex'))
-            return BSplineR1toRn_1.VectorSpaceType.PROJECTIVECOMPLEX;
-        if (vectorSpace.constructor.name.some('Projective'))
-            return BSplineR1toRn_1.VectorSpaceType.PROJECTIVE;
-        if (vectorSpace.constructor.name.some('Complex'))
-            return BSplineR1toRn_1.VectorSpaceType.COMPLEX;
-        return BSplineR1toRn_1.VectorSpaceType.REAL; // Default
+    evaluate(parameter) {
+        // 1. Ensure curve-level cache is valid
+        const cc = this._getCurveCache();
+        // 2. Check point cache hit (same u, same curve state)
+        if (this._pointCache !== null &&
+            this._pointCache.parameter === parameter) {
+            return this._pointCache.result;
+        }
+        // 3. Find knot span (reuse last if nearby, otherwise binary search)
+        const spanIndex = this._findKnotSpan(parameter, cc.flatKnots);
+        // 4. Run Cox-de Boor on flat buffers
+        const resultCoords = this._coxDeBoor(parameter, spanIndex, cc.flatCoordinates, cc.flatKnots, cc.spaceDimension, cc.workBuffer);
+        // 5. Build result vector
+        const vectorSpace = this.controlPolygon.vectorSpace;
+        let result;
+        if (vectorSpace instanceof RealVectorSpace_1.RealVectorSpace) {
+            throw new Error("CoxDeBoorComplexEvaluator does not support RealVectorSpace: use a dedicated real evaluator");
+        }
+        else if (vectorSpace instanceof ProjectiveVectorSpace_1.ProjectiveVectorSpace) {
+            throw new Error("CoxDeBoorComplexEvaluator does not support ProjectiveVectorSpace: use a dedicated real evaluator");
+        }
+        else if (vectorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace) {
+            result = (0, VectorFromDescriptorFactory_1.createVectorFromAnyDescriptor)(vectorSpace.createVector(resultCoords), vectorSpace);
+        }
+        else if (vectorSpace instanceof ProjectiveComplexVectorSpace_1.ProjectiveComplexVectorSpace) {
+            result = (0, VectorFromDescriptorFactory_1.createVectorFromAnyDescriptor)(vectorSpace.createVector(resultCoords), vectorSpace);
+        }
+        else {
+            throw new Error("Unsupported vector space type for result construction");
+        }
+        // 6. Store point cache
+        this._pointCache = { parameter, result, knotSpanIndex: spanIndex };
+        return result;
+    }
+    evaluateRange(samples) {
+        // 1. Check range cache
+        if (this._rangeCache && this._rangeCache.samples === samples) {
+            return this._rangeCache.buffer;
+        }
+        // 2. Ensure curve cache
+        const cc = this._getCurveCache();
+        const dim = cc.spaceDimension;
+        const buffer = new Float64Array(samples * dim);
+        // 3. Evaluate at each sample, write directly to buffer
+        for (let i = 0; i < samples; i++) {
+            const u = i / (samples - 1);
+            const pt = this.evaluate(u);
+            this._writeToBuffer(buffer, i * dim, pt);
+        }
+        // 4. Store range cache
+        this._rangeCache = { samples, buffer };
+        return buffer;
+    }
+    _getCurveCache() {
+        if (this._curveCache)
+            return this._curveCache;
+        let spaceDimension = this.controlPolygon.spaceDimension * 2; // complex coordinates are interleaved real/imaginary pairs, so dimension is doubled
+        if (this.controlPolygon.vectorSpace instanceof ProjectiveComplexVectorSpace_1.ProjectiveComplexVectorSpace) {
+            spaceDimension = (this.controlPolygon.spaceDimension + 1) * 2; // for projective complex, we have n+1 complex coordinates, so total dimension is (n+1)*2    
+        }
+        const n = this.controlPolygon.length;
+        // flatten control polygon
+        const flatCoordinates = new Float64Array(n * spaceDimension);
+        for (let i = 0; i < n; i++) {
+            const coords = this.controlPolygon.controlPoints[i].toArray();
+            for (let j = 0; j < spaceDimension; j++) {
+                flatCoordinates[i * spaceDimension + j] = coords[j];
+            }
+        }
+        // flatten knot vector
+        const knotsArray = this.knotSequence.allAbscissae;
+        const flatKnots = new Float64Array(knotsArray);
+        // pre-allocate work buffer for Cox-de Boor
+        const workBuffer = new Float64Array((this.degree + 1) * spaceDimension);
+        this._curveCache = { flatCoordinates, flatKnots, spaceDimension, workBuffer };
+        return this._curveCache;
+    }
+    _findKnotSpan(u, flatKnots) {
+        // reuse last span if still valid (sequential evaluation)
+        if (this._pointCache !== null &&
+            u >= flatKnots[this._pointCache.knotSpanIndex] &&
+            u < flatKnots[this._pointCache.knotSpanIndex + 1]) {
+            return this._pointCache.knotSpanIndex;
+        }
+        // binary search
+        let lo = this.degree;
+        let hi = flatKnots.length - this.degree - 2;
+        while (lo <= hi) {
+            const mid = (lo + hi) >> 1;
+            if (u < flatKnots[mid])
+                hi = mid - 1;
+            else if (u >= flatKnots[mid + 1])
+                lo = mid + 1;
+            else
+                return mid;
+        }
+        return lo;
+    }
+    _coxDeBoor(u, spanIndex, coords, knots, dim, work) {
+        const p = this.degree;
+        // copy relevant control points into work buffer
+        for (let j = 0; j <= p; j++) {
+            const src = (spanIndex - p + j) * dim;
+            const dst = j * dim;
+            for (let d = 0; d < dim; d++)
+                work[dst + d] = coords[src + d];
+        }
+        // triangular scheme
+        for (let r = 1; r <= p; r++) {
+            for (let j = p; j >= r; j--) {
+                const i = spanIndex - p + j;
+                const denom = knots[i + p - r + 1] - knots[i];
+                const alpha = denom === 0 ? 0 : (u - knots[i]) / denom;
+                const base = j * dim;
+                const prev = (j - 1) * dim;
+                for (let d = 0; d < dim; d++) {
+                    work[base + d] = (1 - alpha) * work[prev + d] + alpha * work[base + d];
+                }
+            }
+        }
+        // extract result from work buffer
+        const nbComplexCoords = dim / 2;
+        const result = new Array(nbComplexCoords);
+        for (let d = 0; d < nbComplexCoords; d++) {
+            result[d] = [work[p * dim + 2 * d], work[p * dim + 2 * d + 1]];
+        }
+        return result;
+    }
+    _writeToBuffer(buffer, offset, pt) {
+        const coords = pt.coordinates;
+        for (let d = 0; d < coords.length; d++)
+            buffer[offset + d] = coords[d];
+    }
+    invalidateAll() {
+        this._pointCache = null;
+        this._rangeCache = null;
+        this._curveCache = null;
+        // super.invalidateAll();
     }
 }
-exports.CoxDeBoorAlgorithmFactory = CoxDeBoorAlgorithmFactory;
+exports.CoxDeBoorComplexCoordinatesEvaluator = CoxDeBoorComplexCoordinatesEvaluator;
+
+
+/***/ },
+
+/***/ "./src/newBsplines/CoxDeBoorRealCoordinatesEvaluator.ts"
+/*!**************************************************************!*\
+  !*** ./src/newBsplines/CoxDeBoorRealCoordinatesEvaluator.ts ***!
+  \**************************************************************/
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.CoxDeBoorRealCoordinatesEvaluator = void 0;
+const ComplexVectorSpace_1 = __webpack_require__(/*! ../mathVector/ComplexVectorSpace */ "./src/mathVector/ComplexVectorSpace.ts");
+const ProjectiveComplexVectorSpace_1 = __webpack_require__(/*! ../mathVector/ProjectiveComplexVectorSpace */ "./src/mathVector/ProjectiveComplexVectorSpace.ts");
+const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../mathVector/ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
+const RealVectorSpace_1 = __webpack_require__(/*! ../mathVector/RealVectorSpace */ "./src/mathVector/RealVectorSpace.ts");
+const fromStrictlyIncreasingtToIncreasingKnotSequenceOC_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC */ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC.ts");
+const OpenBSplineR1toRn_1 = __webpack_require__(/*! ./OpenBSplineR1toRn */ "./src/newBsplines/OpenBSplineR1toRn.ts");
+const VectorFromDescriptorFactory_1 = __webpack_require__(/*! ../mathVector/VectorFromDescriptorFactory */ "./src/mathVector/VectorFromDescriptorFactory.ts");
+class CoxDeBoorRealCoordinatesEvaluator extends OpenBSplineR1toRn_1.BSplineEvaluator {
+    constructor(controlPolygon, knotSequence, degree) {
+        super();
+        this.controlPolygon = controlPolygon;
+        this.degree = degree;
+        this._pointCache = null;
+        this._rangeCache = null;
+        this._curveCache = null;
+        this.knotSequence = (0, fromStrictlyIncreasingtToIncreasingKnotSequenceOC_1.fromStrictlyIncreasingtToIncreasingKnotSequenceOC)(knotSequence);
+    }
+    // evaluate(parameter: number): RealVector {
+    evaluate(parameter) {
+        // 1. Ensure curve-level cache is valid
+        const cc = this._getCurveCache();
+        // 2. Check point cache hit (same u, same curve state)
+        if (this._pointCache !== null &&
+            this._pointCache.parameter === parameter) {
+            return this._pointCache.result;
+        }
+        // 3. Find knot span (reuse last if nearby, otherwise binary search)
+        const spanIndex = this._findKnotSpan(parameter, cc.flatKnots);
+        // 4. Run Cox-de Boor on flat buffers
+        const resultCoords = this._coxDeBoor(parameter, spanIndex, cc.flatCoordinates, cc.flatKnots, cc.spaceDimension, cc.workBuffer);
+        // 5. Build result vector
+        const vectorSpace = this.controlPolygon.vectorSpace;
+        let result;
+        if (vectorSpace instanceof RealVectorSpace_1.RealVectorSpace) {
+            result = (0, VectorFromDescriptorFactory_1.createVectorFromAnyDescriptor)(vectorSpace.createVector(resultCoords), vectorSpace);
+        }
+        else if (vectorSpace instanceof ProjectiveVectorSpace_1.ProjectiveVectorSpace) {
+            result = (0, VectorFromDescriptorFactory_1.createVectorFromAnyDescriptor)(vectorSpace.createVector(resultCoords), vectorSpace);
+        }
+        else if (vectorSpace instanceof ComplexVectorSpace_1.ComplexVectorSpace) {
+            throw new Error("CoxDeBoorRealEvaluator does not support ComplexVectorSpace: use a dedicated complex evaluator");
+        }
+        else if (vectorSpace instanceof ProjectiveComplexVectorSpace_1.ProjectiveComplexVectorSpace) {
+            throw new Error("CoxDeBoorRealEvaluator does not support ProjectiveComplexVectorSpace: use a dedicated complex evaluator");
+        }
+        else {
+            throw new Error("Unsupported vector space type for result construction");
+        }
+        // 6. Store point cache
+        this._pointCache = { parameter, result, knotSpanIndex: spanIndex };
+        return result;
+    }
+    evaluateRange(samples) {
+        // 1. Check range cache
+        if (this._rangeCache && this._rangeCache.samples === samples) {
+            return this._rangeCache.buffer;
+        }
+        // 2. Ensure curve cache
+        const cc = this._getCurveCache();
+        const dim = cc.spaceDimension;
+        const buffer = new Float64Array(samples * dim);
+        // 3. Evaluate at each sample, write directly to buffer
+        for (let i = 0; i < samples; i++) {
+            const u = i / (samples - 1);
+            const pt = this.evaluate(u);
+            this._writeToBuffer(buffer, i * dim, pt);
+        }
+        // 4. Store range cache
+        this._rangeCache = { samples, buffer };
+        return buffer;
+    }
+    _getCurveCache() {
+        if (this._curveCache)
+            return this._curveCache;
+        const spaceDimension = this.controlPolygon.spaceDimension;
+        const n = this.controlPolygon.length;
+        // flatten control polygon
+        const flatCoordinates = new Float64Array(n * spaceDimension);
+        for (let i = 0; i < n; i++) {
+            const coords = this.controlPolygon.controlPoints[i].toArray();
+            for (let j = 0; j < spaceDimension; j++) {
+                flatCoordinates[i * spaceDimension + j] = coords[j];
+            }
+        }
+        // flatten knot vector
+        const knotsArray = this.knotSequence.allAbscissae;
+        const flatKnots = new Float64Array(knotsArray);
+        // pre-allocate work buffer for Cox-de Boor
+        const workBuffer = new Float64Array((this.degree + 1) * spaceDimension);
+        this._curveCache = { flatCoordinates, flatKnots, spaceDimension, workBuffer };
+        return this._curveCache;
+    }
+    _findKnotSpan(u, flatKnots) {
+        // reuse last span if still valid (sequential evaluation)
+        if (this._pointCache !== null &&
+            u >= flatKnots[this._pointCache.knotSpanIndex] &&
+            u < flatKnots[this._pointCache.knotSpanIndex + 1]) {
+            return this._pointCache.knotSpanIndex;
+        }
+        // binary search
+        let lo = this.degree;
+        let hi = flatKnots.length - this.degree - 2;
+        while (lo <= hi) {
+            const mid = (lo + hi) >> 1;
+            if (u < flatKnots[mid])
+                hi = mid - 1;
+            else if (u >= flatKnots[mid + 1])
+                lo = mid + 1;
+            else
+                return mid;
+        }
+        return lo;
+    }
+    _coxDeBoor(u, spanIndex, coords, knots, dim, work) {
+        const p = this.degree;
+        // copy relevant control points into work buffer
+        for (let j = 0; j <= p; j++) {
+            const src = (spanIndex - p + j) * dim;
+            const dst = j * dim;
+            for (let d = 0; d < dim; d++)
+                work[dst + d] = coords[src + d];
+        }
+        // triangular scheme
+        for (let r = 1; r <= p; r++) {
+            for (let j = p; j >= r; j--) {
+                const i = spanIndex - p + j;
+                const denom = knots[i + p - r + 1] - knots[i];
+                const alpha = denom === 0 ? 0 : (u - knots[i]) / denom;
+                const base = j * dim;
+                const prev = (j - 1) * dim;
+                for (let d = 0; d < dim; d++) {
+                    work[base + d] = (1 - alpha) * work[prev + d] + alpha * work[base + d];
+                }
+            }
+        }
+        // extract result from work buffer
+        const result = new Array(dim);
+        for (let d = 0; d < dim; d++)
+            result[d] = work[p * dim + d];
+        return result;
+    }
+    _writeToBuffer(buffer, offset, pt) {
+        const coords = pt.coordinates;
+        for (let d = 0; d < coords.length; d++)
+            buffer[offset + d] = coords[d];
+    }
+    invalidateAll() {
+        this._pointCache = null;
+        this._rangeCache = null;
+        this._curveCache = null;
+        // super.invalidateAll();
+    }
+}
+exports.CoxDeBoorRealCoordinatesEvaluator = CoxDeBoorRealCoordinatesEvaluator;
 
 
 /***/ },
@@ -66200,7 +66582,7 @@ exports.NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve';
  *
  * @constant {Uniform_PeriodicKnotSequence} UNIFORM_PERIODICKNOTSEQUENCE
  * @description
- * Used to specify an periodic knot sequence that is increaing where:
+ * Used to specify a periodic knot sequence that is increaing where:
  * - All knots are uniformly spaced
  * - All knots have multiplicity of 1
  * - Sequence starts at KNOT_SEQUENCE_ORIGIN
@@ -66283,196 +66665,35 @@ exports.STRICTLYINCREASINGPERIODICKNOTSEQUENCE = 'StrictIncreasingPeriodicKnotSe
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.AlgorithmRegistry = exports.OpenBSplineR1toRn = exports.CoxDeBoorRealEvaluator = exports.CoxDeBoorProjectiveEvaluator = exports.CoxDeBoorEvaluator = exports.BSplineEvaluator = void 0;
-const ProjectiveVectorSpace_1 = __webpack_require__(/*! ../mathVector/ProjectiveVectorSpace */ "./src/mathVector/ProjectiveVectorSpace.ts");
-const VectorSpaceFactory_1 = __webpack_require__(/*! ../mathVector/VectorSpaceFactory */ "./src/mathVector/VectorSpaceFactory.ts");
-const VectorSpaceUtilities_1 = __webpack_require__(/*! ../mathVector/VectorSpaceUtilities */ "./src/mathVector/VectorSpaceUtilities.ts");
+exports.OpenBSplineR1toRn = exports.BSplineEvaluator = void 0;
 const AbstractBSplineR1toRn_1 = __webpack_require__(/*! ./AbstractBSplineR1toRn */ "./src/newBsplines/AbstractBSplineR1toRn.ts");
 const AlgorithmBootstrap_1 = __webpack_require__(/*! ./AlgorithmBootstrap */ "./src/newBsplines/AlgorithmBootstrap.ts");
+const AlgorithmRegistry_1 = __webpack_require__(/*! ./AlgorithmRegistry */ "./src/newBsplines/AlgorithmRegistry.ts");
 const BSplineR1toRnConstructorInterface_1 = __webpack_require__(/*! ./BSplineR1toRnConstructorInterface */ "./src/newBsplines/BSplineR1toRnConstructorInterface.ts");
 const ControlPolygon_1 = __webpack_require__(/*! ./ControlPolygon */ "./src/newBsplines/ControlPolygon.ts");
 const ControlPolygonFromDescriptors_1 = __webpack_require__(/*! ./ControlPolygonFromDescriptors */ "./src/newBsplines/ControlPolygonFromDescriptors.ts");
-const CoxDeBoorAlgorithm_1 = __webpack_require__(/*! ./CoxDeBoorAlgorithm */ "./src/newBsplines/CoxDeBoorAlgorithm.ts");
+const fromStrictlyIncreasingtToIncreasingKnotSequenceOC_1 = __webpack_require__(/*! ./KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC */ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ./KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
-// import { OpenBSplineR1toRnComplexProjectiveVectorStrategy } from "./OpenBSplineR1toRnComplexProjectiveVectorStrategy";
-// import { OpenBSplineR1toRnComplexVectorStrategy } from "./OpenBSplineR1toRnComplexVectorStrategy";
-// import { OpenBSplineR1toRnRealProjectiveVectorStrategy } from "./OpenBSplineR1toRnRealProjectiveVectorStrategy";
-// import { OpenBSplineR1toRnRealVectorStrategy } from "./OpenBSplineR1toRnRealVectorStrategy";
 const StrictlyIncreasingOpenKnotSequenceOpenCurve_1 = __webpack_require__(/*! ./StrictlyIncreasingOpenKnotSequenceOpenCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts");
-// Strategy interface
-// export interface OpenBSplineR1toRnStrategy<V extends Vector, D extends number> {
-//     evaluate(u: number): RealVector;
-//     evaluateWithAlgorithm(u: number, algorithmName: string): RealVector;
-//     setDefaultAlgorithm(algorithmName: string): void;
-//     derivative(): OpenBSplineR1toRn<V, D>;
-//     bernsteinDecomposition(): OpenBSplineR1toRn<V, D>;
-//     euclideanDistances(): number[];
-//     // getEvaluatorView<T>(viewType: string, factory:() => T): T;
-//     getEvaluatorView<T extends BSplineEvaluator>(algorithmName: string): T
-//     invalidate(): void;
-// }
 class BSplineEvaluator {
     evaluate(parameter) {
-        return 0;
+        return null;
     }
     ;
 }
 exports.BSplineEvaluator = BSplineEvaluator;
-class CoxDeBoorEvaluator extends BSplineEvaluator {
-    constructor(controlPolygon) {
-        super();
-        this.controlPolygon = controlPolygon;
-        this._isDirty = true;
-        this._flatCoordinates = null;
-        // this.vectorSpace = new RealVectorSpace(controlPolygon.spaceDimension);
-        this.vectorSpace = (0, VectorSpaceFactory_1.createRealVectorSpace)(controlPolygon.spaceDimension);
-    }
-    get flatCoordinates() {
-        if (this._isDirty || !this._flatCoordinates) {
-            // Fix: Actually implement the flattening
-            const coords = [];
-            for (let i = 0; i < this.controlPolygon.length; i++) {
-                const vector = this.controlPolygon.getVector(i);
-                if ((0, VectorSpaceUtilities_1.isVector2D)(vector) || (0, VectorSpaceUtilities_1.isVector3D)(vector) || (0, VectorSpaceUtilities_1.isVector4D)(vector)) {
-                    coords.push(...vector.coordinates);
-                }
-                else {
-                    coords.push(vector);
-                }
-            }
-            this._flatCoordinates = new Float64Array(coords);
-            this._isDirty = false;
-        }
-        return this._flatCoordinates;
-    }
-    evaluate(parameter) {
-        // Ultra-efficient implementation
-        const coords = this.flatCoordinates;
-        // ... Cox-de Boor algorithm
-        const resultCoords = this.coxDeBoorAlgorithm(parameter, coords);
-        return this.vectorSpace.createVector(resultCoords);
-    }
-    invalidate() {
-        this._isDirty = true;
-    }
-    coxDeBoorAlgorithm(u, controlPoints) {
-        // Placeholder - implement actual algorithm
-        const dim = this.vectorSpace.dimension();
-        return new Array(dim).fill(0);
-    }
-}
-exports.CoxDeBoorEvaluator = CoxDeBoorEvaluator;
-class CoxDeBoorProjectiveEvaluator extends BSplineEvaluator {
-    constructor(controlPolygon, knotSequence, degree) {
-        super();
-        this.controlPolygon = controlPolygon;
-        this.knotSequence = knotSequence;
-        this.degree = degree;
-        this.vectorSpace = new ProjectiveVectorSpace_1.ProjectiveVectorSpace(controlPolygon.spaceDimension);
-    }
-    evaluate(parameter) {
-        // 1. Evaluate in projective space
-        const projResult = this.evaluateProjective(parameter);
-        // 2. Convert back to real space
-        return this.vectorSpace.fromProjectiveVectorSpaceToRealVectorSpace(projResult);
-    }
-    evaluateProjective(parameter) {
-        // Cox-de Boor algorithm for projective vectors
-        // Handle weights properly
-        return this.vectorSpace.createVector([]);
-    }
-}
-exports.CoxDeBoorProjectiveEvaluator = CoxDeBoorProjectiveEvaluator;
-/**
- * Performance-optimized evaluator for real vectors
- * Handles caching, coordinate flattening, and other optimizations
- */
-class CoxDeBoorRealEvaluator extends BSplineEvaluator {
-    constructor(controlPolygon, knotSequence, degree, vectorSpace) {
-        super();
-        this.controlPolygon = controlPolygon;
-        this.knotSequence = knotSequence;
-        this.degree = degree;
-        // Performance optimization caches
-        this._isDirty = true;
-        this._flatCoordinates = null;
-        this._lastParameter = NaN;
-        this._lastResult = null;
-        this.vectorSpace = vectorSpace;
-        this.algorithm = new CoxDeBoorAlgorithm_1.CoxDeBoorAlgorithm(controlPolygon, knotSequence, degree);
-    }
-    evaluate(parameter) {
-        // Performance optimization: check if same parameter
-        if (!this._isDirty && parameter === this._lastParameter && this._lastResult) {
-            return this._lastResult;
-        }
-        const coords = this.getFlatCoordinates();
-        const resultCoords = this.algorithm.compute(parameter, coords);
-        const result = this.vectorSpace.createVector(resultCoords);
-        // Cache the result
-        this._lastParameter = parameter;
-        this._lastResult = result;
-        return result;
-    }
-    getFlatCoordinates() {
-        if (this._isDirty || !this._flatCoordinates) {
-            const coords = [];
-            for (let i = 0; i < this.controlPolygon.length; i++) {
-                const vector = this.controlPolygon.getVector(i);
-                if ((0, VectorSpaceUtilities_1.isVector2D)(vector) || (0, VectorSpaceUtilities_1.isVector3D)(vector) || (0, VectorSpaceUtilities_1.isVector4D)(vector)) {
-                    coords.push(...vector.coordinates);
-                }
-                else {
-                    coords.push(vector); // Handle scalar case
-                }
-            }
-            this._flatCoordinates = new Float64Array(coords);
-            this._isDirty = false;
-        }
-        return this._flatCoordinates;
-    }
-    invalidate() {
-        this._isDirty = true;
-        this._flatCoordinates = null;
-        this._lastResult = null;
-        this._lastParameter = NaN;
-    }
-}
-exports.CoxDeBoorRealEvaluator = CoxDeBoorRealEvaluator;
 class OpenBSplineR1toRn extends AbstractBSplineR1toRn_1.AbstractBSplineR1toRn {
     // private readonly _params: OpenBSplineCtorParams;
-    // constructor(curveParameters: OpenBSplineCtorParams) {
-    //     const init = OpenBSplineR1toRn.prepareOpenInit(curveParameters);
-    //     super(
-    //         init.controlPolygon as ControlPolygon<V, D>,
-    //         init.knots,
-    //         init.degree,
-    //         init.vectorSpace,
-    //         init.spaceDimension
-    //     );
-    //     this._params = curveParameters;
-    //     this._controlPolygon = init.controlPolygon as ControlPolygon<V, D>;
-    //     this._knotSequence = init.knotSequence;
-    //     this._curveOrigin = init.curveOrigin;
-    //     AlgorithmBootstrap.initialize();
-    //     const algorithmName = AlgorithmBootstrap.getRecommendedAlgorithm(this._vectorSpace, "general");
-    //     this._evaluator = AlgorithmRegistry.createEvaluator(
-    //         algorithmName,
-    //         OpenBSplineR1toRn.toDescriptorPolygon(this._controlPolygon),
-    //         this._knotSequence,
-    //         this._degree,
-    //         null,
-    //         this._vectorSpace
-    //     );
-    // }
     constructor(controlPolygon, knotSequence, degree, vectorSpace, spaceDimension) {
         const knots = knotSequence.distinctAbscissae();
-        super(controlPolygon, knots, degree, vectorSpace, spaceDimension);
+        const nbKnotsIncreasingSeq = (0, fromStrictlyIncreasingtToIncreasingKnotSequenceOC_1.fromStrictlyIncreasingtToIncreasingKnotSequenceOC)(knotSequence).length();
+        (0, AbstractBSplineR1toRn_1.checkConsistency)(degree, nbKnotsIncreasingSeq, controlPolygon.length, vectorSpace, spaceDimension);
+        super(controlPolygon, knotSequence, degree, vectorSpace, spaceDimension);
         this._knotSequence = knotSequence;
         this._curveOrigin = knots[knotSequence.indexKnotOrigin.knotIndex];
         AlgorithmBootstrap_1.AlgorithmBootstrap.initialize();
         const algorithmName = AlgorithmBootstrap_1.AlgorithmBootstrap.getRecommendedAlgorithm(vectorSpace, "general");
-        this._evaluator = AlgorithmRegistry.createEvaluator(algorithmName, new ControlPolygonFromDescriptors_1.ControlPolygonFromDescriptors(controlPolygon), knotSequence, degree, null, vectorSpace);
+        this._evaluator = AlgorithmRegistry_1.AlgorithmRegistry.createEvaluator(algorithmName, this._controlPolygon, this._knotSequence, this._degree, this._vectorSpace);
     }
     static prepareOpenInit(curveParameters) {
         const controlPolygon = OpenBSplineR1toRn.toCanonicalControlPolygon(curveParameters.controlPoints);
@@ -66521,16 +66742,18 @@ class OpenBSplineR1toRn extends AbstractBSplineR1toRn_1.AbstractBSplineR1toRn {
     get curveOrigin() {
         return this._curveOrigin;
     }
+    // evaluate(u: number): RealVector {
     evaluate(u) {
         return this._evaluator.evaluate(u);
     }
+    // evaluateWithAlgorithm(u: number, algorithmName?: string): RealVector {
     evaluateWithAlgorithm(u, algorithmName) {
         const name = algorithmName !== null && algorithmName !== void 0 ? algorithmName : AlgorithmBootstrap_1.AlgorithmBootstrap.getRecommendedAlgorithm(this._vectorSpace, "general");
-        const evaluator = AlgorithmRegistry.createEvaluator(name, OpenBSplineR1toRn.toDescriptorPolygon(this._controlPolygon), this._knotSequence, this._degree, null, this._vectorSpace);
+        const evaluator = AlgorithmRegistry_1.AlgorithmRegistry.createEvaluator(name, this._controlPolygon, this._knotSequence, this._degree, this._vectorSpace);
         return evaluator.evaluate(u);
     }
     getAvailableAlgorithms() {
-        return AlgorithmRegistry.getAvailableAlgorithms(this._vectorSpace);
+        return AlgorithmRegistry_1.AlgorithmRegistry.getAvailableAlgorithms(this._vectorSpace);
     }
     /**
      * Switch to a different algorithm for future evaluations
@@ -66540,7 +66763,7 @@ class OpenBSplineR1toRn extends AbstractBSplineR1toRn_1.AbstractBSplineR1toRn {
         if (available.indexOf(algorithmName) == -1) {
             throw new Error(`Algorithm '${algorithmName}' not available for vector space type ${this._vectorSpace}`);
         }
-        AlgorithmRegistry.setDefaultAlgorithm(vectorSpaceType, algorithmName);
+        AlgorithmRegistry_1.AlgorithmRegistry.setDefaultAlgorithm(vectorSpaceType, algorithmName);
     }
     /**
      * Immutable update API for knots.
@@ -66591,107 +66814,66 @@ class OpenBSplineR1toRn extends AbstractBSplineR1toRn_1.AbstractBSplineR1toRn {
     }
 }
 exports.OpenBSplineR1toRn = OpenBSplineR1toRn;
-class AlgorithmRegistry {
-    // static register(descriptor: AlgorithmDescriptor): void {
-    //     if (!this.algorithms.has(descriptor.name)) {
-    //         this.algorithms.set(descriptor.name, new Map());
-    //     }
-    //     const algorithmMap = this.algorithms.get(descriptor.name)!;
-    //     descriptor.vectorSpaceTypes.forEach(vectorType => {
-    //         algorithmMap.set(vectorType, descriptor.factory);
-    //     });
-    // }
-    static createEvaluator(algorithmName, controlPolygon, knotSequence, degree, vectorSpace, vectorSpaceType) {
-        const registration = AlgorithmRegistry._registry.get(algorithmName);
-        if (!registration) {
-            throw new Error(`Algorithm '${algorithmName}' is not registered. ` +
-                `Did you call AlgorithmBootstrap.initialize()?`);
-        }
-        // if (!registration.vectorSpaceTypes.includes(vectorSpaceType)) {
-        //     throw new Error(
-        //         `Algorithm '${algorithmName}' does not support vector space type '${vectorSpaceType}'`
-        //     );
-        // }
-        if (!registration.vectorSpaceTypes.some(vst => vst === vectorSpaceType)) {
-            throw new Error(`Algorithm '${algorithmName}' does not support vector space type '${vectorSpaceType}'`);
-        }
-        return registration.factory.createEvaluator(controlPolygon, knotSequence, degree, vectorSpace);
-    }
-    static register(registration) {
-        if (AlgorithmRegistry._registry.has(registration.name)) {
-            throw new Error(`Algorithm '${registration.name}' is already registered`);
-        }
-        AlgorithmRegistry._registry.set(registration.name, registration);
-    }
-    // static create<V extends Vector, D extends number>(
-    //     algorithmName: string,
-    //     curve: AbstractBSplineR1toRn<V, D>
-    // ): AbstractOPenBSplineR1toRnStrategy<V, D> {
-    //     const registration = AlgorithmRegistry._registry.get(algorithmName);
-    //     if (!registration) {
-    //         throw new Error(
-    //             `Algorithm '${algorithmName}' is not registered. ` +
-    //             `Did you call AlgorithmBootstrap.initialize()?`
-    //         );
-    //     }
-    //     if (!registration.vectorSpaceTypes.includes(curve.vectorSpace)) {
-    //         throw new Error(
-    //             `Algorithm '${algorithmName}' does not support ` +
-    //             `vector space type '${curve.vectorSpace}'`
-    //         );
-    //     }
-    //     return registration.factory.create(curve);
-    // }
-    static isRegistered(algorithmName) {
-        return AlgorithmRegistry._registry.has(algorithmName);
-    }
-    static registeredNames() {
-        return [...AlgorithmRegistry._registry.keys()];
-    }
-    static getFactory(algorithmName, vectorSpaceType) {
-        var _a;
-        return (_a = this.algorithms.get(algorithmName)) === null || _a === void 0 ? void 0 : _a.get(vectorSpaceType);
-    }
-    static getAvailableAlgorithms(vectorSpaceType) {
-        const algorithms = [];
-        this.algorithms.forEach((vectorSpaceMap, algorithmName) => {
-            if (!vectorSpaceType || vectorSpaceMap.has(vectorSpaceType)) {
-                algorithms.push(algorithmName);
-            }
-        });
-        return algorithms;
-    }
-    static getDefaultAlgorithm(vectorSpaceType) {
-        // Return first available algorithm or 'coxdeboor' as fallback
-        const available = this.getAvailableAlgorithms(vectorSpaceType);
-        return available.indexOf('coxdeboor') !== -1 ? 'coxdeboor' : available[0] || 'coxdeboor';
-    }
-    static setDefaultAlgorithm(vectorSpaceType, algorithmName) {
-        if (!this.algorithms.has(algorithmName)) {
-            throw new Error(`Algorithm '${algorithmName}' is not registered`);
-        }
-        const vectorSpaceMap = this.algorithms.get(algorithmName);
-        if (!vectorSpaceMap.has(vectorSpaceType)) {
-            throw new Error(`Algorithm '${algorithmName}' does not support vector space type '${vectorSpaceType}'`);
-        }
-        // Move the algorithm to the front of the list for this vector space type
-        const currentDefault = this.getDefaultAlgorithm(vectorSpaceType);
-        if (currentDefault === algorithmName)
-            return; // Already default
-        // Reorder algorithms to make the specified one the default
-        const newAlgorithms = new Map();
-        newAlgorithms.set(algorithmName, vectorSpaceMap);
-        this.algorithms.forEach((vsMap, name) => {
-            if (name !== algorithmName && vsMap.has(vectorSpaceType)) {
-                newAlgorithms.set(name, vsMap);
-            }
-        });
-        this.algorithms = newAlgorithms;
-    }
-}
-exports.AlgorithmRegistry = AlgorithmRegistry;
-AlgorithmRegistry.algorithms = new Map();
-AlgorithmRegistry._registry = new Map();
+// export class AlgorithmRegistry {
+//     private static readonly _registry = new Map<string, AlgorithmRegistration>();
+//     private static readonly _defaults = new Map<VectorSpaceType, string>();
+//     static register(registration: AlgorithmRegistration): void {
+//         if (this._registry.has(registration.name)) {
+//             throw new Error(`Algorithm '${registration.name}' is already registered`);
+//         }
+//         this._registry.set(registration.name, registration);
+//     }
+//     static isRegistered(algorithmName: string): boolean {
+//         return this._registry.has(algorithmName);
+//     }
+//     static registeredNames(): readonly string[] {
+//         return [...this._registry.keys()];
+//     }
+//     static getAvailableAlgorithms(vectorSpaceType?: VectorSpaceType): string[] {
+//         const names: string[] = [];
+//         this._registry.forEach((reg, name) => {
+//             if (!vectorSpaceType || reg.vectorSpaceTypes.some(v => v === vectorSpaceType)) {
+//                 names.push(name);
+//             }
+//         });
+//         return names;
+//     }
+//     static getDefaultAlgorithm(vectorSpaceType: VectorSpaceType): string {
+//         const explicit = this._defaults.get(vectorSpaceType);
+//         if (explicit) return explicit;
+//         const available = this.getAvailableAlgorithms(vectorSpaceType);
+//         if (available.some(a => a === "coxdeboor")) return "coxdeboor";
+//         if (available.length > 0) return available[0];
+//         throw new Error(`No algorithm registered for vector space '${vectorSpaceType}'`);
+//     }
+//     static setDefaultAlgorithm(vectorSpaceType: VectorSpaceType, algorithmName: string): void {
+//         const reg = this._registry.get(algorithmName);
+//         if (!reg) throw new Error(`Algorithm '${algorithmName}' is not registered`);
+//         if (!reg.vectorSpaceTypes.some(v => v === vectorSpaceType)) {
+//             throw new Error(`Algorithm '${algorithmName}' does not support vector space type '${vectorSpaceType}'`);
+//         }
+//         this._defaults.set(vectorSpaceType, algorithmName);
+//     }
+//     // static getFactory(algorithmName: string, vectorSpaceType: VectorSpaceType): AlgorithmFactory | undefined {
+//     //     return this.algorithms.get(algorithmName)?.get(vectorSpaceType);
+//     // }
+//     static createEvaluator<V extends Vector, D extends number>(
+//         algorithmName: string,
+//         controlPolygon: ControlPolygon<V, D>,
+//         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
+//         degree: number,
+//         vectorSpaceType: VectorSpaceType
+//     ): BSplineEvaluator<V, D> {
+//         const reg = this._registry.get(algorithmName);
+//         if (!reg) {
+//             throw new Error(`Algorithm '${algorithmName}' is not registered. Did you call AlgorithmBootstrap.initialize()?`);
+//         }
+//         if (!reg.vectorSpaceTypes.some(v => v === vectorSpaceType)) {
+//             throw new Error(`Algorithm '${algorithmName}' does not support vector space type '${vectorSpaceType}'`);
+//         }
+//         return reg.factory.createEvaluator(controlPolygon, knotSequence, degree);
+//     }
+// }
 
 
 /***/ },
