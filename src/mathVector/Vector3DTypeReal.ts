@@ -14,14 +14,14 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class Vector3DTypeReal extends AbstractRealVector<3> 
+export class Vector3DTypeReal extends AbstractRealVector<3, RealVector3D> 
     implements IVector<3, RealVector3D>
 {
 
     private static readonly DIMENSION = 3 as const;
     private static readonly _vectorType = REALVECTOR3D;
     private readonly _descriptor: RealVector3D;
-    protected readonly _vectorSpace: RealVectorSpace<3>;
+    protected readonly _vectorSpace: RealVectorSpace<3, RealVector3D>;
     
     constructor();
     constructor(vectorSpace: RealVectorSpace<3>);
@@ -64,7 +64,7 @@ export class Vector3DTypeReal extends AbstractRealVector<3>
     
     get dimension(): 3 { return Vector3DTypeReal.DIMENSION; }
     get vectorType(): string { return Vector3DTypeReal._vectorType; }
-    get vectorSpace(): RealVectorSpace<3> { return this._vectorSpace; }
+    get vectorSpace(): RealVectorSpace<3, RealVector3D> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
     get descriptor(): RealVector3D { return copyDescriptorRealVector3D(this._descriptor); }
     get y(): number { return this.getCoordinate(1); }

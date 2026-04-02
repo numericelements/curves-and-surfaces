@@ -166,7 +166,7 @@ export class DefaultVectorSpaces {
             const error = sendRangeErrorMessage(this.constructor.name, 'getRealVectorSpace', EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION);
             throw new RangeError(error.generateMessageString());
         }
-        return this.realSpaces.get(dimension);
+        return this.realSpaces.get(dimension) as RealVectorSpaceInterface<D> | undefined;
     }
 
     getComplexVectorSpace<D extends number>(dimension: D): ComplexVectorSpaceInterface<D> | undefined {
@@ -177,7 +177,7 @@ export class DefaultVectorSpaces {
             const error = sendRangeErrorMessage(this.constructor.name, 'getComplexVectorSpace', EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION);
             throw new RangeError(error.generateMessageString());
         }
-        return this.complexSpaces.get(dimension);
+        return this.complexSpaces.get(dimension) as ComplexVectorSpaceInterface<D> | undefined;
     }
 
     getProjectiveVectorSpace<D extends number>(dimension: D): ProjectiveVectorSpaceInterface<D> | undefined {
@@ -188,7 +188,7 @@ export class DefaultVectorSpaces {
             const error = sendRangeErrorMessage(this.constructor.name, 'getProjectiveVectorSpace', EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION);
             throw new RangeError(error.generateMessageString());
         }
-        return this.projectiveRealSpaces.get(dimension);
+        return this.projectiveRealSpaces.get(dimension) as ProjectiveVectorSpaceInterface<D> | undefined;
     }
 
     getProjectiveComplexVectorSpace<D extends number>(dimension: D): ProjectiveComplexVectorSpaceInterface<D> | undefined {

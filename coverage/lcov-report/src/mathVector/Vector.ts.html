@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/132</span>
+                <span class='fraction'>0/141</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/132</span>
+                <span class='fraction'>0/141</span>
             </div>
         
             
@@ -194,7 +194,25 @@
 <a name='L129'></a><a href='#L129'>129</a>
 <a name='L130'></a><a href='#L130'>130</a>
 <a name='L131'></a><a href='#L131'>131</a>
-<a name='L132'></a><a href='#L132'>132</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -334,19 +352,28 @@
 <span class="cstat-no" title="statement not covered" >import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";</span>
 <span class="cstat-no" title="statement not covered" >import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";</span>
 <span class="cstat-no" title="statement not covered" >import type { RealVectorSpace } from "./RealVectorSpace";</span>
-<span class="cstat-no" title="statement not covered" >import type { ComplexVectorOfDimension, ProjectiveComplexVectorOfDimension, ProjectiveVectorOfDimension, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";</span>
+<span class="cstat-no" title="statement not covered" >import type { ComplexVector, ComplexVectorOfDimension, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, ProjectiveVector, ProjectiveVectorOfDimension, RealVector, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";</span>
 <span class="cstat-no" title="statement not covered" >import type { Weight } from "./Weight";</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >/**</span>
 <span class="cstat-no" title="statement not covered" > * Core vector interface - all vector classes implement this</span>
 <span class="cstat-no" title="statement not covered" > */</span>
+<span class="cstat-no" title="statement not covered" >/**</span>
+<span class="cstat-no" title="statement not covered" > * Maps a Vector descriptor type to its coordinate scalar type.</span>
+<span class="cstat-no" title="statement not covered" > * Useful as a return-type annotation at call sites, not inside IVector itself,</span>
+<span class="cstat-no" title="statement not covered" > * because TypeScript defers resolution of conditional types over generic params.</span>
+<span class="cstat-no" title="statement not covered" > */</span>
+<span class="cstat-no" title="statement not covered" >export type CoordinateType&lt;V extends Vector&gt; =</span>
+<span class="cstat-no" title="statement not covered" >    V extends (RealVector | ProjectiveVector) ? number :</span>
+<span class="cstat-no" title="statement not covered" >    V extends (ComplexVector | ProjectiveComplexVector) ? Complex :</span>
+<span class="cstat-no" title="statement not covered" >    number | Complex;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export interface IVector &lt;</span>
 <span class="cstat-no" title="statement not covered" >        D extends number = number,</span>
 <span class="cstat-no" title="statement not covered" >        V extends Vector = Vector</span>
 <span class="cstat-no" title="statement not covered" >    &gt; {</span>
-<span class="cstat-no" title="statement not covered" >    readonly dimension: number;</span>
+<span class="cstat-no" title="statement not covered" >    readonly dimension: D;</span>
 <span class="cstat-no" title="statement not covered" >    readonly vectorType: string;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType;</span>
 <span class="cstat-no" title="statement not covered" >    readonly vectorSpace: IdentifiableVectorSpace&lt;V&gt;; // The vector space this vector belongs to</span>
@@ -383,10 +410,10 @@
 <span class="cstat-no" title="statement not covered" > * Real vector specific interface</span>
 <span class="cstat-no" title="statement not covered" > */</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface IRealVector&lt;D extends number = number&gt; </span>
-<span class="cstat-no" title="statement not covered" >    extends IVector&lt;D, RealVectorOfDimension&lt;D&gt;&gt; </span>
+<span class="cstat-no" title="statement not covered" >export interface IRealVector&lt;D extends number = number, V extends RealVector = RealVectorOfDimension&lt;D&gt;&gt; </span>
+<span class="cstat-no" title="statement not covered" >    extends IVector&lt;D, V&gt; </span>
 <span class="cstat-no" title="statement not covered" >    {</span>
-<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: RealVectorSpace&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: RealVectorSpace&lt;D, V&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.REAL;</span>
 <span class="cstat-no" title="statement not covered" >    readonly coordinates: number[];</span>
 <span class="cstat-no" title="statement not covered" >    // Real vector specific accessors</span>
@@ -405,10 +432,10 @@
 <span class="cstat-no" title="statement not covered" > * Complex vector specific interface</span>
 <span class="cstat-no" title="statement not covered" > */</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface IComplexVector&lt;D extends number = number&gt; </span>
-<span class="cstat-no" title="statement not covered" >    extends IVector&lt;D, ComplexVectorOfDimension&lt;D&gt;&gt; </span>
+<span class="cstat-no" title="statement not covered" >export interface IComplexVector&lt;D extends number = number, V extends ComplexVector = ComplexVectorOfDimension&lt;D&gt;&gt; </span>
+<span class="cstat-no" title="statement not covered" >    extends IVector&lt;D, V&gt; </span>
 <span class="cstat-no" title="statement not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ComplexVectorSpace&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ComplexVectorSpace&lt;D, V&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.COMPLEX;</span>
 <span class="cstat-no" title="statement not covered" >    readonly coordinates: Complex[];</span>
 <span class="cstat-no" title="statement not covered" >    // Complex vector specific accessors</span>
@@ -426,10 +453,10 @@
 <span class="cstat-no" title="statement not covered" > * Projective vector specific interface</span>
 <span class="cstat-no" title="statement not covered" > */</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface IProjectiveVector&lt;D extends number = number&gt;</span>
-<span class="cstat-no" title="statement not covered" >    extends IVector&lt;D, ProjectiveVectorOfDimension&lt;D&gt;&gt; </span>
+<span class="cstat-no" title="statement not covered" >export interface IProjectiveVector&lt;D extends number = number, V extends ProjectiveVector = ProjectiveVectorOfDimension&lt;D&gt;&gt;</span>
+<span class="cstat-no" title="statement not covered" >    extends IVector&lt;D, V&gt; </span>
 <span class="cstat-no" title="statement not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveVectorSpace&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveVectorSpace&lt;D, V&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.PROJECTIVE;</span>
 <span class="cstat-no" title="statement not covered" >    readonly coordinates: number[];</span>
 <span class="cstat-no" title="statement not covered" >    readonly x: number;</span>
@@ -444,10 +471,10 @@
 <span class="cstat-no" title="statement not covered" >    toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace&lt;any&gt;): IProjectiveComplexVector&lt;any&gt;;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface IProjectiveComplexVector&lt;D extends number = number&gt;</span>
-<span class="cstat-no" title="statement not covered" >    extends IVector&lt;D, ProjectiveComplexVectorOfDimension&lt;D&gt;&gt;</span>
+<span class="cstat-no" title="statement not covered" >export interface IProjectiveComplexVector&lt;D extends number = number, V extends ProjectiveComplexVector = ProjectiveComplexVectorOfDimension&lt;D&gt;&gt;</span>
+<span class="cstat-no" title="statement not covered" >    extends IVector&lt;D, V&gt;</span>
 <span class="cstat-no" title="statement not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveComplexVectorSpace&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveComplexVectorSpace&lt;D, V&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.PROJECTIVECOMPLEX;</span>
 <span class="cstat-no" title="statement not covered" >    readonly coordinates: Complex[];</span>
 <span class="cstat-no" title="statement not covered" >    readonly weight: ComplexWeight;</span>
@@ -463,7 +490,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T07:44:06.455Z
+                at 2026-04-02T18:35:05.984Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

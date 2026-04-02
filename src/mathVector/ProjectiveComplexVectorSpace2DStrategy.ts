@@ -12,7 +12,7 @@ import { isVector2D } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import type { WeightManager } from "./WeightManager";
 
-export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComplexVectorSpaceStrategy<1> {
+export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComplexVectorSpaceStrategy<1, ProjectiveComplexVector1D> {
     // Implementation for 2D vectors
 
     getWeight(v: ProjectiveComplexVector1D): IComplexWeight {

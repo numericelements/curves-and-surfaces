@@ -1,17 +1,17 @@
 import type { ComplexVector, ComplexVectorOfDimension, IComplex, IComplexWeight, ProjectiveComplexVector, RealVector } from "../../VectorSpaceConstructorInterface";
 
-export interface IComplexVectorSpaceStrategy<D extends number> {
+export interface IComplexVectorSpaceStrategy<D extends number, V extends ComplexVector = ComplexVectorOfDimension<D>> {
     areSameDimension(v1: ComplexVector, v2: ComplexVector): boolean;
     isInVectorSpace(v: ComplexVector): v is ComplexVector;
-    createVector(coordinates: number[][]): ComplexVectorOfDimension<D>;
-    defaultVect(): ComplexVectorOfDimension<D>;
-    addDescriptors(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
-    scaleDescriptor(scalar: IComplex | number, vector: ComplexVector): ComplexVectorOfDimension<D>;
-    subtractDescriptors(a: ComplexVector, b: ComplexVector): ComplexVectorOfDimension<D>;
-    dotDescriptors(a: ComplexVector, b: ComplexVector): number;
-    cloneVector(v: ComplexVector): ComplexVectorOfDimension<D>;
-    normDescriptor(v: ComplexVector): number;
+    createVector(coordinates: number[][]): V;
+    defaultVect(): V;
+    addDescriptors(a: V, b: V): V;
+    scaleDescriptor(scalar: IComplex | number, vector: V): V;
+    subtractDescriptors(a: V, b: V): V;
+    dotDescriptors(a: V, b: V): number;
+    cloneVector(v: V): V;
+    normDescriptor(v: V): number;
     // normalize(v: ComplexVector): ComplexVector;
-    fromComplexVectorSpaceToRealVectorSpace(v: ComplexVector): RealVector;
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(v: ComplexVector, weight: IComplexWeight): ProjectiveComplexVector
+    fromComplexVectorSpaceToRealVectorSpace(v: V): RealVector;
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(v: V, weight: IComplexWeight): ProjectiveComplexVector
 }

@@ -8,14 +8,14 @@ import type { RealVector1D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
-export class Vector1DTypeReal extends AbstractRealVector<1> 
+export class Vector1DTypeReal extends AbstractRealVector<1, RealVector1D> 
     implements IVector<1, RealVector1D>
 {
 
     private static readonly DIMENSION = 1 as const;
     private static readonly _vectorType = REALVECTOR1D;
     private readonly value: number;
-    protected readonly _vectorSpace: RealVectorSpace<1>;
+    protected readonly _vectorSpace: RealVectorSpace<1, RealVector1D>;
 
     constructor();
     constructor(vectorSpace: RealVectorSpace<1>); 
@@ -58,7 +58,7 @@ export class Vector1DTypeReal extends AbstractRealVector<1>
 
     get dimension(): 1 { return Vector1DTypeReal.DIMENSION; }
     get vectorType(): string { return Vector1DTypeReal._vectorType; }
-    get vectorSpace(): RealVectorSpace<1> { return this._vectorSpace; }
+    get vectorSpace(): RealVectorSpace<1, RealVector1D> { return this._vectorSpace; }
     get coordinates(): number[] { return [this.value]; }
     get descriptor(): RealVector1D { return this.value; }
     

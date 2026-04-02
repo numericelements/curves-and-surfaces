@@ -14,14 +14,14 @@ import type { IComplex, ComplexVector2D } from "./VectorSpaceConstructorInterfac
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
-export class Vector2DTypeComplex extends AbstractComplexVector<2> 
+export class Vector2DTypeComplex extends AbstractComplexVector<2, ComplexVector2D> 
      implements IVector<2, ComplexVector2D>
 {
 
     private static readonly DIMENSION = 2 as const;
     private static readonly _vectorType = COMPLEXVECTOR2D;
     private readonly _descriptor: ComplexVector2D;
-    protected readonly _vectorSpace: ComplexVectorSpace<2>;
+    protected readonly _vectorSpace: ComplexVectorSpace<2, ComplexVector2D>;
 
     constructor();
     constructor(vectorSpace: ComplexVectorSpace<2>);
@@ -88,7 +88,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2>
 
     get dimension(): 2 { return Vector2DTypeComplex.DIMENSION; }
     get vectorType(): string { return Vector2DTypeComplex._vectorType; }
-    get vectorSpace(): ComplexVectorSpace<2> { return this._vectorSpace; }
+    get vectorSpace(): ComplexVectorSpace<2, ComplexVector2D> { return this._vectorSpace; }
 
     get coordinates(): Complex[] { 
         let result: Complex[] = [];

@@ -9,7 +9,7 @@ import type { IComplex, ComplexVector, ComplexVector1D, IComplexWeight, RealVect
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy<1> {
+export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy<1, ComplexVector1D> {
 
     // Implementation for 1D vectors
 

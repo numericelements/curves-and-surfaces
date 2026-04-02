@@ -21,7 +21,7 @@ import type { IdentifiableVectorSpace, ProjectiveVectorSpaceInterface } from "./
  */
 
 // export class ProjectiveVectorSpace<D extends number = number> implements IdentifiableVectorSpace<ProjectiveVectorOfDimension<D>> {
-export class ProjectiveVectorSpace<D extends number = number> implements ProjectiveVectorSpaceInterface<D> {
+export class ProjectiveVectorSpace<D extends number = number, V extends ProjectiveVector = ProjectiveVectorOfDimension<D>> implements ProjectiveVectorSpaceInterface<D, V> {
     
     private static readonly _spaceType = VectorSpaceType.PROJECTIVE as const;
     private readonly _id: string;
@@ -29,7 +29,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
     private readonly _isDefault: boolean;
     private readonly dim: D;
     private readonly weightManager: WeightManager;
-    protected readonly strategy: IProjectiveVectorSpaceStrategy<D>;
+    protected readonly strategy: IProjectiveVectorSpaceStrategy<D, V>;
     protected readonly _weightManagement: WeightManagement;
 
     
@@ -62,12 +62,12 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
         this.strategy = this.createStrategy(dimension);
     }
 
-    private createStrategy(dimension: number): IProjectiveVectorSpaceStrategy<any> {
+    private createStrategy(dimension: number): IProjectiveVectorSpaceStrategy<D, V> {
         switch(dimension) {
             case MIN_DIMENSION_PROJECTIVEVECTORSPACE:
-                return new ProjectiveVectorSpace3DStrategy();
+                return new ProjectiveVectorSpace3DStrategy() as unknown as IProjectiveVectorSpaceStrategy<D, V>;
             case MAX_DIMENSION_PROJECTIVEVECTORSPACE:
-                return new ProjectiveVectorSpace4DStrategy();
+                return new ProjectiveVectorSpace4DStrategy() as unknown as IProjectiveVectorSpaceStrategy<D, V>;
             default:
         }
         const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_PROJECTIVEVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -93,7 +93,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
                this.dimension() === other.dimension();
     }
 
-    shareSameWeightManagement(v1: ProjectiveVectorOfDimension<D>, v2: ProjectiveVectorOfDimension<D>): boolean {
+    shareSameWeightManagement(v1: V, v2: V): boolean {
         return this.strategy.shareSameWeightManagement(v1, v2, this.weightManager);
     }
 
@@ -110,7 +110,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
         return this.strategy.isInVectorSpace(v);
     }
 
-    createVector(coordinates: Real[]): ProjectiveVectorOfDimension<D> {
+    createVector(coordinates: Real[]): V {
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
@@ -128,12 +128,12 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
         }
     }
 
-    defaultVect(): ProjectiveVectorOfDimension<D> {
+    defaultVect(): V {
         const vect = this.strategy.defaultVect(this.weightManager);
         return vect;
     }
     
-    addDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
+    addDescriptors(a: V, b: V): V {
         try { 
             return this.strategy.addDescriptors(a, b, this.weightManager);
         } catch (error) {
@@ -146,7 +146,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
         }
     }
 
-    subtractDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
+    subtractDescriptors(a: V, b: V): V {
         try {
             return this.strategy.subtractDescriptors(a, b, this.weightManager);
         } catch (error) {
@@ -166,7 +166,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
         }
     }
 
-    normDescriptor(a: ProjectiveVectorOfDimension<D>): number {
+    normDescriptor(a: V): number {
         try { 
             return this.strategy.normDescriptor(a);
         } catch (error) {
@@ -175,7 +175,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
         }
     }
 
-    scaleDescriptor(scalar: Real, v: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
+    scaleDescriptor(scalar: Real, v: V): V {
         try {
             return this.strategy.scaleDescriptor(scalar, v, this.weightManager);
         } catch(error) {
@@ -191,7 +191,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
         }
     }
 
-    cloneVector(v: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D> {
+    cloneVector(v: V): V {
         try {
             return this.strategy.cloneVector(v);
         } catch (error) {
@@ -204,7 +204,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
         return `${this._name} [ID: ${this._id}]`;
     }
 
-    fromProjectiveVectorSpaceToRealVectorSpace(v: ProjectiveVectorOfDimension<D>): RealVector {
+    fromProjectiveVectorSpaceToRealVectorSpace(v: V): RealVector {
         try {
             return this.strategy.fromProjectiveVectorSpaceToRealVectorSpace(v);
         } catch (error) {
@@ -213,7 +213,7 @@ export class ProjectiveVectorSpace<D extends number = number> implements Project
         }
     }
 
-    fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: ProjectiveVectorOfDimension<D>): ProjectiveComplexVector {
+    fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v: V): ProjectiveComplexVector {
       return this.strategy.fromProjectiveVectorSpaceToProjectiveComplexVectorSpace(v);
     }
 }

@@ -314,27 +314,27 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">481x</span>
-<span class="cline-any cline-yes">481x</span>
-<span class="cline-any cline-yes">481x</span>
-<span class="cline-any cline-yes">481x</span>
-<span class="cline-any cline-yes">67x</span>
-<span class="cline-any cline-yes">67x</span>
 <span class="cline-any cline-yes">480x</span>
-<span class="cline-any cline-yes">414x</span>
-<span class="cline-any cline-yes">414x</span>
-<span class="cline-any cline-yes">414x</span>
-<span class="cline-any cline-yes">477x</span>
-<span class="cline-any cline-yes">477x</span>
+<span class="cline-any cline-yes">480x</span>
+<span class="cline-any cline-yes">480x</span>
+<span class="cline-any cline-yes">480x</span>
+<span class="cline-any cline-yes">67x</span>
+<span class="cline-any cline-yes">67x</span>
+<span class="cline-any cline-yes">479x</span>
+<span class="cline-any cline-yes">413x</span>
+<span class="cline-any cline-yes">413x</span>
+<span class="cline-any cline-yes">413x</span>
+<span class="cline-any cline-yes">476x</span>
+<span class="cline-any cline-yes">476x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">477x</span>
-<span class="cline-any cline-yes">477x</span>
-<span class="cline-any cline-yes">477x</span>
-<span class="cline-any cline-yes">477x</span>
-<span class="cline-any cline-yes">477x</span>
-<span class="cline-any cline-yes">477x</span>
-<span class="cline-any cline-yes">477x</span>
+<span class="cline-any cline-yes">476x</span>
+<span class="cline-any cline-yes">476x</span>
+<span class="cline-any cline-yes">476x</span>
+<span class="cline-any cline-yes">476x</span>
+<span class="cline-any cline-yes">476x</span>
+<span class="cline-any cline-yes">476x</span>
+<span class="cline-any cline-yes">476x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
@@ -358,8 +358,8 @@
 <span class="cline-any cline-yes">13x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1255x</span>
-<span class="cline-any cline-yes">1255x</span>
+<span class="cline-any cline-yes">1254x</span>
+<span class="cline-any cline-yes">1254x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">9x</span>
@@ -370,13 +370,13 @@
 <span class="cline-any cline-yes">53x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">10x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">6x</span>
@@ -518,7 +518,7 @@ import { Weight } from "./Weight";
  * Implementation of a real vector space
  */
 &nbsp;
-export class RealVectorSpace&lt;D extends number = number&gt; implements RealVectorSpaceInterface&lt;D&gt; {
+export class RealVectorSpace&lt;D extends number = number, V extends RealVector = RealVectorOfDimension&lt;D&gt;&gt; implements RealVectorSpaceInterface&lt;D, V&gt; {
 &nbsp;
     private static readonly _spaceType = VectorSpaceType.REAL as const;
     private readonly _id: string;
@@ -526,7 +526,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
     private readonly _isDefault: boolean;
 &nbsp;
     protected readonly dim: D;
-    protected readonly strategy: IRealVectorSpaceStrategy&lt;D&gt;;
+    protected readonly strategy: IRealVectorSpaceStrategy&lt;D, V&gt;;
 &nbsp;
     
     constructor(dimension: D, isDefault: boolean = false, name?: string) {
@@ -543,12 +543,12 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
         this.strategy = this.createStrategy(dimension);
     }
 &nbsp;
-    private createStrategy(dimension: number): IRealVectorSpaceStrategy&lt;any&gt; {
+    private createStrategy(dimension: number): IRealVectorSpaceStrategy&lt;D, V&gt; {
         switch (dimension) {
-            case MIN_DIMENSION_REALVECTORSPACE: return new RealVectorSpace1DStrategy();
-            case 2: return new RealVectorSpace2DStrategy();
-            case 3: return new RealVectorSpace3DStrategy();
-            case MAX_DIMENSION_REALVECTORSPACE: return new RealVectorSpace4DStrategy();
+            case MIN_DIMENSION_REALVECTORSPACE: return new RealVectorSpace1DStrategy() as unknown as IRealVectorSpaceStrategy&lt;D, V&gt;;
+            case 2: return new RealVectorSpace2DStrategy() as unknown as IRealVectorSpaceStrategy&lt;D, V&gt;;
+            case 3: return new RealVectorSpace3DStrategy() as unknown as IRealVectorSpaceStrategy&lt;D, V&gt;;
+            case MAX_DIMENSION_REALVECTORSPACE: return new RealVectorSpace4DStrategy() as unknown as IRealVectorSpaceStrategy&lt;D, V&gt;;
             default: 
         }
         const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -581,11 +581,11 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
       return this.strategy.areSameDimension(a, b);
     }
 &nbsp;
-    isInVectorSpace(v: RealVectorOfDimension&lt;D&gt;): v is RealVectorOfDimension&lt;D&gt; {
+    isInVectorSpace(v: V): v is V {
       return this.strategy.isInVectorSpace(v);
     }
 &nbsp;
-    createVector(coordinates: Real[]): RealVectorOfDimension&lt;D&gt; {
+    createVector(coordinates: Real[]): V {
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
@@ -594,7 +594,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
         return vect;
     }
 &nbsp;
-    defaultVect(): RealVectorOfDimension&lt;D&gt; {
+    defaultVect(): V {
         return this.strategy.defaultVect();
     }
 &nbsp;
@@ -607,7 +607,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
     //     return other instanceof RealVectorSpace &amp;&amp; this.isSameSpace(other);
     // }
     
-    addDescriptors(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt; {
+    addDescriptors(a: V, b: V): V {
         try { 
             return this.strategy.addDescriptors(a, b);
         } catch (error) {
@@ -620,7 +620,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
         }
     }
 &nbsp;
-    subtractDescriptors(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt; {
+    subtractDescriptors(a: V, b: V): V {
         try {
             return this.strategy.subtractDescriptors(a, b);
         } catch (error) {
@@ -633,7 +633,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
         }
     }
 &nbsp;
-    scaleDescriptor(scalar: Real, v: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt; {
+    scaleDescriptor(scalar: Real, v: V): V {
         try {
             return this.strategy.scaleDescriptor(scalar, v);
         } catch(error) {
@@ -642,7 +642,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
         }
     }
 &nbsp;
-    cloneVector(v: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt; {
+    cloneVector(v: V): V {
         try{
             return this.strategy.cloneVector(v);
         } catch (error) {
@@ -651,7 +651,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
         }
     }
 &nbsp;
-    normDescriptor(v: RealVectorOfDimension&lt;D&gt;): number {
+    normDescriptor(v: V): number {
         try {
             return this.strategy.normDescriptor(v);
         } catch (error) {
@@ -660,7 +660,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
         }
     }
 &nbsp;
-    normalizeDescriptor(v: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt; {
+    normalizeDescriptor(v: V): V {
         try {
             return this.strategy.normalizeDescriptor(v);
         } catch(error) {
@@ -669,11 +669,11 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
         }
     }
 &nbsp;
-    crossProductRaw(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): RealVector {
+    crossProductRaw(a: V, b: V): RealVector {
             return this.strategy.crossProductRaw(a, b);
     }
 &nbsp;
-    dotDescriptors(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): number {
+    dotDescriptors(a: V, b: V): number {
         try {
             return this.strategy.dotDescriptors(a, b);
         } catch(error) {
@@ -686,11 +686,11 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
         }
     }
 &nbsp;
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVectorOfDimension&lt;D&gt;, weight: Weight = new Weight()): ProjectiveVector {
+    fromRealVectorSpaceToProjectiveVectorSpace(v: V, weight: Weight = new Weight()): ProjectiveVector {
       return this.strategy.fromRealVectorSpaceToProjectiveVectorSpace(v, weight);
     }
 &nbsp;
-    fromRealVectorSpaceToComplexVectorSpace(v: RealVectorOfDimension&lt;D&gt;): ComplexVector {
+    fromRealVectorSpaceToComplexVectorSpace(v: V): ComplexVector {
       return this.strategy.fromRealVectorSpaceToComplexVectorSpace(v);
     }
 &nbsp;
@@ -718,7 +718,7 @@ export class RealVectorSpace&lt;D extends number = number&gt; implements RealVec
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T07:44:06.455Z
+                at 2026-04-02T18:35:05.984Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

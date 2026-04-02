@@ -350,7 +350,7 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { ComplexVectorSpace } from "./ComplexVectorSpace";
 import type { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector } from "./Vector";
-import type { ComplexVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector, ComplexVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Complex } from "./Complex";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
@@ -360,33 +360,33 @@ import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
  * Abstract base for complex vectors
  */
 &nbsp;
-export abstract class AbstractComplexVector&lt;D extends number&gt;
-    extends AbstractVector&lt;D, ComplexVectorOfDimension&lt;D&gt;, ComplexVectorSpace&lt;D&gt;&gt;
-    implements IComplexVector&lt;D&gt; 
+export abstract class AbstractComplexVector&lt;D extends number, V extends ComplexVector = ComplexVectorOfDimension&lt;D&gt;&gt;
+    extends AbstractVector&lt;D, V, ComplexVectorSpace&lt;D, V&gt;&gt;
+    implements IComplexVector&lt;D, V&gt; 
 {
 &nbsp;
     private static readonly _spaceType = VectorSpaceType.COMPLEX;
     
-    protected abstract readonly _vectorSpace: ComplexVectorSpace&lt;D&gt;;
+    protected abstract readonly _vectorSpace: ComplexVectorSpace&lt;D, V&gt;;
     
     get spaceType(): VectorSpaceType.COMPLEX { return AbstractComplexVector._spaceType; }
 &nbsp;
-    abstract get vectorSpace(): ComplexVectorSpace&lt;D&gt;;
-    abstract get descriptor(): ComplexVectorOfDimension&lt;D&gt;;
+    abstract get vectorSpace(): ComplexVectorSpace&lt;D, V&gt;;
+    abstract get descriptor(): V;
     abstract get coordinates(): Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): this;
     abstract toString(): string;
     abstract toRealVector(): IRealVector;
 &nbsp;
-    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ComplexVectorSpace&lt;D&gt;): void {
+    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ComplexVectorSpace&lt;D, V&gt;): void {
         if(vSpace.dimension() !== vectorDim) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError(error.generateMessageString());</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
     }
 &nbsp;
-    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ComplexVectorSpace&lt;D&gt;): void {
+    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ComplexVectorSpace&lt;D, V&gt;): void {
         if(vSpace !== undefined &amp;&amp; (vSpace.spaceType !== VectorSpaceType.COMPLEX || vSpace.dimension() !== vectorDim)) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError(error.generateMessageString());</span>
@@ -396,7 +396,7 @@ export abstract class AbstractComplexVector&lt;D extends number&gt;
     scale(scalar: number): this;
     scale(scalar: Complex): this;
     scale(scalar: number | Complex): this {
-        let result: ComplexVectorOfDimension&lt;D&gt;;
+        let result: V;
         if(scalar instanceof Complex) {
             const scalarDescriptor = scalar.toDescriptor();
             result = this._vectorSpace.scaleDescriptor(scalarDescriptor, this.descriptor);
@@ -406,11 +406,11 @@ export abstract class AbstractComplexVector&lt;D extends number&gt;
         return this.createVectorFromDescriptor(result);
     }
     
-<span class="fstat-no" title="function not covered" >    distanceTo(other: IComplexVector&lt;D&gt;): number {</span>
+<span class="fstat-no" title="function not covered" >    distanceTo(other: IComplexVector&lt;D, V&gt;): number {</span>
 <span class="cstat-no" title="statement not covered" >        return this.affineDistance(other);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    affineDistance(other: IComplexVector&lt;D&gt;): number {</span>
+<span class="fstat-no" title="function not covered" >    affineDistance(other: IComplexVector&lt;D, V&gt;): number {</span>
 <span class="cstat-no" title="statement not covered" >        // Hermitian Distance  (≡ Euclidean in ℝ²ⁿ)</span>
 <span class="cstat-no" title="statement not covered" >        let sum = 0;</span>
 <span class="cstat-no" title="statement not covered" >        for (let i = 0; i &lt; this.dimension; i++) {</span>
@@ -444,11 +444,11 @@ export abstract class AbstractComplexVector&lt;D extends number&gt;
         return result;
     }
 &nbsp;
-    equals(other: IComplexVector&lt;D&gt;, tolerance?: number): boolean {
+    equals(other: IComplexVector&lt;D, V&gt;, tolerance?: number): boolean {
         return super.equals(other, tolerance);
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    isParallel(other: IComplexVector&lt;D&gt;, tolerance?: number): boolean {</span>
+<span class="fstat-no" title="function not covered" >    isParallel(other: IComplexVector&lt;D, V&gt;, tolerance?: number): boolean {</span>
 <span class="cstat-no" title="statement not covered" >            this.validateCompatibility(other);</span>
 <span class="cstat-no" title="statement not covered" >            if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;</span>
 <span class="cstat-no" title="statement not covered" >            const thisNorm = this.norm();</span>
@@ -462,7 +462,7 @@ export abstract class AbstractComplexVector&lt;D extends number&gt;
 <span class="cstat-no" title="statement not covered" >            return ratio &gt;= (1 - tolerance);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    isOrthogonal(other: IComplexVector&lt;D&gt;, angularTolerance?: number): boolean {</span>
+<span class="fstat-no" title="function not covered" >    isOrthogonal(other: IComplexVector&lt;D, V&gt;, angularTolerance?: number): boolean {</span>
 <span class="cstat-no" title="statement not covered" >        this.validateCompatibility(other);</span>
 <span class="cstat-no" title="statement not covered" >        if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;</span>
 <span class="cstat-no" title="statement not covered" >        const thisNorm = this.norm();</span>
@@ -493,7 +493,7 @@ export abstract class AbstractComplexVector&lt;D extends number&gt;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T07:44:06.455Z
+                at 2026-04-02T18:35:05.984Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

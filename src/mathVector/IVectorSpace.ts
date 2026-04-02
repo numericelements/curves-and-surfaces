@@ -1,6 +1,6 @@
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import type { ComplexVectorOfDimension, IComplex, ProjectiveComplexVectorOfDimension, ProjectiveVectorOfDimension, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector, ComplexVectorOfDimension, IComplex, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, ProjectiveVector, ProjectiveVectorOfDimension, RealVector, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";
 
 /**
  * Vector Space interface following mathematical axioms
@@ -58,55 +58,55 @@ export interface IdentifiableVectorSpace<V extends Vector> extends VectorSpace<V
  */
 
 // export interface RealVectorSpaceInterface<D extends number>  {
-export interface RealVectorSpaceInterface<D extends number> 
-    extends IdentifiableVectorSpace<RealVectorOfDimension<D>> {
+export interface RealVectorSpaceInterface<D extends number, V extends RealVector = RealVectorOfDimension<D>> 
+    extends IdentifiableVectorSpace<V> {
     // readonly dimension: D;
 
     readonly spaceType: VectorSpaceType.REAL; 
-    // defaultVect(): RealVectorOfDimension<D>;
+    // defaultVect(): V;
     // toString(): string
-    // addDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
-    // subtractDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D>;
-    dotDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): number;
-    normDescriptor(v: RealVectorOfDimension<D>): number;
+    // addDescriptors(a: V, b: V): V;
+    // subtractDescriptors(a: V, b: V): V;
+    dotDescriptors(a: V, b: V): number;
+    normDescriptor(v: V): number;
 }
 
-export interface ComplexVectorSpaceInterface<D extends number> 
-    extends IdentifiableVectorSpace<ComplexVectorOfDimension<D>> {
+export interface ComplexVectorSpaceInterface<D extends number, V extends ComplexVector = ComplexVectorOfDimension<D>> 
+    extends IdentifiableVectorSpace<V> {
     // readonly dimension: D;
 
     readonly spaceType: VectorSpaceType.COMPLEX; 
-    // defaultVect(): ComplexVectorOfDimension<D>;
+    // defaultVect(): V;
     // toString(): string
-    // addDescriptors(a: ComplexVectorOfDimension<D>, b: ComplexVectorOfDimension<D>): ComplexVectorOfDimension<D>;
-    // subtractDescriptors(a: ComplexVectorOfDimension<D>, b: ComplexVectorOfDimension<D>): ComplexVectorOfDimension<D>;
-    dotDescriptors(a: ComplexVectorOfDimension<D>, b: ComplexVectorOfDimension<D>): number;
-    normDescriptor(v: ComplexVectorOfDimension<D>): number;
+    // addDescriptors(a: V, b: V): V;
+    // subtractDescriptors(a: V, b: V): V;
+    dotDescriptors(a: V, b: V): number;
+    normDescriptor(v: V): number;
 }
 
-export interface ProjectiveVectorSpaceInterface<D extends number> 
-    extends IdentifiableVectorSpace<ProjectiveVectorOfDimension<D>> {
+export interface ProjectiveVectorSpaceInterface<D extends number, V extends ProjectiveVector = ProjectiveVectorOfDimension<D>> 
+    extends IdentifiableVectorSpace<V> {
     // readonly dimension: D;
 
     readonly spaceType: VectorSpaceType.PROJECTIVE;
     readonly weightManagement: WeightManagement;
-    // defaultVect(): ProjectiveVectorOfDimension<D>;
+    // defaultVect(): V;
     // toString(): string
-    // addDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D>;
-    // subtractDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): ProjectiveVectorOfDimension<D>;
-    // dotDescriptors(a: ProjectiveVectorOfDimension<D>, b: ProjectiveVectorOfDimension<D>): number;
-    normDescriptor(v: ProjectiveVectorOfDimension<D>): number;
+    // addDescriptors(a: V, b: V): V;
+    // subtractDescriptors(a: V, b: V): V;
+    // dotDescriptors(a: V, b: V): number;
+    normDescriptor(v: V): number;
 }
 
-export interface ProjectiveComplexVectorSpaceInterface<D extends number> 
-    extends IdentifiableVectorSpace<ProjectiveComplexVectorOfDimension<D>> {
+export interface ProjectiveComplexVectorSpaceInterface<D extends number, V extends ProjectiveComplexVector = ProjectiveComplexVectorOfDimension<D>> 
+    extends IdentifiableVectorSpace<V> {
     // readonly dimension: D;
 
     readonly spaceType: VectorSpaceType.PROJECTIVECOMPLEX; 
-    // defaultVect(): ProjectiveComplexVectorOfDimension<D>;
+    // defaultVect(): V;
     // toString(): string
-    // addDescriptors(a: ProjectiveComplexVectorOfDimension<D>, b: ProjectiveComplexVectorOfDimension<D>): ProjectiveComplexVectorOfDimension<D>;
-    // subtractDescriptors(a: ProjectiveComplexVectorOfDimension<D>, b: ProjectiveComplexVectorOfDimension<D>): ProjectiveComplexVectorOfDimension<D>;
-    // dotDescriptors(a: ProjectiveComplexVectorOfDimension<D>, b: ProjectiveComplexVectorOfDimension<D>): number;
-    // normDescriptor(v: ProjectiveComplexVectorOfDimension<D>): number;
+    // addDescriptors(a: V, b: V): V;
+    // subtractDescriptors(a: V, b: V): V;
+    // dotDescriptors(a: V, b: V): number;
+    // normDescriptor(v: V): number;
 }

@@ -20,14 +20,14 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class Vector1DTypeComplex extends AbstractComplexVector<1> 
+export class Vector1DTypeComplex extends AbstractComplexVector<1, ComplexVector1D> 
     implements IVector<1, ComplexVector1D>
 {
 
     private static readonly DIMENSION = 1 as const;
     private static readonly _vectorType = COMPLEXVECTOR1D;
     private readonly _descriptor: IComplex;
-    protected readonly _vectorSpace: ComplexVectorSpace<1>;
+    protected readonly _vectorSpace: ComplexVectorSpace<1, ComplexVector1D>;
     
     constructor();
     constructor(vectorSpace: ComplexVectorSpace<1>);
@@ -93,7 +93,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1>
 
     get dimension(): 1 { return Vector1DTypeComplex.DIMENSION; }
     get vectorType(): string { return Vector1DTypeComplex._vectorType; }
-    get vectorSpace(): ComplexVectorSpace<1> { return this._vectorSpace; }
+    get vectorSpace(): ComplexVectorSpace<1, ComplexVector1D> { return this._vectorSpace; }
     get real(): number { return this._descriptor.real; }
     get imaginary(): number { return this._descriptor.imaginary; }
     get coordinates(): Complex[] { return [new Complex(this._descriptor.real, this._descriptor.imaginary)]; }

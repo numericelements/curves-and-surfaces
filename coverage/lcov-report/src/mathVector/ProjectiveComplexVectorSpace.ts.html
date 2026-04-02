@@ -455,8 +455,8 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">346x</span>
-<span class="cline-any cline-yes">346x</span>
+<span class="cline-any cline-yes">330x</span>
+<span class="cline-any cline-yes">330x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -469,8 +469,8 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">637x</span>
-<span class="cline-any cline-yes">637x</span>
+<span class="cline-any cline-yes">621x</span>
+<span class="cline-any cline-yes">621x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -692,7 +692,7 @@ import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOM
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { ProjectiveComplexVectorSpace2DStrategy } from "./ProjectiveComplexVectorSpace2DStrategy";
-import type { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, Real, Vector } from "./VectorSpaceConstructorInterface";
+import type { IComplex, ComplexVector1D, IComplexWeight, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, Real, Vector } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { WeightManager } from "./WeightManager";
@@ -708,7 +708,7 @@ import type { IdentifiableVectorSpace, ProjectiveComplexVectorSpaceInterface } f
 import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor } from "./VectorDescriptorFactory";
 &nbsp;
 &nbsp;
-export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; implements ProjectiveComplexVectorSpaceInterface&lt;D&gt; {
+export class ProjectiveComplexVectorSpace&lt;D extends number = number, V extends ProjectiveComplexVector = ProjectiveComplexVectorOfDimension&lt;D&gt;&gt; implements ProjectiveComplexVectorSpaceInterface&lt;D, V&gt; {
 &nbsp;
     private static readonly _spaceType = VectorSpaceType.PROJECTIVECOMPLEX as const;
     private readonly _id: string;
@@ -716,7 +716,7 @@ export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; imple
     private readonly _isDefault: boolean;
     private readonly weightManager: WeightManager;
     private readonly dim: D;
-    protected readonly strategy: IProjectiveComplexVectorSpaceStrategy&lt;D&gt;;
+    protected readonly strategy: IProjectiveComplexVectorSpaceStrategy&lt;D, V&gt;;
     protected readonly _weightManagement: WeightManagement;
 &nbsp;
     constructor(dimension: D);
@@ -747,7 +747,7 @@ export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; imple
         }
         switch (this.dim) {
             case MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE:
-                this.strategy = new ProjectiveComplexVectorSpace2DStrategy();
+                this.strategy = new ProjectiveComplexVectorSpace2DStrategy() as unknown as IProjectiveComplexVectorSpaceStrategy&lt;D, V&gt;;
                 break;
             default:
                 const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -826,30 +826,30 @@ export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; imple
         return realWeight.strictlyPositive === imaginaryWeight.strictlyPositive;
     }
 &nbsp;
-    defaultVect(): ProjectiveComplexVector {
+    defaultVect(): V {
         const nullComplex: IComplex = createComplexVector1DDescriptor();
         const defaultComplexWeight: IComplexWeight = createComplexWeightDescriptor(new Weight(), new Weight());
-        return createProjectiveComplexVector1DDescriptor(nullComplex, defaultComplexWeight);
+        return createProjectiveComplexVector1DDescriptor(nullComplex, defaultComplexWeight) as unknown as V;
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    createVector(coordinates: number[][], weightManager: WeightManager): ProjectiveComplexVector {</span>
+<span class="fstat-no" title="function not covered" >    createVector(coordinates: number[][]): V {</span>
 <span class="cstat-no" title="statement not covered" >        const complex1: IComplex = createComplexVector1DDescriptor(coordinates[0][0], coordinates[0][1]);</span>
 <span class="cstat-no" title="statement not covered" >        if(coordinates.length !== this.dim) {</span>
 <span class="cstat-no" title="statement not covered" >            const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError(message.generateMessageString());</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >        if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights &amp;&amp; coordinates[1][0] === 0)) {</span>
-<span class="cstat-no" title="statement not covered" >            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(weightManager.createWeightFromValueOnly(coordinates[1][0]), weightManager.createWeightFromValueOnly(coordinates[1][1]));</span>
+<span class="cstat-no" title="statement not covered" >        if(this.weightManager.weightManagement === WeightManagement.AllPositiveWeights || (this.weightManager.weightManagement === WeightManagement.SomeNullWeights &amp;&amp; coordinates[1][0] === 0)) {</span>
+<span class="cstat-no" title="statement not covered" >            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(this.weightManager.createWeightFromValueOnly(coordinates[1][0]), this.weightManager.createWeightFromValueOnly(coordinates[1][1]));</span>
 <span class="cstat-no" title="statement not covered" >            const vector: ProjectiveComplexVector = createProjectiveComplexVector1DDescriptor(complex1, complexWeightDescriptor);</span>
-<span class="cstat-no" title="statement not covered" >            return vector;</span>
+<span class="cstat-no" title="statement not covered" >            return vector as unknown as V;</span>
 <span class="cstat-no" title="statement not covered" >        } else {</span>
-<span class="cstat-no" title="statement not covered" >            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(weightManager.createWeightFromValueOnly(coordinates[1][0]), weightManager.createWeightFromValueOnly(coordinates[1][1]));</span>
+<span class="cstat-no" title="statement not covered" >            const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(this.weightManager.createWeightFromValueOnly(coordinates[1][0]), this.weightManager.createWeightFromValueOnly(coordinates[1][1]));</span>
 <span class="cstat-no" title="statement not covered" >            const vector: ProjectiveComplexVector = createProjectiveComplexVector1DDescriptor(complex1, complexWeightDescriptor);</span>
-<span class="cstat-no" title="statement not covered" >            return vector;</span>
+<span class="cstat-no" title="statement not covered" >            return vector as unknown as V;</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-    addDescriptors(a: ProjectiveComplexVector, b: ProjectiveComplexVector): ProjectiveComplexVector {
+    addDescriptors(a: V, b: V): V {
         if(this.hasSameRealImagineryWeightManagement(a) &amp;&amp; this.hasSameRealImagineryWeightManagement(b)) {
             try {
                 return this.strategy.addDescriptors(a, b, this.weightManager);
@@ -871,7 +871,7 @@ export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; imple
         }
     }
 &nbsp;
-    normDescriptor(v: ProjectiveComplexVector): number {
+    normDescriptor(v: V): number {
         try { 
             return this.strategy.normDescriptor(v);
         } <span class="branch-0 cbranch-no" title="branch not covered" >catch (error) {</span>
@@ -880,9 +880,9 @@ export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; imple
 <span class="cstat-no" title="statement not covered" >        }</span>
     }
 &nbsp;
-    scaleDescriptor(scaleFactor: IComplex, vector: ProjectiveComplexVector): ProjectiveComplexVector;
-    scaleDescriptor(scaleFactor: number, vector: ProjectiveComplexVector): ProjectiveComplexVector;
-    scaleDescriptor(scaleFactor: IComplex | number, vector: ProjectiveComplexVector): ProjectiveComplexVector {
+    scaleDescriptor(scaleFactor: IComplex, vector: V): V;
+    scaleDescriptor(scaleFactor: number, vector: V): V;
+    scaleDescriptor(scaleFactor: IComplex | number, vector: V): V {
         if(!this.hasSameRealImagineryWeightManagement(vector)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'scaleDescriptor', EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER);
             throw new RangeError(error.generateMessageString());
@@ -906,7 +906,7 @@ export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; imple
         }
     }
 &nbsp;
-    subtractDescriptors(a: ProjectiveComplexVector, b: ProjectiveComplexVector): ProjectiveComplexVector {
+    subtractDescriptors(a: V, b: V): V {
         if(this.hasSameRealImagineryWeightManagement(a) &amp;&amp; this.hasSameRealImagineryWeightManagement(b)) {
             try {
                 return this.strategy.subtractDescriptors(a, b, this.weightManager);
@@ -955,7 +955,7 @@ export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; imple
         }
     }
 &nbsp;
-    cloneVector(vector: ProjectiveComplexVector): ProjectiveComplexVector {
+    cloneVector(vector: V): V {
         if(this.hasSameRealImagineryWeightManagement(vector)) {
             try {
                 return this.strategy.cloneVector(vector, this.weightManager);
@@ -973,7 +973,7 @@ export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; imple
         return `${this._name} [ID: ${this._id}]`;
     }
 &nbsp;
-    fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector: ProjectiveComplexVector): ComplexVector1D {
+    fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector: V): ComplexVector1D {
         if(this.hasSameRealImagineryWeightManagement(vector)) {
             try {
                 return this.strategy.fromProjectiveComplexVectorSpaceToComplexVectorSpace(vector, this.weightManager);
@@ -1000,7 +1000,7 @@ export class ProjectiveComplexVectorSpace&lt;D extends number = number&gt; imple
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T07:44:06.455Z
+                at 2026-04-02T18:35:05.984Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

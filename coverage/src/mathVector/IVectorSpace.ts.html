@@ -287,7 +287,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";</span></span></span>
 <span class="cstat-no" title="statement not covered" >import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";</span>
-<span class="cstat-no" title="statement not covered" >import type { ComplexVectorOfDimension, IComplex, ProjectiveComplexVectorOfDimension, ProjectiveVectorOfDimension, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";</span>
+<span class="cstat-no" title="statement not covered" >import type { ComplexVector, ComplexVectorOfDimension, IComplex, ProjectiveComplexVector, ProjectiveComplexVectorOfDimension, ProjectiveVector, ProjectiveVectorOfDimension, RealVector, RealVectorOfDimension, Vector } from "./VectorSpaceConstructorInterface";</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >/**</span>
 <span class="cstat-no" title="statement not covered" > * Vector Space interface following mathematical axioms</span>
@@ -345,57 +345,57 @@
 <span class="cstat-no" title="statement not covered" > */</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >// export interface RealVectorSpaceInterface&lt;D extends number&gt;  {</span>
-<span class="cstat-no" title="statement not covered" >export interface RealVectorSpaceInterface&lt;D extends number&gt; </span>
-<span class="cstat-no" title="statement not covered" >    extends IdentifiableVectorSpace&lt;RealVectorOfDimension&lt;D&gt;&gt; {</span>
+<span class="cstat-no" title="statement not covered" >export interface RealVectorSpaceInterface&lt;D extends number, V extends RealVector = RealVectorOfDimension&lt;D&gt;&gt; </span>
+<span class="cstat-no" title="statement not covered" >    extends IdentifiableVectorSpace&lt;V&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    // readonly dimension: D;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.REAL; </span>
-<span class="cstat-no" title="statement not covered" >    // defaultVect(): RealVectorOfDimension&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    // defaultVect(): V;</span>
 <span class="cstat-no" title="statement not covered" >    // toString(): string</span>
-<span class="cstat-no" title="statement not covered" >    // addDescriptors(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    // subtractDescriptors(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): RealVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    dotDescriptors(a: RealVectorOfDimension&lt;D&gt;, b: RealVectorOfDimension&lt;D&gt;): number;</span>
-<span class="cstat-no" title="statement not covered" >    normDescriptor(v: RealVectorOfDimension&lt;D&gt;): number;</span>
+<span class="cstat-no" title="statement not covered" >    // addDescriptors(a: V, b: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    // subtractDescriptors(a: V, b: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    dotDescriptors(a: V, b: V): number;</span>
+<span class="cstat-no" title="statement not covered" >    normDescriptor(v: V): number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface ComplexVectorSpaceInterface&lt;D extends number&gt; </span>
-<span class="cstat-no" title="statement not covered" >    extends IdentifiableVectorSpace&lt;ComplexVectorOfDimension&lt;D&gt;&gt; {</span>
+<span class="cstat-no" title="statement not covered" >export interface ComplexVectorSpaceInterface&lt;D extends number, V extends ComplexVector = ComplexVectorOfDimension&lt;D&gt;&gt; </span>
+<span class="cstat-no" title="statement not covered" >    extends IdentifiableVectorSpace&lt;V&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    // readonly dimension: D;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.COMPLEX; </span>
-<span class="cstat-no" title="statement not covered" >    // defaultVect(): ComplexVectorOfDimension&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    // defaultVect(): V;</span>
 <span class="cstat-no" title="statement not covered" >    // toString(): string</span>
-<span class="cstat-no" title="statement not covered" >    // addDescriptors(a: ComplexVectorOfDimension&lt;D&gt;, b: ComplexVectorOfDimension&lt;D&gt;): ComplexVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    // subtractDescriptors(a: ComplexVectorOfDimension&lt;D&gt;, b: ComplexVectorOfDimension&lt;D&gt;): ComplexVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    dotDescriptors(a: ComplexVectorOfDimension&lt;D&gt;, b: ComplexVectorOfDimension&lt;D&gt;): number;</span>
-<span class="cstat-no" title="statement not covered" >    normDescriptor(v: ComplexVectorOfDimension&lt;D&gt;): number;</span>
+<span class="cstat-no" title="statement not covered" >    // addDescriptors(a: V, b: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    // subtractDescriptors(a: V, b: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    dotDescriptors(a: V, b: V): number;</span>
+<span class="cstat-no" title="statement not covered" >    normDescriptor(v: V): number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface ProjectiveVectorSpaceInterface&lt;D extends number&gt; </span>
-<span class="cstat-no" title="statement not covered" >    extends IdentifiableVectorSpace&lt;ProjectiveVectorOfDimension&lt;D&gt;&gt; {</span>
+<span class="cstat-no" title="statement not covered" >export interface ProjectiveVectorSpaceInterface&lt;D extends number, V extends ProjectiveVector = ProjectiveVectorOfDimension&lt;D&gt;&gt; </span>
+<span class="cstat-no" title="statement not covered" >    extends IdentifiableVectorSpace&lt;V&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    // readonly dimension: D;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.PROJECTIVE;</span>
 <span class="cstat-no" title="statement not covered" >    readonly weightManagement: WeightManagement;</span>
-<span class="cstat-no" title="statement not covered" >    // defaultVect(): ProjectiveVectorOfDimension&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    // defaultVect(): V;</span>
 <span class="cstat-no" title="statement not covered" >    // toString(): string</span>
-<span class="cstat-no" title="statement not covered" >    // addDescriptors(a: ProjectiveVectorOfDimension&lt;D&gt;, b: ProjectiveVectorOfDimension&lt;D&gt;): ProjectiveVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    // subtractDescriptors(a: ProjectiveVectorOfDimension&lt;D&gt;, b: ProjectiveVectorOfDimension&lt;D&gt;): ProjectiveVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    // dotDescriptors(a: ProjectiveVectorOfDimension&lt;D&gt;, b: ProjectiveVectorOfDimension&lt;D&gt;): number;</span>
-<span class="cstat-no" title="statement not covered" >    normDescriptor(v: ProjectiveVectorOfDimension&lt;D&gt;): number;</span>
+<span class="cstat-no" title="statement not covered" >    // addDescriptors(a: V, b: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    // subtractDescriptors(a: V, b: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    // dotDescriptors(a: V, b: V): number;</span>
+<span class="cstat-no" title="statement not covered" >    normDescriptor(v: V): number;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export interface ProjectiveComplexVectorSpaceInterface&lt;D extends number&gt; </span>
-<span class="cstat-no" title="statement not covered" >    extends IdentifiableVectorSpace&lt;ProjectiveComplexVectorOfDimension&lt;D&gt;&gt; {</span>
+<span class="cstat-no" title="statement not covered" >export interface ProjectiveComplexVectorSpaceInterface&lt;D extends number, V extends ProjectiveComplexVector = ProjectiveComplexVectorOfDimension&lt;D&gt;&gt; </span>
+<span class="cstat-no" title="statement not covered" >    extends IdentifiableVectorSpace&lt;V&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    // readonly dimension: D;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.PROJECTIVECOMPLEX; </span>
-<span class="cstat-no" title="statement not covered" >    // defaultVect(): ProjectiveComplexVectorOfDimension&lt;D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    // defaultVect(): V;</span>
 <span class="cstat-no" title="statement not covered" >    // toString(): string</span>
-<span class="cstat-no" title="statement not covered" >    // addDescriptors(a: ProjectiveComplexVectorOfDimension&lt;D&gt;, b: ProjectiveComplexVectorOfDimension&lt;D&gt;): ProjectiveComplexVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    // subtractDescriptors(a: ProjectiveComplexVectorOfDimension&lt;D&gt;, b: ProjectiveComplexVectorOfDimension&lt;D&gt;): ProjectiveComplexVectorOfDimension&lt;D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    // dotDescriptors(a: ProjectiveComplexVectorOfDimension&lt;D&gt;, b: ProjectiveComplexVectorOfDimension&lt;D&gt;): number;</span>
-<span class="cstat-no" title="statement not covered" >    // normDescriptor(v: ProjectiveComplexVectorOfDimension&lt;D&gt;): number;</span>
+<span class="cstat-no" title="statement not covered" >    // addDescriptors(a: V, b: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    // subtractDescriptors(a: V, b: V): V;</span>
+<span class="cstat-no" title="statement not covered" >    // dotDescriptors(a: V, b: V): number;</span>
+<span class="cstat-no" title="statement not covered" >    // normDescriptor(v: V): number;</span>
 <span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -403,7 +403,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T07:44:07.832Z
+                at 2026-04-02T18:35:07.447Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

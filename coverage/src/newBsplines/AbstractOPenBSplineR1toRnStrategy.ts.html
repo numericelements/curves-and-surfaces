@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/108</span>
+                <span class='fraction'>0/109</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/108</span>
+                <span class='fraction'>0/109</span>
             </div>
         
             
@@ -170,7 +170,9 @@
 <a name='L105'></a><a href='#L105'>105</a>
 <a name='L106'></a><a href='#L106'>106</a>
 <a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -282,6 +284,7 @@
 <span class="cstat-no" title="statement not covered" >import { AbstractBSplineR1toRn } from "./AbstractBSplineR1toRn";</span>
 <span class="cstat-no" title="statement not covered" >import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type } from "./BSplineR1toRnConstructorInterface";</span>
 <span class="cstat-no" title="statement not covered" >import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";</span>
+<span class="cstat-no" title="statement not covered" >import { CurvePoint } from "./CurveEntitiesTypes";</span>
 <span class="cstat-no" title="statement not covered" >import { NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";</span>
 <span class="cstat-no" title="statement not covered" >import { BSplineEvaluator, OpenBSplineR1toRn } from "./OpenBSplineR1toRn";</span>
 <span class="cstat-no" title="statement not covered" >import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";</span>
@@ -289,12 +292,12 @@
 <span class="cstat-no" title="statement not covered" >export abstract class AbstractOPenBSplineR1toRnStrategy&lt;V extends Vector, D extends number&gt; {</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    protected _isDirty: boolean = true;</span>
-<span class="cstat-no" title="statement not covered" >    private _evaluatorCache: Map&lt;string, BSplineEvaluator&gt; = new Map();</span>
+<span class="cstat-no" title="statement not covered" >    private _evaluatorCache: Map&lt;string, BSplineEvaluator&lt;V, D&gt;&gt; = new Map();</span>
 <span class="cstat-no" title="statement not covered" >    // protected openBSplineR1toRn: OpenBSplineR1toRn&lt;V, D&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    protected _defaultAlgorithm: string = 'coxdeboor';</span>
 <span class="cstat-no" title="statement not covered" >    // strategy owns its own working copy: mutable, derived from the immutable curve</span>
 <span class="cstat-no" title="statement not covered" >    protected readonly _controlPoints: ReadonlyArray&lt;IVector&lt;D, V&gt;&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    protected readonly _knots: readonly number[];</span>
+<span class="cstat-no" title="statement not covered" >    // protected readonly _knots: readonly number[];</span>
 <span class="cstat-no" title="statement not covered" >    protected readonly _degree: number;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    // constructor(curveParameters: BSpline_type, openBSplineR1toRn: OpenBSplineR1toRn&lt;V, D&gt;) {</span>
@@ -305,7 +308,7 @@
 <span class="cstat-no" title="statement not covered" >        // initialize from immutable curve getters (read only, no write)</span>
 <span class="cstat-no" title="statement not covered" >        // this.initializeControlPolygonAndKnots();</span>
 <span class="cstat-no" title="statement not covered" >        this._controlPoints = curve.controlPoints;</span>
-<span class="cstat-no" title="statement not covered" >        this._knots = curve.knots;</span>
+<span class="cstat-no" title="statement not covered" >        // this._knots = curve.knots;</span>
 <span class="cstat-no" title="statement not covered" >        this._degree = curve.degree;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -347,7 +350,7 @@
 <span class="cstat-no" title="statement not covered" >    //     }</span>
 <span class="cstat-no" title="statement not covered" >    // }</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    evaluateWithAlgorithm(u: number, algorithmName: string): RealVector {</span>
+<span class="cstat-no" title="statement not covered" >    evaluateWithAlgorithm(u: number, algorithmName: string): CurvePoint&lt;V, D&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        const evaluator = this.getEvaluatorView(algorithmName);</span>
 <span class="cstat-no" title="statement not covered" >        return evaluator.evaluate(u);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
@@ -358,15 +361,15 @@
 <span class="cstat-no" title="statement not covered" >        this.invalidate();</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    abstract evaluate(u: number): ReadonlyArray&lt;number&gt;;</span>
+<span class="cstat-no" title="statement not covered" >    abstract evaluate(u: number): CurvePoint&lt;V, D&gt;;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    // evaluate(u: number): RealVector {</span>
 <span class="cstat-no" title="statement not covered" >    //     return this.evaluateWithAlgorithm(u, this._defaultAlgorithm);</span>
 <span class="cstat-no" title="statement not covered" >    // }</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    protected abstract createEvaluator(algorithmName: string): BSplineEvaluator;</span>
+<span class="cstat-no" title="statement not covered" >    protected abstract createEvaluator(algorithmName: string): BSplineEvaluator&lt;V, D&gt;;</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    getEvaluatorView&lt;T extends BSplineEvaluator&gt;(algorithmName: string): T {</span>
+<span class="cstat-no" title="statement not covered" >    getEvaluatorView&lt;T extends BSplineEvaluator&lt;V, D&gt;&gt;(algorithmName: string): T {</span>
 <span class="cstat-no" title="statement not covered" >        if (this._isDirty || !this._evaluatorCache.has(algorithmName)) {</span>
 <span class="cstat-no" title="statement not covered" >            const evaluator = this.createEvaluator(algorithmName);</span>
 <span class="cstat-no" title="statement not covered" >            this._evaluatorCache.set(algorithmName, evaluator);</span>
@@ -391,7 +394,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T07:44:07.832Z
+                at 2026-04-02T18:35:07.447Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

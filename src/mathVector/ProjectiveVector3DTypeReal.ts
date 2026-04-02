@@ -16,14 +16,14 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4> 
+export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4, ProjectiveVector3D> 
     implements IVector<4, ProjectiveVector3D>
 {
 
     private static readonly DIMENSION = 4 as const;
     private static readonly _vectorType = PROJECTIVEVECTOR3D;
     private readonly _descriptor: ProjectiveVector3D;
-    protected readonly _vectorSpace: ProjectiveVectorSpace<4>;
+    protected readonly _vectorSpace: ProjectiveVectorSpace<4, ProjectiveVector3D>;
     
     constructor();
     constructor(vectorSpace: ProjectiveVectorSpace<4>);
@@ -84,7 +84,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4>
     
     get dimension(): 4 { return ProjectiveVector3DTypeReal.DIMENSION; }
     get vectorType(): string { return ProjectiveVector3DTypeReal._vectorType; }
-    get vectorSpace(): ProjectiveVectorSpace<4> { return this._vectorSpace; }
+    get vectorSpace(): ProjectiveVectorSpace<4, ProjectiveVector3D> { return this._vectorSpace; }
     get coordinates(): number[] { return this.homogeneousCoordinates; }
     get descriptor(): ProjectiveVector3D { return cloneDescriptorProjectiveRealVector3D(this._descriptor); }
 

@@ -8,7 +8,7 @@ import type { WeightManager } from "./WeightManager";
 import { createProjectiveVector3DDescriptor, createRealVector3DDescriptor } from "./VectorDescriptorFactory";
 
 
-export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceStrategy<4> {
+export class ProjectiveVectorSpace4DStrategy implements IProjectiveVectorSpaceStrategy<4, ProjectiveVector3D> {
     // Implementation for 4D vectors
 
     // getWeight(v: ProjectiveVector3D): Real {

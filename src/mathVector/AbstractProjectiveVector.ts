@@ -7,20 +7,20 @@ import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
 import type { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
 import type { IProjectiveComplexVector, IProjectiveVector, IRealVector, IVector } from "./Vector";
-import type { ProjectiveVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { ProjectiveVector, ProjectiveVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Weight } from "./Weight";
 
 /**
  * Abstract base for projective vectors
  */
-export abstract class AbstractProjectiveVector<D extends number> 
-    extends AbstractVector<D, ProjectiveVectorOfDimension<D>, ProjectiveVectorSpace<D>>
-    implements IProjectiveVector<D>
+export abstract class AbstractProjectiveVector<D extends number, V extends ProjectiveVector = ProjectiveVectorOfDimension<D>> 
+    extends AbstractVector<D, V, ProjectiveVectorSpace<D, V>>
+    implements IProjectiveVector<D, V>
 {
 
     private static readonly _spaceType = VectorSpaceType.PROJECTIVE;
-    protected abstract readonly _vectorSpace: ProjectiveVectorSpace<D>;
+    protected abstract readonly _vectorSpace: ProjectiveVectorSpace<D, V>;
     
     get spaceType(): VectorSpaceType.PROJECTIVE { return AbstractProjectiveVector._spaceType; }
 
@@ -29,8 +29,8 @@ export abstract class AbstractProjectiveVector<D extends number>
     get y(): number { return this.getCoordinate(1) };
     get w(): number { return this.getCoordinate(this.dimension - 1) };
 
-    abstract get vectorSpace(): ProjectiveVectorSpace<D>;
-    abstract get descriptor(): ProjectiveVectorOfDimension<D>;
+    abstract get vectorSpace(): ProjectiveVectorSpace<D, V>;
+    abstract get descriptor(): V;
     abstract get coordinates(): number[];
     abstract get weight(): Weight;
 
@@ -41,21 +41,21 @@ export abstract class AbstractProjectiveVector<D extends number>
     abstract homogeneousTransform(tolerance?: number): this;
     abstract toString(): string;
 
-    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveVectorSpace<D>): void {
+    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveVectorSpace<D, V>): void {
         if(vSpace.dimension() !== vectorDim) {
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
     }
 
-    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ProjectiveVectorSpace<D>): void {
+    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ProjectiveVectorSpace<D, V>): void {
         if(vSpace !== undefined && (vSpace.spaceType !== VectorSpaceType.PROJECTIVE || vSpace.dimension() !== vectorDim)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
     }
 
-    private dotForGeometricProperties(other: IProjectiveVector<D>): number {
+    private dotForGeometricProperties(other: IProjectiveVector<D, V>): number {
         let dotProduct = 0;
         for (let i = 0; i < this.dimension; i++) {
             dotProduct += this.coordinates[i] * other.coordinates[i];
@@ -106,11 +106,11 @@ export abstract class AbstractProjectiveVector<D extends number>
         return this.createVectorFromDescriptor(result);
     }
 
-    distanceTo(other: IProjectiveVector<D>): number {
+    distanceTo(other: IProjectiveVector<D, V>): number {
         return this.affineDistance(other);
     }
 
-    affineDistance(other: IProjectiveVector<D>): number {
+    affineDistance(other: IProjectiveVector<D, V>): number {
         // Denormalization then compute Euclidean distance
         const realVector1 = this.applyHomogeneousTransformation();
         const realVector2 = other.homogeneousTransform().toRealVector().coordinates;
@@ -123,7 +123,7 @@ export abstract class AbstractProjectiveVector<D extends number>
         return Math.sqrt(sum);
     }
 
-    private ambientDistance(other: IProjectiveVector<D>): number {
+    private ambientDistance(other: IProjectiveVector<D, V>): number {
         // Distance between projective vectors (without denormalization)
         let sum = 0;
         for (let i = 0; i <= this.dimension; i++) {
@@ -142,7 +142,7 @@ export abstract class AbstractProjectiveVector<D extends number>
         return this.homogeneousCoordinates;
     }
 
-    isParallel(other: IProjectiveVector<D>, angularTolerance?: number): boolean {
+    isParallel(other: IProjectiveVector<D, V>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();
@@ -156,7 +156,7 @@ export abstract class AbstractProjectiveVector<D extends number>
         return angle <= angularTolerance;
     }
 
-    isOrthogonal(other: IProjectiveVector<D>, angularTolerance?: number): boolean {
+    isOrthogonal(other: IProjectiveVector<D, V>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();

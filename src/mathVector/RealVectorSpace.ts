@@ -21,7 +21,7 @@ import { Weight } from "./Weight";
  * Implementation of a real vector space
  */
 
-export class RealVectorSpace<D extends number = number> implements RealVectorSpaceInterface<D> {
+export class RealVectorSpace<D extends number = number, V extends RealVector = RealVectorOfDimension<D>> implements RealVectorSpaceInterface<D, V> {
 
     private static readonly _spaceType = VectorSpaceType.REAL as const;
     private readonly _id: string;
@@ -29,7 +29,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
     private readonly _isDefault: boolean;
 
     protected readonly dim: D;
-    protected readonly strategy: IRealVectorSpaceStrategy<D>;
+    protected readonly strategy: IRealVectorSpaceStrategy<D, V>;
 
     
     constructor(dimension: D, isDefault: boolean = false, name?: string) {
@@ -46,12 +46,12 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         this.strategy = this.createStrategy(dimension);
     }
 
-    private createStrategy(dimension: number): IRealVectorSpaceStrategy<any> {
+    private createStrategy(dimension: number): IRealVectorSpaceStrategy<D, V> {
         switch (dimension) {
-            case MIN_DIMENSION_REALVECTORSPACE: return new RealVectorSpace1DStrategy();
-            case 2: return new RealVectorSpace2DStrategy();
-            case 3: return new RealVectorSpace3DStrategy();
-            case MAX_DIMENSION_REALVECTORSPACE: return new RealVectorSpace4DStrategy();
+            case MIN_DIMENSION_REALVECTORSPACE: return new RealVectorSpace1DStrategy() as unknown as IRealVectorSpaceStrategy<D, V>;
+            case 2: return new RealVectorSpace2DStrategy() as unknown as IRealVectorSpaceStrategy<D, V>;
+            case 3: return new RealVectorSpace3DStrategy() as unknown as IRealVectorSpaceStrategy<D, V>;
+            case MAX_DIMENSION_REALVECTORSPACE: return new RealVectorSpace4DStrategy() as unknown as IRealVectorSpaceStrategy<D, V>;
             default: 
         }
         const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -84,11 +84,11 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
       return this.strategy.areSameDimension(a, b);
     }
 
-    isInVectorSpace(v: RealVectorOfDimension<D>): v is RealVectorOfDimension<D> {
+    isInVectorSpace(v: V): v is V {
       return this.strategy.isInVectorSpace(v);
     }
 
-    createVector(coordinates: Real[]): RealVectorOfDimension<D> {
+    createVector(coordinates: Real[]): V {
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());
@@ -97,7 +97,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         return vect;
     }
 
-    defaultVect(): RealVectorOfDimension<D> {
+    defaultVect(): V {
         return this.strategy.defaultVect();
     }
 
@@ -110,7 +110,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
     //     return other instanceof RealVectorSpace && this.isSameSpace(other);
     // }
     
-    addDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D> {
+    addDescriptors(a: V, b: V): V {
         try { 
             return this.strategy.addDescriptors(a, b);
         } catch (error) {
@@ -123,7 +123,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         }
     }
 
-    subtractDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVectorOfDimension<D> {
+    subtractDescriptors(a: V, b: V): V {
         try {
             return this.strategy.subtractDescriptors(a, b);
         } catch (error) {
@@ -136,7 +136,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         }
     }
 
-    scaleDescriptor(scalar: Real, v: RealVectorOfDimension<D>): RealVectorOfDimension<D> {
+    scaleDescriptor(scalar: Real, v: V): V {
         try {
             return this.strategy.scaleDescriptor(scalar, v);
         } catch(error) {
@@ -145,7 +145,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         }
     }
 
-    cloneVector(v: RealVectorOfDimension<D>): RealVectorOfDimension<D> {
+    cloneVector(v: V): V {
         try{
             return this.strategy.cloneVector(v);
         } catch (error) {
@@ -154,7 +154,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         }
     }
 
-    normDescriptor(v: RealVectorOfDimension<D>): number {
+    normDescriptor(v: V): number {
         try {
             return this.strategy.normDescriptor(v);
         } catch (error) {
@@ -163,7 +163,7 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         }
     }
 
-    normalizeDescriptor(v: RealVectorOfDimension<D>): RealVectorOfDimension<D> {
+    normalizeDescriptor(v: V): V {
         try {
             return this.strategy.normalizeDescriptor(v);
         } catch(error) {
@@ -172,11 +172,11 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         }
     }
 
-    crossProductRaw(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): RealVector {
+    crossProductRaw(a: V, b: V): RealVector {
             return this.strategy.crossProductRaw(a, b);
     }
 
-    dotDescriptors(a: RealVectorOfDimension<D>, b: RealVectorOfDimension<D>): number {
+    dotDescriptors(a: V, b: V): number {
         try {
             return this.strategy.dotDescriptors(a, b);
         } catch(error) {
@@ -189,11 +189,11 @@ export class RealVectorSpace<D extends number = number> implements RealVectorSpa
         }
     }
 
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVectorOfDimension<D>, weight: Weight = new Weight()): ProjectiveVector {
+    fromRealVectorSpaceToProjectiveVectorSpace(v: V, weight: Weight = new Weight()): ProjectiveVector {
       return this.strategy.fromRealVectorSpaceToProjectiveVectorSpace(v, weight);
     }
 
-    fromRealVectorSpaceToComplexVectorSpace(v: RealVectorOfDimension<D>): ComplexVector {
+    fromRealVectorSpaceToComplexVectorSpace(v: V): ComplexVector {
       return this.strategy.fromRealVectorSpaceToComplexVectorSpace(v);
     }
 

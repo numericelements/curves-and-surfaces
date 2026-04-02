@@ -3,7 +3,7 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractVector } from "./AbstractVector";
 import type { RealVectorSpace } from "./RealVectorSpace";
 import type { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector, IVector } from "./Vector";
-import type { RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { RealVector, RealVectorOfDimension } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
@@ -13,34 +13,34 @@ import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
  * Abstract base for real vectors
  */
 
-export abstract class AbstractRealVector<D extends number> 
-    extends AbstractVector<D, RealVectorOfDimension<D>, RealVectorSpace<D>> 
-    implements IRealVector<D>
+export abstract class AbstractRealVector<D extends number, V extends RealVector = RealVectorOfDimension<D>> 
+    extends AbstractVector<D, V, RealVectorSpace<D, V>> 
+    implements IRealVector<D, V>
     {
     
     private static readonly _spaceType = VectorSpaceType.REAL;
 
-    protected abstract readonly _vectorSpace: RealVectorSpace<D>;
+    protected abstract readonly _vectorSpace: RealVectorSpace<D, V>;
 
     get spaceType(): VectorSpaceType.REAL { return AbstractRealVector._spaceType; }
     
     // Default implementations for coordinate accessors
     get x(): number { return this.getCoordinate(0) }
 
-    abstract get vectorSpace(): RealVectorSpace<D>;   
-    abstract get descriptor(): RealVectorOfDimension<D>;
+    abstract get vectorSpace(): RealVectorSpace<D, V>;   
+    abstract get descriptor(): V;
     abstract get coordinates(): number[];
     abstract getCoordinate(index: number): number;
     abstract clone(): this;
 
-    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: RealVectorSpace<D>): void {
+    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: RealVectorSpace<D, V>): void {
         if(vSpace.dimension() !== vectorDim) {
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
     }
 
-    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: RealVectorSpace<D>): void {
+    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: RealVectorSpace<D, V>): void {
         if(vSpace !== undefined && (vSpace.spaceType !== VectorSpaceType.REAL || vSpace.dimension() !== vectorDim)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
@@ -52,11 +52,11 @@ export abstract class AbstractRealVector<D extends number>
         return this.createVectorFromDescriptor(result);
     }
 
-    distanceTo(other: IRealVector<D>): number {
+    distanceTo(other: IRealVector<D, V>): number {
         return this.affineDistance(other);
     }
 
-    affineDistance(other: IRealVector<D>): number {
+    affineDistance(other: IRealVector<D, V>): number {
         let sum = 0;
         const diffrence = this.subtract(other);
         for (let i = 0; i < this.dimension; i++) {
@@ -74,7 +74,7 @@ export abstract class AbstractRealVector<D extends number>
         return this.vectorType + `(${this.toArray().join(', ')})` + ` ` + this._vectorSpace.toString();
     }
 
-    isParallel(other: IRealVector<D>, angularTolerance?: number): boolean {
+    isParallel(other: IRealVector<D, V>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();
@@ -88,7 +88,7 @@ export abstract class AbstractRealVector<D extends number>
         return angle <= angularTolerance;
     }
 
-    isOrthogonal(other: IRealVector<D>, angularTolerance?: number): boolean {
+    isOrthogonal(other: IRealVector<D, V>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if(this.dimension === 1) {
             const error = sendRangeErrorMessage(this.constructor.name, 'isOrthogonal', EM_ISORTHOGONAL_NOT_APPLICABLE);

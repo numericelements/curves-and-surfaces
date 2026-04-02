@@ -21,14 +21,14 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3> 
+export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3, ProjectiveVector2D> 
      implements IVector<3, ProjectiveVector2D>
 {
 
     private static readonly DIMENSION = 3 as const;
     private static readonly _vectorType = PROJECTIVEVECTOR2D;
     private readonly _descriptor: ProjectiveVector2D;
-    protected readonly _vectorSpace: ProjectiveVectorSpace<3>;
+    protected readonly _vectorSpace: ProjectiveVectorSpace<3, ProjectiveVector2D>;
     
     constructor();
     constructor(vectorSpace: ProjectiveVectorSpace<3>);
@@ -89,7 +89,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
 
     get dimension(): 3 { return ProjectiveVector2DTypeReal.DIMENSION; }
     get vectorType(): string { return ProjectiveVector2DTypeReal._vectorType; }
-    get vectorSpace(): ProjectiveVectorSpace<3> { return this._vectorSpace; }
+    get vectorSpace(): ProjectiveVectorSpace<3, ProjectiveVector2D> { return this._vectorSpace; }
     get coordinates(): number[] { return this.homogeneousCoordinates; }
     get descriptor(): ProjectiveVector2D { return cloneDescriptorProjectiveRealVector2D(this._descriptor); }
 

@@ -13,14 +13,14 @@ import type { RealVector4D } from "./VectorSpaceConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
-export class Vector4DTypeReal extends AbstractRealVector<4> 
+export class Vector4DTypeReal extends AbstractRealVector<4, RealVector4D> 
      implements IVector<4, RealVector4D>
 {
 
     private static readonly DIMENSION = 4 as const;
     private static readonly _vectorType = REALVECTOR4D;
     private readonly _descriptor: RealVector4D;
-    protected readonly _vectorSpace: RealVectorSpace<4>;
+    protected readonly _vectorSpace: RealVectorSpace<4, RealVector4D>;
     
     constructor();
     constructor(vectorSpace: RealVectorSpace<4>);
@@ -63,7 +63,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4>
 
     get dimension(): 4 { return Vector4DTypeReal.DIMENSION; }
     get vectorType(): string { return Vector4DTypeReal._vectorType; }
-    get vectorSpace(): RealVectorSpace<4> { return this._vectorSpace; }
+    get vectorSpace(): RealVectorSpace<4, RealVector4D> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
     get descriptor(): RealVector4D { return copyDescriptorRealVector4D(this._descriptor); }
     get y(): number { return this.getCoordinate(1); }

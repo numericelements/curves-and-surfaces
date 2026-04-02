@@ -65,10 +65,10 @@ export interface IVector <
  * Real vector specific interface
  */
 
-export interface IRealVector<D extends number = number> 
-    extends IVector<D, RealVectorOfDimension<D>> 
+export interface IRealVector<D extends number = number, V extends RealVector = RealVectorOfDimension<D>> 
+    extends IVector<D, V> 
     {
-    readonly vectorSpace: RealVectorSpace<D>;
+    readonly vectorSpace: RealVectorSpace<D, V>;
     readonly spaceType: VectorSpaceType.REAL;
     readonly coordinates: number[];
     // Real vector specific accessors
@@ -87,10 +87,10 @@ export interface IRealVector<D extends number = number>
  * Complex vector specific interface
  */
 
-export interface IComplexVector<D extends number = number> 
-    extends IVector<D, ComplexVectorOfDimension<D>> 
+export interface IComplexVector<D extends number = number, V extends ComplexVector = ComplexVectorOfDimension<D>> 
+    extends IVector<D, V> 
 {
-    readonly vectorSpace: ComplexVectorSpace<D>;
+    readonly vectorSpace: ComplexVectorSpace<D, V>;
     readonly spaceType: VectorSpaceType.COMPLEX;
     readonly coordinates: Complex[];
     // Complex vector specific accessors
@@ -108,10 +108,10 @@ export interface IComplexVector<D extends number = number>
  * Projective vector specific interface
  */
 
-export interface IProjectiveVector<D extends number = number>
-    extends IVector<D, ProjectiveVectorOfDimension<D>> 
+export interface IProjectiveVector<D extends number = number, V extends ProjectiveVector = ProjectiveVectorOfDimension<D>>
+    extends IVector<D, V> 
 {
-    readonly vectorSpace: ProjectiveVectorSpace<D>;
+    readonly vectorSpace: ProjectiveVectorSpace<D, V>;
     readonly spaceType: VectorSpaceType.PROJECTIVE;
     readonly coordinates: number[];
     readonly x: number;
@@ -126,10 +126,10 @@ export interface IProjectiveVector<D extends number = number>
     toProjectiveComplexVector(projectiveComplexVectorSpace?: ProjectiveComplexVectorSpace<any>): IProjectiveComplexVector<any>;
 }
 
-export interface IProjectiveComplexVector<D extends number = number>
-    extends IVector<D, ProjectiveComplexVectorOfDimension<D>>
+export interface IProjectiveComplexVector<D extends number = number, V extends ProjectiveComplexVector = ProjectiveComplexVectorOfDimension<D>>
+    extends IVector<D, V>
 {
-    readonly vectorSpace: ProjectiveComplexVectorSpace<D>;
+    readonly vectorSpace: ProjectiveComplexVectorSpace<D, V>;
     readonly spaceType: VectorSpaceType.PROJECTIVECOMPLEX;
     readonly coordinates: Complex[];
     readonly weight: ComplexWeight;

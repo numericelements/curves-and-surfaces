@@ -10,7 +10,7 @@ import { Weight } from "./Weight";
 import type { WeightManager } from "./WeightManager";
 
 
-export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceStrategy<3> {
+export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceStrategy<3, ProjectiveVector2D> {
     // Implementation for 3D vectors
 
     // getWeight(v: ProjectiveVector2D): Real {

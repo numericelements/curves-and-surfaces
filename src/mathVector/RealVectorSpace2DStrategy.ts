@@ -6,7 +6,7 @@ import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2> {
+export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2, RealVector2D> {
     readonly dimension = 2 as const;
 
     // Implementation for 2D vectors

@@ -5,7 +5,7 @@ import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { createRealVector4DDescriptor } from "./VectorDescriptorFactory";
 
-export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4> {
+export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4, RealVector4D> {
 
     readonly dimension = 4 as const;
 

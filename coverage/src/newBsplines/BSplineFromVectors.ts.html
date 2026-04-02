@@ -229,79 +229,79 @@
 <span class="cstat-no" title="statement not covered" >import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "./KnotSequenceConstructorInterface";</span>
 <span class="cstat-no" title="statement not covered" >import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export class BSplineFromVectors&lt;V extends Vector, D extends number&gt;</span>
-<span class="cstat-no" title="statement not covered" >    extends AbstractBSplineR1toRn&lt;V, D&gt;</span>
-<span class="cstat-no" title="statement not covered" >{</span>
-<span class="cstat-no" title="statement not covered" >    protected readonly _curveOrigin: number;</span>
-<span class="cstat-no" title="statement not covered" >    protected readonly strategy?: AbstractOPenBSplineR1toRnStrategy&lt;V, D&gt;;</span>
-<span class="cstat-no" title="statement not covered" >    private readonly _params: BSplineFromVectorParams&lt;V, D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >// export class BSplineFromVectors&lt;V extends Vector, D extends number&gt;</span>
+<span class="cstat-no" title="statement not covered" >//     extends AbstractBSplineR1toRn&lt;V, D&gt;</span>
+<span class="cstat-no" title="statement not covered" >// {</span>
+<span class="cstat-no" title="statement not covered" >//     protected readonly _curveOrigin: number;</span>
+<span class="cstat-no" title="statement not covered" >//     protected readonly strategy?: AbstractOPenBSplineR1toRnStrategy&lt;V, D&gt;;</span>
+<span class="cstat-no" title="statement not covered" >//     private readonly _params: BSplineFromVectorParams&lt;V, D&gt;;</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    constructor(params: BSplineFromVectorParams&lt;V, D&gt;) {</span>
-<span class="cstat-no" title="statement not covered" >        const { controlPolygon, knotSequence } = params;</span>
+<span class="cstat-no" title="statement not covered" >//     constructor(params: BSplineFromVectorParams&lt;V, D&gt;) {</span>
+<span class="cstat-no" title="statement not covered" >//         const { controlPolygon, knotSequence } = params;</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >        // 2) derive degree (never ask user)</span>
-<span class="cstat-no" title="statement not covered" >        const degree = deriveDegree(knotSequence.length(), controlPolygon.length);</span>
+<span class="cstat-no" title="statement not covered" >//         // 2) derive degree (never ask user)</span>
+<span class="cstat-no" title="statement not covered" >//         const degree = deriveDegree(knotSequence.length(), controlPolygon.length);</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >        // 3) infer vector space from first control point (non-mutating)</span>
-<span class="cstat-no" title="statement not covered" >        const firstCP = controlPolygon.controlPoints[0];</span>
-<span class="cstat-no" title="statement not covered" >        const vectorSpace = firstCP.vectorSpace.spaceType as VectorSpaceType;</span>
-<span class="cstat-no" title="statement not covered" >        const spaceDimension = firstCP.dimension as D;</span>
+<span class="cstat-no" title="statement not covered" >//         // 3) infer vector space from first control point (non-mutating)</span>
+<span class="cstat-no" title="statement not covered" >//         const firstCP = controlPolygon.controlPoints[0];</span>
+<span class="cstat-no" title="statement not covered" >//         const vectorSpace = firstCP.vectorSpace.spaceType as VectorSpaceType;</span>
+<span class="cstat-no" title="statement not covered" >//         const spaceDimension = firstCP.dimension as D;</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >        super(controlPolygon, knotSequence.distinctAbscissae(), degree, vectorSpace, spaceDimension);</span>
+<span class="cstat-no" title="statement not covered" >//         super(controlPolygon, knotSequence, degree, vectorSpace, spaceDimension);</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >        this._params = params;</span>
-<span class="cstat-no" title="statement not covered" >        this._curveOrigin = knotSequence.distinctAbscissae()[knotSequence.indexKnotOrigin.knotIndex];</span>
+<span class="cstat-no" title="statement not covered" >//         this._params = params;</span>
+<span class="cstat-no" title="statement not covered" >//         this._curveOrigin = knotSequence.distinctAbscissae()[knotSequence.indexKnotOrigin.knotIndex];</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >        // 4) inject evaluator strategy</span>
-<span class="cstat-no" title="statement not covered" >        AlgorithmBootstrap.initialize();</span>
-<span class="cstat-no" title="statement not covered" >        const algorithmName = AlgorithmBootstrap.getRecommendedAlgorithm(</span>
-<span class="cstat-no" title="statement not covered" >            vectorSpace,</span>
-<span class="cstat-no" title="statement not covered" >            params.useCase ?? "general"</span>
-<span class="cstat-no" title="statement not covered" >        );</span>
-<span class="cstat-no" title="statement not covered" >        // this.strategy = AlgorithmBootstrap</span>
-<span class="cstat-no" title="statement not covered" >        //     .getInstance()</span>
-<span class="cstat-no" title="statement not covered" >        //     .getRecommendedAlgorithm(vectorSpace, spaceDimension, this);</span>
-<span class="cstat-no" title="statement not covered" >                // TODO: assign this.strategy via AlgorithmRegistry.createEvaluator/create(...) once wiring is finalized</span>
-<span class="cstat-no" title="statement not covered" >        void algorithmName;</span>
-<span class="cstat-no" title="statement not covered" >        void spaceDimension;</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >//         // 4) inject evaluator strategy</span>
+<span class="cstat-no" title="statement not covered" >//         AlgorithmBootstrap.initialize();</span>
+<span class="cstat-no" title="statement not covered" >//         const algorithmName = AlgorithmBootstrap.getRecommendedAlgorithm(</span>
+<span class="cstat-no" title="statement not covered" >//             vectorSpace,</span>
+<span class="cstat-no" title="statement not covered" >//             params.useCase ?? "general"</span>
+<span class="cstat-no" title="statement not covered" >//         );</span>
+<span class="cstat-no" title="statement not covered" >//         // this.strategy = AlgorithmBootstrap</span>
+<span class="cstat-no" title="statement not covered" >//         //     .getInstance()</span>
+<span class="cstat-no" title="statement not covered" >//         //     .getRecommendedAlgorithm(vectorSpace, spaceDimension, this);</span>
+<span class="cstat-no" title="statement not covered" >//                 // TODO: assign this.strategy via AlgorithmRegistry.createEvaluator/create(...) once wiring is finalized</span>
+<span class="cstat-no" title="statement not covered" >//         void algorithmName;</span>
+<span class="cstat-no" title="statement not covered" >//         void spaceDimension;</span>
+<span class="cstat-no" title="statement not covered" >//     }</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    </span>
-<span class="cstat-no" title="statement not covered" >    withControlPolygon(controlPolygon: ControlPolygon&lt;V, D&gt;): BSplineFromVectors&lt;V, D&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        return new BSplineFromVectors&lt;V, D&gt;({</span>
-<span class="cstat-no" title="statement not covered" >            ...this._params,</span>
-<span class="cstat-no" title="statement not covered" >            controlPolygon</span>
-<span class="cstat-no" title="statement not covered" >        });</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >//     withControlPolygon(controlPolygon: ControlPolygon&lt;V, D&gt;): BSplineFromVectors&lt;V, D&gt; {</span>
+<span class="cstat-no" title="statement not covered" >//         return new BSplineFromVectors&lt;V, D&gt;({</span>
+<span class="cstat-no" title="statement not covered" >//             ...this._params,</span>
+<span class="cstat-no" title="statement not covered" >//             controlPolygon</span>
+<span class="cstat-no" title="statement not covered" >//         });</span>
+<span class="cstat-no" title="statement not covered" >//     }</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    withKnots(knots: number[]): BSplineFromVectors&lt;V, D&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        const knotSequence = new IncreasingOpenKnotSequenceOpenCurve(this.degree + 1, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots});</span>
-<span class="cstat-no" title="statement not covered" >        return new BSplineFromVectors&lt;V, D&gt;({</span>
-<span class="cstat-no" title="statement not covered" >            ...this._params,</span>
-<span class="cstat-no" title="statement not covered" >            // knotSequence: this._params.knotSequence.withKnots(knots)</span>
-<span class="cstat-no" title="statement not covered" >            knotSequence</span>
-<span class="cstat-no" title="statement not covered" >        });</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+<span class="cstat-no" title="statement not covered" >//     withKnots(knots: number[]): BSplineFromVectors&lt;V, D&gt; {</span>
+<span class="cstat-no" title="statement not covered" >//         const knotSequence = new IncreasingOpenKnotSequenceOpenCurve(this.degree + 1, {type: INCREASINGOPENKNOTSEQUENCE, knots: knots});</span>
+<span class="cstat-no" title="statement not covered" >//         return new BSplineFromVectors&lt;V, D&gt;({</span>
+<span class="cstat-no" title="statement not covered" >//             ...this._params,</span>
+<span class="cstat-no" title="statement not covered" >//             // knotSequence: this._params.knotSequence.withKnots(knots)</span>
+<span class="cstat-no" title="statement not covered" >//             knotSequence</span>
+<span class="cstat-no" title="statement not covered" >//         });</span>
+<span class="cstat-no" title="statement not covered" >//     }</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    evaluate(u: number): readonly number[] {</span>
-<span class="cstat-no" title="statement not covered" >        if (!this.strategy) {</span>
-<span class="cstat-no" title="statement not covered" >            throw new Error("BSplineFromVectors: strategy is not initialized yet.");</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >        const result = this.strategy.evaluate(u);</span>
-<span class="cstat-no" title="statement not covered" >        if(typeof result === "number") {</span>
-<span class="cstat-no" title="statement not covered" >            return [result];</span>
-<span class="cstat-no" title="statement not covered" >        } else {</span>
-<span class="cstat-no" title="statement not covered" >            return result;</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" >//     evaluate(u: number): readonly number[] {</span>
+<span class="cstat-no" title="statement not covered" >//         if (!this.strategy) {</span>
+<span class="cstat-no" title="statement not covered" >//             throw new Error("BSplineFromVectors: strategy is not initialized yet.");</span>
+<span class="cstat-no" title="statement not covered" >//         }</span>
+<span class="cstat-no" title="statement not covered" >//         const result = this.strategy.evaluate(u);</span>
+<span class="cstat-no" title="statement not covered" >//         if(typeof result === "number") {</span>
+<span class="cstat-no" title="statement not covered" >//             return [result];</span>
+<span class="cstat-no" title="statement not covered" >//         } else {</span>
+<span class="cstat-no" title="statement not covered" >//             return result;</span>
+<span class="cstat-no" title="statement not covered" >//         }</span>
+<span class="cstat-no" title="statement not covered" >//     }</span>
+<span class="cstat-no" title="statement not covered" >// }</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T07:44:07.832Z
+                at 2026-04-02T18:35:07.447Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

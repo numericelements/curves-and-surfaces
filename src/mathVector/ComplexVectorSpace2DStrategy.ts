@@ -6,7 +6,7 @@ import type { IComplex, ComplexVector, ComplexVector2D, IComplexWeight } from ".
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
-export class ComplexVectorSpace2DStrategy implements IComplexVectorSpaceStrategy<2> {
+export class ComplexVectorSpace2DStrategy implements IComplexVectorSpaceStrategy<2, ComplexVector2D> {
 
     // Implementation for 2D vectors
 

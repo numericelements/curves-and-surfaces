@@ -20,14 +20,14 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class Vector2DTypeReal extends AbstractRealVector<2> 
+export class Vector2DTypeReal extends AbstractRealVector<2, RealVector2D> 
     implements IVector<2, RealVector2D>
 {
 
     private static readonly DIMENSION = 2 as const;
     private static readonly _vectorType = REALVECTOR2D;
     private readonly _descriptor: RealVector2D;
-    protected readonly _vectorSpace: RealVectorSpace<2>;
+    protected readonly _vectorSpace: RealVectorSpace<2, RealVector2D>;
     
     constructor();
     constructor(vectorSpace: RealVectorSpace<2>);
@@ -70,7 +70,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2>
 
     get dimension(): 2 { return Vector2DTypeReal.DIMENSION; }
     get vectorType(): string { return Vector2DTypeReal._vectorType; }
-    get vectorSpace(): RealVectorSpace<2> { return this._vectorSpace; }
+    get vectorSpace(): RealVectorSpace<2, RealVector2D> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
     get descriptor(): RealVector2D { return copyDescriptorRealVector2D(this._descriptor); }
     get y(): number { return this.getCoordinate(Vector2DTypeReal.DIMENSION - 1); }

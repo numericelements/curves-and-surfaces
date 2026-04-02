@@ -6,7 +6,7 @@ import { Weight } from "./Weight";
 import { createProjectiveVector3DDescriptor, createRealVector3DDescriptor, createWeightDescriptor } from "./VectorDescriptorFactory";
 
   
-export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3> {
+export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3, RealVector3D> {
 
     readonly dimension = 3 as const;
 
