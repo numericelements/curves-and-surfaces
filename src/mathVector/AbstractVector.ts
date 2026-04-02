@@ -20,7 +20,7 @@ export abstract class AbstractVector <
     
     protected abstract readonly _vectorSpace: VS;
 
-    abstract get dimension(): number;
+    abstract get dimension(): D;
     abstract get vectorType(): string;
     abstract get vectorSpace(): VS;
     abstract get spaceType(): VectorSpaceType;

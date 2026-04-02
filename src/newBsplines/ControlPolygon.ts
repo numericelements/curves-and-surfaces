@@ -64,3 +64,15 @@ export class ControlPolygon < V extends Vector, D extends number>  extends Vecto
         return v1.distanceTo(v2);
     }
 }
+
+/**
+ * Factory function that correctly infers the descriptor type V and dimension D
+ * from a concrete vector class (e.g. Vector1DTypeComplex → ControlPolygon<ComplexVector1D, 1>).
+ *
+ * Use this instead of `new ControlPolygon([...])` when TypeScript inference of V is needed.
+ */
+export function createControlPolygon<IV extends IVector<any, Vector>>(
+    vectors: IV[]
+): ControlPolygon<IV['descriptor'], IV['dimension']> {
+    return new ControlPolygon(vectors);
+}

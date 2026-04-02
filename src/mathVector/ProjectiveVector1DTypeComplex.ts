@@ -137,7 +137,7 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         }
     }
 
-    get dimension(): number { return ProjectiveVector1DTypeComplex.DIMENSION; } // Homogeneous coordinates
+    get dimension(): 2 { return ProjectiveVector1DTypeComplex.DIMENSION; } // Homogeneous coordinates
     get vectorType(): string { return ProjectiveVector1DTypeComplex._vectorType; }
     get vectorSpace(): ProjectiveComplexVectorSpace<2> { return this._vectorSpace; }
     get coordinates(): Complex[] { return [new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary), new Complex(this._descriptor.coordinates[1].real.value, this._descriptor.coordinates[1].imaginary.value)]; }
@@ -244,20 +244,6 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
         return this.createVectorFromDescriptor(result.descriptor);
     }
 
-    add(other: ProjectiveVector1DTypeComplex): this {
-        const result = super.add(other);
-        return this.createVectorFromDescriptor(result.descriptor);
-    }
-
-    subtract(other: ProjectiveVector1DTypeComplex): this {
-        const result = super.subtract(other);
-        return this.createVectorFromDescriptor(result.descriptor);
-    }
-
-    equals(other: ProjectiveVector1DTypeComplex, tolerance?: number): boolean {
-        return super.equals(other, tolerance);
-    }
-    
     toComplexVector(vectorSpace?: ComplexVectorSpace<1>): Vector1DTypeComplex {
         let vSpace = vectorSpace;
         if(vSpace === undefined) {

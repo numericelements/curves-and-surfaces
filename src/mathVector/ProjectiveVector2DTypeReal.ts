@@ -87,7 +87,7 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3>
         }
     }
 
-    get dimension(): number { return ProjectiveVector2DTypeReal.DIMENSION; }
+    get dimension(): 3 { return ProjectiveVector2DTypeReal.DIMENSION; }
     get vectorType(): string { return ProjectiveVector2DTypeReal._vectorType; }
     get vectorSpace(): ProjectiveVectorSpace<3> { return this._vectorSpace; }
     get coordinates(): number[] { return this.homogeneousCoordinates; }

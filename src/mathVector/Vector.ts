@@ -28,7 +28,7 @@ export interface IVector <
         D extends number = number,
         V extends Vector = Vector
     > {
-    readonly dimension: number;
+    readonly dimension: D;
     readonly vectorType: string;
     readonly spaceType: VectorSpaceType;
     readonly vectorSpace: IdentifiableVectorSpace<V>; // The vector space this vector belongs to

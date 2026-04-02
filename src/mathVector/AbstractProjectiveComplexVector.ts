@@ -95,11 +95,11 @@ export abstract class AbstractProjectiveComplexVector<D extends number>
         throw new RangeError(error.generateMessageString());
     }
 
-    equals(other: IProjectiveComplexVector, tolerance?: number): boolean {
+    equals(other: IProjectiveComplexVector<D>, tolerance?: number): boolean {
         return super.equals(other, tolerance);
     }
 
-    isParallel(other: IProjectiveComplexVector, tolerance?: number): boolean {
+    isParallel(other: IProjectiveComplexVector<D>, tolerance?: number): boolean {
         this.validateCompatibility(other);
         if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
         const thisNorm = this.norm();
@@ -112,7 +112,7 @@ export abstract class AbstractProjectiveComplexVector<D extends number>
         return ratio >= 1 - tolerance;
     }
 
-    isOrthogonal(other: IProjectiveComplexVector, angularTolerance?: number): boolean {
+    isOrthogonal(other: IProjectiveComplexVector<D>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();

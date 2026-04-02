@@ -6,7 +6,7 @@ import { KNOT_SEQUENCE_ORIGIN } from "../../src/namedConstants/KnotSequences";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { ControlPolygonFromDescriptors } from "../../src/newBsplines/ControlPolygonFromDescriptors";
 import { Vector2DTypeReal } from "../../src/mathVector/Vector2DTypeReal";
-import { ControlPolygon } from "../../src/newBsplines/ControlPolygon";
+import { ControlPolygon, createControlPolygon } from "../../src/newBsplines/ControlPolygon";
 import { createOpenBSplineFromParams } from "../../src/newBsplines/OpenBSplineFactory";
 import { RealVector2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { Vector1DTypeComplex } from "../../src/mathVector/Vector1DTypeComplex";
@@ -31,6 +31,7 @@ describe('OpenBSplineR1toRn', () => {
         const vertex1 = new Vector2DTypeReal(0, 0);
         const vertex2 = new Vector2DTypeReal(1, 1);
         const controlPolygon = new ControlPolygon([vertex1, vertex2]);
+        const controlPolygon1 = createControlPolygon([vertex1, vertex2]);
         const params: BSpline_CP = {
             type: BSPL_CP_NO_KNOT,
             controlPoints: controlPolygon
@@ -45,7 +46,7 @@ describe('OpenBSplineR1toRn', () => {
     it('can evaluate a curve into a complex vector space at a point', () => {
         const vertex1 = new Vector1DTypeComplex(0, 0);
         const vertex2 = new Vector1DTypeComplex(1, 1);
-        const controlPolygon = new ControlPolygon([vertex1, vertex2]);
+        const controlPolygon = createControlPolygon([vertex1, vertex2]);
         const params = {
             type: BSPL_CP_NO_KNOT,
             controlPoints: controlPolygon
@@ -53,9 +54,6 @@ describe('OpenBSplineR1toRn', () => {
         const curve2D = createOpenBSplineFromParams(params);
         const point = curve2D.evaluate(0.5);
         const coord1 = point.getCoordinate(0);
-        if(typeof coord1 === "number") {
-            throw new Error("Expected a complex coordinate, got a real number");
-        }
         expect(coord1.real).to.be.closeTo(0.5, 1e-10);
         expect(coord1.imaginary).to.be.closeTo(0.5, 1e-10);
         const point1 = curve2D.evaluate(0.75);

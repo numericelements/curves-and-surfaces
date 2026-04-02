@@ -86,7 +86,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2>
         }
     }
 
-    get dimension(): number { return Vector2DTypeComplex.DIMENSION; }
+    get dimension(): 2 { return Vector2DTypeComplex.DIMENSION; }
     get vectorType(): string { return Vector2DTypeComplex._vectorType; }
     get vectorSpace(): ComplexVectorSpace<2> { return this._vectorSpace; }
 

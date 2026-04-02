@@ -91,7 +91,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1>
         }
     }
 
-    get dimension(): number { return Vector1DTypeComplex.DIMENSION; }
+    get dimension(): 1 { return Vector1DTypeComplex.DIMENSION; }
     get vectorType(): string { return Vector1DTypeComplex._vectorType; }
     get vectorSpace(): ComplexVectorSpace<1> { return this._vectorSpace; }
     get real(): number { return this._descriptor.real; }

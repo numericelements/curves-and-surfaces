@@ -53426,17 +53426,6 @@ class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVector_1.Ab
         const result = super.normalize(tolerance);
         return this.createVectorFromDescriptor(result.descriptor);
     }
-    add(other) {
-        const result = super.add(other);
-        return this.createVectorFromDescriptor(result.descriptor);
-    }
-    subtract(other) {
-        const result = super.subtract(other);
-        return this.createVectorFromDescriptor(result.descriptor);
-    }
-    equals(other, tolerance) {
-        return super.equals(other, tolerance);
-    }
     toComplexVector(vectorSpace) {
         let vSpace = vectorSpace;
         if (vSpace === undefined) {
@@ -64225,7 +64214,7 @@ exports.memoizedBinomialCoefficient = memoizedBinomialCoefficient;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ControlPolygon = void 0;
+exports.createControlPolygon = exports.ControlPolygon = void 0;
 const TypeChecking_1 = __webpack_require__(/*! ../core-utils/TypeChecking */ "./src/core-utils/TypeChecking.ts");
 const VectorCollection1D_1 = __webpack_require__(/*! ../mathVector/VectorCollection1D */ "./src/mathVector/VectorCollection1D.ts");
 // export class ControlPolygon < V extends IVector<any, Vector>>  extends VectorCollection1D<V>
@@ -64280,6 +64269,16 @@ class ControlPolygon extends VectorCollection1D_1.VectorCollection1D {
     }
 }
 exports.ControlPolygon = ControlPolygon;
+/**
+ * Factory function that correctly infers the descriptor type V and dimension D
+ * from a concrete vector class (e.g. Vector1DTypeComplex → ControlPolygon<ComplexVector1D, 1>).
+ *
+ * Use this instead of `new ControlPolygon([...])` when TypeScript inference of V is needed.
+ */
+function createControlPolygon(vectors) {
+    return new ControlPolygon(vectors);
+}
+exports.createControlPolygon = createControlPolygon;
 
 
 /***/ },

@@ -68,7 +68,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2>
         }
     }
 
-    get dimension(): number { return Vector2DTypeReal.DIMENSION; }
+    get dimension(): 2 { return Vector2DTypeReal.DIMENSION; }
     get vectorType(): string { return Vector2DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<2> { return this._vectorSpace; }
     get coordinates(): number[] { return [...this._descriptor.coordinates]; }
