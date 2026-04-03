@@ -1,5 +1,5 @@
 import { VectorDescriptorCollection1D } from "../mathVector/VectorDescriptorCollection1D";
-import { ComplexVector1D, ComplexVector2D, ProjectiveComplexVector1D, ProjectiveVector2D, ProjectiveVector3D, RealVector1D, RealVector2D, RealVector3D, RealVector4D, Vector, RealVectorOfDimension } from "../mathVector/VectorSpaceConstructorInterface";
+import { ComplexVector1D, ComplexVector2D, ProjectiveComplexVector1D, ProjectiveVector2D, ProjectiveVector3D, RealVector1D, RealVector2D, RealVector3D, RealVector4D, Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { areSameVSpaceAndDimension, getVectorTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
@@ -11,7 +11,7 @@ import { ControlPolygonRealVectorStrategy } from "./ControlPolygonRealVectorStra
 
 // Strategy interface
 export interface ControlPolygonStrategy<V extends Vector> {
-    moveControlPoint(index: number, displacement: V): void;
+    moveControlPoint(index: number, displacement: V): ControlPolygonFromDescriptors<V>;
 }
 
 export class ControlPolygonFromDescriptors <V extends Vector = Vector, D extends number = number> extends VectorDescriptorCollection1D {
@@ -28,8 +28,7 @@ export class ControlPolygonFromDescriptors <V extends Vector = Vector, D extends
         this._spaceDimension = spaceDimension;
         switch(this._vectorSpaceType) {
             case VectorSpaceType.REAL:
-                const collection =  this.vectorCollection as RealVectorOfDimension<D>[]
-                this.strategy = new ControlPolygonRealVectorStrategy(collection, this._spaceDimension) as ControlPolygonStrategy<V>;
+                this.strategy = new ControlPolygonRealVectorStrategy(this, this._spaceDimension) as ControlPolygonStrategy<V>;
                 break;
             case VectorSpaceType.COMPLEX:
                 this.strategy = new ControlPolygonComplexVectorStrategy(this) as ControlPolygonStrategy<V>;
@@ -49,12 +48,12 @@ export class ControlPolygonFromDescriptors <V extends Vector = Vector, D extends
         return this._spaceDimension;
     }
     
-    moveControlPoint(index: number, displacement: V) {
+    moveControlPoint(index: number, displacement: V): ControlPolygonFromDescriptors<V> {
         const firstVector = this._vectorCollection[0];
         if(!areSameVSpaceAndDimension(displacement, firstVector)) {
             throw new Error(`Displacement type mismatch. Expected ${firstVector.constructor.name}, got ${displacement.constructor.name}`);
         }
-        this.strategy.moveControlPoint(index, displacement);
+        return this.strategy.moveControlPoint(index, displacement);
     }
 
     private isSameVectorType(v1: Vector, v2: Vector): boolean {

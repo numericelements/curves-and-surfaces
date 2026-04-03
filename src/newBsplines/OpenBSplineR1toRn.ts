@@ -1,5 +1,5 @@
 import { IVector } from "../mathVector/Vector";
-import { ProjectiveVector, RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractBSplineR1toRn, checkConsistency, normalizeDescriptorsToControlPolygon } from "./AbstractBSplineR1toRn";
 import { AlgorithmBootstrap } from "./AlgorithmBootstrap";
@@ -8,7 +8,6 @@ import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLID
 import { ControlPolygon } from "./ControlPolygon";
 import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { CoxDeBoorAlgorithm } from "./CoxDeBoorAlgorithm";
-import { CurvePoint } from "./CurveEntitiesTypes";
 import { fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from "./KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC";
 import { NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
@@ -16,14 +15,11 @@ import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyInc
 
 
 
-export class BSplineEvaluator<V extends Vector, D extends number> {
+export class BSplineEvaluator<IV extends IVector<any, Vector>> {
 
-    evaluate(parameter: number): CurvePoint<V, D> {
+    evaluate(parameter: number): IV {
         return null as any;
     };
-    // evaluate(parameter: number): RealVector {
-    //     return 0;
-    // };
 }
 
 // export class CoxDeBoorEvaluator<V extends Vector, D extends number> extends BSplineEvaluator<V, D> {
@@ -177,7 +173,7 @@ export type OpenBSplineCtorParams =
     | BSpline_CP_Deg_NonUniform;
 
 type PreparedOpenInit = {
-    controlPolygon: ControlPolygon<Vector, number>;
+    controlPolygon: ControlPolygon<IVector<any, Vector>>;
     knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;
     degree: number;
     knots: readonly number[];
@@ -187,18 +183,18 @@ type PreparedOpenInit = {
 };
 
 
-export class OpenBSplineR1toRn<V extends Vector, D extends number>
-    extends AbstractBSplineR1toRn<V, D>
+export class OpenBSplineR1toRn<IV extends IVector<any, Vector>>
+    extends AbstractBSplineR1toRn<IV>
 {
     protected readonly _curveOrigin: number;
     protected readonly _knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;
-    // protected readonly _controlPolygon: ControlPolygon<V, D>;
-    protected readonly _evaluator: BSplineEvaluator<V, D>;
+    // protected readonly _controlPolygon: ControlPolygon<IV>;
+    protected readonly _evaluator: BSplineEvaluator<IV>;
 
     // private readonly _params: OpenBSplineCtorParams;
 
     constructor(
-        controlPolygon: ControlPolygon<V, D>,
+        controlPolygon: ControlPolygon<IV>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         degree: number,
         vectorSpace: VectorSpaceType,
@@ -225,7 +221,7 @@ export class OpenBSplineR1toRn<V extends Vector, D extends number>
 
     private static prepareOpenInit(curveParameters: OpenBSplineCtorParams): PreparedOpenInit {
         const controlPolygon = OpenBSplineR1toRn.toCanonicalControlPolygon(
-            curveParameters.controlPoints as ControlPoints<Vector, number>
+            curveParameters.controlPoints as ControlPoints<IVector<any, Vector>>
         );
 
         let degree: number;
@@ -275,7 +271,7 @@ export class OpenBSplineR1toRn<V extends Vector, D extends number>
         };
     }
 
-    get controlPolygon(): ControlPolygon<V, D> {
+    get controlPolygon(): ControlPolygon<IV> {
         return this._controlPolygon;
     }
 
@@ -291,25 +287,23 @@ export class OpenBSplineR1toRn<V extends Vector, D extends number>
         return this._curveOrigin;
     }
 
-    // evaluate(u: number): RealVector {
-    evaluate(u: number): CurvePoint<V, D> {
+    evaluate(u: number): IV {
         return this._evaluator.evaluate(u);
     }
 
-    // evaluateWithAlgorithm(u: number, algorithmName?: string): RealVector {
-    evaluateWithAlgorithm(u: number, algorithmName?: string): CurvePoint<V, D> {
+    evaluateWithAlgorithm(u: number, algorithmName?: string): IV {
         const name = algorithmName
             ?? AlgorithmBootstrap.getRecommendedAlgorithm(this._vectorSpace, "general");
 
         const evaluator = AlgorithmRegistry.createEvaluator(
             name,
-            this._controlPolygon,
+            this._controlPolygon as ControlPolygon<IVector<any, Vector>>,
             this._knotSequence,
             this._degree,
             this._vectorSpace
         );
 
-        return evaluator.evaluate(u);
+        return evaluator.evaluate(u) as IV;
     }
 
     getAvailableAlgorithms(): string[] {
@@ -331,12 +325,9 @@ export class OpenBSplineR1toRn<V extends Vector, D extends number>
      * Immutable update API for knots.
      * (Uses current parameter scheme; adapt when knot-sequence interface is fully generalized.)
      */
-    // withKnots(_knots: readonly number[]): OpenBSplineR1toRn<V, D> {
-    //     return new OpenBSplineR1toRn<V, D>(this._buildParams());
-    // }
-    withKnots(knots: readonly number[]): OpenBSplineR1toRn<V, D> {
+    withKnots(knots: readonly number[]): OpenBSplineR1toRn<IV> {
         const knotSequence = this._knotSequence.insertKnot(knots as any);
-        return new OpenBSplineR1toRn<V, D>(
+        return new OpenBSplineR1toRn<IV>(
             this._controlPolygon,
             knotSequence,
             this._degree,
@@ -345,8 +336,8 @@ export class OpenBSplineR1toRn<V extends Vector, D extends number>
         );
     }
 
-    withControlPolygon(controlPolygon: ControlPolygon<V, D>): OpenBSplineR1toRn<V, D> {
-        return new OpenBSplineR1toRn<V, D>(
+    withControlPolygon(controlPolygon: ControlPolygon<IV>): OpenBSplineR1toRn<IV> {
+        return new OpenBSplineR1toRn<IV>(
             controlPolygon,
             this._knotSequence,
             this._degree,
@@ -355,16 +346,9 @@ export class OpenBSplineR1toRn<V extends Vector, D extends number>
         );
     }
 
-    // withControlPolygon(controlPolygon: ControlPolygon<V, D>): OpenBSplineR1toRn<V, D> {
-    //     return new OpenBSplineR1toRn<V, D>({
-    //         ...this._params,
-    //         controlPoints: controlPolygon as any
-    //     });
-    // }
-
-    withControlPoints(controlPoints: ControlPoints<V, D>): OpenBSplineR1toRn<V, D> {
+    withControlPoints(controlPoints: ControlPolygonFromDescriptors | ControlPolygon<IV>): OpenBSplineR1toRn<IV> {
         return this.withControlPolygon(
-            OpenBSplineR1toRn.toCanonicalControlPolygon(controlPoints as any) as ControlPolygon<V, D>
+            OpenBSplineR1toRn.toCanonicalControlPolygon(controlPoints as any) as ControlPolygon<IV>
         );
     }
 
@@ -379,51 +363,51 @@ export class OpenBSplineR1toRn<V extends Vector, D extends number>
     //     };
     // }
 
-    moveControlPoint(index: number, displacement: IVector<D, V>): OpenBSplineR1toRn<V, D> {
+    moveControlPoint(index: number, displacement: IV): OpenBSplineR1toRn<IV> {
         return this.withControlPolygon(this._controlPolygon.withMovedControlPoint(index, displacement));
         // this.strategy.invalidate();
     }
 
-    private static toCanonicalControlPolygon<V extends Vector, D extends number>(
-        cp: ControlPoints<V, D>
-    ): ControlPolygon<V, D> {
+    private static toCanonicalControlPolygon<IV extends IVector<any, Vector>>(
+        cp: ControlPolygonFromDescriptors | ControlPolygon<IV>
+    ): ControlPolygon<IV> {
         if (cp instanceof ControlPolygon) return cp;
         if (cp instanceof ControlPolygonFromDescriptors) {
-            return normalizeDescriptorsToControlPolygon(cp as any) as ControlPolygon<V, D>;
+            return normalizeDescriptorsToControlPolygon(cp as any) as ControlPolygon<IV>;
         }
         return normalizeDescriptorsToControlPolygon(
             new ControlPolygonFromDescriptors(cp as any)
-        ) as ControlPolygon<V, D>;
+        ) as ControlPolygon<IV>;
     }
 
-    private static toDescriptorPolygon<V extends Vector, D extends number>(
-        cp: ControlPolygon<V, D>
-    ): ControlPolygonFromDescriptors<V, D> {
-        return new ControlPolygonFromDescriptors(cp as any) as ControlPolygonFromDescriptors<V, D>;
+    private static toDescriptorPolygon<IV extends IVector<any, Vector>>(
+        cp: ControlPolygon<IV>
+    ): ControlPolygonFromDescriptors {
+        return new ControlPolygonFromDescriptors(cp as any);
     }
 }
 
-export interface AlgorithmDescriptor<V extends Vector, D extends number> {
+export interface AlgorithmDescriptor<IV extends IVector<any, Vector>> {
     name: string;
     vectorSpaceTypes: VectorSpaceType[];
     description: string;
-    factory: AlgorithmFactory<V, D>;
+    factory: AlgorithmFactory<IV>;
 }
 
-export interface AlgorithmFactory<V extends Vector, D extends number> {
+export interface AlgorithmFactory<IV extends IVector<any, Vector>> {
     createEvaluator(
-        controlPolygon: ControlPolygon<V, D>,
+        controlPolygon: ControlPolygon<IV>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
         degree: number
-    ): BSplineEvaluator<V, D>;
+    ): BSplineEvaluator<IV>;
 }
 
 export interface AlgorithmFactoryInterface {
     createEvaluator(
-        controlPolygon: ControlPolygon<Vector, number>,
+        controlPolygon: ControlPolygon<IVector<any, Vector>>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
         degree: number
-    ): BSplineEvaluator<Vector, number>;
+    ): BSplineEvaluator<IVector<any, Vector>>;
 }
 
 export interface AlgorithmRegistration {

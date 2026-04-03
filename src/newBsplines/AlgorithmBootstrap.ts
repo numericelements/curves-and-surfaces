@@ -1,4 +1,5 @@
 import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, RealVector2D, RealVector3D, RealVector4D, Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { IVector } from "../mathVector/Vector";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AlgorithmRegistry } from "./AlgorithmRegistry";
 import { ControlPolygon } from "./ControlPolygon";
@@ -16,27 +17,27 @@ import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasin
  * This should be called once during application initialization
  */
 
-export function isRealControlPolygon<D extends number>(
-    controlPolygon: ControlPolygon<Vector, D>
-): controlPolygon is ControlPolygon<RealVectorN, D> {
+export function isRealControlPolygon(
+    controlPolygon: ControlPolygon<IVector<any, Vector>>
+): controlPolygon is ControlPolygon<IVector<any, RealVector>> {
     return controlPolygon.vectorSpace.spaceType === VectorSpaceType.REAL;
 }
 
-export function isProjectiveControlPolygon<D extends number>(
-    controlPolygon: ControlPolygon<Vector, D>
-): controlPolygon is ControlPolygon<ProjectiveVector, D> {
+export function isProjectiveControlPolygon(
+    controlPolygon: ControlPolygon<IVector<any, Vector>>
+): controlPolygon is ControlPolygon<IVector<any, ProjectiveVector>> {
     return controlPolygon.vectorSpace.spaceType === VectorSpaceType.PROJECTIVE;
 }
 
-export function isComplexControlPolygon<D extends number>(
-    controlPolygon: ControlPolygon<Vector, D>
-): controlPolygon is ControlPolygon<ComplexVector, D> {
+export function isComplexControlPolygon(
+    controlPolygon: ControlPolygon<IVector<any, Vector>>
+): controlPolygon is ControlPolygon<IVector<any, ComplexVector>> {
     return controlPolygon.vectorSpace.spaceType === VectorSpaceType.COMPLEX;
 }
 
-export function isProjectiveComplexControlPolygon<D extends number>(
-    controlPolygon: ControlPolygon<Vector, D>
-): controlPolygon is ControlPolygon<ProjectiveComplexVector, D> {
+export function isProjectiveComplexControlPolygon(
+    controlPolygon: ControlPolygon<IVector<any, Vector>>
+): controlPolygon is ControlPolygon<IVector<any, ProjectiveComplexVector>> {
     return controlPolygon.vectorSpace.spaceType === VectorSpaceType.PROJECTIVECOMPLEX;
 }
 

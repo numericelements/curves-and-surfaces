@@ -2,16 +2,14 @@ import { isIterable } from "../core-utils/TypeChecking";
 import { IVector } from "../mathVector/Vector";
 import { VectorCollection1D } from "../mathVector/VectorCollection1D";
 import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
-import { ControlPoint } from "./CurveEntitiesTypes";
 
-// export class ControlPolygon < V extends IVector<any, Vector>>  extends VectorCollection1D<V>
-export class ControlPolygon < V extends Vector, D extends number>  extends VectorCollection1D<IVector<D, V>>
+export class ControlPolygon<IV extends IVector<any, Vector>> extends VectorCollection1D<IV>
 {
 
-    constructor(controlPoints: IVector<D, V>);
-    constructor(controlPoints: Iterable<IVector<D, V>>);
-    constructor(controlPoints: IVector<D, V> | Iterable<IVector<D, V>>) {
-        if (isIterable<IVector<D, V>>(controlPoints)) {
+    constructor(controlPoints: IV);
+    constructor(controlPoints: Iterable<IV>);
+    constructor(controlPoints: IV | Iterable<IV>) {
+        if (isIterable<IV>(controlPoints)) {
             // controlPoints is iterable
             super(controlPoints);
         } else {
@@ -20,29 +18,29 @@ export class ControlPolygon < V extends Vector, D extends number>  extends Vecto
         }
     }
 
-    get controlPoints(): ReadonlyArray<IVector<D, V>> {
+    get controlPoints(): ReadonlyArray<IV> {
         return this.vectorCollection;
     }
 
-    withMovedControlPoint(index: number, displacement: IVector<D, V>): ControlPolygon<V, D> {
+    withMovedControlPoint(index: number, displacement: IV): ControlPolygon<IV> {
         if (index < 0 || index >= this._vectors.length) {
             throw new RangeError(`withMovedControlPoint: index ${index} out of range [0, ${this._vectors.length - 1}]`);
         }
-        const tmp: IVector<D, V>[] = [...this._vectors];
-        tmp[index] = tmp[index].add(displacement) as IVector<D, V>;
-        return new ControlPolygon<V, D>(tmp);
+        const tmp: IV[] = [...this._vectors];
+        tmp[index] = tmp[index].add(displacement) as IV;
+        return new ControlPolygon<IV>(tmp);
     }
 
-    translated(transVector: IVector<D, V>): ControlPolygon<V, D> {
-        const tmp: IVector<D, V>[] = [];
+    translated(transVector: IV): ControlPolygon<IV> {
+        const tmp: IV[] = [];
         this._vectors.forEach((cp, index) => {
-            tmp[index] = cp.add(transVector) as IVector<D, V>;
+            tmp[index] = cp.add(transVector) as IV;
         });
-        return new ControlPolygon<V, D>([...tmp]);
+        return new ControlPolygon<IV>([...tmp]);
     }
 
-    reverted(): ControlPolygon<V, D> {
-        return new ControlPolygon<V, D>([...this._vectors].reverse());
+    reverted(): ControlPolygon<IV> {
+        return new ControlPolygon<IV>([...this._vectors].reverse());
     }
 
     polygonalLength(): number {
@@ -66,13 +64,11 @@ export class ControlPolygon < V extends Vector, D extends number>  extends Vecto
 }
 
 /**
- * Factory function that correctly infers the descriptor type V and dimension D
- * from a concrete vector class (e.g. Vector1DTypeComplex → ControlPolygon<ComplexVector1D, 1>).
- *
- * Use this instead of `new ControlPolygon([...])` when TypeScript inference of V is needed.
+ * Factory function that correctly infers the concrete vector type IV
+ * from an array of vectors (e.g. Vector1DTypeComplex[] → ControlPolygon<Vector1DTypeComplex>).
  */
 export function createControlPolygon<IV extends IVector<any, Vector>>(
     vectors: IV[]
-): ControlPolygon<IV['descriptor'], IV['dimension']> {
+): ControlPolygon<IV> {
     return new ControlPolygon(vectors);
 }

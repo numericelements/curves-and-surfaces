@@ -29,10 +29,10 @@ export function hasType<T extends string>(d: unknown, t: T): d is { type: T } {
     return typeof d === "object" && d !== null && "type" in d && (d as { type: unknown }).type === t;
 }
 
-// Normalize a ControlPolygonFromDescriptors into a canonical ControlPolygon<Vector, number>
+// Normalize a ControlPolygonFromDescriptors into a canonical ControlPolygon<IVector<any, Vector>>
 export function normalizeDescriptorsToControlPolygon(
     descriptors: ControlPolygonFromDescriptors
-): ControlPolygon<Vector, number> {
+): ControlPolygon<IVector<any, Vector>> {
     const vectors: IVector<any, Vector>[] = [];
 
     for (const item of descriptors) {
@@ -65,7 +65,7 @@ export function normalizeDescriptorsToControlPolygon(
     }
 
     if (vectors.length === 0) throw new Error("Control polygon must contain at least one vector");
-    return new ControlPolygon<Vector, number>(vectors);
+    return new ControlPolygon<IVector<any, Vector>>(vectors);
 }
 
 // Derive degree from knot sequence length and control point count
@@ -119,12 +119,12 @@ export function checkConsistency(
 }
 
 
-export abstract class AbstractBSplineR1toRn<V extends Vector = Vector, D extends number = number> {
+export abstract class AbstractBSplineR1toRn<IV extends IVector<any, Vector> = IVector<any, Vector>> {
 
     protected readonly abstract _curveOrigin: number;
 
     // canonical internal model: always IVector-based
-    protected readonly _controlPolygon: ControlPolygon<V, D>;
+    protected readonly _controlPolygon: ControlPolygon<IV>;
     protected readonly _degree: number;
     protected readonly _vectorSpace: VectorSpaceType;
     protected readonly _spaceDimension: number;
@@ -133,7 +133,7 @@ export abstract class AbstractBSplineR1toRn<V extends Vector = Vector, D extends
     protected _isDirty: boolean; // reserved for cache invalidation
 
     constructor(
-        controlPolygon: ControlPolygon<V, D>,
+        controlPolygon: ControlPolygon<IV>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
         degree: number,
         vectorSpace: VectorSpaceType,
@@ -153,11 +153,11 @@ export abstract class AbstractBSplineR1toRn<V extends Vector = Vector, D extends
     get spaceDimension(): number { return this._spaceDimension; }
     abstract get knotSequence(): StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
     get curveOrigin(): number { return this._curveOrigin; }
-    get controlPoints(): ReadonlyArray<IVector<D, V>> { return this._controlPolygon.controlPoints; }
+    get controlPoints(): ReadonlyArray<IV> { return this._controlPolygon.controlPoints; }
 
     // immutable "update" operations
-    abstract withControlPolygon(controlPolygon: ControlPolygon<V, D>): AbstractBSplineR1toRn<V, D>;
-    abstract withKnots(knots: readonly number[]): AbstractBSplineR1toRn<V, D>;
+    abstract withControlPolygon(controlPolygon: ControlPolygon<IV>): AbstractBSplineR1toRn<IV>;
+    abstract withKnots(knots: readonly number[]): AbstractBSplineR1toRn<IV>;
 
     protected invalidate(): void { this._isDirty = true; }
 }

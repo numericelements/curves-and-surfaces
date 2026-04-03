@@ -1,5 +1,6 @@
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 import { AlgorithmFactoryInterface, BSplineEvaluator } from "./OpenBSplineR1toRn";
+import { IVector } from "../mathVector/Vector";
 import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { ControlPolygon } from "./ControlPolygon";
 import { isComplexControlPolygon, isProjectiveComplexControlPolygon, isProjectiveControlPolygon, isRealControlPolygon } from "./AlgorithmBootstrap";
@@ -9,10 +10,10 @@ import { CoxDeBoorComplexCoordinatesEvaluator } from "./CoxDeBoorComplexCoordina
 export class CoxDeBoorAlgorithmFactory implements AlgorithmFactoryInterface {
 
     createEvaluator(
-        controlPolygon: ControlPolygon<Vector, number>,
+        controlPolygon: ControlPolygon<IVector<any, Vector>>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         degree: number
-    ): BSplineEvaluator<Vector, number> {
+    ): BSplineEvaluator<IVector<any, Vector>> {
         if (isRealControlPolygon(controlPolygon)) {
             return new CoxDeBoorRealCoordinatesEvaluator(controlPolygon, knotSequence, degree);
         } else if (isProjectiveControlPolygon(controlPolygon)) {

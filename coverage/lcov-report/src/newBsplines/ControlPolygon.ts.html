@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">58.97% </span>
+                <span class="strong">56.75% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>46/78</span>
+                <span class='fraction'>42/74</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">58.97% </span>
+                <span class="strong">56.75% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>46/78</span>
+                <span class='fraction'>42/74</span>
             </div>
         
             
@@ -137,13 +137,7 @@
 <a name='L72'></a><a href='#L72'>72</a>
 <a name='L73'></a><a href='#L73'>73</a>
 <a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L75'></a><a href='#L75'>75</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -206,8 +200,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -223,16 +215,14 @@
 import { IVector } from "../mathVector/Vector";
 import { VectorCollection1D } from "../mathVector/VectorCollection1D";
 import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
-import { ControlPoint } from "./CurveEntitiesTypes";
 &nbsp;
-// export class ControlPolygon &lt; V extends IVector&lt;any, Vector&gt;&gt;  extends VectorCollection1D&lt;V&gt;
-export class ControlPolygon &lt; V extends Vector, D extends number&gt;  extends VectorCollection1D&lt;IVector&lt;D, V&gt;&gt;
+export class ControlPolygon&lt;IV extends IVector&lt;any, Vector&gt;&gt; extends VectorCollection1D&lt;IV&gt;
 {
 &nbsp;
-    constructor(controlPoints: IVector&lt;D, V&gt;);
-    constructor(controlPoints: Iterable&lt;IVector&lt;D, V&gt;&gt;);
-    constructor(controlPoints: IVector&lt;D, V&gt; | Iterable&lt;IVector&lt;D, V&gt;&gt;) {
-        if (isIterable&lt;IVector&lt;D, V&gt;&gt;(controlPoints)) {
+    constructor(controlPoints: IV);
+    constructor(controlPoints: Iterable&lt;IV&gt;);
+    constructor(controlPoints: IV | Iterable&lt;IV&gt;) {
+        if (isIterable&lt;IV&gt;(controlPoints)) {
             // controlPoints is iterable
             super(controlPoints);
         } else {
@@ -241,29 +231,29 @@ export class ControlPolygon &lt; V extends Vector, D extends number&gt;  extends
         }
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    get controlPoints(): ReadonlyArray&lt;IVector&lt;D, V&gt;&gt; {</span>
+<span class="fstat-no" title="function not covered" >    get controlPoints(): ReadonlyArray&lt;IV&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        return this.vectorCollection;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-    withMovedControlPoint(index: number, displacement: IVector&lt;D, V&gt;): ControlPolygon&lt;V, D&gt; {
+    withMovedControlPoint(index: number, displacement: IV): ControlPolygon&lt;IV&gt; {
         if (index &lt; 0 || index &gt;= this._vectors.length) <span class="branch-0 cbranch-no" title="branch not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError(`withMovedControlPoint: index ${index} out of range [0, ${this._vectors.length - 1}]`);</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
-        const tmp: IVector&lt;D, V&gt;[] = [...this._vectors];
-        tmp[index] = tmp[index].add(displacement) as IVector&lt;D, V&gt;;
-        return new ControlPolygon&lt;V, D&gt;(tmp);
+        const tmp: IV[] = [...this._vectors];
+        tmp[index] = tmp[index].add(displacement) as IV;
+        return new ControlPolygon&lt;IV&gt;(tmp);
     }
 &nbsp;
-<span class="fstat-no" title="function not covered" >    translated(transVector: IVector&lt;D, V&gt;): ControlPolygon&lt;V, D&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        const tmp: IVector&lt;D, V&gt;[] = [];</span>
+<span class="fstat-no" title="function not covered" >    translated(transVector: IV): ControlPolygon&lt;IV&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        const tmp: IV[] = [];</span>
 <span class="cstat-no" title="statement not covered" >        this._vectors.forEach((cp, index) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >            tmp[index] = cp.add(transVector) as IVector&lt;D, V&gt;;</span>
+<span class="cstat-no" title="statement not covered" >            tmp[index] = cp.add(transVector) as IV;</span>
 <span class="cstat-no" title="statement not covered" >        });</span>
-<span class="cstat-no" title="statement not covered" >        return new ControlPolygon&lt;V, D&gt;([...tmp]);</span>
+<span class="cstat-no" title="statement not covered" >        return new ControlPolygon&lt;IV&gt;([...tmp]);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    reverted(): ControlPolygon&lt;V, D&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        return new ControlPolygon&lt;V, D&gt;([...this._vectors].reverse());</span>
+<span class="fstat-no" title="function not covered" >    reverted(): ControlPolygon&lt;IV&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        return new ControlPolygon&lt;IV&gt;([...this._vectors].reverse());</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
 <span class="fstat-no" title="function not covered" >    polygonalLength(): number {</span>
@@ -287,14 +277,12 @@ export class ControlPolygon &lt; V extends Vector, D extends number&gt;  extends
 }
 &nbsp;
 /**
- * Factory function that correctly infers the descriptor type V and dimension D
- * from a concrete vector class (e.g. Vector1DTypeComplex → ControlPolygon&lt;ComplexVector1D, 1&gt;).
- *
- * Use this instead of `new ControlPolygon([...])` when TypeScript inference of V is needed.
+ * Factory function that correctly infers the concrete vector type IV
+ * from an array of vectors (e.g. Vector1DTypeComplex[] → ControlPolygon&lt;Vector1DTypeComplex&gt;).
  */
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >export function createControlPolygon&lt;IV extends IVector&lt;any, Vector&gt;&gt;(</span></span>
 <span class="cstat-no" title="statement not covered" >    vectors: IV[]</span>
-<span class="cstat-no" title="statement not covered" >): ControlPolygon&lt;IV['descriptor'], IV['dimension']&gt; {</span>
+<span class="cstat-no" title="statement not covered" >): ControlPolygon&lt;IV&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    return new ControlPolygon(vectors);</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;</pre></td></tr></table></pre>
@@ -304,7 +292,7 @@ export class ControlPolygon &lt; V extends Vector, D extends number&gt;  extends
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-02T18:35:05.984Z
+                at 2026-04-03T17:21:25.262Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

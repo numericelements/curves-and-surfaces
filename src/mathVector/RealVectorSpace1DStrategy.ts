@@ -21,7 +21,7 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1, Re
         return false;
     }
 
-    createVector(coordinates: Real[]): RealVector1D {
+    createVector(coordinates: readonly Real[]): RealVector1D {
         return coordinates[0];
     }
 

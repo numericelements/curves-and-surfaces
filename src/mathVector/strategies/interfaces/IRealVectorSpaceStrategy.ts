@@ -7,7 +7,7 @@ export interface IRealVectorSpaceStrategy<D extends number, V extends RealVector
 
     areSameDimension(v1: RealVector, v2: RealVector): boolean;
     isInVectorSpace(v: RealVector): v is RealVector;
-    createVector(coordinates: Real[]): V;
+    createVector(coordinates: readonly Real[]): V;
     defaultVect(): V;
     addDescriptors(a: V, b: V): V;
     scaleDescriptor(scalar: Real, v: V): V;

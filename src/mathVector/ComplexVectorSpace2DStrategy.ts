@@ -20,7 +20,7 @@ export class ComplexVectorSpace2DStrategy implements IComplexVectorSpaceStrategy
         return false;
     }
 
-    createVector(coordinates: number[][]): ComplexVector2D {
+    createVector(coordinates: readonly (readonly number[])[]): ComplexVector2D {
         const complex1: IComplex = createComplexVector1DDescriptor(coordinates[0][0], coordinates[0][1]);
         const complex2: IComplex = createComplexVector1DDescriptor(coordinates[1][0], coordinates[1][1]);
         return createComplexVector2DDescriptor(complex1, complex2);

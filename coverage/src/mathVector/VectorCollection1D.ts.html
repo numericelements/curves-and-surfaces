@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">69.17% </span>
+                <span class="strong">70% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>101/146</span>
+                <span class='fraction'>98/140</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">55.55% </span>
+                <span class="strong">58.82% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>10/18</span>
+                <span class='fraction'>10/17</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">69.17% </span>
+                <span class="strong">70% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>101/146</span>
+                <span class='fraction'>98/140</span>
             </div>
         
             
@@ -202,14 +202,7 @@
 <a name='L137'></a><a href='#L137'>137</a>
 <a name='L138'></a><a href='#L138'>138</a>
 <a name='L139'></a><a href='#L139'>139</a>
-<a name='L140'></a><a href='#L140'>140</a>
-<a name='L141'></a><a href='#L141'>141</a>
-<a name='L142'></a><a href='#L142'>142</a>
-<a name='L143'></a><a href='#L143'>143</a>
-<a name='L144'></a><a href='#L144'>144</a>
-<a name='L145'></a><a href='#L145'>145</a>
-<a name='L146'></a><a href='#L146'>146</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L140'></a><a href='#L140'>140</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -323,11 +316,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -354,7 +342,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span></td><td class="text"><pre class="prettyprint lang-js">import { EM_VECTOR_SPACE_DIMENSION_DIFFER, EM_VECTOR_SPACE_IDENTIFIER_DIFFER, EM_VECTOR_SPACE_TYPE_DIFFER } from "../ErrorMessages/VectorCollection1D";
-import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { IdentifiableVectorSpace } from "./IVectorSpace";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
@@ -367,7 +354,7 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 export class VectorCollection1D&lt; V extends IVector&lt;any, Vector&gt; = IVector&lt;any, Vector&gt; &gt; 
     implements Iterable&lt;V&gt;
 {
-    protected readonly _vectors: V[];
+    protected readonly _vectors: ReadonlyArray&lt;V&gt;;
     private readonly _vectorSpace: IdentifiableVectorSpace&lt;Vector&gt;;
     private readonly _weightManagement?: WeightManagement;
     private readonly _spaceDimension: number;
@@ -472,11 +459,6 @@ export class VectorCollection1D&lt; V extends IVector&lt;any, Vector&gt; = IVect
 <span class="cstat-no" title="statement not covered" >        ]);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    pop(): V {</span>
-<span class="cstat-no" title="statement not covered" >        if (this._vectors.length === 1) throw new RangeError('cannot remove last vector: collection must contain at least one vector');</span>
-<span class="cstat-no" title="statement not covered" >        return this._vectors.pop() as V;</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
-&nbsp;
 <span class="fstat-no" title="function not covered" >    reverted(): VectorCollection1D&lt;V&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        return new VectorCollection1D&lt;V&gt;([...this._vectors].reverse());</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
@@ -491,7 +473,7 @@ export class VectorCollection1D&lt; V extends IVector&lt;any, Vector&gt; = IVect
 <span class="cstat-no" title="statement not covered" >        return new VectorCollection1D(clonedVectors);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    toArray(): number[][] {</span>
+<span class="fstat-no" title="function not covered" >    toArray(): ReadonlyArray&lt;readonly number[]&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        return this._vectors.map(vector =&gt; vector.toArray());</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
@@ -505,7 +487,7 @@ export class VectorCollection1D&lt; V extends IVector&lt;any, Vector&gt; = IVect
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-02T18:35:07.447Z
+                at 2026-04-03T17:21:26.361Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

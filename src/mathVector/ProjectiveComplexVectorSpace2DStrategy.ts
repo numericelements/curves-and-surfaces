@@ -39,7 +39,7 @@ export class ProjectiveComplexVectorSpace2DStrategy implements IProjectiveComple
         return false;
     }
 
-    createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveComplexVector1D {
+    createVector(coordinates: readonly Real[], weightManager: WeightManager): ProjectiveComplexVector1D {
         const coordinatesDescriptor: IComplex = createComplexVector1DDescriptor(coordinates[0], coordinates[1]);
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
             const complexWeightDescriptor: IComplexWeight = createComplexWeightDescriptor(weightManager.createWeightFromValueOnly(coordinates[2]), weightManager.createWeightFromValueOnly(coordinates[3]));

@@ -59,7 +59,7 @@ export class Vector1DTypeReal extends AbstractRealVector<1, RealVector1D>
     get dimension(): 1 { return Vector1DTypeReal.DIMENSION; }
     get vectorType(): string { return Vector1DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<1, RealVector1D> { return this._vectorSpace; }
-    get coordinates(): number[] { return [this.value]; }
+    get coordinates(): readonly number[] { return [this.value]; }
     get descriptor(): RealVector1D { return this.value; }
     
     getCoordinate(index: number): number {

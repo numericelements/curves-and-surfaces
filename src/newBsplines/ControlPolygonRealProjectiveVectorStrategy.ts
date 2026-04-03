@@ -14,7 +14,9 @@ export class ControlPolygonRealProjectiveVectorStrategy implements ControlPolygo
     }
 
 
-    moveControlPoint(index: number, displacement: ProjectiveVector): void {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addDescriptors(this.controlPolygon.vectorCollection[index] as ProjectiveVector, displacement);
+    moveControlPoint(index: number, displacement: ProjectiveVector): ControlPolygonFromDescriptors<ProjectiveVector> {
+        const newVectors = [...this.controlPolygon.vectorCollection] as ProjectiveVector[];
+        newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index] as ProjectiveVector, displacement);
+        return new ControlPolygonFromDescriptors<ProjectiveVector>(newVectors);
     }
 }

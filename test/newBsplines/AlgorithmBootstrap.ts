@@ -9,7 +9,7 @@ import { RealVector2D } from '../../src/mathVector/VectorSpaceConstructorInterfa
 import { AlgorithmRegistry } from '../../src/newBsplines/AlgorithmRegistry';
 
 describe('Algorithm Library', () => {
-    before(() => {
+    beforeEach(() => {
         AlgorithmBootstrap.initialize();
     });
 

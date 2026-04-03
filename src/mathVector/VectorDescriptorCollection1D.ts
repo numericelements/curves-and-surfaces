@@ -45,7 +45,7 @@ export class VectorDescriptorCollection1D <T extends Vector = Vector> {
         }
     }
 
-    get vectorCollection(): Array<T> {
+    get vectorCollection(): ReadonlyArray<T> {
         return this._vectorCollection;
     }
 
@@ -113,35 +113,31 @@ export class VectorDescriptorCollection1D <T extends Vector = Vector> {
         return this._vectorCollection[index];
     }
 
-    push(vector: T): void {
-        if(this._vectorCollection.length === 0) {
-            this._vectorCollection.push(vector);
-            this._type = getVectorTypeInfo(this._vectorCollection[0]).typeString;
-        } else if (typeof vector === typeof this._vectorCollection[0]) {
-            this._vectorCollection.push(vector);
-        } else {
+    withReplacedAt(index: number, vector: T): VectorDescriptorCollection1D<T> {
+        if (typeof vector !== typeof this._vectorCollection[0]) {
+            throw new RangeError();
+        } else if(index < 0 || index >= this._vectorCollection.length) {
             throw new RangeError();
         }
+        return new VectorDescriptorCollection1D<T>([
+            ...this._vectorCollection.slice(0, index),
+            vector,
+            ...this._vectorCollection.slice(index + 1)
+        ]);
     }
 
-    pop(): T {
-        const vector = this._vectorCollection.pop();
-        if(vector !== undefined) {
-            return vector;
-        } else {
+    withPushed(vector: T): VectorDescriptorCollection1D<T> {
+        if (this._vectorCollection.length > 0 && typeof vector !== typeof this._vectorCollection[0]) {
             throw new RangeError();
         }
+        return new VectorDescriptorCollection1D<T>([...this._vectorCollection, vector]);
     }
 
-    revert(): VectorDescriptorCollection1D {
-        const revertedVectorCollection = new VectorDescriptorCollection1D();
-        for(const vector of this) {
-            revertedVectorCollection.push(this.pop());
-        }
-        return revertedVectorCollection;
+    reverted(): VectorDescriptorCollection1D<T> {
+        return new VectorDescriptorCollection1D<T>([...this._vectorCollection].reverse());
     }
 
-    insert(index: number, vector: T): VectorDescriptorCollection1D {
+    withInserted(index: number, vector: T): VectorDescriptorCollection1D {
         if (typeof vector !== typeof this._vectorCollection[0]) {
             throw new RangeError();
         } else if(index < 0 || index > this._vectorCollection.length) {
@@ -150,7 +146,7 @@ export class VectorDescriptorCollection1D <T extends Vector = Vector> {
         return new VectorDescriptorCollection1D([...this._vectorCollection.slice(0, index), vector, ...this._vectorCollection.slice(index)]);
     }
 
-    remove(index: number): VectorDescriptorCollection1D {
+    withoutAt(index: number): VectorDescriptorCollection1D {
         if(index < 0 || index > this._vectorCollection.length) {
             throw new RangeError();
         }

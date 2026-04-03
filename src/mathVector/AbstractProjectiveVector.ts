@@ -31,10 +31,10 @@ export abstract class AbstractProjectiveVector<D extends number, V extends Proje
 
     abstract get vectorSpace(): ProjectiveVectorSpace<D, V>;
     abstract get descriptor(): V;
-    abstract get coordinates(): number[];
+    abstract get coordinates(): readonly number[];
     abstract get weight(): Weight;
 
-    abstract get homogeneousCoordinates(): number[];
+    abstract get homogeneousCoordinates(): readonly number[];
     abstract getCoordinate(index: number): number;
     abstract clone(): this;
     abstract toRealVector(vectorSpace?: RealVectorSpace<any>): IRealVector;
@@ -88,7 +88,7 @@ export abstract class AbstractProjectiveVector<D extends number, V extends Proje
         return strictlyPosWeight;
     }
 
-    applyHomogeneousTransformation(tolerance?: number): number[] {
+    applyHomogeneousTransformation(tolerance?: number): readonly number[] {
         if(tolerance === undefined) tolerance = NULL_WEIGHT_TOLERANCE;
         if(this.weight.value < tolerance) {
             const error = sendRangeErrorMessage(this.constructor.name, 'applyHomogeneousTransformation', EM_WEIGHT_TOO_SMALL);
@@ -138,7 +138,7 @@ export abstract class AbstractProjectiveVector<D extends number, V extends Proje
         throw new RangeError(error.generateMessageString());
     }
 
-    toArray(): number[] {
+    toArray(): readonly number[] {
         return this.homogeneousCoordinates;
     }
 

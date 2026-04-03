@@ -14,7 +14,9 @@ export class ControlPolygonComplexProjectiveVectorStrategy implements ControlPol
     }
 
 
-    moveControlPoint(index: number, displacement: ProjectiveComplexVector): void {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addDescriptors(this.controlPolygon.vectorCollection[index] as ProjectiveComplexVector, displacement);
+    moveControlPoint(index: number, displacement: ProjectiveComplexVector): ControlPolygonFromDescriptors<ProjectiveComplexVector> {
+        const newVectors = [...this.controlPolygon.vectorCollection] as ProjectiveComplexVector[];
+        newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index] as ProjectiveComplexVector, displacement);
+        return new ControlPolygonFromDescriptors<ProjectiveComplexVector>(newVectors);
     }
 }

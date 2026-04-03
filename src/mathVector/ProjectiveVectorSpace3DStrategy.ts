@@ -47,7 +47,7 @@ export class ProjectiveVectorSpace3DStrategy implements IProjectiveVectorSpaceSt
         return false;
     }
 
-    createVector(coordinates: Real[], weightManager: WeightManager): ProjectiveVector2D {
+    createVector(coordinates: readonly Real[], weightManager: WeightManager): ProjectiveVector2D {
         if(weightManager.weightManagement === WeightManagement.AllPositiveWeights || (weightManager.weightManagement === WeightManagement.SomeNullWeights && coordinates[2] === 0)) {
             const weightDescriptor = createWeightDescriptor(coordinates[2], false);
             const vector: ProjectiveVector = createProjectiveVector2DDescriptor(coordinates[0], coordinates[1], weightDescriptor);

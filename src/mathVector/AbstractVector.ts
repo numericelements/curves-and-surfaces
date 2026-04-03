@@ -25,7 +25,7 @@ export abstract class AbstractVector <
     abstract get vectorSpace(): VS;
     abstract get spaceType(): VectorSpaceType;
     abstract get descriptor(): V;
-    abstract get coordinates(): (number | Complex)[];
+    abstract get coordinates(): readonly (number | Complex)[];
 
     abstract getCoordinate(index: number): number | Complex;
     abstract clone(): this;
@@ -114,7 +114,7 @@ export abstract class AbstractVector <
     abstract isOrthogonal(other: IVector<D, V>, tolerance?: number): boolean;
     abstract isParallel(other: IVector<D, V>, tolerance?: number): boolean;
     
-    abstract toArray(): number[];
+    abstract toArray(): readonly number[];
     
     abstract toString(): string;
 

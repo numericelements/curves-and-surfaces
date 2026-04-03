@@ -1,3 +1,4 @@
+import { IVector } from "../mathVector/Vector";
 import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
@@ -10,18 +11,18 @@ import { NO_KNOT_CLOSED_CURVE, NO_KNOT_PERIODIC_CURVE, UNIFORM_PERIODICKNOTSEQUE
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyIncreasingPeriodicKnotSequenceClosedCurve";
 
-export function createClosedBSplineFromParams<V extends Vector, D extends number>(
+export function createClosedBSplineFromParams<IV extends IVector<any, Vector>>(
         params: ClosedBSpline_type
-    ): ClosedBSplineR1toRn<V, D> {
+    ): ClosedBSplineR1toRn<IV> {
     if("controlPoints" in params) {
-        const controlPolygon: ControlPolygon<V, D> = 
+        const controlPolygon: ControlPolygon<IV> = 
             params.controlPoints instanceof ControlPolygon
-                ? params.controlPoints as ControlPolygon<V, D>
+                ? params.controlPoints as ControlPolygon<IV>
                     : normalizeDescriptorsToControlPolygon(
                         params.controlPoints instanceof ControlPolygonFromDescriptors
                             ? params.controlPoints
                             : new ControlPolygonFromDescriptors(params.controlPoints)
-                        ) as ControlPolygon<V, D>;
+                        ) as ControlPolygon<IV>;
 
         let knotSequence: StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
         let degree: number;
@@ -112,13 +113,13 @@ export function createClosedBSplineFromParams<V extends Vector, D extends number
         const first = controlPolygon.controlPoints[0];
         if (!first) throw new Error("Control polygon must not be empty");
         const vectorSpace = first.vectorSpace.spaceType as VectorSpaceType;
-        const spaceDimension = first.dimension as D;
+        const spaceDimension = first.dimension;
 
         // temporary
         knotSequence = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(
             degree + 1, { type: NO_KNOT_PERIODIC_CURVE });
 
-        return new ClosedBSplineR1toRn<V, D>(
+        return new ClosedBSplineR1toRn<IV>(
             controlPolygon,
             knotSequence,
             degree,

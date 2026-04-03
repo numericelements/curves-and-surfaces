@@ -96,7 +96,7 @@ export class Vector1DTypeComplex extends AbstractComplexVector<1, ComplexVector1
     get vectorSpace(): ComplexVectorSpace<1, ComplexVector1D> { return this._vectorSpace; }
     get real(): number { return this._descriptor.real; }
     get imaginary(): number { return this._descriptor.imaginary; }
-    get coordinates(): Complex[] { return [new Complex(this._descriptor.real, this._descriptor.imaginary)]; }
+    get coordinates(): readonly Complex[] { return [new Complex(this._descriptor.real, this._descriptor.imaginary)]; }
     get descriptor(): ComplexVector1D { return copyDescriptorComplexVector1D(this._descriptor); }
     
     getCoordinate(index: number): Complex {

@@ -5,7 +5,7 @@ export interface IProjectiveVectorSpaceStrategy<D extends number, V extends Proj
     shareSameWeightManagement(v1: ProjectiveVector, v2: ProjectiveVector, weightManager: WeightManager): boolean;
     areSameDimension(v1: ProjectiveVector, v2: ProjectiveVector): boolean;
     isInVectorSpace(v: ProjectiveVector): v is ProjectiveVector;
-    createVector(coordinates: Real[], weightManager: WeightManager): V;
+    createVector(coordinates: readonly Real[], weightManager: WeightManager): V;
     defaultVect(weightManager: WeightManager): V;
     addDescriptors(a: V, b: V, weightManager: WeightManager): V;
     scaleDescriptor(scalar: Real, v: V, weightManager: WeightManager): V;

@@ -90,7 +90,7 @@ export class Vector2DTypeComplex extends AbstractComplexVector<2, ComplexVector2
     get vectorType(): string { return Vector2DTypeComplex._vectorType; }
     get vectorSpace(): ComplexVectorSpace<2, ComplexVector2D> { return this._vectorSpace; }
 
-    get coordinates(): Complex[] { 
+    get coordinates(): readonly Complex[] { 
         let result: Complex[] = [];
         for (let i = 0; i < this.dimension; i++) {
             result.push(new Complex(this._descriptor.coordinates[i].real, this._descriptor.coordinates[i].imaginary));

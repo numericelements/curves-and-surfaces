@@ -88,7 +88,7 @@ export class RealVectorSpace<D extends number = number, V extends RealVector = R
       return this.strategy.isInVectorSpace(v);
     }
 
-    createVector(coordinates: Real[]): V {
+    createVector(coordinates: readonly Real[]): V {
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(message.generateMessageString());

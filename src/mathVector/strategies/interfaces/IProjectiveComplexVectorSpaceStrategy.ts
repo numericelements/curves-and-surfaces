@@ -6,7 +6,7 @@ export interface IProjectiveComplexVectorSpaceStrategy<D extends number, V exten
     shareSameWeightManagement(v1: ProjectiveComplexVector, v2: ProjectiveComplexVector, weightManager: WeightManager): boolean;
     areSameDimension(v1: ProjectiveComplexVector, v2: ProjectiveComplexVector): boolean;
     isInVectorSpace(v: ProjectiveComplexVector): v is ProjectiveComplexVector;
-    createVector(coordinates: Real[], weightManager: WeightManager): V;
+    createVector(coordinates: readonly Real[], weightManager: WeightManager): V;
     defaultVect(weightManager: WeightManager): V;
     addDescriptors(a: V, b: V, weightManager: WeightManager): V;
     scaleDescriptor(scalar: IComplex | number, v: V, weightManager: WeightManager): V;

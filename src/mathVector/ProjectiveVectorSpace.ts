@@ -110,7 +110,7 @@ export class ProjectiveVectorSpace<D extends number = number, V extends Projecti
         return this.strategy.isInVectorSpace(v);
     }
 
-    createVector(coordinates: Real[]): V {
+    createVector(coordinates: readonly Real[]): V {
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PROJECTIVEVECTOR_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());

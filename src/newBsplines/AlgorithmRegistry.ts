@@ -1,3 +1,4 @@
+import { IVector } from "../mathVector/Vector";
 import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { ControlPolygon } from "./ControlPolygon";
@@ -57,13 +58,13 @@ export class AlgorithmRegistry {
     //     return this.algorithms.get(algorithmName)?.get(vectorSpaceType);
     // }
 
-    static createEvaluator<V extends Vector, D extends number>(
+    static createEvaluator<IV extends IVector<any, Vector>>(
         algorithmName: string,
-        controlPolygon: ControlPolygon<V, D>,
+        controlPolygon: ControlPolygon<IV>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
         degree: number,
         vectorSpaceType: VectorSpaceType
-    ): BSplineEvaluator<V, D> {
+    ): BSplineEvaluator<IV> {
         const reg = this._registry.get(algorithmName);
         if (!reg) {
             throw new Error(`Algorithm '${algorithmName}' is not registered. Did you call AlgorithmBootstrap.initialize()?`);
@@ -72,9 +73,9 @@ export class AlgorithmRegistry {
             throw new Error(`Algorithm '${algorithmName}' does not support vector space type '${vectorSpaceType}'`);
         }
         return reg.factory.createEvaluator(
-            controlPolygon as ControlPolygon<Vector, number>,
+            controlPolygon as ControlPolygon<IVector<any, Vector>>,
             knotSequence,
             degree
-        ) as BSplineEvaluator<V, D>;
+        ) as BSplineEvaluator<IV>;
     }
 }

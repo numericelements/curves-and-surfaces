@@ -15,13 +15,7 @@ type TestD = DimensionTypeOf<Vector1DTypeComplex>;   // Should be 1
 const v1 = new Vector1DTypeComplex(0, 0);
 const v2 = new Vector1DTypeComplex(1, 1);
 
-// Factory using property type access for inference
-function makeCP<IV extends IVector<any, Vector>>(
-    vectors: IV[]
-): ControlPolygon<IV['descriptor'], IV['dimension']> {
-    return new ControlPolygon(vectors as any) as any;
-}
-
-const cp = makeCP([v1, v2]);
-// cp should be ControlPolygon<ComplexVector1D, 1>
-const _test: ControlPolygon<ComplexVector1D, 1> = cp;
+// Single-generic ControlPolygon — inference works directly from the array element type
+const cp = new ControlPolygon([v1, v2]);
+// cp should be ControlPolygon<Vector1DTypeComplex>
+const _test: ControlPolygon<Vector1DTypeComplex> = cp;

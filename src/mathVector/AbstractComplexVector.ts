@@ -26,7 +26,7 @@ export abstract class AbstractComplexVector<D extends number, V extends ComplexV
 
     abstract get vectorSpace(): ComplexVectorSpace<D, V>;
     abstract get descriptor(): V;
-    abstract get coordinates(): Complex[];
+    abstract get coordinates(): readonly Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): this;
     abstract toString(): string;
@@ -88,7 +88,7 @@ export abstract class AbstractComplexVector<D extends number, V extends ComplexV
         return coord.imaginary;
     }
     
-    toArray(): number[] {
+    toArray(): readonly number[] {
         let result: number[] = [];
         for (let i = 0; i < this.dimension; i++) {
             result.push(this.coordinates[i].real);

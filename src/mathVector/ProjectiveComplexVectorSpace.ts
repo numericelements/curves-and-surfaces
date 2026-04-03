@@ -147,7 +147,7 @@ export class ProjectiveComplexVectorSpace<D extends number = number, V extends P
         return createProjectiveComplexVector1DDescriptor(nullComplex, defaultComplexWeight) as unknown as V;
     }
 
-    createVector(coordinates: number[][]): V {
+    createVector(coordinates: readonly (readonly number[])[]): V {
         const complex1: IComplex = createComplexVector1DDescriptor(coordinates[0][0], coordinates[0][1]);
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_PROJECTIVECOMPLEXVECTORS_NOT_IN_VECTORSPACE);

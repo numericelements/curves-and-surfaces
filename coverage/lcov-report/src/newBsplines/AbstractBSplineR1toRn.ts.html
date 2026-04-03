@@ -418,10 +418,10 @@ export function hasType&lt;T extends string&gt;(d: unknown, t: T): d is { type: 
     return typeof d === "object" &amp;&amp; d !== null &amp;&amp; "type" in d &amp;&amp; (d as { type: unknown }).type === t;
 }
 &nbsp;
-// Normalize a ControlPolygonFromDescriptors into a canonical ControlPolygon&lt;Vector, number&gt;
+// Normalize a ControlPolygonFromDescriptors into a canonical ControlPolygon&lt;IVector&lt;any, Vector&gt;&gt;
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >export function normalizeDescriptorsToControlPolygon(</span></span>
 <span class="cstat-no" title="statement not covered" >    descriptors: ControlPolygonFromDescriptors</span>
-<span class="cstat-no" title="statement not covered" >): ControlPolygon&lt;Vector, number&gt; {</span>
+<span class="cstat-no" title="statement not covered" >): ControlPolygon&lt;IVector&lt;any, Vector&gt;&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    const vectors: IVector&lt;any, Vector&gt;[] = [];</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    for (const item of descriptors) {</span>
@@ -454,7 +454,7 @@ export function hasType&lt;T extends string&gt;(d: unknown, t: T): d is { type: 
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    if (vectors.length === 0) throw new Error("Control polygon must contain at least one vector");</span>
-<span class="cstat-no" title="statement not covered" >    return new ControlPolygon&lt;Vector, number&gt;(vectors);</span>
+<span class="cstat-no" title="statement not covered" >    return new ControlPolygon&lt;IVector&lt;any, Vector&gt;&gt;(vectors);</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;
 // Derive degree from knot sequence length and control point count
@@ -508,12 +508,12 @@ export function hasType&lt;T extends string&gt;(d: unknown, t: T): d is { type: 
 <span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;
 &nbsp;
-export abstract class AbstractBSplineR1toRn&lt;V extends Vector = Vector, D extends number = number&gt; {
+export abstract class AbstractBSplineR1toRn&lt;IV extends IVector&lt;any, Vector&gt; = IVector&lt;any, Vector&gt;&gt; {
 &nbsp;
     protected readonly abstract _curveOrigin: number;
 &nbsp;
     // canonical internal model: always IVector-based
-    protected readonly _controlPolygon: ControlPolygon&lt;V, D&gt;;
+    protected readonly _controlPolygon: ControlPolygon&lt;IV&gt;;
     protected readonly _degree: number;
     protected readonly _vectorSpace: VectorSpaceType;
     protected readonly _spaceDimension: number;
@@ -522,7 +522,7 @@ export abstract class AbstractBSplineR1toRn&lt;V extends Vector = Vector, D exte
     protected _isDirty: boolean; // reserved for cache invalidation
 &nbsp;
 <span class="fstat-no" title="function not covered" >    constructor(</span>
-<span class="cstat-no" title="statement not covered" >        controlPolygon: ControlPolygon&lt;V, D&gt;,</span>
+<span class="cstat-no" title="statement not covered" >        controlPolygon: ControlPolygon&lt;IV&gt;,</span>
 <span class="cstat-no" title="statement not covered" >        knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,</span>
 <span class="cstat-no" title="statement not covered" >        degree: number,</span>
 <span class="cstat-no" title="statement not covered" >        vectorSpace: VectorSpaceType,</span>
@@ -542,11 +542,11 @@ export abstract class AbstractBSplineR1toRn&lt;V extends Vector = Vector, D exte
 <span class="fstat-no" title="function not covered" >    get spaceDimension(): number { return this._spaceDimension; }</span>
     abstract get knotSequence(): StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
 <span class="fstat-no" title="function not covered" >    get curveOrigin(): number { return this._curveOrigin; }</span>
-<span class="fstat-no" title="function not covered" >    get controlPoints(): ReadonlyArray&lt;IVector&lt;D, V&gt;&gt; { return this._controlPolygon.controlPoints; }</span>
+<span class="fstat-no" title="function not covered" >    get controlPoints(): ReadonlyArray&lt;IV&gt; { return this._controlPolygon.controlPoints; }</span>
 &nbsp;
     // immutable "update" operations
-    abstract withControlPolygon(controlPolygon: ControlPolygon&lt;V, D&gt;): AbstractBSplineR1toRn&lt;V, D&gt;;
-    abstract withKnots(knots: readonly number[]): AbstractBSplineR1toRn&lt;V, D&gt;;
+    abstract withControlPolygon(controlPolygon: ControlPolygon&lt;IV&gt;): AbstractBSplineR1toRn&lt;IV&gt;;
+    abstract withKnots(knots: readonly number[]): AbstractBSplineR1toRn&lt;IV&gt;;
 &nbsp;
     protected <span class="fstat-no" title="function not covered" >invalidate(): void { this._isDirty = true; }</span>
 }</pre></td></tr></table></pre>
@@ -556,7 +556,7 @@ export abstract class AbstractBSplineR1toRn&lt;V extends Vector = Vector, D exte
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-02T18:35:05.984Z
+                at 2026-04-03T17:21:25.262Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

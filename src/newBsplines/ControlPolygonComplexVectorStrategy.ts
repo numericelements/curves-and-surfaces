@@ -14,7 +14,9 @@ export class ControlPolygonComplexVectorStrategy implements ControlPolygonStrate
     }
 
 
-    moveControlPoint(index: number, displacement: ComplexVector): void {
-        this.controlPolygon.vectorCollection[index] = this.vectorSpace.addDescriptors(this.controlPolygon.vectorCollection[index] as ComplexVector, displacement);
+    moveControlPoint(index: number, displacement: ComplexVector): ControlPolygonFromDescriptors<ComplexVector> {
+        const newVectors = [...this.controlPolygon.vectorCollection] as ComplexVector[];
+        newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index] as ComplexVector, displacement);
+        return new ControlPolygonFromDescriptors<ComplexVector>(newVectors);
     }
 }

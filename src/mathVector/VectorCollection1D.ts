@@ -1,5 +1,4 @@
 import { EM_VECTOR_SPACE_DIMENSION_DIFFER, EM_VECTOR_SPACE_IDENTIFIER_DIFFER, EM_VECTOR_SPACE_TYPE_DIFFER } from "../ErrorMessages/VectorCollection1D";
-import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
 import { IdentifiableVectorSpace } from "./IVectorSpace";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
@@ -12,7 +11,7 @@ import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 export class VectorCollection1D< V extends IVector<any, Vector> = IVector<any, Vector> > 
     implements Iterable<V>
 {
-    protected readonly _vectors: V[];
+    protected readonly _vectors: ReadonlyArray<V>;
     private readonly _vectorSpace: IdentifiableVectorSpace<Vector>;
     private readonly _weightManagement?: WeightManagement;
     private readonly _spaceDimension: number;
@@ -108,6 +107,19 @@ export class VectorCollection1D< V extends IVector<any, Vector> = IVector<any, V
         ]);
     }
 
+    withReplacedAt(index: number, vector: V): VectorCollection1D<V> {
+        if (typeof vector !== typeof this._vectors[0]) {
+            throw new RangeError();
+        } else if(index < 0 || index >= this._vectors.length) {
+            throw new RangeError();
+        }
+        return new VectorCollection1D<V>([
+            ...this._vectors.slice(0, index),
+            vector,
+            ...this._vectors.slice(index + 1)
+        ]);
+    }
+
     withoutAt(index: number): VectorCollection1D<V> {
         if (index < 0 || index >= this._vectors.length) throw new RangeError('index out of range');
         if (this._vectors.length === 1) throw new RangeError('cannot remove last vector: collection must contain at least one vector');
@@ -115,11 +127,6 @@ export class VectorCollection1D< V extends IVector<any, Vector> = IVector<any, V
             ...this._vectors.slice(0, index),
             ...this._vectors.slice(index + 1)
         ]);
-    }
-
-    pop(): V {
-        if (this._vectors.length === 1) throw new RangeError('cannot remove last vector: collection must contain at least one vector');
-        return this._vectors.pop() as V;
     }
 
     reverted(): VectorCollection1D<V> {
@@ -136,7 +143,7 @@ export class VectorCollection1D< V extends IVector<any, Vector> = IVector<any, V
         return new VectorCollection1D(clonedVectors);
     }
 
-    toArray(): number[][] {
+    toArray(): ReadonlyArray<readonly number[]> {
         return this._vectors.map(vector => vector.toArray());
     }
 

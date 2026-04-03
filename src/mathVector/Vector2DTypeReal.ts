@@ -71,7 +71,7 @@ export class Vector2DTypeReal extends AbstractRealVector<2, RealVector2D>
     get dimension(): 2 { return Vector2DTypeReal.DIMENSION; }
     get vectorType(): string { return Vector2DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<2, RealVector2D> { return this._vectorSpace; }
-    get coordinates(): number[] { return [...this._descriptor.coordinates]; }
+    get coordinates(): readonly number[] { return [...this._descriptor.coordinates]; }
     get descriptor(): RealVector2D { return copyDescriptorRealVector2D(this._descriptor); }
     get y(): number { return this.getCoordinate(Vector2DTypeReal.DIMENSION - 1); }
 

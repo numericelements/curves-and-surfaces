@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">58.15% </span>
+                <span class="strong">60.11% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>107/184</span>
+                <span class='fraction'>107/178</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">58.15% </span>
+                <span class="strong">60.11% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>107/184</span>
+                <span class='fraction'>107/178</span>
             </div>
         
             
@@ -240,13 +240,7 @@
 <a name='L175'></a><a href='#L175'>175</a>
 <a name='L176'></a><a href='#L176'>176</a>
 <a name='L177'></a><a href='#L177'>177</a>
-<a name='L178'></a><a href='#L178'>178</a>
-<a name='L179'></a><a href='#L179'>179</a>
-<a name='L180'></a><a href='#L180'>180</a>
-<a name='L181'></a><a href='#L181'>181</a>
-<a name='L182'></a><a href='#L182'>182</a>
-<a name='L183'></a><a href='#L183'>183</a>
-<a name='L184'></a><a href='#L184'>184</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L178'></a><a href='#L178'>178</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -378,14 +372,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -476,7 +464,7 @@ export class VectorDescriptorCollection1D &lt;T extends Vector = Vector&gt; {
 <span class="cstat-no" title="statement not covered" >        }</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-    get vectorCollection(): Array&lt;T&gt; {
+    get vectorCollection(): ReadonlyArray&lt;T&gt; {
         return this._vectorCollection;
     }
 &nbsp;
@@ -544,35 +532,29 @@ export class VectorDescriptorCollection1D &lt;T extends Vector = Vector&gt; {
 <span class="cstat-no" title="statement not covered" >        return this._vectorCollection[index];</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    push(vector: T): void {</span>
-<span class="cstat-no" title="statement not covered" >        if(this._vectorCollection.length === 0) {</span>
-<span class="cstat-no" title="statement not covered" >            this._vectorCollection.push(vector);</span>
-<span class="cstat-no" title="statement not covered" >            this._type = getVectorTypeInfo(this._vectorCollection[0]).typeString;</span>
-<span class="cstat-no" title="statement not covered" >        } else if (typeof vector === typeof this._vectorCollection[0]) {</span>
-<span class="cstat-no" title="statement not covered" >            this._vectorCollection.push(vector);</span>
-<span class="cstat-no" title="statement not covered" >        } else {</span>
+<span class="fstat-no" title="function not covered" >    withReplacedAt(index: number, vector: T): VectorDescriptorCollection1D&lt;T&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        if(index &lt; 0 || index &gt;= this._vectorCollection.length) {</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >        return new VectorDescriptorCollection1D&lt;T&gt;([</span>
+<span class="cstat-no" title="statement not covered" >            ...this._vectorCollection.slice(0, index),</span>
+<span class="cstat-no" title="statement not covered" >            vector,</span>
+<span class="cstat-no" title="statement not covered" >            ...this._vectorCollection.slice(index + 1)</span>
+<span class="cstat-no" title="statement not covered" >        ]);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    pop(): T {</span>
-<span class="cstat-no" title="statement not covered" >        const vector = this._vectorCollection.pop();</span>
-<span class="cstat-no" title="statement not covered" >        if(vector !== undefined) {</span>
-<span class="cstat-no" title="statement not covered" >            return vector;</span>
-<span class="cstat-no" title="statement not covered" >        } else {</span>
+<span class="fstat-no" title="function not covered" >    withPushed(vector: T): VectorDescriptorCollection1D&lt;T&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        if (this._vectorCollection.length &gt; 0 &amp;&amp; typeof vector !== typeof this._vectorCollection[0]) {</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
+<span class="cstat-no" title="statement not covered" >        return new VectorDescriptorCollection1D&lt;T&gt;([...this._vectorCollection, vector]);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    revert(): VectorDescriptorCollection1D {</span>
-<span class="cstat-no" title="statement not covered" >        const revertedVectorCollection = new VectorDescriptorCollection1D();</span>
-<span class="cstat-no" title="statement not covered" >        for(const vector of this) {</span>
-<span class="cstat-no" title="statement not covered" >            revertedVectorCollection.push(this.pop());</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >        return revertedVectorCollection;</span>
+<span class="fstat-no" title="function not covered" >    reverted(): VectorDescriptorCollection1D&lt;T&gt; {</span>
+<span class="cstat-no" title="statement not covered" >        return new VectorDescriptorCollection1D&lt;T&gt;([...this._vectorCollection].reverse());</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    insert(index: number, vector: T): VectorDescriptorCollection1D {</span>
+<span class="fstat-no" title="function not covered" >    withInserted(index: number, vector: T): VectorDescriptorCollection1D {</span>
 <span class="cstat-no" title="statement not covered" >        if (typeof vector !== typeof this._vectorCollection[0]) {</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
 <span class="cstat-no" title="statement not covered" >        } else if(index &lt; 0 || index &gt; this._vectorCollection.length) {</span>
@@ -581,7 +563,7 @@ export class VectorDescriptorCollection1D &lt;T extends Vector = Vector&gt; {
 <span class="cstat-no" title="statement not covered" >        return new VectorDescriptorCollection1D([...this._vectorCollection.slice(0, index), vector, ...this._vectorCollection.slice(index)]);</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 &nbsp;
-<span class="fstat-no" title="function not covered" >    remove(index: number): VectorDescriptorCollection1D {</span>
+<span class="fstat-no" title="function not covered" >    withoutAt(index: number): VectorDescriptorCollection1D {</span>
 <span class="cstat-no" title="statement not covered" >        if(index &lt; 0 || index &gt; this._vectorCollection.length) {</span>
 <span class="cstat-no" title="statement not covered" >            throw new RangeError();</span>
 <span class="cstat-no" title="statement not covered" >        }</span>
@@ -619,7 +601,7 @@ export function createVectorCollection1D&lt;T extends Vector&gt;(vectors: T[]): 
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-02T18:35:05.984Z
+                at 2026-04-03T17:21:25.262Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

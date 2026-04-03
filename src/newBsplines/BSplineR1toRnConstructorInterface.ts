@@ -174,8 +174,8 @@ export type ControlPointObject<V extends Vector = Vector, D extends number = num
 export type ControlPoint<V extends Vector = Vector, D extends number = number> =
     ControlPointDescriptor<V> | ControlPointObject<V, D>;
 
-export type ControlPoints<V extends Vector = Vector, D extends number = number> =
-    ControlPolygonFromDescriptors<V, D> | ControlPolygon<V, D>;
+export type ControlPoints<IV extends IVector<any, Vector> = IVector<any, Vector>> =
+    ControlPolygonFromDescriptors | ControlPolygon<IV>;
 
 
 
@@ -186,8 +186,8 @@ export interface BSplineFromVectorDescriptorParams<V extends Vector, D extends n
 }
 
 
-export interface BSplineFromVectorParams<V extends Vector, D extends number> {
-    readonly controlPolygon: ControlPolygon<V, D>;
+export interface BSplineFromVectorParams<IV extends IVector<any, Vector>> {
+    readonly controlPolygon: ControlPolygon<IV>;
     readonly knotSequence: KnotSequenceInterface;
     readonly degree: number;
     readonly useCase?: "general" | "performance" | "precision" | "subdivision";

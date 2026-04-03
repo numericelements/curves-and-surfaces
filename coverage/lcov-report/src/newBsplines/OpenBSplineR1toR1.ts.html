@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/140</span>
+                <span class='fraction'>0/141</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/140</span>
+                <span class='fraction'>0/141</span>
             </div>
         
             
@@ -202,7 +202,9 @@
 <a name='L137'></a><a href='#L137'>137</a>
 <a name='L138'></a><a href='#L138'>138</a>
 <a name='L139'></a><a href='#L139'>139</a>
-<a name='L140'></a><a href='#L140'>140</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -342,6 +344,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import { createRealVector1DFromDescriptor } from "../mathVector/VectorFromDescriptorFactory";</span></span></span>
+<span class="cstat-no" title="statement not covered" >import { IRealVector } from "../mathVector/Vector";</span>
 <span class="cstat-no" title="statement not covered" >import { RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";</span>
 <span class="cstat-no" title="statement not covered" >import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";</span>
 <span class="cstat-no" title="statement not covered" >import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";</span>
@@ -359,7 +362,7 @@
 <span class="cstat-no" title="statement not covered" >    { type: typeof BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY }</span>
 <span class="cstat-no" title="statement not covered" >&gt;;</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export class OpenBSplineR1toR1 extends AbstractBSplineR1toRn&lt;Vector, 1&gt; {</span>
+<span class="cstat-no" title="statement not covered" >export class OpenBSplineR1toR1 extends AbstractBSplineR1toRn&lt;IRealVector&lt;1&gt;&gt; {</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    protected readonly _curveOrigin: number;</span>
 <span class="cstat-no" title="statement not covered" >    protected readonly _knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;</span>
@@ -373,7 +376,7 @@
 <span class="cstat-no" title="statement not covered" >        const openParams = curveParameters as OpenR1toR1Params;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >        const scalarControlPolygon = [...curveParameters.controlPoints];</span>
-<span class="cstat-no" title="statement not covered" >        const canonicalControlPolygon = new ControlPolygon&lt;Vector, 1&gt;(</span>
+<span class="cstat-no" title="statement not covered" >        const canonicalControlPolygon = new ControlPolygon(</span>
 <span class="cstat-no" title="statement not covered" >            scalarControlPolygon.map(v =&gt; createRealVector1DFromDescriptor(v))</span>
 <span class="cstat-no" title="statement not covered" >        );</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -416,7 +419,7 @@
 <span class="cstat-no" title="statement not covered" >        this._curveOrigin = KNOT_SEQUENCE_ORIGIN;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    get controlPolygon(): ControlPolygon&lt;Vector, 1&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    get controlPolygon(): ControlPolygon&lt;IRealVector&lt;1&gt;&gt; {</span>
 <span class="cstat-no" title="statement not covered" >        return this._controlPolygon;</span>
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -433,7 +436,7 @@
 <span class="cstat-no" title="statement not covered" >    }</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    public withControlPolygon(controlPolygon: ControlPolygon&lt;Vector, 1&gt;): OpenBSplineR1toR1 {</span>
+<span class="cstat-no" title="statement not covered" >    public withControlPolygon(controlPolygon: ControlPolygon&lt;IRealVector&lt;1&gt;&gt;): OpenBSplineR1toR1 {</span>
 <span class="cstat-no" title="statement not covered" >        const scalarCP = controlPolygon.controlPoints.map(OpenBSplineR1toR1.scalarFromControlPoint);</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >        const nextParams: OpenR1toR1Params = {</span>
@@ -487,7 +490,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-02T18:35:05.984Z
+                at 2026-04-03T17:21:25.262Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

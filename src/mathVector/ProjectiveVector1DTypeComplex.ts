@@ -140,14 +140,14 @@ export class ProjectiveVector1DTypeComplex extends AbstractProjectiveComplexVect
     get dimension(): 2 { return ProjectiveVector1DTypeComplex.DIMENSION; } // Homogeneous coordinates
     get vectorType(): string { return ProjectiveVector1DTypeComplex._vectorType; }
     get vectorSpace(): ProjectiveComplexVectorSpace<2, ProjectiveComplexVector1D> { return this._vectorSpace; }
-    get coordinates(): Complex[] { return [new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary), new Complex(this._descriptor.coordinates[1].real.value, this._descriptor.coordinates[1].imaginary.value)]; }
+    get coordinates(): readonly Complex[] { return [new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary), new Complex(this._descriptor.coordinates[1].real.value, this._descriptor.coordinates[1].imaginary.value)]; }
     get descriptor(): ProjectiveComplexVector { return cloneDescriptorProjectiveComplexVector1D(this._descriptor); }
     
     get weight(): ComplexWeight {
         return new ComplexWeight(this._descriptor.coordinates[1].real, this._descriptor.coordinates[1].imaginary);
     }
     
-    get homogeneousComplexCoordinates(): Complex[] {
+    get homogeneousComplexCoordinates(): readonly Complex[] {
         return [new Complex(this._descriptor.coordinates[0].real, this._descriptor.coordinates[0].imaginary), new Complex(this.weight.real.value, this.weight.imaginary.value)];
     }
 

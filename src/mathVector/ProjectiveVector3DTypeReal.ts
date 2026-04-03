@@ -85,7 +85,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4, Proj
     get dimension(): 4 { return ProjectiveVector3DTypeReal.DIMENSION; }
     get vectorType(): string { return ProjectiveVector3DTypeReal._vectorType; }
     get vectorSpace(): ProjectiveVectorSpace<4, ProjectiveVector3D> { return this._vectorSpace; }
-    get coordinates(): number[] { return this.homogeneousCoordinates; }
+    get coordinates(): readonly number[] { return this.homogeneousCoordinates; }
     get descriptor(): ProjectiveVector3D { return cloneDescriptorProjectiveRealVector3D(this._descriptor); }
 
     get z(): number { return this.getCoordinate(2) };
@@ -94,7 +94,7 @@ export class ProjectiveVector3DTypeReal extends AbstractProjectiveVector<4, Proj
         return this._descriptor.coordinates[3].weight;
     }
     
-    get homogeneousCoordinates(): number[] {
+    get homogeneousCoordinates(): readonly number[] {
         return [this._descriptor.coordinates[0], this._descriptor.coordinates[1], this._descriptor.coordinates[2], this.weight.value];
     }
     

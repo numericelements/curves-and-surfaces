@@ -35,7 +35,7 @@ export interface IVector <
     readonly descriptor: V;
 
     // Coordinate access
-    readonly coordinates: (number | Complex)[];
+    readonly coordinates: readonly (number | Complex)[];
     getCoordinate(index: number): number | Complex;
 
     // Basic operations - now can be performed directly on vectors
@@ -56,7 +56,7 @@ export interface IVector <
     affineDistance(other: IVector<D, V>): number;
     
     // Conversion utilities
-    toArray(): number[];
+    toArray(): readonly number[];
     toString(): string;
 }
 
@@ -70,7 +70,7 @@ export interface IRealVector<D extends number = number, V extends RealVector = R
     {
     readonly vectorSpace: RealVectorSpace<D, V>;
     readonly spaceType: VectorSpaceType.REAL;
-    readonly coordinates: number[];
+    readonly coordinates: readonly number[];
     // Real vector specific accessors
     readonly x?: number;
     readonly y?: number;
@@ -92,7 +92,7 @@ export interface IComplexVector<D extends number = number, V extends ComplexVect
 {
     readonly vectorSpace: ComplexVectorSpace<D, V>;
     readonly spaceType: VectorSpaceType.COMPLEX;
-    readonly coordinates: Complex[];
+    readonly coordinates: readonly Complex[];
     // Complex vector specific accessors
     readonly real?: number;
     readonly imaginary?: number;
@@ -113,12 +113,12 @@ export interface IProjectiveVector<D extends number = number, V extends Projecti
 {
     readonly vectorSpace: ProjectiveVectorSpace<D, V>;
     readonly spaceType: VectorSpaceType.PROJECTIVE;
-    readonly coordinates: number[];
+    readonly coordinates: readonly number[];
     readonly x: number;
     readonly y: number;
     readonly z?: number;
     readonly weight: Weight;
-    readonly homogeneousCoordinates: number[];
+    readonly homogeneousCoordinates: readonly number[];
     getCoordinate(index: number): number;
     homogeneousTransform(tolerance?: number): this;
 
@@ -131,9 +131,9 @@ export interface IProjectiveComplexVector<D extends number = number, V extends P
 {
     readonly vectorSpace: ProjectiveComplexVectorSpace<D, V>;
     readonly spaceType: VectorSpaceType.PROJECTIVECOMPLEX;
-    readonly coordinates: Complex[];
+    readonly coordinates: readonly Complex[];
     readonly weight: ComplexWeight;
-    readonly homogeneousComplexCoordinates: Complex[];
+    readonly homogeneousComplexCoordinates: readonly Complex[];
     
     // Projective-specific methods
     toComplexVector(vectorSpace?: ComplexVectorSpace<any>): IComplexVector<any>;

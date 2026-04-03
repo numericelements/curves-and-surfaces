@@ -90,14 +90,14 @@ export class ProjectiveVector2DTypeReal extends AbstractProjectiveVector<3, Proj
     get dimension(): 3 { return ProjectiveVector2DTypeReal.DIMENSION; }
     get vectorType(): string { return ProjectiveVector2DTypeReal._vectorType; }
     get vectorSpace(): ProjectiveVectorSpace<3, ProjectiveVector2D> { return this._vectorSpace; }
-    get coordinates(): number[] { return this.homogeneousCoordinates; }
+    get coordinates(): readonly number[] { return this.homogeneousCoordinates; }
     get descriptor(): ProjectiveVector2D { return cloneDescriptorProjectiveRealVector2D(this._descriptor); }
 
     get weight(): Weight {
         return this._descriptor.coordinates[2].weight;
     }
     
-    get homogeneousCoordinates(): number[] {
+    get homogeneousCoordinates(): readonly number[] {
         return [this._descriptor.coordinates[0], this._descriptor.coordinates[1], this.weight.value];
     }
     

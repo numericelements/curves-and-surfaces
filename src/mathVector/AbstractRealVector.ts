@@ -29,7 +29,7 @@ export abstract class AbstractRealVector<D extends number, V extends RealVector 
 
     abstract get vectorSpace(): RealVectorSpace<D, V>;   
     abstract get descriptor(): V;
-    abstract get coordinates(): number[];
+    abstract get coordinates(): readonly number[];
     abstract getCoordinate(index: number): number;
     abstract clone(): this;
 
@@ -66,7 +66,7 @@ export abstract class AbstractRealVector<D extends number, V extends RealVector 
         return Math.sqrt(sum);
     }
 
-    toArray(): number[] {
+    toArray(): readonly number[] {
         return this.coordinates;
     }
 

@@ -23,7 +23,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
         return false;
     }
 
-    createVector(coordinates: number[][]): ComplexVector1D {
+    createVector(coordinates: readonly (readonly number[])[]): ComplexVector1D {
         let vector: IComplex = createComplexVector1DDescriptor(coordinates[0][0], coordinates[0][1]);
         return vector;
     }

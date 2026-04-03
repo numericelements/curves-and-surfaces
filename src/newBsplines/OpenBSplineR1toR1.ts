@@ -1,4 +1,5 @@
 import { createRealVector1DFromDescriptor } from "../mathVector/VectorFromDescriptorFactory";
+import { IRealVector } from "../mathVector/Vector";
 import { RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
@@ -16,7 +17,7 @@ type OpenR1toR1Params = Extract<
     { type: typeof BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY }
 >;
 
-export class OpenBSplineR1toR1 extends AbstractBSplineR1toRn<Vector, 1> {
+export class OpenBSplineR1toR1 extends AbstractBSplineR1toRn<IRealVector<1>> {
 
     protected readonly _curveOrigin: number;
     protected readonly _knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;
@@ -30,7 +31,7 @@ export class OpenBSplineR1toR1 extends AbstractBSplineR1toRn<Vector, 1> {
         const openParams = curveParameters as OpenR1toR1Params;
 
         const scalarControlPolygon = [...curveParameters.controlPoints];
-        const canonicalControlPolygon = new ControlPolygon<Vector, 1>(
+        const canonicalControlPolygon = new ControlPolygon(
             scalarControlPolygon.map(v => createRealVector1DFromDescriptor(v))
         );
 
@@ -73,7 +74,7 @@ export class OpenBSplineR1toR1 extends AbstractBSplineR1toRn<Vector, 1> {
         this._curveOrigin = KNOT_SEQUENCE_ORIGIN;
     }
 
-    get controlPolygon(): ControlPolygon<Vector, 1> {
+    get controlPolygon(): ControlPolygon<IRealVector<1>> {
         return this._controlPolygon;
     }
 
@@ -90,7 +91,7 @@ export class OpenBSplineR1toR1 extends AbstractBSplineR1toRn<Vector, 1> {
     }
 
 
-    public withControlPolygon(controlPolygon: ControlPolygon<Vector, 1>): OpenBSplineR1toR1 {
+    public withControlPolygon(controlPolygon: ControlPolygon<IRealVector<1>>): OpenBSplineR1toR1 {
         const scalarCP = controlPolygon.controlPoints.map(OpenBSplineR1toR1.scalarFromControlPoint);
 
         const nextParams: OpenR1toR1Params = {

@@ -380,7 +380,7 @@
 <span class="cstat-no" title="statement not covered" >    readonly descriptor: V;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    // Coordinate access</span>
-<span class="cstat-no" title="statement not covered" >    readonly coordinates: (number | Complex)[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly coordinates: readonly (number | Complex)[];</span>
 <span class="cstat-no" title="statement not covered" >    getCoordinate(index: number): number | Complex;</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >    // Basic operations - now can be performed directly on vectors</span>
@@ -401,7 +401,7 @@
 <span class="cstat-no" title="statement not covered" >    affineDistance(other: IVector&lt;D, V&gt;): number;</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    // Conversion utilities</span>
-<span class="cstat-no" title="statement not covered" >    toArray(): number[];</span>
+<span class="cstat-no" title="statement not covered" >    toArray(): readonly number[];</span>
 <span class="cstat-no" title="statement not covered" >    toString(): string;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -415,7 +415,7 @@
 <span class="cstat-no" title="statement not covered" >    {</span>
 <span class="cstat-no" title="statement not covered" >    readonly vectorSpace: RealVectorSpace&lt;D, V&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.REAL;</span>
-<span class="cstat-no" title="statement not covered" >    readonly coordinates: number[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly coordinates: readonly number[];</span>
 <span class="cstat-no" title="statement not covered" >    // Real vector specific accessors</span>
 <span class="cstat-no" title="statement not covered" >    readonly x?: number;</span>
 <span class="cstat-no" title="statement not covered" >    readonly y?: number;</span>
@@ -437,7 +437,7 @@
 <span class="cstat-no" title="statement not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ComplexVectorSpace&lt;D, V&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.COMPLEX;</span>
-<span class="cstat-no" title="statement not covered" >    readonly coordinates: Complex[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly coordinates: readonly Complex[];</span>
 <span class="cstat-no" title="statement not covered" >    // Complex vector specific accessors</span>
 <span class="cstat-no" title="statement not covered" >    readonly real?: number;</span>
 <span class="cstat-no" title="statement not covered" >    readonly imaginary?: number;</span>
@@ -458,12 +458,12 @@
 <span class="cstat-no" title="statement not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveVectorSpace&lt;D, V&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.PROJECTIVE;</span>
-<span class="cstat-no" title="statement not covered" >    readonly coordinates: number[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly coordinates: readonly number[];</span>
 <span class="cstat-no" title="statement not covered" >    readonly x: number;</span>
 <span class="cstat-no" title="statement not covered" >    readonly y: number;</span>
 <span class="cstat-no" title="statement not covered" >    readonly z?: number;</span>
 <span class="cstat-no" title="statement not covered" >    readonly weight: Weight;</span>
-<span class="cstat-no" title="statement not covered" >    readonly homogeneousCoordinates: number[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly homogeneousCoordinates: readonly number[];</span>
 <span class="cstat-no" title="statement not covered" >    getCoordinate(index: number): number;</span>
 <span class="cstat-no" title="statement not covered" >    homogeneousTransform(tolerance?: number): this;</span>
 <span class="cstat-no" title="statement not covered" ></span>
@@ -476,9 +476,9 @@
 <span class="cstat-no" title="statement not covered" >{</span>
 <span class="cstat-no" title="statement not covered" >    readonly vectorSpace: ProjectiveComplexVectorSpace&lt;D, V&gt;;</span>
 <span class="cstat-no" title="statement not covered" >    readonly spaceType: VectorSpaceType.PROJECTIVECOMPLEX;</span>
-<span class="cstat-no" title="statement not covered" >    readonly coordinates: Complex[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly coordinates: readonly Complex[];</span>
 <span class="cstat-no" title="statement not covered" >    readonly weight: ComplexWeight;</span>
-<span class="cstat-no" title="statement not covered" >    readonly homogeneousComplexCoordinates: Complex[];</span>
+<span class="cstat-no" title="statement not covered" >    readonly homogeneousComplexCoordinates: readonly Complex[];</span>
 <span class="cstat-no" title="statement not covered" >    </span>
 <span class="cstat-no" title="statement not covered" >    // Projective-specific methods</span>
 <span class="cstat-no" title="statement not covered" >    toComplexVector(vectorSpace?: ComplexVectorSpace&lt;any&gt;): IComplexVector&lt;any&gt;;</span>
@@ -490,7 +490,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-02T18:35:05.984Z
+                at 2026-04-03T17:21:25.262Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

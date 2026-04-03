@@ -3,7 +3,7 @@ import type { ComplexVector, ComplexVectorOfDimension, IComplex, IComplexWeight,
 export interface IComplexVectorSpaceStrategy<D extends number, V extends ComplexVector = ComplexVectorOfDimension<D>> {
     areSameDimension(v1: ComplexVector, v2: ComplexVector): boolean;
     isInVectorSpace(v: ComplexVector): v is ComplexVector;
-    createVector(coordinates: number[][]): V;
+    createVector(coordinates: readonly (readonly number[])[]): V;
     defaultVect(): V;
     addDescriptors(a: V, b: V): V;
     scaleDescriptor(scalar: IComplex | number, vector: V): V;

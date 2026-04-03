@@ -7,28 +7,27 @@ import { createVectorFromAnyDescriptor } from "../mathVector/VectorFromDescripto
 import { ComplexVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { ControlPolygon } from "./ControlPolygon";
 import { CurveCache } from "./CoxDeBoorRealCoordinatesEvaluator";
-import { ComplexControlPoint, CurvePoint } from "./CurveEntitiesTypes";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from "./KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC";
 import { BSplineEvaluator } from "./OpenBSplineR1toRn";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 
-export class CoxDeBoorComplexCoordinatesEvaluator<V extends Vector, D extends number> extends BSplineEvaluator<V, D> {
+export class CoxDeBoorComplexCoordinatesEvaluator<IV extends IVector<any, Vector>> extends BSplineEvaluator<IV> {
 
-    private _pointCache: { parameter: number; result: CurvePoint<V, D>; knotSpanIndex: number } | null = null;
+    private _pointCache: { parameter: number; result: IV; knotSpanIndex: number } | null = null;
     private _rangeCache: { samples: number; buffer: Float64Array } | null = null;
     private _curveCache: CurveCache | null = null;
     private readonly knotSequence: IncreasingOpenKnotSequenceOpenCurve
     
     constructor(
-        private readonly controlPolygon: ControlPolygon<V, D>,
+        private readonly controlPolygon: ControlPolygon<IV>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         private readonly degree: number
     ) {
         super();
         this.knotSequence = fromStrictlyIncreasingtToIncreasingKnotSequenceOC(knotSequence);
     }
-    evaluate(parameter: number): CurvePoint<V, D> {
+    evaluate(parameter: number): IV {
 
         // 1. Ensure curve-level cache is valid
         const cc = this._getCurveCache();
@@ -56,15 +55,15 @@ export class CoxDeBoorComplexCoordinatesEvaluator<V extends Vector, D extends nu
 
         // 5. Build result vector
         const vectorSpace = this.controlPolygon.vectorSpace;
-        let result: CurvePoint<V, D>;
+        let result: IV;
         if (vectorSpace instanceof RealVectorSpace) {
             throw new Error("CoxDeBoorComplexEvaluator does not support RealVectorSpace: use a dedicated real evaluator");
         } else if (vectorSpace instanceof ProjectiveVectorSpace) {
             throw new Error("CoxDeBoorComplexEvaluator does not support ProjectiveVectorSpace: use a dedicated real evaluator");
         } else if (vectorSpace instanceof ComplexVectorSpace) {
-            result = createVectorFromAnyDescriptor(vectorSpace.createVector(resultCoords), vectorSpace) as CurvePoint<V, D>;
+            result = createVectorFromAnyDescriptor(vectorSpace.createVector(resultCoords), vectorSpace) as IV;
         } else if (vectorSpace instanceof ProjectiveComplexVectorSpace) {
-            result = createVectorFromAnyDescriptor(vectorSpace.createVector(resultCoords), vectorSpace) as CurvePoint<V, D>;
+            result = createVectorFromAnyDescriptor(vectorSpace.createVector(resultCoords), vectorSpace) as IV;
         } else {
             throw new Error("Unsupported vector space type for result construction");
         }
@@ -188,7 +187,7 @@ export class CoxDeBoorComplexCoordinatesEvaluator<V extends Vector, D extends nu
         return result;
     }
 
-    private _writeToBuffer(buffer: Float64Array, offset: number, pt: CurvePoint<V, D>): void {
+    private _writeToBuffer(buffer: Float64Array, offset: number, pt: IV): void {
         const coords = (pt as any).coordinates as number[];
         for (let d = 0; d < coords.length; d++) buffer[offset + d] = coords[d];
     }

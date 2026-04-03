@@ -25,9 +25,9 @@ export abstract class AbstractProjectiveComplexVector<D extends number, V extend
 
     abstract get vectorSpace(): ProjectiveComplexVectorSpace<D, V>;
     abstract get descriptor(): V;
-    abstract get coordinates(): Complex[];
+    abstract get coordinates(): readonly Complex[];
     abstract get weight(): ComplexWeight;
-    abstract get homogeneousComplexCoordinates(): Complex[];
+    abstract get homogeneousComplexCoordinates(): readonly Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): this;
     // abstract toRealVector(vectorSpace?: RealVectorSpace<any>): IRealVector<any>;
@@ -80,7 +80,7 @@ export abstract class AbstractProjectiveComplexVector<D extends number, V extend
         return Math.sqrt(sum);
     }
 
-    toArray(): number[] {
+    toArray(): readonly number[] {
         const coord: number[] = [];
         for (let i = 0; i < this.dimension; i++) {
             const c = this.getCoordinate(i);

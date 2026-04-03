@@ -64,7 +64,7 @@ export class Vector4DTypeReal extends AbstractRealVector<4, RealVector4D>
     get dimension(): 4 { return Vector4DTypeReal.DIMENSION; }
     get vectorType(): string { return Vector4DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<4, RealVector4D> { return this._vectorSpace; }
-    get coordinates(): number[] { return [...this._descriptor.coordinates]; }
+    get coordinates(): readonly number[] { return [...this._descriptor.coordinates]; }
     get descriptor(): RealVector4D { return copyDescriptorRealVector4D(this._descriptor); }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(2); }

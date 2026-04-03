@@ -65,7 +65,7 @@ export class Vector3DTypeReal extends AbstractRealVector<3, RealVector3D>
     get dimension(): 3 { return Vector3DTypeReal.DIMENSION; }
     get vectorType(): string { return Vector3DTypeReal._vectorType; }
     get vectorSpace(): RealVectorSpace<3, RealVector3D> { return this._vectorSpace; }
-    get coordinates(): number[] { return [...this._descriptor.coordinates]; }
+    get coordinates(): readonly number[] { return [...this._descriptor.coordinates]; }
     get descriptor(): RealVector3D { return copyDescriptorRealVector3D(this._descriptor); }
     get y(): number { return this.getCoordinate(1); }
     get z(): number { return this.getCoordinate(Vector3DTypeReal.DIMENSION - 1); }

@@ -1,29 +1,28 @@
 import { IVector } from "../mathVector/Vector";
-import { RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { AbstractBSplineR1toRn } from "./AbstractBSplineR1toRn";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type } from "./BSplineR1toRnConstructorInterface";
 import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
-import { CurvePoint } from "./CurveEntitiesTypes";
 import { NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE } from "./KnotSequenceConstructorInterface";
 import { BSplineEvaluator, OpenBSplineR1toRn } from "./OpenBSplineR1toRn";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 
-export abstract class AbstractOPenBSplineR1toRnStrategy<V extends Vector, D extends number> {
+export abstract class AbstractOPenBSplineR1toRnStrategy<IV extends IVector<any, Vector>> {
 
     protected _isDirty: boolean = true;
-    private _evaluatorCache: Map<string, BSplineEvaluator<V, D>> = new Map();
-    // protected openBSplineR1toRn: OpenBSplineR1toRn<V, D>;
+    private _evaluatorCache: Map<string, BSplineEvaluator<IV>> = new Map();
+    // protected openBSplineR1toRn: OpenBSplineR1toRn<IV>;
     protected _defaultAlgorithm: string = 'coxdeboor';
     // strategy owns its own working copy: mutable, derived from the immutable curve
-    protected readonly _controlPoints: ReadonlyArray<IVector<D, V>>;
+    protected readonly _controlPoints: ReadonlyArray<IV>;
     // protected readonly _knots: readonly number[];
     protected readonly _degree: number;
 
-    // constructor(curveParameters: BSpline_type, openBSplineR1toRn: OpenBSplineR1toRn<V, D>) {
+    // constructor(curveParameters: BSpline_type, openBSplineR1toRn: OpenBSplineR1toRn<IV>) {
     //     this.openBSplineR1toRn = openBSplineR1toRn;
     //     this.initializeControlPolygonAndKnots(curveParameters);
     // }
-    constructor(protected readonly curve: AbstractBSplineR1toRn<V, D>) {
+    constructor(protected readonly curve: AbstractBSplineR1toRn<IV>) {
         // initialize from immutable curve getters (read only, no write)
         // this.initializeControlPolygonAndKnots();
         this._controlPoints = curve.controlPoints;
@@ -38,9 +37,9 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<V extends Vector, D exte
     //     this._degree = this.curve.degree;
     // }
 
-    withCurve(curve: AbstractBSplineR1toRn<V, D>): this {
+    withCurve(curve: AbstractBSplineR1toRn<IV>): this {
         // return new strategy instance bound to new curve
-        return new (this.constructor as new (curve: AbstractBSplineR1toRn<V, D>) => this)(curve);
+        return new (this.constructor as new (curve: AbstractBSplineR1toRn<IV>) => this)(curve);
     }
 
     // private initializeControlPolygonAndKnots(curveParameters: BSpline_type): void {
@@ -69,7 +68,7 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<V extends Vector, D exte
     //     }
     // }
 
-    evaluateWithAlgorithm(u: number, algorithmName: string): CurvePoint<V, D> {
+    evaluateWithAlgorithm(u: number, algorithmName: string): IV {
         const evaluator = this.getEvaluatorView(algorithmName);
         return evaluator.evaluate(u);
     }
@@ -80,15 +79,15 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<V extends Vector, D exte
         this.invalidate();
     }
 
-    abstract evaluate(u: number): CurvePoint<V, D>;
+    abstract evaluate(u: number): IV;
 
     // evaluate(u: number): RealVector {
     //     return this.evaluateWithAlgorithm(u, this._defaultAlgorithm);
     // }
 
-    protected abstract createEvaluator(algorithmName: string): BSplineEvaluator<V, D>;
+    protected abstract createEvaluator(algorithmName: string): BSplineEvaluator<IV>;
 
-    getEvaluatorView<T extends BSplineEvaluator<V, D>>(algorithmName: string): T {
+    getEvaluatorView<T extends BSplineEvaluator<IV>>(algorithmName: string): T {
         if (this._isDirty || !this._evaluatorCache.has(algorithmName)) {
             const evaluator = this.createEvaluator(algorithmName);
             this._evaluatorCache.set(algorithmName, evaluator);
