@@ -14,6 +14,8 @@
  * - Sequence represents minimal open curve configurations
  * - Sequence represents an open curve
  * 
+ * Companion interface: {@link OpenKnotSequenceOpenCurve}
+ * 
  * @example
  * const params = {
  *   type: NO_KNOT_OPEN_CURVE
@@ -32,6 +34,8 @@ export const NO_KNOT_OPEN_CURVE = 'No_Knot_OpenCurve' as const;
  * - Sequence starts at -(maxMultiplicityOrder-1)
  * - Sequence ends at 2*maxMultiplicityOrder-1 (or 2*maxMultiplicityOrder if maxMultiplicityOrder=2)
  * - Sequence represents a closed curve
+ * 
+ * Companion interface: {@link OpenKnotSequenceClosedCurve}
  * 
  * @example
  * const params = {
@@ -52,6 +56,8 @@ export const NO_KNOT_CLOSED_CURVE = 'No_Knot_ClosedCurve' as const;
  * - Sequence ends at BsplBasisSize + (maxMultiplicityOrder - 1)
  * - Sequence is open (not periodic) and applicable to open or closed curves
  * 
+ * Companion interface: {@link Uniform_OpenKnotSequence}
+ * 
  * @example
  * const params = {
  *   type: UNIFORM_OPENKNOTSEQUENCE,
@@ -71,6 +77,8 @@ export const UNIFORM_OPENKNOTSEQUENCE = 'Uniform_OpenKnotSequence' as const;
  * - Sequence is open (not periodic),
  * - The size of the B-Spline basis is provided as a parameter.
  * Devoted to open curves or surfaces.
+ * 
+ * Companion interface: {@link UniformlySpreadInterKnots_OpenKnotSequence}
  * 
  * @example
  * const params = {
@@ -94,6 +102,8 @@ export const UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE = 'UniformlySpreadInterK
  * The array of knot cannot contain knots strictly inside the normalized basis interval with
  * a multiplicity equal to maxMultiplicityOrder to make sure that the sequence described defines a single curve/surface only.
  * 
+ * Companion interface: {@link IncreasingOpenKnotSequence}
+ * 
  * @example
  * const params = {
  *   type: INCREASINGOPENKNOTSEQUENCE,
@@ -114,6 +124,8 @@ export const INCREASINGOPENKNOTSEQUENCE = 'IncreasingOpenKnotSequence' as const;
  * - Sequence allows C0 discontinuities at interior knots of the normalized basis interval
  * - Sequence is open (not periodic)
  * - The entire knot sequence is provided as an array of knots.
+ * 
+ * Companion interface: {@link IncreasingOpenKnotSequenceUpToC0Discontinuity}
  * 
  * @example
  * const params = {
@@ -145,6 +157,8 @@ export const INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'IncreasingOpenKno
  * - knots strictly internal to the normalized basis interval have a multiplicity up to (maxMultiplicityOrder-1)
  * - Interior knots define shape control
  * 
+ * Companion interface: {@link IncreasingOpenKnotSequenceCCurve}
+ * 
  * @example
  * const params = {
  *   type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVE,
@@ -171,6 +185,8 @@ export const INCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'IncreasingOpenKnotSequence
  * - End conditions ensure curve closure and must be incorporated in knot sequence definition to ensure the knot sequence consistency
  * - All knots including end knots are explicitly specified
  * - Full control over knot placement and multiplicity
+ * 
+ * Companion interface: {@link IncreasingOpenKnotSequenceCCurve_allKnots}
  * 
  * @example
  * const params = {
@@ -201,6 +217,8 @@ export const INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'IncreasingOpenKnot
  * while allowing C0 discontinuities (discontinuity of the closed curves) 
  * at internal knots (the curve can be open there).
  * 
+ * Companion interface: {@link IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots}
+ * 
  * @example
  * const params = {
  *   type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS,
@@ -230,6 +248,8 @@ export const INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS 
  * 
  * The array of knots cannot contain knots strictly inside the normalized basis interval with
  * a multiplicity equal to maxMultiplicityOrder to make sure that the sequence described defines a single curve/surface only.
+ * 
+ * Companion interface: {@link StrictlyIncreasingOpenKnotSequence}
  * 
  * @example
  * const params = {
@@ -264,6 +284,8 @@ export const STRICTLYINCREASINGOPENKNOTSEQUENCE = 'StrictlyIncreasingOpenKnotSeq
  * The array of knots can contain knots strictly inside the normalized basis interval with
  * a multiplicity equal to maxMultiplicityOrder. The knot sequence can describe multiple disconnected curves/surfaces.
  * 
+ * Companion interface: {@link StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity}
+ * 
  * @example
  * const params = {
  *   type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY,
@@ -297,6 +319,8 @@ export const STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY = 'StrictlyI
  * - knots strictly internal to the normalized basis interval have a multiplicity up to (maxMultiplicityOrder-1)
  * - Interior knots define shape control
  * 
+ * Companion interface: {@link StrictlyIncreasingOpenKnotSequenceCCurve}
+ * 
  * @example
  * const params = {
  *   type: STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE,
@@ -325,6 +349,8 @@ export const STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE = 'StrictlyIncreasing
  * - End conditions ensure curve closure and must be incorporated in knot sequence definition to ensure the knot sequence consistency
  * - All knots including end knots are explicitly specified
  * - Full control over knot placement and multiplicity
+ * 
+ * Companion interface: {@link StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots}
  * 
  * @example
  * const params = {
@@ -355,6 +381,8 @@ export const STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS = 'StrictlyIn
  * - All knots including end knots are explicitly specified
  * - Full control over knot placement and multiplicity
  *
+ * Companion interface: {@link StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots}
+ *
  * @example
  * const params = {
  *   type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS,
@@ -383,6 +411,8 @@ export const STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEA
  * - Sequence represents minimal closed curve configurations
  * - Sequence represents a closed curve
  * 
+ * Companion interface: {@link PeriodicKnotSequence}
+ * 
  * @example
  * const params = {
  *   type: NO_KNOT_PERIODIC_CURVE
@@ -408,6 +438,8 @@ export const NO_KNOT_PERIODIC_CURVE = 'No_Knot_PeriodicCurve' as const;
  * - Sequence is periodic and applicable to closed curves
  * - BsplBasisSize must equal or greater than (maxMultiplicityOrder+1)
  * 
+ * Companion interface: {@link Uniform_PeriodicKnotSequence}
+ * 
  * @example
  * const params = {
  *   type: UNIFORM_PERIODICKNOTSEQUENCE,
@@ -428,6 +460,8 @@ export const UNIFORM_PERIODICKNOTSEQUENCE = 'Uniform_PeriodicKnotSequence' as co
  * - knots strictly internal to the normalized basis interval have a multiplicity up to maxMultiplicityOrder
  * - The entire knot sequence is provided as an array of knots.
  * The normalized basis spans the interval [KNOT_SEQUENCE_ORIGIN, last knot abscissa]
+ * 
+ * Companion interface: {@link IncreasingPeriodicKnotSequence}
  * 
  * @example
  * const params = {
@@ -457,6 +491,8 @@ export const INCREASINGPERIODICKNOTSEQUENCE = 'IncreasingPeriodicKnotSequence' a
  * - The entire list of knot multiplicities is provided as an array of multiplicities.
  * The normalized basis spans the interval [KNOT_SEQUENCE_ORIGIN, last knot abscissa]
  * 
+ * Companion interface: {@link StrictIncreasingPeriodicKnotSequence}
+ * 
  * @example
  * const params = {
  *   type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE,
@@ -485,7 +521,7 @@ export const STRICTLYINCREASINGPERIODICKNOTSEQUENCE = 'StrictIncreasingPeriodicK
  * - Sequence represents minimal open curve configurations
  * - Sequence represents an open curve
  * 
- * @property {typeof NO_KNOT_OPEN_CURVE} type - Must be set to NO_KNOT_OPEN_CURVE constant
+ * @property {typeof NO_KNOT_OPEN_CURVE} type - Must be set to {@link NO_KNOT_OPEN_CURVE} constant
  */
 export interface OpenKnotSequenceOpenCurve {
     readonly type: typeof NO_KNOT_OPEN_CURVE;
@@ -503,7 +539,7 @@ export interface OpenKnotSequenceOpenCurve {
  * - Sequence ends at 2*maxMultiplicityOrder-1 (or 2*maxMultiplicityOrder if maxMultiplicityOrder=2)
  * - Sequence represents a closed curve
  * 
- * @property {typeof NO_KNOT_CLOSED_CURVE} type - Must be set to NO_KNOT_CLOSED_CURVE constant
+ * @property {typeof NO_KNOT_CLOSED_CURVE} type - Must be set to {@link NO_KNOT_CLOSED_CURVE} constant
  */
 export interface OpenKnotSequenceClosedCurve {
     readonly type: typeof NO_KNOT_CLOSED_CURVE;
@@ -521,7 +557,7 @@ export interface OpenKnotSequenceClosedCurve {
  * - Sequence ends at BsplBasisSize + (maxMultiplicityOrder - 1)
  * - Sequence is open (not periodic) and applicable to open or closed curves
  * 
- * @property {typeof UNIFORM_OPENKNOTSEQUENCE} type - Must be set to UNIFORM_OPENKNOTSEQUENCE constant
+ * @property {typeof UNIFORM_OPENKNOTSEQUENCE} type - Must be set to {@link UNIFORM_OPENKNOTSEQUENCE} constant
  * @property {number} BsplBasisSize - Size of the B-spline basis, must be greater than maxMultiplicityOrder
  */
 export interface Uniform_OpenKnotSequence {
@@ -541,7 +577,7 @@ export interface Uniform_OpenKnotSequence {
  * - The size of the B-Spline basis is provided as a parameter
  * - Devoted to open curves or surfaces
  * 
- * @property {typeof UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE} type - Must be set to UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE constant
+ * @property {typeof UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE} type - Must be set to {@link UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE} constant
  * @property {number} BsplBasisSize - Size of the B-spline basis, must be greater than maxMultiplicityOrder
  */
 export interface UniformlySpreadInterKnots_OpenKnotSequence {
@@ -564,7 +600,7 @@ export interface UniformlySpreadInterKnots_OpenKnotSequence {
  * The array of knots cannot contain knots strictly inside the normalized basis interval with
  * a multiplicity equal to maxMultiplicityOrder to make sure that the sequence described defines a single curve/surface only.
  * 
- * @property {typeof INCREASINGOPENKNOTSEQUENCE} type - Must be set to INCREASINGOPENKNOTSEQUENCE constant
+ * @property {typeof INCREASINGOPENKNOTSEQUENCE} type - Must be set to {@link INCREASINGOPENKNOTSEQUENCE} constant
  * @property {number[]} knots - Array of knot values in non-decreasing order
  */
 export interface IncreasingOpenKnotSequence {
@@ -588,12 +624,12 @@ export interface IncreasingOpenKnotSequence {
  * The array of knots can contain knots strictly inside the normalized basis interval with
  * a multiplicity equal to maxMultiplicityOrder. The knot sequence can describe multiple disconnected curves/surfaces.
  * 
- * @property {typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY} type - Must be set to INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY constant
+ * @property {typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY} type - Must be set to {@link INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY} constant
  * @property {number[]} knots - Array of knot values in non-decreasing order
  */
 export interface IncreasingOpenKnotSequenceUpToC0Discontinuity {
     readonly type: typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY;
-    readonly knots: number[];
+    readonly knots: readonly number[];
 }
 
 /**
@@ -611,12 +647,12 @@ export interface IncreasingOpenKnotSequenceUpToC0Discontinuity {
  * - Additional knots are automatically added to satisfy periodicity constraints
  * - Interior knots strictly within normalized basis interval have multiplicity up to (maxMultiplicityOrder-1)
  * 
- * @property {typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVE} type - Must be set to INCREASINGOPENKNOTSEQUENCECLOSEDCURVE constant
+ * @property {typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVE} type - Must be set to {@link INCREASINGOPENKNOTSEQUENCECLOSEDCURVE} constant
  * @property {number[]} periodicKnots - Array of periodic knot values in non-decreasing order that define the normalized basis interval
  */
 export interface IncreasingOpenKnotSequenceCCurve {
     readonly type: typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVE;
-    readonly periodicKnots: number[];
+    readonly periodicKnots: readonly number[];
 }
 
 /**
@@ -633,12 +669,12 @@ export interface IncreasingOpenKnotSequenceCCurve {
  * - Full control over knot placement and multiplicity
  * - Interior knots define shape control
  * 
- * @property {typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS} type - Must be set to INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS constant
+ * @property {typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS} type - Must be set to {@link INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS} constant
  * @property {number[]} knots - Array of all knot values in non-decreasing order, including end knots
  */
 export interface IncreasingOpenKnotSequenceCCurve_allKnots {
     readonly type: typeof INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS;
-    readonly knots: number[];
+    readonly knots: readonly number[];
 }
 
 /**
@@ -656,12 +692,12 @@ export interface IncreasingOpenKnotSequenceCCurve_allKnots {
  * - Allows C0 discontinuities at interior knots (knots with maxMultiplicityOrder multiplicity)
  * - Interior knots define shape control and potential discontinuity locations
  * 
- * @property {typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS} type - Must be set to INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS constant
+ * @property {typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS} type - Must be set to {@link INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS} constant
  * @property {number[]} knots - Array of all knot values in non-decreasing order, including end knots
  */
 export interface IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots {
     readonly type: typeof INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS;
-    readonly knots: number[];
+    readonly knots: readonly number[];
 }
 
 /**
@@ -680,7 +716,7 @@ export interface IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots {
  * The array of knots cannot contain knots strictly inside the normalized basis interval with
  * a multiplicity equal to maxMultiplicityOrder to make sure that the sequence described defines a single curve/surface only.
  * 
- * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCE} type - Must be set to STRICTLYINCREASINGOPENKNOTSEQUENCE constant
+ * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCE} type - Must be set to {@link STRICTLYINCREASINGOPENKNOTSEQUENCE} constant
  * @property {number[]} knots - Array of strictly increasing knot abscissae
  * @property {number[]} multiplicities - Array of multiplicity values for each knot
  */
@@ -707,14 +743,14 @@ export interface StrictlyIncreasingOpenKnotSequence {
  * The array of knots can contain knots strictly inside the normalized basis interval with
  * a multiplicity equal to maxMultiplicityOrder. The knot sequence can describe multiple disconnected curves/surfaces.
  * 
- * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY} type - Must be set to STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY constant
+ * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY} type - Must be set to {@link STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY} constant
  * @property {number[]} knots - Array of strictly increasing knot abscissae 
  * @property {number[]} multiplicities - Array of multiplicity values for each knot
  */
 export interface StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity {
     readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY;
-    readonly knots: number[];
-    readonly multiplicities: number[];
+    readonly knots: readonly number[];
+    readonly multiplicities: readonly number[];
 }
 
 /**
@@ -732,14 +768,14 @@ export interface StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity {
  * - Additional knots are automatically added to satisfy periodicity constraints
  * - Interior knots strictly within normalized basis interval have multiplicity up to (maxMultiplicityOrder-1)
  * 
- * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE} type - Must be set to STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE constant
+ * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE} type - Must be set to {@link STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE} constant
  * @property {number[]} periodicKnots - Array of strictly increasing periodic knot abscissae that define the normalized basis interval
  * @property {number[]} multiplicities - Array of multiplicity values for each periodic knot
  */
 export interface StrictlyIncreasingOpenKnotSequenceCCurve {
     readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE;
-    readonly periodicKnots: number[];
-    readonly multiplicities: number[];
+    readonly periodicKnots: readonly number[];
+    readonly multiplicities: readonly number[];
 }
 
 /**
@@ -756,14 +792,14 @@ export interface StrictlyIncreasingOpenKnotSequenceCCurve {
  * - Full control over knot placement and multiplicity
  * - Interior knots define shape control
  * 
- * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS} type - Must be set to STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS constant
+ * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS} type - Must be set to {@link STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS} constant
  * @property {number[]} knots - Array of strictly increasing knot abscissae, including end knots
  * @property {number[]} multiplicities - Array of multiplicity values for each knot
  */
 export interface StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots {
     readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS;
-    readonly knots: number[];
-    readonly multiplicities: number[];
+    readonly knots: readonly number[];
+    readonly multiplicities: readonly number[];
 }
 
 /**
@@ -781,14 +817,14 @@ export interface StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots {
  * - Allows C0 discontinuities at interior knots (knots with maxMultiplicityOrder multiplicity)
  * - Interior knots define shape control and potential discontinuity locations
  * 
- * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS} type - Must be set to STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS constant
+ * @property {typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS} type - Must be set to {@link STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS} constant
  * @property {number[]} knots - Array of strictly increasing knot abscissae, including end knots
  * @property {number[]} multiplicities - Array of multiplicity values for each knot
  */
 export interface StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots {
     readonly type: typeof STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS;
-    readonly knots: number[];
-    readonly multiplicities: number[];
+    readonly knots: readonly number[];
+    readonly multiplicities: readonly number[];
 }
 
 /**
@@ -797,8 +833,8 @@ export interface StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_al
  * @type {BasicOpenKnotSequenceClosedCurve_type}
  * @description
  * Represents the union of two basic knot sequence types for closed curves:
- * - OpenKnotSequenceClosedCurve: Minimal configuration with uniformly spaced knots and multiplicity 1
- * - Uniform_OpenKnotSequence: Uniform open knot sequence with configurable B-spline basis size
+ * - {@link OpenKnotSequenceClosedCurve}: Minimal configuration with uniformly spaced knots and multiplicity 1
+ * - {@link Uniform_OpenKnotSequence}: Uniform open knot sequence with configurable B-spline basis size
  * 
  * Both types maintain:
  * - Open knot sequence structure
@@ -814,9 +850,9 @@ export type BasicOpenKnotSequenceClosedCurve_type = OpenKnotSequenceClosedCurve 
  * @type {BasicOpenKnotSequenceOpenCurve_type}
  * @description
  * Represents the union of three basic knot sequence types for open curves:
- * - OpenKnotSequenceOpenCurve: Minimal configuration with two knots at 0 and 1 with maxMultiplicityOrder
- * - Uniform_OpenKnotSequence: Uniform open knot sequence with configurable B-spline basis size
- * - UniformlySpreadInterKnots_OpenKnotSequence: Open knot sequence with uniform interior knots and maxMultiplicityOrder at ends
+ * - {@link OpenKnotSequenceOpenCurve}: Minimal configuration with two knots at 0 and 1 with maxMultiplicityOrder
+ * - {@link Uniform_OpenKnotSequence}: Uniform open knot sequence with configurable B-spline basis size
+ * - {@link UniformlySpreadInterKnots_OpenKnotSequence}: Open knot sequence with uniform interior knots and maxMultiplicityOrder at ends
  * 
  * All types maintain:
  * - Open knot sequence structure
@@ -832,9 +868,9 @@ export type BasicOpenKnotSequenceOpenCurve_type = OpenKnotSequenceOpenCurve | Un
  * @type {IncreasingOpenKnotSequenceOpenCurve_type}
  * @description
  * Represents the union of these knot sequence types for open curves:
- * - BasicOpenKnotSequenceOpenCurve_type: Basic configurations including minimal and uniform sequences
- * - IncreasingOpenKnotSequence: Non-decreasing sequence with controlled multiplicity
- * - IncreasingOpenKnotSequenceUpToC0Discontinuity: Non-decreasing sequence allowing C0 discontinuities
+ * - {@link BasicOpenKnotSequenceOpenCurve_type}: Basic configurations including minimal and uniform sequences
+ * - {@link IncreasingOpenKnotSequence}: Non-decreasing sequence with controlled multiplicity
+ * - {@link IncreasingOpenKnotSequenceUpToC0Discontinuity}: Non-decreasing sequence allowing C0 discontinuities
  * 
  * All types maintain:
  * - Open knot sequence structure (not periodic)
@@ -871,10 +907,10 @@ export type IncreasingOpenKnotSequenceOpenCurve_type = BasicOpenKnotSequenceOpen
  * @type {IncreasingOpenKnotSequenceClosedCurve_type}
  * @description
  * Represents the union of these knot sequence types for closed curves:
- * - BasicOpenKnotSequenceClosedCurve_type: Basic configurations including minimal and uniform sequences
- * - IncreasingOpenKnotSequenceCCurve: Non-decreasing sequence with periodic knots only
- * - IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots: Full knot sequence, possibly with C0 discontinuitie at internal knots
- * - IncreasingOpenKnotSequenceCCurve_allKnots: Full knot sequence without C0 discontinuities
+ * - {@link BasicOpenKnotSequenceClosedCurve_type}: Basic configurations including minimal and uniform sequences
+ * - {@link IncreasingOpenKnotSequenceCCurve}: Non-decreasing sequence with periodic knots only
+ * - {@link IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots}: Full knot sequence, possibly with C0 discontinuitie at internal knots
+ * - {@link IncreasingOpenKnotSequenceCCurve_allKnots}: Full knot sequence without C0 discontinuities
  * 
  * All types maintain:
  * - Open knot sequence structure used to represent closed curves
@@ -911,9 +947,9 @@ export type IncreasingOpenKnotSequenceClosedCurve_type = BasicOpenKnotSequenceCl
  * @type {StrictlyIncreasingOpenKnotSequenceOpenCurve_type}
  * @description
  * Represents the union of these knot sequence types for open curves:
- * - BasicOpenKnotSequenceOpenCurve_type: Basic configurations including minimal and uniform sequences
- * - StrictlyIncreasingOpenKnotSequence: Strictly increasing sequence with controlled multiplicity
- * - StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity: Strictly increasing sequence allowing C0 discontinuities at internal knots
+ * - {@link BasicOpenKnotSequenceOpenCurve_type}: Basic configurations including minimal and uniform sequences
+ * - {@link StrictlyIncreasingOpenKnotSequence}: Strictly increasing sequence with controlled multiplicity
+ * - {@link StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity}: Strictly increasing sequence allowing C0 discontinuities at internal knots
  * 
  * All types maintain:
  * - Open knot sequence structure (not periodic)
@@ -952,10 +988,10 @@ export type StrictlyIncreasingOpenKnotSequenceOpenCurve_type = BasicOpenKnotSequ
  * @type {StrictlyIncreasingOpenKnotSequenceClosedCurve_type}
  * @description
  * Represents the union of these knot sequence types for closed curves:
- * - BasicOpenKnotSequenceClosedCurve_type: Basic configurations including minimal and uniform sequences
- * - StrictlyIncreasingOpenKnotSequenceCCurve: Strictly increasing sequence with periodic knots only
- * - StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots: Full knot sequence without C0 discontinuities
- * - StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots: Full sequence allowing C0 discontinuities at internal knots
+ * - {@link BasicOpenKnotSequenceClosedCurve_type}: Basic configurations including minimal and uniform sequences
+ * - {@link StrictlyIncreasingOpenKnotSequenceCCurve}: Strictly increasing sequence with periodic knots only
+ * - {@link StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots}: Full knot sequence without C0 discontinuities
+ * - {@link StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots}: Full sequence allowing C0 discontinuities at internal knots
  * 
  * All types maintain:
  * - Open knot sequence structure used to represent closed curves
@@ -994,8 +1030,8 @@ export type StrictlyIncreasingOpenKnotSequenceClosedCurve_type = BasicOpenKnotSe
  * @type {AbstractIncreasingOpenKnotSequence_type}
  * @description
  * Represents the union of increasing open knot sequence types for both open and closed curves:
- * - IncreasingOpenKnotSequenceOpenCurve_type: All increasing sequences for open curves
- * - IncreasingOpenKnotSequenceClosedCurve_type: All increasing sequences for closed curves
+ * - {@link IncreasingOpenKnotSequenceOpenCurve_type}: All increasing sequences for open curves
+ * - {@link IncreasingOpenKnotSequenceClosedCurve_type}: All increasing sequences for closed curves
  * 
  * All types maintain:
  * - Open knot sequence structure 
@@ -1029,8 +1065,8 @@ export type AbstractIncreasingOpenKnotSequence_type = IncreasingOpenKnotSequence
  * @type {AbstractStrictlyIncreasingOpenKnotSequence_type}
  * @description
  * Represents the union of strictly increasing open knot sequence types for both open and closed curves:
- * - StrictlyIncreasingOpenKnotSequenceOpenCurve_type: All strictly increasing sequences for open curves
- * - StrictlyIncreasingOpenKnotSequenceClosedCurve_type: All strictly increasing sequences for closed curves
+ * - {@link StrictlyIncreasingOpenKnotSequenceOpenCurve_type}: All strictly increasing sequences for open curves
+ * - {@link StrictlyIncreasingOpenKnotSequenceClosedCurve_type}: All strictly increasing sequences for closed curves
  * 
  * All types maintain:
  * - Open knot sequence structure 
@@ -1066,8 +1102,8 @@ export type AbstractStrictlyIncreasingOpenKnotSequence_type = StrictlyIncreasing
  * @type {AbstractOpenKnotSequence_type}
  * @description
  * Represents the union of all open knot sequence types:
- * - AbstractIncreasingOpenKnotSequence_type: All increasing sequences for both open and closed curves
- * - AbstractStrictlyIncreasingOpenKnotSequence_type: All strictly increasing sequences for both open and closed curves
+ * - {@link AbstractIncreasingOpenKnotSequence_type}: All increasing sequences for both open and closed curves
+ * - {@link AbstractStrictlyIncreasingOpenKnotSequence_type}: All strictly increasing sequences for both open and closed curves
  * 
  * All types maintain:
  * - Open knot sequence structure
@@ -1112,7 +1148,7 @@ export type AbstractOpenKnotSequence_type = AbstractIncreasingOpenKnotSequence_t
  * - Sequence represents minimal closed curve configurations
  * - Sequence represents a closed curve
  * 
- * @property {typeof NO_KNOT_PERIODIC_CURVE} type - Must be set to NO_KNOT_PERIODIC_CURVE constant
+ * @property {typeof NO_KNOT_PERIODIC_CURVE} type - Must be set to {@link NO_KNOT_PERIODIC_CURVE} constant
  * 
  * @example
  * const params: PeriodicKnotSequence = {
@@ -1136,7 +1172,7 @@ export interface PeriodicKnotSequence {
  * - Sequence is periodic and applicable to closed curves
  * - BsplBasisSize must be equal or greater than (maxMultiplicityOrder+1)
  * 
- * @property {typeof UNIFORM_PERIODICKNOTSEQUENCE} type - Must be set to UNIFORM_PERIODICKNOTSEQUENCE constant
+ * @property {typeof UNIFORM_PERIODICKNOTSEQUENCE} type - Must be set to {@link UNIFORM_PERIODICKNOTSEQUENCE} constant
  * @property {number} BsplBasisSize - Size of the B-spline basis, must be greater than maxMultiplicityOrder
  * 
  * @example
@@ -1163,7 +1199,7 @@ export interface Uniform_PeriodicKnotSequence {
  * - The entire knot sequence is provided as an array of knots.
  * The normalized basis spans the interval [KNOT_SEQUENCE_ORIGIN, last knot abscissa]
  * 
- * @property {typeof INCREASINGPERIODICKNOTSEQUENCE} type - Must be set to INCREASINGPERIODICKNOTSEQUENCE constant
+ * @property {typeof INCREASINGPERIODICKNOTSEQUENCE} type - Must be set to {@link INCREASINGPERIODICKNOTSEQUENCE} constant
  * @property {number[]} periodicKnots - Array of knot values in non-decreasing order
  * 
  * @example
@@ -1180,7 +1216,7 @@ export interface Uniform_PeriodicKnotSequence {
  */
 export interface IncreasingPeriodicKnotSequence {
     readonly type: typeof INCREASINGPERIODICKNOTSEQUENCE;
-    readonly periodicKnots: number[];
+    readonly periodicKnots: readonly number[];
 }
 
 /**
@@ -1197,7 +1233,7 @@ export interface IncreasingPeriodicKnotSequence {
  * - The entire list of knot multiplicities is provided as an array of multiplicities
  * The normalized basis spans the interval [KNOT_SEQUENCE_ORIGIN, last knot abscissa]
  * 
- * @property {typeof STRICTLYINCREASINGPERIODICKNOTSEQUENCE} type - Must be set to STRICTLYINCREASINGPERIODICKNOTSEQUENCE constant
+ * @property {typeof STRICTLYINCREASINGPERIODICKNOTSEQUENCE} type - Must be set to {@link STRICTLYINCREASINGPERIODICKNOTSEQUENCE} constant
  * @property {number[]} periodicKnots - Array of strictly increasing knot abscissae
  * @property {number[]} multiplicities - Array of multiplicity value for each knot
  * 
@@ -1217,8 +1253,8 @@ export interface IncreasingPeriodicKnotSequence {
  */
 export interface StrictIncreasingPeriodicKnotSequence {
     readonly type: typeof STRICTLYINCREASINGPERIODICKNOTSEQUENCE;
-    readonly periodicKnots: number[];
-    readonly multiplicities: number[];
+    readonly periodicKnots: readonly number[];
+    readonly multiplicities: readonly number[];
 }
 
 
@@ -1228,8 +1264,8 @@ export interface StrictIncreasingPeriodicKnotSequence {
  * @type {BasicPeriodicKnotSequenceClosedCurve_type}
  * @description
  * Represents the union of two basic knot sequence types for closed curves:
- * - PeriodicKnotSequence: Minimal configuration with uniformly spaced knots and multiplicity 1
- * - Uniform_PeriodicKnotSequence: Uniform periodic knot sequence with configurable B-spline basis size
+ * - {@link PeriodicKnotSequence}: Minimal configuration with uniformly spaced knots and multiplicity 1
+ * - {@link Uniform_PeriodicKnotSequence}: Uniform periodic knot sequence with configurable B-spline basis size
  * 
  * Both types maintain:
  * - Periodic knot sequence structure
@@ -1258,8 +1294,8 @@ export type BasicPeriodicKnotSequenceClosedCurve_type = PeriodicKnotSequence | U
  * @type {IncreasingPeriodicKnotSequenceClosedCurve_type}
  * @description
  * Represents the union of these knot sequence types for closed curves:
- * - BasicPeriodicKnotSequenceClosedCurve_type: Basic configurations including minimal and uniform sequences
- * - IncreasingPeriodicKnotSequence: Non-decreasing sequence with periodic knots
+ * - {@link BasicPeriodicKnotSequenceClosedCurve_type}: Basic configurations including minimal and uniform sequences
+ * - {@link IncreasingPeriodicKnotSequence}: Non-decreasing sequence with periodic knots
  * 
  * All types maintain:
  * - Periodic knot sequence structure for closed curves
@@ -1289,8 +1325,8 @@ export type IncreasingPeriodicKnotSequenceClosedCurve_type = BasicPeriodicKnotSe
  * @type {StrictIncreasingPeriodicKnotSequenceClosedCurve_type}
  * @description
  * Represents the union of these knot sequence types for closed curves:
- * - BasicPeriodicKnotSequenceClosedCurve_type: Basic configurations including minimal and uniform sequences
- * - StrictIncreasingPeriodicKnotSequence: Strictly increasing sequence with periodic knots
+ * - {@link BasicPeriodicKnotSequenceClosedCurve_type}: Basic configurations including minimal and uniform sequences
+ * - {@link StrictIncreasingPeriodicKnotSequence}: Strictly increasing sequence with periodic knots
  * 
  * All types maintain:
  * - Periodic knot sequence structure for closed curves
@@ -1321,8 +1357,8 @@ export type StrictIncreasingPeriodicKnotSequenceClosedCurve_type =  BasicPeriodi
  * @type {AbstractPeriodicKnotSequenceClosedCurve_type}
  * @description
  * Represents the union of all periodic knot sequence types for closed curves:
- * - IncreasingPeriodicKnotSequenceClosedCurve_type: All increasing sequences for closed curves
- * - StrictIncreasingPeriodicKnotSequenceClosedCurve_type: All strictly increasing sequences for closed curves
+ * - {@link IncreasingPeriodicKnotSequenceClosedCurve_type}: All increasing sequences for closed curves
+ * - {@link StrictIncreasingPeriodicKnotSequenceClosedCurve_type}: All strictly increasing sequences for closed curves
  * 
  * All types maintain:
  * - Periodic knot sequence structure

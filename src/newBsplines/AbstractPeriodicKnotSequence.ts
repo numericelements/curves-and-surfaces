@@ -5,7 +5,28 @@ import { EM_ABSCISSA_TOO_CLOSE_TO_KNOT, EM_KNOT_INSERTION_OVER_UMAX, EM_KNOT_INS
 import { KNOT_SEQUENCE_ORIGIN, UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA } from "../namedConstants/KnotSequences"
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 
-
+/**
+ * Abstract base class for periodic knot sequences used in closed-curve B-splines.
+ *
+ * @description
+ * Sits between {@link AbstractKnotSequence} and the concrete periodic classes
+ * ({@link IncreasingPeriodicKnotSequenceClosedCurve} and
+ * {@link StrictlyIncreasingPeriodicKnotSequenceClosedCurve}).
+ * It owns the state and behaviour common to all periodic variants:
+ * - `_uMax` — upper bound of the normalised parameter domain (period end).
+ * - `knotSequence` — concrete `Knot[]` array (compact representation shared by
+ *   both increasing and strictly increasing periodic subclasses).
+ * - `_isKnotMultiplicityNonUniform` — flag set when any knot has multiplicity > 1.
+ *
+ * The constructor dispatches on `knotParameters.type` to build the internal knot array:
+ * - `NO_KNOT_PERIODIC_CURVE` — generates a minimal uniform sequence from
+ *   `maxMultiplicityOrder` alone.
+ * - `UNIFORM_PERIODICKNOTSEQUENCE` — generates a uniform sequence sized to the
+ *   requested B-spline basis size.
+ * Subclass constructors extend this for all other input types.
+ *
+ * @abstract
+ */
 export abstract class AbstractPeriodicKnotSequence extends AbstractKnotSequence {
 
     protected _uMax: number;

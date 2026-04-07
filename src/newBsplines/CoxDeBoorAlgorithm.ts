@@ -47,7 +47,7 @@ export class CoxDeBoorAlgorithm<IV extends IVector<any, Vector>> {
         return result;
     }
 
-    private findSpan(u: number, knots: number[], degree: number): number {
+    private findSpan(u: number, knots: readonly number[], degree: number): number {
         // Standard span finding algorithm
         const n = knots.length - degree - 2;
         
@@ -70,7 +70,7 @@ export class CoxDeBoorAlgorithm<IV extends IVector<any, Vector>> {
         return mid;
     }
 
-    private computeBasisFunctions(span: number, u: number, degree: number, knots: number[]): number[] {
+    private computeBasisFunctions(span: number, u: number, degree: number, knots: readonly number[]): number[] {
         const basis = new Array(degree + 1);
         const left = new Array(degree + 1);
         const right = new Array(degree + 1);

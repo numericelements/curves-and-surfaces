@@ -246,7 +246,7 @@ export function decomposeFunction(spline: BSplineR1toR1): number[][] {
 }
 
 // export function resetKnotAbscissaeToOrigin(knotAbscissa: number[]): number[] {
-export function resetKnotAbscissaeToOrigin(knotAbscissa: number[], indexOrigin: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence(0)): number[] {
+export function resetKnotAbscissaeToOrigin(knotAbscissa: readonly number[], indexOrigin: KnotIndexStrictlyIncreasingSequence = new KnotIndexStrictlyIncreasingSequence(0)): number[] {
     if(indexOrigin.knotIndex < 0 || indexOrigin.knotIndex >= knotAbscissa.length) {
         const error = new ErrorLog("function", "resetKnotAbscissaToOrigin", "Knot index out of bounds. Cannot reset knot abscissae to origin.");
         console.log(error.generateMessageString());

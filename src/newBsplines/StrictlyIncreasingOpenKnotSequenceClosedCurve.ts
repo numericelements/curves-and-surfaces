@@ -8,6 +8,28 @@ import { prepareStrictlyIncreasingOpenKnotSequenceCC } from "./KnotSequenceAndUt
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
 
+/**
+ * Strictly increasing open knot sequence for a closed (periodic) B-spline curve.
+ *
+ * @description
+ * Concrete implementation of {@link AbstractStrictlyIncreasingOpenKnotSequence} for
+ * closed curves. The sequence is stored in the compact form (distinct abscissae with
+ * explicit multiplicities) and covers an extended parameter domain that includes
+ * wrap-around copies of the periodic knots at both boundaries.
+ *
+ * When constructed with `STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVE`, the raw
+ * periodic knot data is converted to an open clamped form via
+ * {@link prepareStrictlyIncreasingOpenKnotSequenceCC} before the compact sequence
+ * is assembled. For `STRICTLYINCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS` and
+ * the C0-discontinuity variant the compact arrays are accepted directly.
+ *
+ * After construction the following validations are always run:
+ * - normalised basis origin update
+ * - global maximum multiplicity order
+ * - knot interval periodicity consistency
+ * - uniformity flags (spacing and multiplicity)
+ * - non-uniform multiplicity order check
+ */
 export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStrictlyIncreasingOpenKnotSequence {
 
 
@@ -43,6 +65,17 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
     //     // return freeKnots;
     // }
 
+    /**
+     * Returns the compact periodic knot sequence over one period of the closed curve.
+     *
+     * @description
+     * Extracts the knots between `_indexKnotOrigin` and the end of the normalised
+     * basis (inclusive) and wraps them into a new
+     * {@link StrictlyIncreasingPeriodicKnotSequenceClosedCurve}, ready to be used
+     * as an independent periodic sequence.
+     *
+     * @returns Compact periodic knot sequence for one period.
+     */
     get periodicKnots(): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
         const abscissae: number[] = [];
         const multiplicities: number[] = [];
@@ -61,6 +94,20 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         this._isKnotMultiplicityNonUniform = false;
     }
 
+    /**
+     * Verifies that wrap-around boundary knot intervals mirror the periodic interior
+     * intervals, as required for a valid closed-curve open knot sequence.
+     *
+     * @description
+     * Skips the check when the first and last entries already carry full multiplicity
+     * (`≥ maxMultiplicityOrder`). Otherwise compares intervals and multiplicities
+     * symmetrically on both the left and right boundary regions against the
+     * corresponding interior knots, throwing a `RangeError` on any mismatch.
+     *
+     * @throws {RangeError} If the boundary intervals are not periodic mirrors of the
+     *   interior, or if the cumulative boundary multiplicity does not sum to
+     *   `maxMultiplicityOrder`.
+     */
     checkKnotIntervalConsistency(): void {
         if(this.knotSequence[0].multiplicity >= this._maxMultiplicityOrder && this.knotSequence[this.knotSequence.length - 1].multiplicity >= this._maxMultiplicityOrder) return;
 
@@ -114,6 +161,21 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         if(knotParameters.BsplBasisSize < this._maxMultiplicityOrder || (this._maxMultiplicityOrder === 2 && knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 1))) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
     }
 
+    /**
+     * Builds the compact open knot sequence from a periodic knot sequence object.
+     *
+     * @description
+     * Validates the input, applies multiplicity bounds, then delegates to
+     * {@link prepareStrictlyIncreasingOpenKnotSequenceCC} to compute the clamped
+     * open knot array. Populates `knotSequence`, `_uMax`, and `_indexKnotOrigin`
+     * from the result.
+     *
+     * @param knotParameters - Periodic knot sequence object carrying the raw abscissae
+     *   and multiplicities.
+     * @throws {RangeError} If `maxMultiplicityOrder` is less than 2, the knot arrays
+     *   are empty or not strictly increasing, any multiplicity exceeds
+     *   `maxMultiplicityOrder`, or the sequence is too short for a valid B-spline basis.
+     */
     computeKnotSequenceFromPeriodicKnotSequence(knotParameters: StrictlyIncreasingOpenKnotSequenceCCurve): void {
         const minValueMaxMultiplicityOrder = 2;
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
@@ -166,8 +228,20 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         return multiplicity;
     }
 
-    // This index transformation is not unique. The convention followed here is the assignment of the first index of the increasing
-    // sequence where the abscissa at index (strictly increasing sequence) appears
+    /**
+     * Converts a compact (strictly-increasing) knot index to a flat (increasing)
+     * knot index.
+     *
+     * @description
+     * Sums the multiplicities of all compact entries before `index` to obtain the
+     * position of the first occurrence in the flat sequence. This transformation is
+     * not unique — the convention is to return the **first** flat index at which the
+     * corresponding abscissa appears.
+     *
+     * @param index - Compact knot index to convert.
+     * @returns The first {@link KnotIndexIncreasingSequence} for the same abscissa.
+     * @throws {RangeError} If `index` is out of bounds for this sequence.
+     */
     toKnotIndexIncreasingSequence(index: KnotIndexStrictlyIncreasingSequence): KnotIndexIncreasingSequence {
         this.strictlyIncKnotIndexInputParamAssessment(index, "toKnotIndexIncreasingSequence")
         let indexIncSeq = 0;
@@ -177,6 +251,12 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         return new KnotIndexIncreasingSequence(indexIncSeq);
     }
 
+    /**
+     * Creates a deep copy of this knot sequence.
+     *
+     * @returns A new `StrictlyIncreasingOpenKnotSequenceClosedCurve` with the same
+     *   compact knot data, preserving the `isSequenceUpToC0Discontinuity` flag.
+     */
     clone(): StrictlyIncreasingOpenKnotSequenceClosedCurve {
         if(this._isSequenceUpToC0Discontinuity) {
             return new StrictlyIncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
@@ -185,6 +265,19 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         }
     }
 
+    /**
+     * Finds the knot span index containing parameter value `u`.
+     *
+     * @description
+     * Returns the compact index `i` such that `knotSequence[i].abscissa ≤ u <
+     * knotSequence[i+1].abscissa`. At the right boundary the index is clamped to
+     * the last active span using the closed-curve convention.
+     * Throws a `RangeError` if `u` is outside `[KNOT_SEQUENCE_ORIGIN, uMax]`.
+     *
+     * @param u - Parameter value to locate. Must be in `[KNOT_SEQUENCE_ORIGIN, uMax]`.
+     * @returns The compact {@link KnotIndexStrictlyIncreasingSequence} of the containing span.
+     * @throws {RangeError} If `u` is outside the valid parameter domain.
+     */
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {
         let index = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         if (u < KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
@@ -210,6 +303,17 @@ export class StrictlyIncreasingOpenKnotSequenceClosedCurve extends AbstractStric
         return new KnotIndexStrictlyIncreasingSequence(index);
     }
 
+    /**
+     * Expands the compact knot sequence into a flat array of abscissae.
+     *
+     * @description
+     * Each entry in the compact sequence contributes its abscissa one time per unit
+     * of multiplicity, producing the same representation as an
+     * {@link IncreasingOpenKnotSequenceClosedCurve}.
+     *
+     * @returns Flat array of knot abscissae with repeated values for interior knots
+     *   having multiplicity > 1.
+     */
     toIncreasingSeqOfAbscissae(): number[] {
         const incKnotAbscissae: number[] = [];
         for (const knot of this) {

@@ -63075,7 +63075,7 @@ class BSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
         this._increasingKnotSequence = new IncreasingOpenKnotSequenceOpenCurve_1.IncreasingOpenKnotSequenceOpenCurve(maxMultiplicityOrder, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: knots });
     }
     get knots() {
-        return this._increasingKnotSequence.allAbscissae;
+        return [...this._increasingKnotSequence.allAbscissae];
     }
     get increasingKnotSequence() {
         return this._increasingKnotSequence;
@@ -63167,7 +63167,7 @@ class BSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
         }
         splineHigherDegree.controlPoints = tempHigherDegCP;
         console.log("degreeIncrease: " + splineHigherDegree._increasingKnotSequence.allAbscissae);
-        return new BSplineR1toR1(splineHigherDegree.controlPoints, splineHigherDegree._increasingKnotSequence.allAbscissae);
+        return new BSplineR1toR1(splineHigherDegree.controlPoints, [...splineHigherDegree._increasingKnotSequence.allAbscissae]);
     }
     generateIntermediateSplinesForDegreeElevation() {
         const knotSequences = [];
@@ -63190,7 +63190,7 @@ class BSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
                 k += 1;
             }
             const knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1, false);
-            knotSequences.push(knotSequence1.allAbscissae);
+            knotSequences.push([...knotSequence1.allAbscissae]);
             // knotSequences.push(knotSequence.allAbscissae);
             controlPolygons.push(controlPolygon);
         }
@@ -63366,7 +63366,7 @@ class BSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
         for (let i = 0; i < x.length; i += 1) {
             cp.push(new Vector2d_1.Vector2d(x[i], this._controlPoints[i]));
         }
-        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._increasingKnotSequence.allAbscissae);
+        return new BSplineR1toR2_1.BSplineR1toR2(cp, [...this._increasingKnotSequence.allAbscissae]);
     }
     evaluateOutsideRefInterval(u) {
         let result;
@@ -63408,7 +63408,7 @@ class BSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
                 u = uAbsc;
             }
             let tempCtrlPoly = tempCurve._controlPoints;
-            let tempKnots = tempCurve._increasingKnotSequence.allAbscissae;
+            let tempKnots = [...tempCurve._increasingKnotSequence.allAbscissae];
             const vertices = [];
             for (let i = 1; i < this._degree + 1; i++) {
                 let controlPolygon = [];
@@ -63446,7 +63446,7 @@ class BSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR1 {
         for (let i = 0; i < this._controlPoints.length; i++) {
             vertices.push(this._controlPoints[this._controlPoints.length - 1 - i]);
         }
-        const result = new BSplineR1toR1(vertices, this._increasingKnotSequence.revertKnotSequence().allAbscissae);
+        const result = new BSplineR1toR1(vertices, [...this._increasingKnotSequence.revertKnotSequence().allAbscissae]);
         return result;
     }
 }
@@ -63492,7 +63492,7 @@ class BSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR2 {
         this.constructorInputParamAssessment(controlPoints, knots);
     }
     get knots() {
-        return this._increasingKnotSequence.allAbscissae;
+        return [...this._increasingKnotSequence.allAbscissae];
     }
     get increasingKnotSequence() {
         return this._increasingKnotSequence;
@@ -63652,7 +63652,7 @@ class BSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR2 {
         }
         splineHigherDegree.controlPoints = tempHigherDegCP;
         console.log("degreeIncrease: " + splineHigherDegree._increasingKnotSequence.allAbscissae);
-        return new BSplineR1toR2(splineHigherDegree.controlPoints, splineHigherDegree._increasingKnotSequence.allAbscissae);
+        return new BSplineR1toR2(splineHigherDegree.controlPoints, [...splineHigherDegree._increasingKnotSequence.allAbscissae]);
     }
     generateIntermediateSplinesForDegreeElevation() {
         const knotSequences = [];
@@ -63674,7 +63674,7 @@ class BSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR2 {
                 k += 1;
             }
             const knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1, false);
-            knotSequences.push(knotSequence1.allAbscissae);
+            knotSequences.push([...knotSequence1.allAbscissae]);
             // knotSequences.push(knotSequence.allAbscissae);
             controlPolygons.push(controlPolygon);
         }
@@ -63710,13 +63710,13 @@ class BSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR2 {
             const knotSeq = this._increasingKnotSequence.clone();
             const warning = new ErrorLoging_1.WarningLog(this.constructor.name, "toBSplineWithC0Continuity", "This curve can already describe C0 discontinuities at a current point.");
             warning.logMessage();
-            return new BSplineR1toR2(controlPts, knotSeq.allAbscissae);
+            return new BSplineR1toR2(controlPts, [...knotSeq.allAbscissae]);
         }
         else {
             const newKnotSeq = new IncreasingOpenKnotSequenceOpenCurve_1.IncreasingOpenKnotSequenceOpenCurve((this._degree + 1), { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae });
             // to be modified so that isSequenceUpToC0Discontinuity can be set to true
             // return new BSplineR1toR2(controlPts, newKnotSeq.allAbscissae);
-            const newCurve = new BSplineR1toR2(controlPts, newKnotSeq.allAbscissae);
+            const newCurve = new BSplineR1toR2(controlPts, [...newKnotSeq.allAbscissae]);
             newCurve.increasingKnotSequence.isSequenceUpToC0Discontinuity = true;
             return newCurve;
         }
@@ -63749,7 +63749,7 @@ class BSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR2 {
                 u = uAbsc;
             }
             let tempCtrlPoly = tempCurve._controlPoints;
-            let tempKnots = tempCurve.increasingKnotSequence.allAbscissae;
+            let tempKnots = [...tempCurve.increasingKnotSequence.allAbscissae];
             const vertices = [];
             for (let i = 1; i < this._degree + 1; i++) {
                 let controlPolygon = [];
@@ -63849,7 +63849,7 @@ class BSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR2 {
         for (let i = 0; i < this._controlPoints.length; i++) {
             vertices.push(this._controlPoints[this._controlPoints.length - 1 - i]);
         }
-        let result = new BSplineR1toR2(vertices, this._increasingKnotSequence.revertKnotSequence().allAbscissae);
+        let result = new BSplineR1toR2(vertices, [...this._increasingKnotSequence.revertKnotSequence().allAbscissae]);
         return result;
     }
     /**
@@ -65019,10 +65019,10 @@ class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSe
         }
         else {
             if (this._isSequenceUpToC0Discontinuity) {
-                newKnots = new IncreasingOpenKnotSequenceClosedCurve(1, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae }).allAbscissae;
+                newKnots = [...new IncreasingOpenKnotSequenceClosedCurve(1, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae }).allAbscissae];
             }
             else {
-                newKnots = new IncreasingOpenKnotSequenceClosedCurve(1, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae }).allAbscissae;
+                newKnots = [...new IncreasingOpenKnotSequenceClosedCurve(1, { type: KnotSequenceConstructorInterface_1.INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae }).allAbscissae];
             }
         }
         if (this._isSequenceUpToC0Discontinuity) {
@@ -65699,6 +65699,16 @@ exports.KnotIndexStrictlyIncreasingSequence = KnotIndexStrictlyIncreasingSequenc
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.adaptParameterDecrementKnotMultiplicity = void 0;
+/**
+ * Method decorator that normalises the first argument of `decrementKnotMultiplicity` to an array.
+ *
+ * @description
+ * Allows callers to pass either a single `KnotIndexStrictlyIncreasingSequence` or an array.
+ * The decorator wraps the decorated method so the underlying implementation always
+ * receives an array of indices.
+ *
+ * @returns A TypeScript method decorator.
+ */
 function adaptParameterDecrementKnotMultiplicity() {
     return function (target, propertyKey, descriptor) {
         const originalMethod = descriptor.value;
@@ -65721,6 +65731,21 @@ exports.adaptParameterDecrementKnotMultiplicity = adaptParameterDecrementKnotMul
 
 "use strict";
 
+/**
+ * Method decorator that normalises the first argument of `insertKnot` to an array.
+ *
+ * @description
+ * Allows callers to pass either a single abscissa (`number`) or an array of abscissae
+ * (`readonly number[]`). The decorator wraps the decorated method so that the
+ * underlying implementation always receives an array, removing the need for
+ * overload handling inside every concrete class.
+ *
+ * @returns A TypeScript method decorator.
+ *
+ * @example
+ * \@adaptParameterInsertKnot()
+ * insertKnotAbscissaArrayMutSeq(abscissae: readonly number[], multiplicity: number): void { ... }
+ */
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.adaptParameterInsertKnot = void 0;
 function adaptParameterInsertKnot() {
@@ -65747,6 +65772,16 @@ exports.adaptParameterInsertKnot = adaptParameterInsertKnot;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.adaptParameterRaiseKnotMultiplicity = void 0;
+/**
+ * Method decorator that normalises the first argument of `raiseKnotMultiplicity` to an array.
+ *
+ * @description
+ * Allows callers to pass either a single `KnotIndexStrictlyIncreasingSequence` or an array.
+ * The decorator wraps the decorated method so the underlying implementation always
+ * receives an array of indices.
+ *
+ * @returns A TypeScript method decorator.
+ */
 function adaptParameterRaiseKnotMultiplicity() {
     return function (target, propertyKey, descriptor) {
         const originalMethod = descriptor.value;
@@ -65775,10 +65810,27 @@ const KnotSequences_1 = __webpack_require__(/*! ../../ErrorMessages/KnotSequence
 const ErrorLoging_1 = __webpack_require__(/*! ../../errorProcessing/ErrorLoging */ "./src/errorProcessing/ErrorLoging.ts");
 const IncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../IncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/IncreasingPeriodicKnotSequenceClosedCurve.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
+/**
+ * Converts an {@link IncreasingOpenKnotSequenceClosedCurve} to the equivalent
+ * {@link IncreasingPeriodicKnotSequenceClosedCurve}.
+ *
+ * @description
+ * An open knot sequence for a closed curve carries wrap-around copies of the
+ * boundary knots at both ends. This function strips those copies to recover the
+ * minimal periodic knot vector. When the sequence contains a C0-discontinuity
+ * (i.e. `isSequenceUpToC0Discontinuity` is `true`), any knot whose multiplicity
+ * equals `maxMultiplicityOrder` would produce a C0-discontinuity in the periodic
+ * domain, which is not representable; the conversion is therefore rejected.
+ *
+ * @param increasingSeq - The increasing open knot sequence describing a closed curve.
+ * @returns The equivalent increasing periodic knot sequence.
+ * @throws {RangeError} If the sequence has `isSequenceUpToC0Discontinuity` set and
+ *   any knot multiplicity equals `maxMultiplicityOrder`.
+ */
 function fromIncreasingOpentoIncreasingPeriodicKnotSequence(increasingSeq) {
     const maxMultOrder = increasingSeq.maxMultiplicityOrder;
     const indexOrigin = increasingSeq.indexKnotOrigin.knotIndex;
-    const knotAbscissae = increasingSeq.allAbscissae;
+    const knotAbscissae = [...increasingSeq.allAbscissae];
     knotAbscissae.splice(knotAbscissae.length - 1 - (indexOrigin - 1), indexOrigin);
     knotAbscissae.splice(0, indexOrigin);
     if (increasingSeq.isSequenceUpToC0Discontinuity) {
@@ -65813,6 +65865,21 @@ const IncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../Incre
 const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ../KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1 = __webpack_require__(/*! ../KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence */ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence.ts");
+/**
+ * Converts an {@link IncreasingPeriodicKnotSequenceClosedCurve} to the equivalent
+ * {@link IncreasingOpenKnotSequenceClosedCurve}.
+ *
+ * @description
+ * A periodic knot sequence carries only the minimal set of knots covering one period.
+ * This function extends it into an open (clamped) representation by prepending and
+ * appending wrap-around copies of the boundary knots, shifted by the period length.
+ * The number of copies added at each end is `maxMultiplicityOrder - (multiplicityAtOrigin - 1)`,
+ * ensuring that the resulting open sequence has the correct clamping structure for
+ * closed-curve B-spline evaluation.
+ *
+ * @param increasingSeq - The increasing periodic knot sequence to convert.
+ * @returns The equivalent increasing open knot sequence for a closed curve.
+ */
 function fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(increasingSeq) {
     const knotsOpenSequence = [];
     const multiplicityAtOrigin = increasingSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0));
@@ -65872,6 +65939,17 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence = void 0;
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../StrictlyIncreasingPeriodicKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingPeriodicKnotSequenceClosedCurve.ts");
+/**
+ * Converts an {@link IncreasingPeriodicKnotSequenceClosedCurve} to the equivalent
+ * {@link StrictlyIncreasingPeriodicKnotSequenceClosedCurve}.
+ *
+ * @description
+ * Compresses the flat (increasing) knot vector into its compact representation by
+ * collecting distinct abscissae and their associated multiplicities.
+ *
+ * @param increasingSeq - The increasing periodic knot sequence to convert.
+ * @returns The equivalent strictly increasing periodic knot sequence.
+ */
 function fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(increasingSeq) {
     const maxMultOrder = increasingSeq.maxMultiplicityOrder;
     return new StrictlyIncreasingPeriodicKnotSequenceClosedCurve_1.StrictlyIncreasingPeriodicKnotSequenceClosedCurve(maxMultOrder, { type: KnotSequenceConstructorInterface_1.STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: increasingSeq.distinctAbscissae(), multiplicities: increasingSeq.multiplicities() });
@@ -65893,6 +65971,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC = void 0;
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const StrictlyIncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../StrictlyIncreasingOpenKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts");
+/**
+ * Converts an {@link IncreasingOpenKnotSequenceClosedCurve} to the equivalent
+ * {@link StrictlyIncreasingOpenKnotSequenceClosedCurve}.
+ *
+ * @description
+ * Compresses the flat (increasing) knot vector into its compact representation by
+ * collecting distinct abscissae and their associated multiplicities. The constructor
+ * type used for the result depends on whether the source sequence allows
+ * C0-discontinuities (`isSequenceUpToC0Discontinuity`).
+ *
+ * @param increasingSeq - The increasing open knot sequence for a closed curve to convert.
+ * @returns The equivalent strictly increasing open knot sequence for a closed curve.
+ */
 function fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(increasingSeq) {
     const maxMultOrder = increasingSeq.maxMultiplicityOrder;
     if (increasingSeq.isSequenceUpToC0Discontinuity) {
@@ -65919,6 +66010,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC = void 0;
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const StrictlyIncreasingOpenKnotSequenceOpenCurve_1 = __webpack_require__(/*! ../StrictlyIncreasingOpenKnotSequenceOpenCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceOpenCurve.ts");
+/**
+ * Converts an {@link IncreasingOpenKnotSequenceOpenCurve} to the equivalent
+ * {@link StrictlyIncreasingOpenKnotSequenceOpenCurve}.
+ *
+ * @description
+ * Compresses the flat (increasing) knot vector into its compact representation by
+ * collecting distinct abscissae and their associated multiplicities. The constructor
+ * type used for the result depends on whether the source sequence allows
+ * C0-discontinuities (`isSequenceUpToC0Discontinuity`).
+ *
+ * @param increasingSeq - The increasing open knot sequence for an open curve to convert.
+ * @returns The equivalent strictly increasing open knot sequence for an open curve.
+ */
 function fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(increasingSeq) {
     const maxMultOrder = increasingSeq.maxMultiplicityOrder;
     if (increasingSeq.isSequenceUpToC0Discontinuity) {
@@ -65946,6 +66050,20 @@ exports.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC = v
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const StrictlyIncreasingOpenKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../StrictlyIncreasingOpenKnotSequenceClosedCurve */ "./src/newBsplines/StrictlyIncreasingOpenKnotSequenceClosedCurve.ts");
 const prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq_1 = __webpack_require__(/*! ./prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq */ "./src/newBsplines/KnotSequenceAndUtilities/prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq.ts");
+/**
+ * Converts a {@link StrictlyIncreasingPeriodicKnotSequenceClosedCurve} to the equivalent
+ * {@link StrictlyIncreasingOpenKnotSequenceClosedCurve}.
+ *
+ * @description
+ * Delegates parameter preparation to
+ * {@link prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq},
+ * which computes the wrap-around boundary knots needed to clamp the sequence.
+ * The resulting open sequence uses `maxMultiplicityOrder + 1` to account for the
+ * additional boundary multiplicity introduced by the clamping.
+ *
+ * @param strictIncSeq - The strictly increasing periodic knot sequence to convert.
+ * @returns The equivalent strictly increasing open knot sequence for a closed curve.
+ */
 function fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC(strictIncSeq) {
     const maxMultOrder = strictIncSeq.maxMultiplicityOrder;
     const openSeqParams = (0, prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq_1.prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq)(strictIncSeq);
@@ -65970,6 +66088,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.fromStrictlyIncreasingtToIncreasingKnotSequenceOC = void 0;
 const IncreasingOpenKnotSequenceOpenCurve_1 = __webpack_require__(/*! ../IncreasingOpenKnotSequenceOpenCurve */ "./src/newBsplines/IncreasingOpenKnotSequenceOpenCurve.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
+/**
+ * Converts a {@link StrictlyIncreasingOpenKnotSequenceOpenCurve} to the equivalent
+ * {@link IncreasingOpenKnotSequenceOpenCurve}.
+ *
+ * @description
+ * Expands the compact (strictly increasing) representation into the flat (increasing)
+ * knot vector by repeating each distinct abscissa according to its multiplicity.
+ * The constructor type used for the result depends on whether the source sequence
+ * allows C0-discontinuities (`isSequenceUpToC0Discontinuity`).
+ *
+ * @param strictIncSeq - The strictly increasing open knot sequence for an open curve to convert.
+ * @returns The equivalent increasing open knot sequence for an open curve.
+ */
 function fromStrictlyIncreasingtToIncreasingKnotSequenceOC(strictIncSeq) {
     const knotAbscissae = [];
     const maxMultOrder = strictIncSeq.maxMultiplicityOrder;
@@ -66004,6 +66135,23 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq = void 0;
 const fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1 = __webpack_require__(/*! ../KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence */ "./src/newBsplines/KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence.ts");
 const fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC_1 = __webpack_require__(/*! ./fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC */ "./src/newBsplines/KnotSequenceAndUtilities/fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC.ts");
+/**
+ * Prepares the knot data needed to build an {@link IncreasingOpenKnotSequenceClosedCurve}
+ * from an {@link IncreasingPeriodicKnotSequenceClosedCurve}.
+ *
+ * @description
+ * Performs a two-step conversion: first compresses the flat periodic sequence into its
+ * strictly increasing form via
+ * {@link fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence}, then expands it
+ * into a strictly increasing open sequence via
+ * {@link fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC}.
+ * Returns the constituent arrays required by the open-sequence constructor rather than
+ * the sequence object itself, allowing the caller to choose the concrete constructor type.
+ *
+ * @param increasingSeq - The increasing periodic knot sequence to prepare from.
+ * @returns An object containing the compact knot abscissae, multiplicities, upper parameter
+ *   bound `uMax`, and the origin knot index of the resulting open sequence.
+ */
 function prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq(increasingSeq) {
     const strictlyIncPeriodicSeq = (0, fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence_1.fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence)(increasingSeq);
     const strictlyIncSeq = (0, fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC_1.fromStrictlyIncreasingPeriodicToStrictlyIncreasingOpenKnotSequenceCC)(strictlyIncPeriodicSeq);
@@ -66031,6 +66179,26 @@ const IncreasingPeriodicKnotSequenceClosedCurve_1 = __webpack_require__(/*! ../I
 const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ../KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
 const KnotSequenceConstructorInterface_1 = __webpack_require__(/*! ../KnotSequenceConstructorInterface */ "./src/newBsplines/KnotSequenceConstructorInterface.ts");
 const prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq_1 = __webpack_require__(/*! ./prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq */ "./src/newBsplines/KnotSequenceAndUtilities/prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq.ts");
+/**
+ * Prepares the knot data needed to construct an increasing open knot sequence for a
+ * closed curve from a user-supplied periodic knot parameter object.
+ *
+ * @description
+ * Examines the multiplicity of the first knot in `knotParameters.periodicKnots` relative
+ * to `maxMultiplicityOrder` and branches accordingly:
+ * - If the first-knot multiplicity is **less than** `maxMultiplicityOrder`, the input is
+ *   treated as a purely periodic sequence and delegated to
+ *   {@link prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq} for conversion.
+ * - If it **equals** `maxMultiplicityOrder`, the input already carries clamped boundary
+ *   knots; the function compresses it directly into a compact (strictly increasing) form.
+ * - If it **exceeds** `maxMultiplicityOrder`, the input is invalid and a `RangeError` is thrown.
+ *
+ * @param maxMultiplicityOrder - Maximum allowed multiplicity order for the sequence.
+ * @param knotParameters - Constructor parameter object carrying the raw periodic knot abscissae.
+ * @returns An object containing the compact knot abscissae, multiplicities, upper parameter
+ *   bound `uMax`, and the origin knot index ready for the open-sequence constructor.
+ * @throws {RangeError} If the multiplicity of the first knot exceeds `maxMultiplicityOrder`.
+ */
 function prepareIncreasingOpenKnotSequenceCC(maxMultiplicityOrder, knotParameters) {
     let multiplicityFirstKnot = 0;
     let i = 0;
@@ -66082,6 +66250,30 @@ exports.prepareIncreasingOpenKnotSequenceCC = prepareIncreasingOpenKnotSequenceC
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq = void 0;
 const KnotIndexStrictlyIncreasingSequence_1 = __webpack_require__(/*! ../KnotIndexStrictlyIncreasingSequence */ "./src/newBsplines/KnotIndexStrictlyIncreasingSequence.ts");
+/**
+ * Prepares the compact knot data (abscissae + multiplicities) needed to construct a
+ * strictly increasing open knot sequence for a closed curve from a strictly increasing
+ * periodic knot sequence.
+ *
+ * @description
+ * Converts a compact periodic sequence into an open (clamped) compact sequence by
+ * prepending and appending wrap-around knots shifted by the period length
+ * (`uMax − u₀`). The number of complementary knots added at each boundary is
+ * determined dynamically so that the cumulative multiplicity from the origin never
+ * exceeds `maxMultiplicityOrder`.
+ *
+ * The algorithm runs two symmetric passes:
+ * - **Left pass** — inserts boundary copies before the origin, taken from near-last
+ *   knots of the periodic sequence, shifted by `−uMax`.
+ * - **Centre** — copies all knots of the periodic sequence unchanged.
+ * - **Right pass** — appends boundary copies after the last knot, taken from
+ *   near-first knots of the periodic sequence, shifted by `+uMax`.
+ *
+ * @param strictIncSeq - Strictly increasing periodic knot sequence to convert.
+ * @returns An object with the compact open-sequence knot abscissae (`knots`) and
+ *   their multiplicities (`multiplicities`), suitable for passing directly to a
+ *   strictly increasing open-sequence constructor.
+ */
 function prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq(strictIncSeq) {
     const knotsOpenSequence = [];
     const multiplicitiesOpenSequence = [];
@@ -66952,7 +67144,7 @@ class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR
                 newControlPoints.push(newCtrlPt);
             }
         }
-        const newKnots = this._increasingKnotSequence.decrementMaxMultiplicityOrder().allAbscissae;
+        const newKnots = [...this._increasingKnotSequence.decrementMaxMultiplicityOrder().allAbscissae];
         return new PeriodicBSplineR1toR1(newControlPoints, newKnots);
     }
     getBasisFunctionSpanWithKnotMultiplicityEqualDegreePlusOne() {
@@ -66973,7 +67165,7 @@ class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1_1.AbstractBSplineR1toR
         for (let i = 0; i < x.length; i += 1) {
             cp.push(new Vector2d_1.Vector2d(x[i], this._controlPoints[i]));
         }
-        return new BSplineR1toR2_1.BSplineR1toR2(cp, this._increasingKnotSequence.allAbscissae);
+        return new BSplineR1toR2_1.BSplineR1toR2(cp, [...this._increasingKnotSequence.allAbscissae]);
     }
     evaluateOutsideRefInterval(u) {
         let result = 0.0;
@@ -67265,7 +67457,7 @@ class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR
                 k += 1;
             }
             const knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1);
-            knotSequences.push(knotSequence1.allAbscissae);
+            knotSequences.push([...knotSequence1.allAbscissae]);
             // knotSequences.push(knotSequence.allAbscissae);
             if (i === 0) {
                 const cp = controlPolygon.splice(0, 1);
@@ -67490,7 +67682,7 @@ class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR
             tempHigherDegCP[j] = splineHigherDegree.controlPoints[j].multiply(1 / (this._degree + 1));
         }
         splineHigherDegree.controlPoints = tempHigherDegCP;
-        return new PeriodicBSplineR1toR2(splineHigherDegree.controlPoints, splineHigherDegree._increasingKnotSequence.allAbscissae, (this._degree + 1));
+        return new PeriodicBSplineR1toR2(splineHigherDegree.controlPoints, [...splineHigherDegree._increasingKnotSequence.allAbscissae], (this._degree + 1));
     }
     grevilleAbscissae() {
         const result = [];
@@ -67637,7 +67829,7 @@ class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR
                 if ((uSymmetric - uToInsert) !== uToInsert) {
                     sameSplineOpenCurve.insertKnot(uSymmetric - uToInsert, 1);
                 }
-                let newKnotAbsc = sameSplineOpenCurve.increasingKnotSequence.allAbscissae;
+                let newKnotAbsc = [...sameSplineOpenCurve.increasingKnotSequence.allAbscissae];
                 for (let i = 0; i < newKnotAbsc.length; i++) {
                     newKnotAbsc[i] -= knotAbscResetOrigin[indexOrigin.knotIndex];
                 }
@@ -67760,7 +67952,7 @@ class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2_1.AbstractBSplineR1toR
         for (let cp = 0; cp < this._controlPoints.length - (multiplicityOrigin - 1); cp++) {
             controlPoints.push(this._controlPoints[cp]);
         }
-        return new PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence(controlPoints, knots.allAbscissae);
+        return new PeriodicBSplineR1toR2withOpenKnotSequence_1.PeriodicBSplineR1toR2withOpenKnotSequence(controlPoints, [...knots.allAbscissae]);
     }
     toOpenBSplineInputParamAssessment(u1, u2) {
         if (this.isKnotlMultiplicityZero(u1)) {
@@ -68116,7 +68308,7 @@ class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1toR2_1.
     //     return result;
     // }
     generateKnotSequenceOfPeriodicBSplineR1toR2(bSplineDegreeUp) {
-        const knotSequenceDegreeUp = bSplineDegreeUp.increasingKnotSequence.allAbscissae;
+        const knotSequenceDegreeUp = [...bSplineDegreeUp.increasingKnotSequence.allAbscissae];
         while (knotSequenceDegreeUp[0] !== this._increasingKnotSequence.allAbscissae[0]) {
             knotSequenceDegreeUp.splice(0, 1);
         }
@@ -68178,7 +68370,7 @@ class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1toR2_1.
         return controlPolygonDegreeUp;
     }
     generateBSplineR1toR2() {
-        return new BSplineR1toR2_1.BSplineR1toR2(this._controlPoints, this._increasingKnotSequence.allAbscissae);
+        return new BSplineR1toR2_1.BSplineR1toR2(this._controlPoints, [...this._increasingKnotSequence.allAbscissae]);
     }
     degreeIncrement() {
         // temporary setting -> the design of an interface should avoid the definition of this method
@@ -68187,7 +68379,7 @@ class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1toR2_1.
     toPeriodicBSplineR1toR2() {
         // const periodicSequence = this._increasingKnotSequence.toPeriodicKnotSequence();
         const periodicSequence = (0, fromIncreasingOpentoIncreasingPeriodicKnotSequence_1.fromIncreasingOpentoIncreasingPeriodicKnotSequence)(this._increasingKnotSequence);
-        const increasingKnotAbscissae = periodicSequence.allAbscissae;
+        const increasingKnotAbscissae = [...periodicSequence.allAbscissae];
         const controlPoints = this._controlPoints.slice(this._degree, this._controlPoints.length);
         const multiplicityOrigin = periodicSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence_1.KnotIndexStrictlyIncreasingSequence(0));
         for (let i = 0; i < (multiplicityOrigin - 1); i++) {
@@ -68397,7 +68589,7 @@ class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1toR2_1.
                 if ((uSymmetric - uToInsert) !== uToInsert) {
                     sameSplineOpenCurve.insertKnot(uSymmetric - uToInsert, 1);
                 }
-                let newKnotAbsc = sameSplineOpenCurve.increasingKnotSequence.allAbscissae;
+                let newKnotAbsc = [...sameSplineOpenCurve.increasingKnotSequence.allAbscissae];
                 for (let i = 0; i < newKnotAbsc.length; i++) {
                     newKnotAbsc[i] -= knotAbscResetOrigin[indexOrigin.knotIndex];
                 }
@@ -68449,7 +68641,7 @@ class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1toR2_1.
                 if ((uSymmetric - uToInsert) !== uToInsert) {
                     sameSplineOpenCurve.insertKnot(uSymmetric - uToInsert, 1);
                 }
-                let newKnotAbsc = sameSplineOpenCurve.increasingKnotSequence.allAbscissae;
+                let newKnotAbsc = [...sameSplineOpenCurve.increasingKnotSequence.allAbscissae];
                 for (let i = 0; i < newKnotAbsc.length; i++) {
                     newKnotAbsc[i] -= knotAbscResetOrigin[indexOrigin.knotIndex];
                 }

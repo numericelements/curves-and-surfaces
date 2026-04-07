@@ -75,7 +75,7 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
                     newControlPoints.push(newCtrlPt);
             }
         }
-        const newKnots = this._increasingKnotSequence.decrementMaxMultiplicityOrder().allAbscissae;
+        const newKnots = [...this._increasingKnotSequence.decrementMaxMultiplicityOrder().allAbscissae];
         return new PeriodicBSplineR1toR1(newControlPoints, newKnots);
     }
 
@@ -98,7 +98,7 @@ export class PeriodicBSplineR1toR1 extends AbstractBSplineR1toR1 {
         for (let i = 0; i < x.length; i +=1) {
             cp.push(new Vector2d(x[i], this._controlPoints[i]));
         }
-        return new BSplineR1toR2(cp, this._increasingKnotSequence.allAbscissae);
+        return new BSplineR1toR2(cp, [...this._increasingKnotSequence.allAbscissae]);
 
     }
 

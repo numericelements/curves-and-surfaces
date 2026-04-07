@@ -4,7 +4,7 @@ import { KnotIndexStrictlyIncreasingSequence } from "../KnotIndexStrictlyIncreas
 import { prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq } from "./prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq";
 import { KNOT_COINCIDENCE_TOLERANCE, KNOT_SEQUENCE_ORIGIN } from "../../namedConstants/KnotSequences";
 
-export function prepareStrictlyIncreasingOpenKnotSequenceCC(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceCCurve): {knots: number[], multiplicities: number[], uMax: number, indexKnotOrigin: KnotIndexStrictlyIncreasingSequence} {
+export function prepareStrictlyIncreasingOpenKnotSequenceCC(maxMultiplicityOrder: number, knotParameters: StrictlyIncreasingOpenKnotSequenceCCurve): {knots: readonly number[], multiplicities: readonly number[], uMax: number, indexKnotOrigin: KnotIndexStrictlyIncreasingSequence} {
     if(knotParameters.multiplicities[0] < maxMultiplicityOrder) {
         const strictIncPeriodicSeq = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve((maxMultiplicityOrder - 1), {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: knotParameters.periodicKnots, multiplicities: knotParameters.multiplicities});
         const openSequence = prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq(strictIncPeriodicSeq);

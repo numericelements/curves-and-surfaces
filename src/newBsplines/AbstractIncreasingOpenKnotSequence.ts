@@ -11,8 +11,28 @@ import { adaptParameterRaiseKnotMultiplicity } from "./KnotSequenceAndUtilities/
 import { adaptParameterInsertKnot } from "./KnotSequenceAndUtilities/adaptParameterInsertKnot";
 import { adaptParameterDecrementKnotMultiplicity } from "./KnotSequenceAndUtilities/adaptParameterDecrementKnotMultiplicity";
 
-
-
+/**
+ * Abstract intermediate class for increasing open knot sequences.
+ *
+ * @description
+ * Sits between {@link AbstractOpenKnotSequence} and the two concrete open-curve classes
+ * ({@link IncreasingOpenKnotSequenceOpenCurve} and {@link IncreasingOpenKnotSequenceClosedCurve}).
+ * It holds the flat (increasing, with repeated abscissae) internal representation of the
+ * knot sequence and owns the state shared by all increasing open variants:
+ * - `_indexKnotOrigin` — compact-sequence index of the knot at the normalised basis origin.
+ * - `_isSequenceUpToC0Discontinuity` — flag marking sequences that contain an interior knot
+ *   with full multiplicity, which introduces a C0 discontinuity in the spline.
+ *
+ * The constructor dispatches on the `knotParameters.type` discriminant to set
+ * `_indexKnotOrigin` for uniform / no-knot configurations and delegates to
+ * {@link generateKnotSequence} for all increasing-sequence input types.
+ *
+ * Concrete subclasses must implement:
+ * - `checkNonUniformKnotMultiplicityOrder()` — sequence-specific multiplicity validation.
+ * - `clone()` — typed copy returning the appropriate {@link IncreasingOpenKnotSequenceInterface}.
+ *
+ * @abstract
+ */
 export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
 
     protected _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
@@ -37,7 +57,7 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
         }
     }
 
-    get allAbscissae(): number[] {
+    get allAbscissae(): readonly number[] {
         const abscissae: number[] = [];
         for(const knot of this) {
             if(knot !== undefined) abscissae.push(knot);
@@ -187,8 +207,8 @@ export abstract class AbstractIncreasingOpenKnotSequence extends AbstractOpenKno
     }
 
     @adaptParameterInsertKnot()
-    insertKnotAbscissaArrayMutSeq(abscissa: number | number[], multiplicity: number = 1): void {
-        return super.insertKnotAbscissaArrayMutSeq(abscissa as number[], multiplicity);
+    insertKnotAbscissaArrayMutSeq(abscissa: number | readonly number[], multiplicity: number = 1): void {
+        return super.insertKnotAbscissaArrayMutSeq(abscissa as readonly number[], multiplicity);
     }
 
 }

@@ -9,6 +9,30 @@ import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasi
 import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
 import { WM_ABSCISSA_NOT_FOUND_IN_SEQUENCE } from "../WarningMessages/KnotSequences";
 
+/**
+ * Increasing periodic knot sequence for a closed B-spline curve.
+ *
+ * @description
+ * Concrete implementation of {@link AbstractPeriodicKnotSequence} that stores the
+ * knot sequence in the flat increasing form (repeated abscissae for knots with
+ * multiplicity > 1). The sequence is periodic: the first and last knot abscissae
+ * define the period, and their multiplicities must be equal.
+ *
+ * When constructed with `INCREASINGPERIODICKNOTSEQUENCE`, the raw flat knot array
+ * is validated and assembled via `generateKnotSequence`, followed by a boundary
+ * multiplicity consistency check. For uniform and no-knot types the base class
+ * handles the construction directly.
+ *
+ * After construction the following validations are always run:
+ * - uniformity flags (multiplicity and spacing)
+ * - non-uniform multiplicity order check
+ * - normalised basis origin check (first knot must be at `KNOT_SEQUENCE_ORIGIN`)
+ *
+ * The iterator exposes knot abscissae in the flat (repeated) form. The companion
+ * method `toStrictlyIncreasing()` delegates to
+ * {@link fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence} when a
+ * compact representation is needed.
+ */
 export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
     protected _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
@@ -30,7 +54,7 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         return this._indexKnotOrigin;
     }
 
-    get allAbscissae(): number[] {
+    get allAbscissae(): readonly number[] {
         const abscissae: number[] = [];
         for(const knot of this) {
             if(knot !== undefined) abscissae.push(knot);
@@ -64,6 +88,12 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         }
     }
 
+    /**
+     * Creates a deep copy of this knot sequence.
+     *
+     * @returns A new `IncreasingPeriodicKnotSequenceClosedCurve` with the same flat
+     *   knot array.
+     */
     clone(): IncreasingPeriodicKnotSequenceClosedCurve {
         return new IncreasingPeriodicKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: INCREASINGPERIODICKNOTSEQUENCE, periodicKnots: this.allAbscissae});
     }
@@ -144,6 +174,20 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         return abscissa;
     }
 
+    /**
+     * Converts a flat (increasing) knot index to a compact (strictly-increasing)
+     * knot index.
+     *
+     * @description
+     * Delegates to
+     * {@link fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence} to
+     * obtain the compact sequence, then locates the abscissa that corresponds to
+     * `index`. Indices beyond the end of one period are mapped modulo the period
+     * length, and the returned compact index is offset accordingly.
+     *
+     * @param index - Flat increasing-sequence index to convert.
+     * @returns The {@link KnotIndexStrictlyIncreasingSequence} for the same abscissa.
+     */
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence {
         const strictlyIncreasingKnotSequence = fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence(this);
         const lastIdxStrictIncSeq = strictlyIncreasingKnotSequence.allAbscissae.length - 1;
@@ -188,6 +232,21 @@ export class IncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicK
         return knots;
     }
 
+    /**
+     * Finds the flat knot span index containing parameter value `u`.
+     *
+     * @description
+     * The periodic domain is handled by reducing `u` modulo the period when it
+     * exceeds `uMax`. At a knot coincidence the index is the last occurrence of
+     * that abscissa minus one, except at the final knot where the index wraps back
+     * to the last active span. For non-coincident values the span is located via
+     * bisection.
+     *
+     * @param u - Parameter value to locate. Values above `uMax` are reduced modulo
+     *   the period; values below `KNOT_SEQUENCE_ORIGIN` throw.
+     * @returns The flat {@link KnotIndexIncreasingSequence} of the containing span.
+     * @throws {RangeError} If `u` is below `KNOT_SEQUENCE_ORIGIN`.
+     */
     findSpan(u: number): KnotIndexIncreasingSequence {
         let index = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         if(u > this.knotSequence[this.knotSequence.length - 1].abscissa) {

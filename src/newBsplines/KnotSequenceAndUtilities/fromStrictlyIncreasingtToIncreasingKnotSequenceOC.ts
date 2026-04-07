@@ -2,6 +2,19 @@ import { IncreasingOpenKnotSequenceOpenCurve } from "../IncreasingOpenKnotSequen
 import { INCREASINGOPENKNOTSEQUENCE, INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY } from "../KnotSequenceConstructorInterface";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "../StrictlyIncreasingOpenKnotSequenceOpenCurve";
 
+/**
+ * Converts a {@link StrictlyIncreasingOpenKnotSequenceOpenCurve} to the equivalent
+ * {@link IncreasingOpenKnotSequenceOpenCurve}.
+ *
+ * @description
+ * Expands the compact (strictly increasing) representation into the flat (increasing)
+ * knot vector by repeating each distinct abscissa according to its multiplicity.
+ * The constructor type used for the result depends on whether the source sequence
+ * allows C0-discontinuities (`isSequenceUpToC0Discontinuity`).
+ *
+ * @param strictIncSeq - The strictly increasing open knot sequence for an open curve to convert.
+ * @returns The equivalent increasing open knot sequence for an open curve.
+ */
 export function fromStrictlyIncreasingtToIncreasingKnotSequenceOC(strictIncSeq: StrictlyIncreasingOpenKnotSequenceOpenCurve): IncreasingOpenKnotSequenceOpenCurve {
     const knotAbscissae: number[] = [];
     const maxMultOrder = strictIncSeq.maxMultiplicityOrder;

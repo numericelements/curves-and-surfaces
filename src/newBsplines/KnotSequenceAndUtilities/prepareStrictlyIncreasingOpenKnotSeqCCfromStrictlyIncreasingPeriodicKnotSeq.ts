@@ -1,8 +1,31 @@
 import { KnotIndexStrictlyIncreasingSequence } from "../KnotIndexStrictlyIncreasingSequence";
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "../StrictlyIncreasingPeriodicKnotSequenceClosedCurve";
 
-
-export function prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq(strictIncSeq: StrictlyIncreasingPeriodicKnotSequenceClosedCurve): {knots: number[], multiplicities: number[]} {
+/**
+ * Prepares the compact knot data (abscissae + multiplicities) needed to construct a
+ * strictly increasing open knot sequence for a closed curve from a strictly increasing
+ * periodic knot sequence.
+ *
+ * @description
+ * Converts a compact periodic sequence into an open (clamped) compact sequence by
+ * prepending and appending wrap-around knots shifted by the period length
+ * (`uMax − u₀`). The number of complementary knots added at each boundary is
+ * determined dynamically so that the cumulative multiplicity from the origin never
+ * exceeds `maxMultiplicityOrder`.
+ *
+ * The algorithm runs two symmetric passes:
+ * - **Left pass** — inserts boundary copies before the origin, taken from near-last
+ *   knots of the periodic sequence, shifted by `−uMax`.
+ * - **Centre** — copies all knots of the periodic sequence unchanged.
+ * - **Right pass** — appends boundary copies after the last knot, taken from
+ *   near-first knots of the periodic sequence, shifted by `+uMax`.
+ *
+ * @param strictIncSeq - Strictly increasing periodic knot sequence to convert.
+ * @returns An object with the compact open-sequence knot abscissae (`knots`) and
+ *   their multiplicities (`multiplicities`), suitable for passing directly to a
+ *   strictly increasing open-sequence constructor.
+ */
+export function prepareStrictlyIncreasingOpenKnotSeqCCfromStrictlyIncreasingPeriodicKnotSeq(strictIncSeq: StrictlyIncreasingPeriodicKnotSequenceClosedCurve): {knots: readonly number[], multiplicities: readonly number[]} {
     const knotsOpenSequence: number[] = [];
     const multiplicitiesOpenSequence: number[] = [];
     const maxMultOrder = strictIncSeq.maxMultiplicityOrder;

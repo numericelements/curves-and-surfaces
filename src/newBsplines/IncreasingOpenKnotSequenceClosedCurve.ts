@@ -9,6 +9,29 @@ import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasi
 import { KnotIndexIncreasingSequence } from "./KnotIndexIncreasingSequence";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
 
+/**
+ * Increasing open knot sequence for a closed (periodic) B-spline curve.
+ *
+ * @description
+ * Concrete implementation of {@link AbstractIncreasingOpenKnotSequence} for closed
+ * curves. The sequence is stored in the flat increasing form (repeated abscissae for
+ * knots with multiplicity > 1) and covers an extended parameter domain that includes
+ * wrap-around copies of the periodic knots at both boundaries, enabling closed-curve
+ * computations with open-sequence B-spline algorithms.
+ *
+ * When constructed with `INCREASINGOPENKNOTSEQUENCECLOSEDCURVE`, the raw periodic
+ * knot data is first converted to an open clamped form via
+ * {@link prepareIncreasingOpenKnotSequenceCC} before the flat sequence is assembled.
+ * For `INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS` and the C0-discontinuity
+ * variant, the flat knot array is accepted directly.
+ *
+ * After construction the following validations are always run:
+ * - non-uniform multiplicity check
+ * - uniformity flags (spacing and multiplicity)
+ * - normalised basis origin and boundary multiplicity consistency
+ * - knot interval periodicity consistency
+ * - global maximum multiplicity order
+ */
 export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpenKnotSequence {
 
     constructor(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceClosedCurve_type) {
@@ -31,8 +54,16 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         this.checkMaxMultiplicityOrderConsistency();
     }
 
-    // freeKnots is an accessor available for B-Spline curves to obtain a subset of a knot sequence, associated with control points
-    // that can be available as a free parameter subset for some applications, e.g., optimization
+    /**
+     * Returns the free (interior periodic) knot abscissae available as optimisation parameters.
+     *
+     * @description
+     * Extracts the periodic knot subset from {@link periodicKnots} and strips the
+     * first and last entry (the boundary copies that are not free parameters),
+     * leaving only the interior knots that may be moved during shape optimisation.
+     *
+     * @returns Flat array of free knot abscissae.
+     */
     get freeKnots(): number [] {
         const freeKnots = this.periodicKnots;
         freeKnots.splice(0, 1);
@@ -40,6 +71,17 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         return freeKnots;
     }
 
+    /**
+     * Returns the flat increasing knot abscissae over one period of the closed curve.
+     *
+     * @description
+     * Iterates the full open sequence in flat form, then trims the wrap-around
+     * boundary copies at both ends (the number of copies depends on the multiplicity
+     * of the origin knot relative to `maxMultiplicityOrder`), leaving the knots that
+     * correspond to one complete period of the periodic B-spline.
+     *
+     * @returns Flat array of periodic knot abscissae.
+     */
     get periodicKnots(): number[] {
         const periodicKnots: number[] = [];
         for(const knot of this) {
@@ -54,6 +96,21 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             if(knotParameters.BsplBasisSize < this._maxMultiplicityOrder || (this._maxMultiplicityOrder === 2 && knotParameters.BsplBasisSize < (this._maxMultiplicityOrder + 1))) this.throwRangeErrorMessage("constructor", EM_SIZENORMALIZED_BSPLINEBASIS);
     }
 
+    /**
+     * Verifies that the wrap-around boundary knot intervals mirror the periodic interior
+     * intervals, as required for a valid closed-curve open knot sequence.
+     *
+     * @description
+     * Skips the check when the first and last entries already carry full multiplicity
+     * (`≥ maxMultiplicityOrder`). Otherwise compares intervals and multiplicities
+     * symmetrically on both the left (pre-origin) and right (post-`uMax`) boundary
+     * regions against the corresponding interior knots, throwing a `RangeError` on
+     * any mismatch.
+     *
+     * @throws {RangeError} If the left or right boundary intervals are not periodic mirrors
+     *   of the interior, or if the cumulative boundary multiplicity does not sum to
+     *   `maxMultiplicityOrder`.
+     */
     protected checkKnotIntervalConsistency(): void {
         if(this.knotSequence[0].multiplicity >= this._maxMultiplicityOrder && this.knotSequence[this.knotSequence.length - 1].multiplicity >= this._maxMultiplicityOrder) return;
 
@@ -105,6 +162,12 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         this._isKnotMultiplicityNonUniform = false;
     }
 
+    /**
+     * Creates a deep copy of this knot sequence.
+     *
+     * @returns A new `IncreasingOpenKnotSequenceClosedCurve` with the same knot abscissae,
+     *   preserving the `isSequenceUpToC0Discontinuity` flag.
+     */
     clone(): IncreasingOpenKnotSequenceClosedCurve {
         if(this._isSequenceUpToC0Discontinuity) {
             return new IncreasingOpenKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: this.allAbscissae});
@@ -113,6 +176,18 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         }
     }
 
+    /**
+     * Builds the flat open knot sequence from a periodic knot parameter object.
+     *
+     * @description
+     * Validates the input, then delegates to {@link prepareIncreasingOpenKnotSequenceCC}
+     * to compute the clamped open knot array. Populates `knotSequence`, `_uMax`, and
+     * `_indexKnotOrigin` from the result.
+     *
+     * @param knotParameters - Periodic knot parameter object carrying the raw abscissae.
+     * @throws {RangeError} If `maxMultiplicityOrder` is less than 2, or the knot arrays
+     *   are empty or not in increasing order.
+     */
     computeKnotSequenceFromPeriodicKnotSequence(knotParameters: IncreasingOpenKnotSequenceCCurve): void {
         const minValueMaxMultiplicityOrder = 2;
         this.constructorInputMultOrderAssessment(minValueMaxMultiplicityOrder);
@@ -126,6 +201,18 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         this._indexKnotOrigin.knotIndex = openSequence.indexKnotOrigin.knotIndex;
     }
 
+    /**
+     * Converts a flat increasing-sequence index to the corresponding compact
+     * strictly-increasing-sequence index.
+     *
+     * @description
+     * Builds a transient {@link StrictlyIncreasingOpenKnotSequenceClosedCurve} via
+     * {@link fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC}, then scans its
+     * abscissae to locate the position matching `index`.
+     *
+     * @param index - Index in the flat increasing representation.
+     * @returns The corresponding {@link KnotIndexStrictlyIncreasingSequence}.
+     */
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence {
         const strictlyIncreasingKnotSequence = fromIncreasingToStrictlyIncreasingOpenKnotSequenceCC(this);
         const abscissa = this.abscissaAtIndex(index);
@@ -163,6 +250,19 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
         return multiplicity;
     }
 
+    /**
+     * Finds the knot span index containing parameter value `u`.
+     *
+     * @description
+     * Returns the flat increasing-sequence index `i` such that
+     * `allAbscissae[i] ≤ u < allAbscissae[i+1]`, respecting the closed-curve
+     * convention where the last active knot at `uMax` maps to the penultimate span.
+     * Throws a `RangeError` if `u` is outside `[KNOT_SEQUENCE_ORIGIN, uMax]`.
+     *
+     * @param u - Parameter value to locate. Must be in `[KNOT_SEQUENCE_ORIGIN, uMax]`.
+     * @returns The flat {@link KnotIndexIncreasingSequence} of the containing span.
+     * @throws {RangeError} If `u` is outside the valid parameter domain.
+     */
     findSpan(u: number): KnotIndexIncreasingSequence {
         let index = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         if(u < KNOT_SEQUENCE_ORIGIN || u > this._uMax) {
@@ -212,9 +312,9 @@ export class IncreasingOpenKnotSequenceClosedCurve extends AbstractIncreasingOpe
             }
         } else {
             if(this._isSequenceUpToC0Discontinuity) {
-                newKnots = new IncreasingOpenKnotSequenceClosedCurve(1, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae}).allAbscissae;
+                newKnots = [...new IncreasingOpenKnotSequenceClosedCurve(1, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY_CLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae}).allAbscissae];
             } else {
-                newKnots = new IncreasingOpenKnotSequenceClosedCurve(1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae}).allAbscissae;
+                newKnots = [...new IncreasingOpenKnotSequenceClosedCurve(1, {type: INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS, knots: strictlyIncSeq.allAbscissae}).allAbscissae];
             }
         }
         if(this._isSequenceUpToC0Discontinuity) {

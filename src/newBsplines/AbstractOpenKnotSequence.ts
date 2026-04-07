@@ -14,7 +14,7 @@ import { KnotIndexInterface } from "./KnotIndexConstructorInterface";
  * Abstract base class for open knot sequences used in B-spline curves or surfaces.
  * 
  * @description
- * Extends AbstractKnotSequence to provide functionality specific to open knot sequences,
+ * Extends {@link AbstractKnotSequence} to provide functionality specific to open knot sequences,
  * including normalized basis bounds and knot insertion/removal operations.
  * This class is applicable to open B-spline curves and surfaces as well as closed ones that can be described not with periodic knot sequences but also with open ones.
  * 
@@ -40,7 +40,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * Creates a new open knot sequence with specified maximum multiplicity order.
      * 
      * @param maxMultiplicityOrder - Maximum allowed multiplicity for any knot in the sequence
-     * @param knotParameters - Parameters defining the knot sequence. Their content depends on the AbstractOpenKnotSequence_type type
+     * @param knotParameters - Parameters defining the knot sequence. Their content depends on the {@link AbstractOpenKnotSequence_type} type
      * that enables to specialize the constructor into a variety of categories defined by type property.
      * @example
      * // Create uniform open knot sequence
@@ -90,8 +90,8 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
     /**
      * Converts strictly increasing sequence index to an increasing sequence index.
      * 
-     * @param index - The knot index to convert as represented into the strictly increasing sequence used as reference.
-     * @returns The index into the corresponding increasing sequence.
+     * @param index - The knot index to convert as represented into the strictly increasing knot sequence used as reference.
+     * @returns The index into the corresponding increasing knot sequence.
      * @throws {RangeError} if the index is out of range, i.e. either negative or greater than the strictly increasing knot sequence length.
      * 
      * @description
@@ -123,9 +123,9 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * @description
      * This method determines the boundary knots of the normalized basis interval by analyzing
      * the cumulative multiplicities at both ends of the sequence with respect to maxMultiplicityOrder assigned 
-     * to the knot sequence. For each boundary:
+     * to the knot sequence via {@link getKnotIndexNormalizedBasisAtSequenceStart} and {@link getKnotIndexNormalizedBasisAtSequenceEnd}. For each boundary:
      * - Returns the knot index as a KnotIndexStrictlyIncreasingSequence. The knot index is always valid, i.e. >= 0 and < knotSequence.length.
-     * - Indicates the basis normalization state (StrictlyNormalized, NotNormalized, or OverDefined)
+     * - Indicates the basis normalization state ({@link NormalizedBasisAtSequenceExtremity}: StrictlyNormalized, NotNormalized, or OverDefined)
      * When returning the normaalization state, the knot index value is not relevant.
      * 
      * @example
@@ -161,7 +161,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      *
      * @returns An object containing the knot index as KnotIndexStrictlyIncreasingSequence and basis state at sequence end
      * @property {knot} Contains the knot index as KnotIndexStrictlyIncreasingSequence
-     * @property {basisAtSeqExt} Contains the basis normalization state (StrictlyNormalized, NotNormalized, or OverDefined)
+     * @property {basisAtSeqExt} Contains the basis normalization state ({@link NormalizedBasisAtSequenceExtremity}: StrictlyNormalized, NotNormalized, or OverDefined)
      *
      * @description
      * This method determines the knot index and basis normalization state at the end of the normalized basis interval
@@ -203,7 +203,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      *
      * @returns An object containing the knot index as KnotIndexStrictlyIncreasingSequence and basis state at sequence start
      * @property {knot} Contains the knot index as KnotIndexStrictlyIncreasingSequence
-     * @property {basisAtSeqExt} Contains the basis normalization state (StrictlyNormalized, NotNormalized, or OverDefined)
+     * @property {basisAtSeqExt} Contains the basis normalization state ({@link NormalizedBasisAtSequenceExtremity}: StrictlyNormalized, NotNormalized, or OverDefined)
      *
      * @description
      * This method determines the knot index and basis normalization state at the start of the normalized basis interval
@@ -250,7 +250,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * open knot sequences describing closed curves.
      * 
      * The method:
-     * 1. Gets the indices of knots bounding the normalized basis
+     * 1. Gets the indices of knots bounding the normalized basis via {@link getKnotIndexNormalizedBasisAtSequenceStart} and {@link getKnotIndexNormalizedBasisAtSequenceEnd}
      * 2. Compares their multiplicities
      * 3. Throws an error if they differ
      * 
@@ -287,10 +287,10 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * Creates a minimal knot sequence consisting of two knots:
      * - First knot at 0 with maxMultiplicityOrder
      * - Second knot at 1 with maxMultiplicityOrder.
-     * This method is associated with the constructor category NO_KNOT_OPEN_CURVE.
+     * This method is associated with the constructor category {@link NO_KNOT_OPEN_CURVE}.
      * 
      * This configuration represents the simplest possible open curve B-spline,
-     * where the basis functions are defined over [0,1].
+     * where the basis functions are defined over [0, {@link uMax}].
      * 
      * The method:
      * 1. Validates maxMultiplicityOrder is at least 1
@@ -325,14 +325,14 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * - maxMultiplicityOrder knots up to the KNOT_SEQUENCE_ORIGIN (0) where starts the normalized basis,
      * - (maxMultiplicityOrder - 1) knots uniformly spaced that describe the normalized basis: uMax = maxMultiplicityOrder - 1,
      * - (maxMultiplicityOrder - 1) knots up to the last knot abscissa.
-     * This method is associated with the constructor category NO_KNOT_CLOSED_CURVE.
+     * This method is associated with the constructor category {@link NO_KNOT_CLOSED_CURVE}.
      *
      * This configuration represents the simplest possible closed curve B-spline,
-     * where the basis functions are defined over [0,1] and the curve is closed.
+     * where the basis functions are defined over [0, {@link uMax}] and the curve is closed.
      *
      * The method:
      * 1. Validates maxMultiplicityOrder is at least 2
-     * 2. Creates a uniform knot sequence with normalized basis origin KNOT_SEQUENCE_ORIGIN (0) with maxMultiplicityOrder
+     * 2. Creates a uniform knot sequence with normalized basis origin {@link KNOT_SEQUENCE_ORIGIN} (0) with maxMultiplicityOrder
      * 3. Sets uMax to the knot abscissa (maxMultiplicityOrder - 1) except for maxMultiplicityOrder = 2 where uMax = 2 to
      * produce enough control vertices for the curve to be closed minimaly.
      *
@@ -367,7 +367,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * 
      * @description
      * Creates a uniform knot sequence with uniformly spaced knots where:
-     * - Knots start at -(maxMultiplicityOrder-1) to produce a normalized basis origin at KNOT_SEQUENCE_ORIGIN (0)
+     * - Knots start at -(maxMultiplicityOrder-1) to produce a normalized basis origin at {@link KNOT_SEQUENCE_ORIGIN} (0)
      * - Each knot has multiplicity 1
      * - Knots are spaced at unit intervals
      * - Sequence extends to accommodate the specified basis size after uMax set to (BsplBasisSize - 1).
@@ -376,7 +376,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * with consistent spacing and behavior across the domain that can be used
      * for open as well as closed curves.
      * 
-     * @param knotParameters - Parameters defining the knot sequence with constructor type UNIFORM_OPENKNOTSEQUENCE
+     * @param knotParameters - Parameters defining the knot sequence with constructor type {@link UNIFORM_OPENKNOTSEQUENCE}
      * @param knotParameters.BsplBasisSize - Size of the B-spline basis
      * @throws {RangeError} If maxMultiplicityOrder is less than 2
      * @throws {RangeError} If BsplBasisSize is does not enable the generation of a consistent normalized basis
@@ -418,7 +418,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * and a uniform spacing between of the intermediate knots.
      * Defines the uMax of the basis as: BsplBasisSize - maxMultiplicityOrder + 1.
      *
-     * @param knotParameters - Parameters defining the knot sequence with constructor type NON_UNIFORM_OPENKNOTSEQUENCE
+     * @param knotParameters - Parameters defining the knot sequence with constructor type {@link UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE}
      * @param knotParameters.BsplBasisSize - Size of the B-spline basis
      * @throws {RangeError} If maxMultiplicityOrder is less than 2
      * @throws {RangeError} If BsplBasisSize is does not enable the generation of a consistent normalized basis
@@ -426,7 +426,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * @example
      * // For maxMultiplicityOrder = 3 and BsplBasisSize = 5
      * const params = {
-     *   type: NON_UNIFORM_OPENKNOTSEQUENCE,
+     *   type: UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE,
      *   BsplBasisSize: 5
      * };
      * knotSequence.computeNonUniformKnotSequenceFromBsplBasisSize(params);
@@ -435,7 +435,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * @example
      * // For maxMultiplicityOrder = 2 and BsplBasisSize = 4
      * const params = {
-     *   type: NON_UNIFORM_OPENKNOTSEQUENCE,
+     *   type: UNIFORMLYSPREADINTERKNOTS_OPENKNOTSEQUENCE,
      *   BsplBasisSize: 4
      * };
      * knotSequence.computeNonUniformKnotSequenceFromBsplBasisSize(params);
@@ -457,7 +457,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * Gets multiplicity of the knot located at specified abscissa.
      *
      * @param abscissa - abscissa of the knot to get multiplicity of
-     * @returns {number} Multiplicity of the knot at the specified abscissa.
+     * @returns Multiplicity of the knot at the specified abscissa.
      * @throws warning message if abscissa is not found in the sequence and retruns a multiplicity order of 0.
      * 
      * @description
@@ -485,13 +485,13 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
     /**
      * Inserts a new knot into the knot sequence.
      * 
-     * @param abscissa - Abscissa value for new knot. Must be within [KNOT_SEQUENCE_ORIGIN, uMax]
+     * @param abscissa - Abscissa value for new knot. Must be within [{@link KNOT_SEQUENCE_ORIGIN}, {@link uMax}]
      * @param multiplicity - Multiplicity of new knot. Must not exceed maxMultiplicityOrder. Defaults to 1
-     * @returns {boolean} True if insertion successful, false if abscissa coincides with existing knot
+     * @returns True if insertion successful, false if abscissa coincides with existing knot
      * 
      * @throws warning message if abscissa is too close to an existing knot.
-     * @throws {RangeError} if the abscissa is smaller than KNOT_SEQUENCE_ORIGIN
-     * @throws {RangeError} if the abscissa is greater than uMax
+     * @throws {RangeError} if the abscissa is smaller than {@link KNOT_SEQUENCE_ORIGIN}
+     * @throws {RangeError} if the abscissa is greater than {@link uMax}
      * @throws {RangeError} if the multiplicity is greater than maxMultiplicityOrder
      * 
      * @description
@@ -530,7 +530,7 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
         this.checkNonUniformKnotMultiplicityOrder();
     }
 
-    protected insertKnotAbscissaArrayMutSeq(abscissae: number[], multiplicity: number = 1): void {
+    protected insertKnotAbscissaArrayMutSeq(abscissae: readonly number[], multiplicity: number = 1): void {
         for(const abscissa of abscissae) {
             this.insertKnotMutSeq(abscissa, multiplicity);
         }
@@ -678,8 +678,8 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * @description
      *
      * - Updates maxMultiplicityOrder if needed based on knot multiplicities
-     * - Validates normalization at sequence boundaries
-     * - Ensures proper sequence origin position
+     * - Validates normalization at sequence boundaries via {@link getKnotIndicesBoundingNormalizedBasis} returning {@link NormalizedBasisAtSequenceExtremity} states
+     * - Ensures proper sequence origin position via {@link resetKnotAbscissaeToOrigin} setting it to {@link KNOT_SEQUENCE_ORIGIN}
      * - Sets correct uMax value
      * 
      * @example
@@ -726,9 +726,9 @@ export abstract class AbstractOpenKnotSequence extends AbstractKnotSequence {
      * 
      * @description
      * Translates all knot abscissae by subtracting the offset of the origin knot,
-     * effectively moving the sequence origin to KNOT_SEQUENCE_ORIGIN (0).
-     * Any resulting abscissa values that are within KNOT_COINCIDENCE_TOLERANCE of zero
-     * are set exactly to KNOT_SEQUENCE_ORIGIN.
+     * effectively moving the sequence origin to {@link KNOT_SEQUENCE_ORIGIN} (0).
+     * Any resulting abscissa values that are within {@link KNOT_COINCIDENCE_TOLERANCE} of zero
+     * are set exactly to {@link KNOT_SEQUENCE_ORIGIN}.
      * 
      * This method maintains the relative spacing between knots while ensuring
      * the sequence starts at the standard origin position.

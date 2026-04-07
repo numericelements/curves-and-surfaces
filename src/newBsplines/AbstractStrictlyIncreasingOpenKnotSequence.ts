@@ -1,4 +1,4 @@
-import { ErrorLog, WarningLog } from "../errorProcessing/ErrorLoging";
+import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { AbstractOpenKnotSequence } from "./AbstractOpenKnotSequence";
 import { Knot } from "./Knot";
 import { StrictlyIncreasingKnotSequenceInterface } from "./StrictlyIncreasingKnotSequenceInterface";
@@ -11,6 +11,29 @@ import { adaptParameterInsertKnot } from "./KnotSequenceAndUtilities/adaptParame
 import { adaptParameterRaiseKnotMultiplicity } from "./KnotSequenceAndUtilities/adaptParameterRaiseKnotMultiplicity";
 import { WM_GEOMETRIC_CONSTRAINTS_POLYGON_VERTICES } from "../WarningMessages/KnotSequences";
 
+/**
+ * Abstract intermediate class for strictly increasing open knot sequences.
+ *
+ * @description
+ * Sits between {@link AbstractOpenKnotSequence} and the two concrete strictly-increasing
+ * open-curve classes ({@link StrictlyIncreasingOpenKnotSequenceOpenCurve} and
+ * {@link StrictlyIncreasingOpenKnotSequenceClosedCurve}).
+ * It holds the compact (strictly increasing, no repeated abscissae) internal representation
+ * of the knot sequence and owns the state shared by all strictly increasing open variants:
+ * - `_indexKnotOrigin` — compact-sequence index of the knot at the normalised basis origin.
+ * - `_isSequenceUpToC0Discontinuity` — flag marking sequences that contain an interior knot
+ *   whose multiplicity equals `maxMultiplicityOrder`, introducing a C0 discontinuity.
+ *
+ * The constructor dispatches on the `knotParameters.type` discriminant to set
+ * `_indexKnotOrigin` for uniform / no-knot configurations and delegates to
+ * {@link generateKnotSequence} for all strictly-increasing input types.
+ *
+ * Concrete subclasses must implement:
+ * - `checkNonUniformKnotMultiplicityOrder()` — sequence-specific multiplicity validation.
+ * - `clone()` — typed copy returning the appropriate {@link StrictlyIncreasingKnotSequenceInterface}.
+ *
+ * @abstract
+ */
 export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends AbstractOpenKnotSequence {
 
     protected _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
@@ -35,7 +58,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
         }
     }
 
-    get allAbscissae(): number[] {
+    get allAbscissae(): readonly number[] {
         const abscissae: number[] = [];
         for(const knot of this) {
             if(knot !== undefined) abscissae.push(knot.abscissa);
@@ -154,7 +177,7 @@ export abstract class AbstractStrictlyIncreasingOpenKnotSequence extends Abstrac
     }
 
     @adaptParameterInsertKnot()
-    insertKnotAbscissaArrayMutSeq(abscissa: number | number[], multiplicity: number = 1): void {
-        return super.insertKnotAbscissaArrayMutSeq(abscissa as number[], multiplicity);
+    insertKnotAbscissaArrayMutSeq(abscissa: number | readonly number[], multiplicity: number = 1): void {
+        return super.insertKnotAbscissaArrayMutSeq(abscissa as readonly number[], multiplicity);
     }
 }

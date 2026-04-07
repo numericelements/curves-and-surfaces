@@ -5,6 +5,29 @@ import { StrictIncreasingPeriodicKnotSequence, StrictIncreasingPeriodicKnotSeque
 import { EM_KNOTSEQ_MULTIPLICITIES_INCOMPATIBLE_NORMALIZEDBASIS, EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 
+/**
+ * Strictly increasing periodic knot sequence for a closed B-spline curve.
+ *
+ * @description
+ * Concrete implementation of {@link AbstractPeriodicKnotSequence} that stores the
+ * knot sequence in the compact form (distinct abscissae with explicit multiplicities,
+ * no repeated values). The sequence is periodic: the first and last knot abscissae
+ * define the period, and their multiplicities must be equal.
+ *
+ * When constructed with `STRICTLYINCREASINGPERIODICKNOTSEQUENCE`, the raw compact
+ * knot arrays are validated and assembled via `generateStrictlyIncreasingSequence`,
+ * followed by a boundary multiplicity consistency check. For uniform and no-knot
+ * types the base class handles the construction directly.
+ *
+ * After construction the following validations are always run:
+ * - uniformity flags (multiplicity and spacing)
+ * - non-uniform multiplicity order check
+ * - normalised basis origin check (first knot must be at `KNOT_SEQUENCE_ORIGIN`)
+ *
+ * The iterator yields `{ abscissa, multiplicity }` objects (compact form), in
+ * contrast to the flat-form iterator in
+ * {@link IncreasingPeriodicKnotSequenceClosedCurve}.
+ */
 export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractPeriodicKnotSequence {
 
     protected _indexKnotOrigin: KnotIndexStrictlyIncreasingSequence;
@@ -22,7 +45,7 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         this.checkNormalizedBasisOrigin();
     }
 
-    get allAbscissae(): number[] {
+    get allAbscissae(): readonly number[] {
         const abscissae: number[] = [];
         for(const knot of this) {
             if(knot !== undefined) abscissae.push(knot.abscissa);
@@ -52,6 +75,12 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         return this.knotSequence.length;
     }
 
+    /**
+     * Creates a deep copy of this knot sequence.
+     *
+     * @returns A new `StrictlyIncreasingPeriodicKnotSequenceClosedCurve` with the
+     *   same compact knot data.
+     */
     clone(): StrictlyIncreasingPeriodicKnotSequenceClosedCurve {
         return new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(this._maxMultiplicityOrder, {type: STRICTLYINCREASINGPERIODICKNOTSEQUENCE, periodicKnots: this.distinctAbscissae(), multiplicities: this.multiplicities()});
     }
@@ -89,6 +118,20 @@ export class StrictlyIncreasingPeriodicKnotSequenceClosedCurve extends AbstractP
         return abscissa;
     }
 
+    /**
+     * Finds the compact knot span index containing parameter value `u`.
+     *
+     * @description
+     * The periodic domain is handled by reducing `u` modulo the period when it
+     * exceeds `uMax`. At a knot coincidence the index is the compact position minus
+     * one, except at the final knot entry where the index is set to point to the
+     * last active span. For non-coincident values the span is located via bisection.
+     *
+     * @param u - Parameter value to locate. Values above `uMax` are reduced modulo
+     *   the period; values below `KNOT_SEQUENCE_ORIGIN` throw.
+     * @returns The compact {@link KnotIndexStrictlyIncreasingSequence} of the containing span.
+     * @throws {RangeError} If `u` is below `KNOT_SEQUENCE_ORIGIN`.
+     */
     findSpan(u: number): KnotIndexStrictlyIncreasingSequence {
         let index = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         if(u > this.knotSequence[this.knotSequence.length - 1].abscissa) {

@@ -6,7 +6,27 @@ import { KnotIndexStrictlyIncreasingSequence } from "../KnotIndexStrictlyIncreas
 import { IncreasingOpenKnotSequenceCCurve, INCREASINGPERIODICKNOTSEQUENCE } from "../KnotSequenceConstructorInterface";
 import { prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq } from "./prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq";
 
-export function prepareIncreasingOpenKnotSequenceCC(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceCCurve): {knots: number[], multiplicities: number[], uMax: number, indexKnotOrigin: KnotIndexStrictlyIncreasingSequence} {
+/**
+ * Prepares the knot data needed to construct an increasing open knot sequence for a
+ * closed curve from a user-supplied periodic knot parameter object.
+ *
+ * @description
+ * Examines the multiplicity of the first knot in `knotParameters.periodicKnots` relative
+ * to `maxMultiplicityOrder` and branches accordingly:
+ * - If the first-knot multiplicity is **less than** `maxMultiplicityOrder`, the input is
+ *   treated as a purely periodic sequence and delegated to
+ *   {@link prepareIncreasingOpenKnotSeqCCfromIncreasingPeriodicKnotSeq} for conversion.
+ * - If it **equals** `maxMultiplicityOrder`, the input already carries clamped boundary
+ *   knots; the function compresses it directly into a compact (strictly increasing) form.
+ * - If it **exceeds** `maxMultiplicityOrder`, the input is invalid and a `RangeError` is thrown.
+ *
+ * @param maxMultiplicityOrder - Maximum allowed multiplicity order for the sequence.
+ * @param knotParameters - Constructor parameter object carrying the raw periodic knot abscissae.
+ * @returns An object containing the compact knot abscissae, multiplicities, upper parameter
+ *   bound `uMax`, and the origin knot index ready for the open-sequence constructor.
+ * @throws {RangeError} If the multiplicity of the first knot exceeds `maxMultiplicityOrder`.
+ */
+export function prepareIncreasingOpenKnotSequenceCC(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceCCurve): {knots: readonly number[], multiplicities: readonly number[], uMax: number, indexKnotOrigin: KnotIndexStrictlyIncreasingSequence} {
     let multiplicityFirstKnot = 0;
     let i = 0;
     while(knotParameters.periodicKnots[i] === KNOT_SEQUENCE_ORIGIN) {

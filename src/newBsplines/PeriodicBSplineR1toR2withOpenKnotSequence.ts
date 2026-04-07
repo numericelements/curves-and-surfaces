@@ -221,7 +221,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     // }
 
     generateKnotSequenceOfPeriodicBSplineR1toR2(bSplineDegreeUp: BSplineR1toR2): number[] {
-        const knotSequenceDegreeUp = bSplineDegreeUp.increasingKnotSequence.allAbscissae;
+        const knotSequenceDegreeUp = [...bSplineDegreeUp.increasingKnotSequence.allAbscissae];
         while(knotSequenceDegreeUp[0] !== this._increasingKnotSequence.allAbscissae[0]) {
             knotSequenceDegreeUp.splice(0, 1);
         }
@@ -285,7 +285,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     }
 
     generateBSplineR1toR2(): BSplineR1toR2 {
-        return new BSplineR1toR2(this._controlPoints, this._increasingKnotSequence.allAbscissae);
+        return new BSplineR1toR2(this._controlPoints, [...this._increasingKnotSequence.allAbscissae]);
     }
 
     degreeIncrement(): PeriodicBSplineR1toR2withOpenKnotSequence {
@@ -296,7 +296,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
     toPeriodicBSplineR1toR2(): PeriodicBSplineR1toR2 | undefined {
         // const periodicSequence = this._increasingKnotSequence.toPeriodicKnotSequence();
         const periodicSequence = fromIncreasingOpentoIncreasingPeriodicKnotSequence(this._increasingKnotSequence);
-        const increasingKnotAbscissae = periodicSequence.allAbscissae;
+        const increasingKnotAbscissae = [...periodicSequence.allAbscissae];
         const controlPoints = this._controlPoints.slice(this._degree, this._controlPoints.length);
         const multiplicityOrigin = periodicSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));
         for(let i = 0; i < (multiplicityOrigin - 1); i++) {
@@ -532,7 +532,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
                 if((uSymmetric - uToInsert) !== uToInsert) {
                     sameSplineOpenCurve.insertKnot(uSymmetric - uToInsert, 1);
                 }
-                let newKnotAbsc = sameSplineOpenCurve.increasingKnotSequence.allAbscissae;
+                let newKnotAbsc = [...sameSplineOpenCurve.increasingKnotSequence.allAbscissae];
                 for(let i = 0; i < newKnotAbsc.length; i++) {
                     newKnotAbsc[i] -= knotAbscResetOrigin[indexOrigin.knotIndex];
                 }
@@ -584,7 +584,7 @@ export class PeriodicBSplineR1toR2withOpenKnotSequence extends AbstractBSplineR1
                 if((uSymmetric - uToInsert) !== uToInsert) {
                     sameSplineOpenCurve.insertKnot(uSymmetric - uToInsert, 1);
                 }
-                let newKnotAbsc = sameSplineOpenCurve.increasingKnotSequence.allAbscissae;
+                let newKnotAbsc = [...sameSplineOpenCurve.increasingKnotSequence.allAbscissae];
                 for(let i = 0; i < newKnotAbsc.length; i++) {
                     newKnotAbsc[i] -= knotAbscResetOrigin[indexOrigin.knotIndex];
                 }

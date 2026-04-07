@@ -13,8 +13,8 @@ import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasi
  * with different knot multiplicity orders and spacing characteristics.
  * This base class covers increasing and strictly increasing knot sequences, open and periodic knot sequences.
  * All these categories enable the description of open and closed curves and surfaces.
- * Derived classes from this class are responsible for implementing all categories of open knot sequences, on the one hand, and periodic knot sequences, on the other hand.
- * The internal representation of the knot sequence is an array of Knot objects describing the sequence as a strictly increasing sequence of knots.
+ * Derived classes from this class are responsible for implementing all categories of open knot sequences (see {@link AbstractOpenKnotSequence}), on the one hand, and periodic knot sequences (see {@link AbstractPeriodicKnotSequence}), on the other hand.
+ * The internal representation of the knot sequence is an array of {@link Knot} objects describing the sequence as a strictly increasing sequence of knots.
  * 
  * @abstract
  */
@@ -41,7 +41,7 @@ export abstract class AbstractKnotSequence {
     /**
      * Gets the maximum allowed multiplicity order for knots in the sequence.
      * 
-     * @returns {number} Maximum multiplicity order
+     * @returns Maximum multiplicity order
      */
     get maxMultiplicityOrder() {
         return this._maxMultiplicityOrder;
@@ -50,7 +50,7 @@ export abstract class AbstractKnotSequence {
     /**
      * Indicates if knot spacing is uniform across the sequence.
      * 
-     * @returns {boolean} True if knot spacing is uniform
+     * @returns True if knot spacing is uniform
      */
     get isKnotSpacingUniform() {
         return this._isKnotSpacingUniform;
@@ -59,7 +59,7 @@ export abstract class AbstractKnotSequence {
     /**
      * Indicates if knot multiplicity is uniform across the sequence.
      * 
-     * @returns {boolean} True if knot multiplicity is uniform
+     * @returns True if knot multiplicity is uniform
      */
     get isKnotMultiplicityUniform() {
         return this._isKnotMultiplicityUniform;
@@ -122,8 +122,8 @@ export abstract class AbstractKnotSequence {
      * @throws {RangeError} If the input parameters are invalid.
      * 
      * @description
-     * This method checks the validity of the `knotParameters` object, which can be of type `IncreasingOpenKnotSequence`,
-     * `IncreasingOpenKnotSequenceCCurve_allKnots`, or `IncreasingOpenKnotSequenceUpToC0Discontinuity`...., i.e. all knot sequences that use knot abscissae as input parameters.
+     * This method checks the validity of the `knotParameters` object, which can be of type {@link IncreasingOpenKnotSequence},
+     * {@link IncreasingOpenKnotSequenceCCurve_allKnots}, or {@link IncreasingOpenKnotSequenceUpToC0Discontinuity}...., i.e. all knot sequences that use knot abscissae as input parameters.
      * It ensures that the knot sequence and multiplicity arrays have the correct lengthes.
      * 
      * @example
@@ -173,7 +173,7 @@ export abstract class AbstractKnotSequence {
      * For open sequences: basis size must be >= maxMultiplicityOrder
      * For periodic sequences: basis size must be >= (maxMultiplicityOrder + 1)
      * 
-     * @param knotParameters - Parameters containing B-spline basis size
+     * @param knotParameters - Parameters of type {@link Uniform_OpenKnotSequence}, {@link UniformlySpreadInterKnots_OpenKnotSequence}, or {@link Uniform_PeriodicKnotSequence} containing B-spline basis size
      * @throws {RangeError} If basis size requirements are not met
      * 
      * @example
@@ -196,7 +196,7 @@ export abstract class AbstractKnotSequence {
     /**
      * Validates that a knot index is within valid bounds of the sequence.
      * 
-     * @param index - Index to validate in the strictly increasing representation of the knot sequence
+     * @param index - {@link KnotIndexStrictlyIncreasingSequence} index to validate in the strictly increasing representation of the knot sequence
      * @param methodName - Name of calling method for error reporting
      * @throws {RangeError} If index is out of valid range
      * 
@@ -218,6 +218,7 @@ export abstract class AbstractKnotSequence {
      * This method is called by the findSpan method. The findSpan checks the validity of the asbcissa
      * as well as the coincidence of the abscissa with knots.
      * Performs a binary search to find the knot index characterizing the span.
+     * Delegates to {@link findSpanWithAbscissaDistinctFromKnotStrictlyIncreasingKnotSequence} for the core binary search.
      * 
      * @param abscissa - The abscissa value to locate in the sequence
      * @param warningLog - Index of the knot defining the right bound of normalized basis interval. Defaults to the last knot index.
@@ -286,7 +287,7 @@ export abstract class AbstractKnotSequence {
     /**
      * Returns an array containing the distinct abscissa values of all knots in the knot sequence.
      * 
-     * @returns {number[]} Array of distinct knot abscissa values
+     * @returns Array of distinct knot abscissa values
      * 
      * @example
      * const abscissae = knotSequence.distinctAbscissae(); // [0, 1, 2, 3]
@@ -302,7 +303,7 @@ export abstract class AbstractKnotSequence {
     /**
      * Returns an array containing the multiplicities of all knots in the knot sequence.
      * 
-     * @returns {number[]} Array of knot multiplicities
+     * @returns Array of knot multiplicities
      * 
      * @example
      * const multiplicities = knotSequence.multiplicities(); // [3, 1, 1, 3]
@@ -400,10 +401,10 @@ export abstract class AbstractKnotSequence {
     }
 
     /**
-     * Checks if a given abscissa value coincides with any knot in the sequence within the KNOT_COINCIDENCE_TOLERANCE tolerance.
+     * Checks if a given abscissa value coincides with any knot in the sequence within the {@link KNOT_COINCIDENCE_TOLERANCE} tolerance.
      * 
      * @param abscissa - Knot abscissa value to check for coincidence with knots of the sequence
-     * @returns {boolean} True if abscissa coincides with a knot
+     * @returns True if abscissa coincides with a knot
      * 
      * @example
      * const coincides = knotSequence.isAbscissaCoincidingWithKnot(1.0);
@@ -420,7 +421,7 @@ export abstract class AbstractKnotSequence {
      * Checks if a given knot abscissa has zero multiplicity (no coincident knot).
      * 
      * @param abscissa - Value to check for zero multiplicity
-     * @returns {boolean} True if abscissa has zero multiplicity
+     * @returns True if abscissa has zero multiplicity
      * 
      * @example
      * const isZero = knotSequence.isKnotlMultiplicityZero(1.5);
@@ -434,8 +435,8 @@ export abstract class AbstractKnotSequence {
     /**
      * Gets the multiplicity of knot at specified index.
      * 
-     * @param index - Index of knot into a strictly increasing representation of the knot sequence
-     * @returns {number} Multiplicity of knot at index
+     * @param index - Index of knot, expressed as a {@link KnotIndexStrictlyIncreasingSequence}, into a strictly increasing representation of the knot sequence
+     * @returns Multiplicity of knot at index
      * 
      * @example
      * const mult = knotSequence.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(1));

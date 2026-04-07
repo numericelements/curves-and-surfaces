@@ -7,7 +7,26 @@ import { EM_U_OUTOF_KNOTSEQ_RANGE } from "../ErrorMessages/KnotSequences";
 import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC } from "./KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC";
 import { KnotIndexStrictlyIncreasingSequence } from "./KnotIndexStrictlyIncreasingSequence";
 
-
+/**
+ * Increasing open knot sequence for an open B-spline curve.
+ *
+ * @description
+ * Concrete implementation of {@link AbstractIncreasingOpenKnotSequence} for open
+ * curves. The sequence is stored in the flat increasing form (repeated abscissae for
+ * knots with multiplicity > 1). A clamped open curve typically has boundary knots
+ * with multiplicity equal to `maxMultiplicityOrder`, but uniformly spaced and
+ * C0-discontinuity variants are also supported.
+ *
+ * After the base-class constructor has assembled the knot array, this class:
+ * - Updates the normalised basis origin (unless the sequence runs up to a C0
+ *   discontinuity).
+ * - Runs non-uniform multiplicity, spacing-uniformity, and multiplicity-uniformity
+ *   checks.
+ *
+ * `clone()` returns a new `IncreasingOpenKnotSequenceOpenCurve` preserving the
+ * `isSequenceUpToC0Discontinuity` flag. The iterator exposes knot abscissae in
+ * the flat (repeated) form expected by Cox–de Boor evaluation.
+ */
 export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenKnotSequence {
 
     constructor(maxMultiplicityOrder: number, knotParameters: IncreasingOpenKnotSequenceOpenCurve_type) {
@@ -25,6 +44,12 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
             this.knotSequence[this.knotSequence.length - 1].multiplicity === this._maxMultiplicityOrder) this._isKnotMultiplicityNonUniform = true;
     }
 
+    /**
+     * Creates a deep copy of this knot sequence.
+     *
+     * @returns A new `IncreasingOpenKnotSequenceOpenCurve` with the same knot abscissae,
+     *   preserving the `isSequenceUpToC0Discontinuity` flag.
+     */
     clone(): IncreasingOpenKnotSequenceOpenCurve {
         if(this._isSequenceUpToC0Discontinuity) {
             return new IncreasingOpenKnotSequenceOpenCurve(this._maxMultiplicityOrder, {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this.allAbscissae});
@@ -33,6 +58,18 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         }
     }
 
+    /**
+     * Converts a flat increasing-sequence index to the corresponding compact
+     * strictly-increasing-sequence index.
+     *
+     * @description
+     * Builds a transient {@link StrictlyIncreasingOpenKnotSequenceOpenCurve} via
+     * {@link fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC}, then scans its
+     * abscissae to locate the position matching the abscissa at `index`.
+     *
+     * @param index - Index in the flat increasing representation.
+     * @returns The corresponding {@link KnotIndexStrictlyIncreasingSequence}.
+     */
     toKnotIndexStrictlyIncreasingSequence(index: KnotIndexIncreasingSequence): KnotIndexStrictlyIncreasingSequence {
         const strictlyIncreasingKnotSequence = fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC(this);
         const abscissa = this.abscissaAtIndex(index);
@@ -46,6 +83,19 @@ export class IncreasingOpenKnotSequenceOpenCurve extends AbstractIncreasingOpenK
         return new KnotIndexStrictlyIncreasingSequence(i);
     }
 
+    /**
+     * Finds the knot span index containing parameter value `u`.
+     *
+     * @description
+     * Returns the flat increasing-sequence index `i` such that
+     * `allAbscissae[i] ≤ u < allAbscissae[i+1]`. At `uMax` the returned index
+     * maps to the last active span (not the final repeated knot).
+     * Throws a `RangeError` if `u` is outside `[KNOT_SEQUENCE_ORIGIN, uMax]`.
+     *
+     * @param u - Parameter value to locate. Must be in `[KNOT_SEQUENCE_ORIGIN, uMax]`.
+     * @returns The flat {@link KnotIndexIncreasingSequence} of the containing span.
+     * @throws {RangeError} If `u` is outside the valid parameter domain.
+     */
     findSpan(u: number): KnotIndexIncreasingSequence {
         let index = UPPER_BOUND_NORMALIZED_BASIS_DEFAULT_ABSCISSA;
         if(u < KNOT_SEQUENCE_ORIGIN || u > this._uMax) {

@@ -4,6 +4,21 @@ import { KnotIndexStrictlyIncreasingSequence } from "../KnotIndexStrictlyIncreas
 import { INCREASINGOPENKNOTSEQUENCECLOSEDCURVEALLKNOTS } from "../KnotSequenceConstructorInterface";
 import { fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence } from "../KnotSequenceAndUtilities/fromIncreasingPeriodicToStrictlyIncreasingPeriodicKnotSequence";
 
+/**
+ * Converts an {@link IncreasingPeriodicKnotSequenceClosedCurve} to the equivalent
+ * {@link IncreasingOpenKnotSequenceClosedCurve}.
+ *
+ * @description
+ * A periodic knot sequence carries only the minimal set of knots covering one period.
+ * This function extends it into an open (clamped) representation by prepending and
+ * appending wrap-around copies of the boundary knots, shifted by the period length.
+ * The number of copies added at each end is `maxMultiplicityOrder - (multiplicityAtOrigin - 1)`,
+ * ensuring that the resulting open sequence has the correct clamping structure for
+ * closed-curve B-spline evaluation.
+ *
+ * @param increasingSeq - The increasing periodic knot sequence to convert.
+ * @returns The equivalent increasing open knot sequence for a closed curve.
+ */
 export function fromIncreasingPeriodicToIncreasingOpenKnotSequenceCC(increasingSeq: IncreasingPeriodicKnotSequenceClosedCurve): IncreasingOpenKnotSequenceClosedCurve {
     const knotsOpenSequence: number[] = [];
     const multiplicityAtOrigin = increasingSeq.knotMultiplicity(new KnotIndexStrictlyIncreasingSequence(0));

@@ -268,7 +268,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                 k += 1;
             }
             const knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1);
-            knotSequences.push(knotSequence1.allAbscissae);
+            knotSequences.push([...knotSequence1.allAbscissae]);
             // knotSequences.push(knotSequence.allAbscissae);
             if(i === 0) {
                 const cp = controlPolygon.splice(0, 1);
@@ -486,7 +486,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
             tempHigherDegCP[j] = splineHigherDegree.controlPoints[j].multiply(1 / (this._degree + 1));
         }
         splineHigherDegree.controlPoints = tempHigherDegCP;
-        return new PeriodicBSplineR1toR2(splineHigherDegree.controlPoints, splineHigherDegree._increasingKnotSequence.allAbscissae, (this._degree + 1));
+        return new PeriodicBSplineR1toR2(splineHigherDegree.controlPoints, [...splineHigherDegree._increasingKnotSequence.allAbscissae], (this._degree + 1));
     }
 
     grevilleAbscissae(): number[] {
@@ -644,7 +644,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
                 if((uSymmetric - uToInsert) !== uToInsert) {
                     sameSplineOpenCurve.insertKnot(uSymmetric - uToInsert, 1);
                 }
-                let newKnotAbsc = sameSplineOpenCurve.increasingKnotSequence.allAbscissae;
+                let newKnotAbsc = [...sameSplineOpenCurve.increasingKnotSequence.allAbscissae];
                 for(let i = 0; i < newKnotAbsc.length; i++) {
                     newKnotAbsc[i] -= knotAbscResetOrigin[indexOrigin.knotIndex];
                 }
@@ -764,7 +764,7 @@ export class PeriodicBSplineR1toR2 extends AbstractBSplineR1toR2 {
         for(let cp = 0; cp < this._controlPoints.length - (multiplicityOrigin - 1); cp++) {
             controlPoints.push(this._controlPoints[cp]);
         }
-        return new PeriodicBSplineR1toR2withOpenKnotSequence(controlPoints, knots.allAbscissae);
+        return new PeriodicBSplineR1toR2withOpenKnotSequence(controlPoints, [...knots.allAbscissae]);
     }
 
     toOpenBSplineInputParamAssessment(u1: number, u2: number): void {

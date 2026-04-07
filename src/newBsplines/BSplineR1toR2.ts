@@ -30,7 +30,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
     }
 
     get knots(): number[] {
-        return this._increasingKnotSequence.allAbscissae;
+        return [...this._increasingKnotSequence.allAbscissae];
     }
 
     get increasingKnotSequence(): IncreasingOpenKnotSequenceOpenCurve {
@@ -213,7 +213,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         }
         splineHigherDegree.controlPoints = tempHigherDegCP;
         console.log("degreeIncrease: " + splineHigherDegree._increasingKnotSequence.allAbscissae);
-        return new BSplineR1toR2(splineHigherDegree.controlPoints, splineHigherDegree._increasingKnotSequence.allAbscissae);
+        return new BSplineR1toR2(splineHigherDegree.controlPoints, [...splineHigherDegree._increasingKnotSequence.allAbscissae]);
     }
     
     generateIntermediateSplinesForDegreeElevation(): {knotVectors: number[][], CPs: Array<Vector2d[]>} {
@@ -236,7 +236,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                 k += 1;
             }
             const knotSequence1 = knotSequence.raiseKnotMultiplicity(knotIndices, 1, false);
-            knotSequences.push(knotSequence1.allAbscissae);
+            knotSequences.push([...knotSequence1.allAbscissae]);
             // knotSequences.push(knotSequence.allAbscissae);
             controlPolygons.push(controlPolygon);
         }
@@ -276,12 +276,12 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
             const knotSeq = this._increasingKnotSequence.clone();
             const warning = new WarningLog(this.constructor.name, "toBSplineWithC0Continuity", "This curve can already describe C0 discontinuities at a current point.");
             warning.logMessage();
-            return new BSplineR1toR2(controlPts, knotSeq.allAbscissae);
+            return new BSplineR1toR2(controlPts, [...knotSeq.allAbscissae]);
         } else {
             const newKnotSeq = new IncreasingOpenKnotSequenceOpenCurve((this._degree + 1), {type: INCREASINGOPENKNOTSEQUENCE_UPTOC0DISCONTINUITY, knots: this._increasingKnotSequence.allAbscissae});
             // to be modified so that isSequenceUpToC0Discontinuity can be set to true
             // return new BSplineR1toR2(controlPts, newKnotSeq.allAbscissae);
-            const newCurve = new BSplineR1toR2(controlPts, newKnotSeq.allAbscissae);
+            const newCurve = new BSplineR1toR2(controlPts, [...newKnotSeq.allAbscissae]);
             newCurve.increasingKnotSequence.isSequenceUpToC0Discontinuity = true;
             return newCurve;
         }
@@ -312,7 +312,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
                 u = uAbsc;
             }
             let tempCtrlPoly = tempCurve._controlPoints;
-            let tempKnots = tempCurve.increasingKnotSequence.allAbscissae;
+            let tempKnots = [...tempCurve.increasingKnotSequence.allAbscissae];
             const vertices: Array<Array<Vector2d>> = [];
             for(let i= 1; i < this._degree + 1; i++) {
                 let controlPolygon: Array<Vector2d> = [];
@@ -408,7 +408,7 @@ export class BSplineR1toR2 extends AbstractBSplineR1toR2 {
         for(let i = 0; i < this._controlPoints.length; i++) {
             vertices.push(this._controlPoints[this._controlPoints.length - 1 - i]);
         }
-        let result = new BSplineR1toR2(vertices, this._increasingKnotSequence.revertKnotSequence().allAbscissae);
+        let result = new BSplineR1toR2(vertices, [...this._increasingKnotSequence.revertKnotSequence().allAbscissae]);
         return result;
     }
 
