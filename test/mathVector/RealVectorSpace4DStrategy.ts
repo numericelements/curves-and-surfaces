@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { createTestRealVector } from "./RealVectorSpaceTestFactory";
 import { RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
-import { RealVectorSpace4DStrategy } from "../../src/mathVector/RealVectorSpace4DStrategy";
+import { RealVectorSpace4DStrategy } from "../../src/mathVector/realVectorSpaceStrategies/RealVectorSpace4DStrategy";
 import { isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../../src/ErrorMessages/RealVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";

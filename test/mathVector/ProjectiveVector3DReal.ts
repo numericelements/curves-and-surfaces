@@ -14,6 +14,7 @@ import { PROJECTIVEREALVECTOR3D } from "../../src/namedConstants/VectorTypeTags"
 import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS } from "../../src/ErrorMessages/WeightManager";
 import { EM_PROJECTIVEREALVECTOR_WITH_NEGATIVE_WEIGHT } from "../../src/ErrorMessages/ProjectiveRealVectorSpace";
 import { EM_DOT_PRODUCT_NOT_AVAILABLE } from "../../src/ErrorMessages/ProjectiveVectors";
+import { createRealVectorSpace } from "../../src/mathVector/VectorSpaceFactory";
 
 describe('Projective vector 3D in real vector space: generation and operators in this vector space', () => {
     const dimension = 4;
@@ -351,7 +352,7 @@ describe('Projective vector 3D in real vector space: generation and operators in
 
         it(`cannot generate a default projective vector into a user-defined vector space if this vector space is not of type projective real and of same dimension as the vector`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             expect(() =>  new ProjectiveVector3DReal(vSpace as unknown as ProjectiveRealVectorSpace<4>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
             const vSpace1 = new ProjectiveRealVectorSpace(3);
             expect(() =>  new ProjectiveVector3DReal(vSpace1 as unknown as ProjectiveRealVectorSpace<4>)).to.throw(EM_VECTORSPACE_INCOMPATIBLE);
@@ -359,7 +360,7 @@ describe('Projective vector 3D in real vector space: generation and operators in
 
         it(`cannot generate a projective vector into a default vector space  with a default weight if the user-specified coordinates are not numbers`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             expect(() =>  new ProjectiveVector3DReal(2, -1, vSpace as unknown as number)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
             expect(() =>  new ProjectiveVector3DReal(2, vSpace as unknown as number, 0)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
             expect(() =>  new ProjectiveVector3DReal(vSpace as unknown as number, -1, 0)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
@@ -1303,7 +1304,7 @@ describe('Projective vector 3D in real vector space: generation and operators in
         //     expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
         //     expect(projRealVector1.weight.value).to.be.greaterThan(NULL_WEIGHT_TOLERANCE);
         //     const realSpaceDimension = 3;
-        //     const realVSpace = new RealVectorSpace(realSpaceDimension);
+        //     const realVSpace = createRealVectorSpace(realSpaceDimension);
         //     const result = projRealVector1.toRealVector(realVSpace);
         //     expect(result.spaceType).to.eql(VectorSpaceType.REAL);
         //     expect(result.dimension).to.eql(dimension - 1);
@@ -1323,7 +1324,7 @@ describe('Projective vector 3D in real vector space: generation and operators in
         //     expect(projRealVector1.vectorSpace.weightManagement).to.eql(WeightManagement.AllStrictlyPositiveWeights);
         //     expect(projRealVector1.weight.value).to.be.lessThan(NULL_WEIGHT_TOLERANCE);
         //     const realSpaceDimension = 3;
-        //     const realVSpace = new RealVectorSpace(realSpaceDimension);
+        //     const realVSpace = createRealVectorSpace(realSpaceDimension);
         //     expect(() => projRealVector1.toRealVector(realVSpace)).to.throw(EM_WEIGHT_TOO_SMALL);
         // });
     });

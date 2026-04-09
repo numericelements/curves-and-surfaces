@@ -4,8 +4,8 @@ import { EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_F
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVEREALVECTORSPACE, MIN_DIMENSION_PROJECTIVEREALVECTORSPACE, WeightManagement } from "../namedConstants/ProjectiveRealVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import { ProjectiveRealVectorSpace2DStrategy } from "./ProjectiveRealVectorSpace2DStrategy";
-import { ProjectiveRealVectorSpace3DStrategy } from "./ProjectiveRealVectorSpace3DStrategy";
+import { ProjectiveRealVectorSpace2DStrategy } from "./projectiveRealVectorSpaceStrategies/ProjectiveRealVectorSpace2DStrategy";
+import { ProjectiveRealVectorSpace3DStrategy } from "./projectiveRealVectorSpaceStrategies/ProjectiveRealVectorSpace3DStrategy";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { WeightManager } from "./WeightManager";
 import { DEFAULT_PROJECTIVE_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
@@ -59,15 +59,15 @@ export class ProjectiveRealVectorSpace<D extends number = number, VD extends Pro
             this._id = resolveVectorSpace(this);
             this._name = name || PROJECTIVE_VECTOR_SPACE_NAME + dimension.toString();
         }
-        this.strategy = this.createStrategy(dimension);
+        this.strategy = this.createStrategy(dimension) as ProjectiveRealVectorSpaceStrategy<D, VD>;
     }
 
-    private createStrategy(dimension: number): ProjectiveRealVectorSpaceStrategy<D, VD> {
+    private createStrategy(dimension: number): ProjectiveRealVectorSpaceStrategy<number, ProjectiveRealVectorDesc> {
         switch(dimension) {
             case MIN_DIMENSION_PROJECTIVEREALVECTORSPACE:
-                return new ProjectiveRealVectorSpace2DStrategy() as unknown as ProjectiveRealVectorSpaceStrategy<D, VD>;
+                return new ProjectiveRealVectorSpace2DStrategy();
             case MAX_DIMENSION_PROJECTIVEREALVECTORSPACE:
-                return new ProjectiveRealVectorSpace3DStrategy() as unknown as ProjectiveRealVectorSpaceStrategy<D, VD>;
+                return new ProjectiveRealVectorSpace3DStrategy();
             default:
         }
         const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_PROJECTIVEREALVECTORSPACE_DIMENSION_OUT_RANGE);

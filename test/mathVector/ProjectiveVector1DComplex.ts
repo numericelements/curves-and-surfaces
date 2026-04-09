@@ -24,6 +24,7 @@ import { TOLERANCE_MIN_MAGNITUDE } from "../../src/namedConstants/Complex";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { INITIAL_VECTOR_SPACE_ID } from "../../src/namedConstants/VectorSpaceIdentifierManager";
 import { createMockVectorSpace } from "./internal/VectorSpaceIdentifierManager";
+import { createRealVectorSpace } from "../../src/mathVector/VectorSpaceFactory";
 
 describe('Vector 1D in projective complex vector space: generation and operators in this vector space', () => {
     const dimension = 2;
@@ -457,7 +458,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
 
         it(`cannot generate a default projective vector into a user-defined vector space if this vector space is not of type projective complex and of same dimension as the vector`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             expect(() =>  new ProjectiveVector1DComplex(vSpace as unknown as ProjectiveComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
             const vSpace1 = new ProjectiveRealVectorSpace(3);
             expect(() =>  new ProjectiveVector1DComplex(vSpace1 as unknown as ProjectiveComplexVectorSpace<2>)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
@@ -465,7 +466,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
 
         it(`cannot generate a projective complex vector into a default vector space if the user-specified coordinates are not a complex and a complex weight`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             const complex = new Complex(0, 2);
             const complexW = new ComplexWeight();
             const weightR = new Weight(2);
@@ -488,7 +489,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
 
         it(`cannot generate a projective complex vector into a user-defined vector space if the user-specified coordinates are not a complex and a complex weight`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             const vSpace1 = new ProjectiveComplexVectorSpace(dimension);
             const complex = new Complex(0, 2);
             const complexW = new ComplexWeight();
@@ -526,7 +527,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
 
         it(`cannot generate a projective complex vector into a default vector space with a default complex weight if the user-specified coordinate is not a complex only`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             const complexW = new ComplexWeight();
             const weight = new Weight(2);
             expect(() =>  new ProjectiveVector1DComplex(vSpace as unknown as Complex)).to.throw(EM_VECTORSPACE_PARAMETERS_INCOMPATIBLE);
@@ -540,7 +541,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
 
         it(`cannot generate a projective complex vector into a user-specified vector space with a default complex weight if the user-specified coordinate is not a complex only`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             const complexW = new ComplexWeight();
             const weight = new Weight(2);
             const vSpace1 = new ProjectiveComplexVectorSpace(dimension);
@@ -560,7 +561,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
 
         it(`cannot generate a projective complex vector into a default vector space if the user-specified coordinates are not a real and imaginary parts and the weight is not real and imaginary weights`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             const vSpace1 = new ProjectiveComplexVectorSpace(dimension);
             const weightR = new Weight(2);
             const weightI = new Weight(3);
@@ -595,7 +596,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
 
         it(`cannot generate a projective complex vector into a user-defined vector space if the user-specified coordinates are not a real and imaginary parts and the weight is not real and imaginary weights`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             const vSpace1 = new ProjectiveComplexVectorSpace(dimension);
             const weightR = new Weight(2);
             const weightI = new Weight(3);
@@ -631,7 +632,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
 
         it(`cannot generate a projective complex vector into a default vector space if the user-specified coordinates are not a real and imaginary parts with a default complex weight`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             const vSpace1 = new ProjectiveComplexVectorSpace(dimension);
             const weight = new Weight(2);
             const complex = new Complex(-1, 3);
@@ -654,7 +655,7 @@ describe('Vector 1D in projective complex vector space: generation and operators
 
     it(`cannot generate a projective complex vector into a user-defined vector space if the user-specified coordinates are not a real and imaginary parts with a default complex weight`, () => {
             // Use type casting as allowed by typescript even though they describe configurations that should be avoided
-            const vSpace = new RealVectorSpace(dimension);
+            const vSpace = createRealVectorSpace(dimension);
             const vSpace1 = new ProjectiveComplexVectorSpace(dimension);
             const weight = new Weight(2);
             const complex = new Complex(-1, 3);

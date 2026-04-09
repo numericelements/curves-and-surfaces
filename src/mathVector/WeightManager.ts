@@ -3,28 +3,39 @@ import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../namedConstants/Proje
 import { DEFAULT_IMAGINARY_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { Complex } from "./Complex";
 import { ComplexWeight } from "./ComplexWeight";
+import { WeightManagerStrategy } from "./interfaces/WeightManagerInterfaces";
 import type { Real } from "./utilityTypes/VectorDescriptorTypes";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
-import { WeightManagerPositiveWeightStrategy } from "./WeightManagerPositiveWeightStrategy";
-import { WeightManagerSomeNullWeightStrategy } from "./WeightManagerSomeNullWeightStrategy";
-import { WeightManagerStrictPositiveWeightStrategy } from "./WeightManagerStrictPositiveWeightStrategy";
+import { WeightManagerPositiveWeightStrategy } from "./weightManagerStrategies/WeightManagerPositiveWeightStrategy";
+import { WeightManagerSomeNullWeightStrategy } from "./weightManagerStrategies/WeightManagerSomeNullWeightStrategy";
+import { WeightManagerStrictPositiveWeightStrategy } from "./weightManagerStrategies/WeightManagerStrictPositiveWeightStrategy";
 
-export interface WeightManagerStrategy {
-    addWeights(weightV1: Weight, weightV2: Weight): Weight;
-    subtractWeights(weightV1: Weight, weightV2: Weight): Weight;
-    scaleWeight(weight: Weight, scalar: Real): Weight;
-    createWeightFromValueOnly(value: number): Weight;
-    forcesNullWeight(weight: Weight): Weight;
-    setWeightStatusToNullWeightStatus(weight: Weight): Weight;
-    addComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight;
-    subtractComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight;
-}
-
+/**
+ * Manages weight arithmetic for projective vector spaces according to a {@link WeightManagement} policy.
+ *
+ * The policy governs which weight values are legal and how arithmetic operations
+ * (add, subtract, scale) handle edge cases such as zero or negative weights.
+ * The actual logic is delegated to an internal {@link WeightManagerStrategy}.
+ *
+ * Three policies are supported:
+ * - `AllStrictlyPositiveWeights` — all weights must be > 0.
+ * - `AllPositiveWeights`         — weights must be ≥ 0.
+ * - `SomeNullWeights`            — weights may be zero (points at infinity allowed).
+ *
+ * @example
+ * const wm = new WeightManager(WeightManagement.AllStrictlyPositiveWeights);
+ * const w  = wm.createWeightFromValueOnly(2);   // Weight(2, true)
+ * const w2 = wm.addWeights(w, w);               // Weight(4, true)
+ */
 export class WeightManager {
     protected readonly _weightManagement: WeightManagement;
     protected readonly strategy: WeightManagerStrategy;
 
+    /**
+     * @param weightManagement - the policy controlling weight validity and arithmetic.
+     * @throws {RangeError} if `weightManagement` is not a recognised {@link WeightManagement} value.
+     */
     constructor(weightManagement: WeightManagement) {
         this._weightManagement = weightManagement;
         switch (weightManagement) {
@@ -43,18 +54,29 @@ export class WeightManager {
         }
     }
     
+    /** The active weight-management policy. */
     get weightManagement(): WeightManagement {
         return this._weightManagement;
     }
 
+    /** Returns a deep copy of this manager (same policy). */
     clone(): WeightManager {
         return new WeightManager(this._weightManagement);
     }
 
+    /**
+     * Creates a {@link Weight} from a bare numeric value.
+     * The `strictlyPositive` flag is set according to the active policy.
+     */
     createWeightFromValueOnly(value: number): Weight {
         return this.strategy.createWeightFromValueOnly(value);
     }
 
+    /**
+     * Returns a copy of `weight` with its status set to the null-weight status
+     * appropriate for the active policy.
+     * @throws {RangeError} if the operation is incompatible with the current policy.
+     */
     setWeightStatusToNullWeightStatus(weight: Weight): Weight {
         try {
             return this.strategy.setWeightStatusToNullWeightStatus(weight);
@@ -63,6 +85,10 @@ export class WeightManager {
         }
     }
 
+    /**
+     * Forces `weight` to the null-weight value (0) for the active policy.
+     * @throws {RangeError} if the operation is incompatible with the current policy.
+     */
     forcesNullWeight(weight: Weight): Weight {
         try {
             return this.strategy.forcesNullWeight(weight);
@@ -71,6 +97,10 @@ export class WeightManager {
         }
     }
 
+    /**
+     * Returns the component-wise sum of two real weights.
+     * @throws {RangeError} if the result violates the active policy.
+     */
     addWeights(weightV1: Weight, weightV2: Weight): Weight {
         try {
             return this.strategy.addWeights(weightV1, weightV2);
@@ -79,6 +109,10 @@ export class WeightManager {
         }
     }
 
+    /**
+     * Returns the component-wise difference of two real weights.
+     * @throws {RangeError} if the result violates the active policy.
+     */
     subtractWeights(weightV1: Weight, weightV2: Weight): Weight {
         try {
             return this.strategy.subtractWeights(weightV1, weightV2);
@@ -87,6 +121,11 @@ export class WeightManager {
         }
     }
 
+    /**
+     * Scales a real weight by `scalar`.
+     * @param scalar - must be ≥ 0.
+     * @throws {RangeError} if `scalar` is negative or if the result violates the active policy.
+     */
     scaleWeight(weight: Weight, scalar: Real): Weight {
         if(scalar < 0) {
             const error = sendRangeErrorMessage(this.constructor.name, 'scaleWeight', EM_SCALE_FACTOR_STRICTLY_NEGATIVE);
@@ -99,6 +138,10 @@ export class WeightManager {
         }
     }
 
+    /**
+     * Returns the component-wise sum of two complex weights.
+     * @throws {RangeError} if the result violates the active policy.
+     */
     addComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
         try {
             return this.strategy.addComplexWeights(weightV1, weightV2);
@@ -107,6 +150,10 @@ export class WeightManager {
         }
     }
 
+    /**
+     * Returns the component-wise difference of two complex weights.
+     * @throws {RangeError} if the result violates the active policy.
+     */
     subtractComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
         try {
             return this.strategy.subtractComplexWeights(weightV1, weightV2);
@@ -115,6 +162,11 @@ export class WeightManager {
         }
     }
 
+    /**
+     * Scales a complex weight by a real scalar or by a {@link Complex} number.
+     * @throws {RangeError} if any resulting component is negative,
+     *   or if scaling to zero is forbidden by the active policy.
+     */
     scaleComplexWeight(weight: ComplexWeight, scalar: Real): ComplexWeight;
     scaleComplexWeight(weight: ComplexWeight, scalar: Complex): ComplexWeight;
     scaleComplexWeight(weight: ComplexWeight, scalar: Real | Complex): ComplexWeight {
@@ -141,6 +193,11 @@ export class WeightManager {
             return new ComplexWeight(this.scaleWeight(weight.real, scalar), this.scaleWeight(weight.imaginary, scalar));
     }
 
+    /**
+     * Returns `true` if both weights are consistent with each other under the active policy.
+     * For `SomeNullWeights` this is always `true`; otherwise both weights must share
+     * the same `strictlyPositive` flag and it must match the policy.
+     */
     haveSameWeightManagement(weightV1: Weight, weightV2: Weight): boolean {
         if(this._weightManagement !== WeightManagement.SomeNullWeights) {
             if(weightV1.strictlyPositive === weightV2.strictlyPositive) {

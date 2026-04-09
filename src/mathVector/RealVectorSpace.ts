@@ -1,15 +1,15 @@
 import { EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/RealVectorSpace";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { DEFAULT_REAL_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
-import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../namedConstants/RealVectorSpace";
 import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
+import { MIN_DIMENSION_REALVECTORSPACE, MAX_DIMENSION_REALVECTORSPACE } from "../namedConstants/RealVectorSpace";
 import { REAL_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import { RealVectorSpace1DStrategy } from "./RealVectorSpace1DStrategy";
-import { RealVectorSpace2DStrategy } from "./RealVectorSpace2DStrategy";
-import { RealVectorSpace3DStrategy } from "./RealVectorSpace3DStrategy";
-import { RealVectorSpace4DStrategy } from "./RealVectorSpace4DStrategy";
+import { RealVectorSpace1DStrategy } from "./realVectorSpaceStrategies/RealVectorSpace1DStrategy";
+import { RealVectorSpace2DStrategy } from "./realVectorSpaceStrategies/RealVectorSpace2DStrategy";
+import { RealVectorSpace3DStrategy } from "./realVectorSpaceStrategies/RealVectorSpace3DStrategy";
+import { RealVectorSpace4DStrategy } from "./realVectorSpaceStrategies/RealVectorSpace4DStrategy";
 import type { RealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
 import type { IdentifiableVectorSpace, RealVectorSpaceInterface } from "./interfaces/VectorSpaceInterfaces";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
@@ -31,11 +31,11 @@ export class RealVectorSpace<D extends number = number, RVD extends RealVectorDe
     protected readonly dim: D;
     protected readonly strategy: RealVectorSpaceStrategy<D, RVD>;
 
-    
     constructor(dimension: D, isDefault: boolean = false, name?: string) {
         this.dim = dimension;
         this._isDefault = isDefault;
         this._id = INITIAL_VECTOR_SPACE_ID;
+        this.strategy = this.createStrategy(dimension) as RealVectorSpaceStrategy<D, RVD>;
         if(this._isDefault) {  
             this._id = resolveDefaultVectorSpace(this);
             this._name = DEFAULT_REAL_VECTOR_SPACE_NAME + dimension.toString();
@@ -43,16 +43,15 @@ export class RealVectorSpace<D extends number = number, RVD extends RealVectorDe
             this._id = resolveVectorSpace(this);
             this._name = name || REAL_VECTOR_SPACE_NAME + dimension.toString();
         }
-        this.strategy = this.createStrategy(dimension);
     }
 
-    private createStrategy(dimension: number): RealVectorSpaceStrategy<D, RVD> {
+    private createStrategy(dimension: number): RealVectorSpaceStrategy<number, RealVectorDesc> {
         switch (dimension) {
-            case MIN_DIMENSION_REALVECTORSPACE: return new RealVectorSpace1DStrategy() as unknown as RealVectorSpaceStrategy<D, RVD>;
-            case 2: return new RealVectorSpace2DStrategy() as unknown as RealVectorSpaceStrategy<D, RVD>;
-            case 3: return new RealVectorSpace3DStrategy() as unknown as RealVectorSpaceStrategy<D, RVD>;
-            case MAX_DIMENSION_REALVECTORSPACE: return new RealVectorSpace4DStrategy() as unknown as RealVectorSpaceStrategy<D, RVD>;
-            default: 
+            case MIN_DIMENSION_REALVECTORSPACE: return new RealVectorSpace1DStrategy();
+            case 2:                             return new RealVectorSpace2DStrategy();
+            case 3:                             return new RealVectorSpace3DStrategy();
+            case MAX_DIMENSION_REALVECTORSPACE: return new RealVectorSpace4DStrategy();
+            default: break;
         }
         const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_REALVECTORSPACE_DIMENSION_OUT_RANGE);
         throw new RangeError(error.generateMessageString());

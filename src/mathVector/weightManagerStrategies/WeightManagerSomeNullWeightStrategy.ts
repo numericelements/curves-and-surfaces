@@ -1,12 +1,20 @@
-import { EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
-import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveRealVectorSpace";
-import { ComplexWeight } from "./ComplexWeight";
-import type { Real } from "./utilityTypes/VectorDescriptorTypes";
-import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
+import { EM_WEIGHT_SUBTRACTION_ERROR } from "../../ErrorMessages/WeightManager";
+import { NULL_WEIGHT_TOLERANCE } from "../../namedConstants/ProjectiveRealVectorSpace";
+import { ComplexWeight } from "../ComplexWeight";
+import type { Real } from "../utilityTypes/VectorDescriptorTypes";
+import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import { Weight } from "../Weight";
 
+/**
+ * {@link WeightManagerStrategy} for the `SomeNullWeights` policy.
+ *
+ * Both strictly-positive and non-strictly-positive weights are accepted.
+ * The `strictlyPositive` flag of each result is inferred from the operands
+ * and the resulting value, allowing zero weights (points at infinity).
+ */
 export class WeightManagerSomeNullWeightStrategy {
 
+    /** Preserves the `strictlyPositive` flag based on operand flags and resulting value. */
     addWeights(weightV1: Weight, weightV2: Weight): Weight {
         const sumWeights = weightV1.value + weightV2.value;
         let newWeight = new Weight();
@@ -26,6 +34,9 @@ export class WeightManagerSomeNullWeightStrategy {
         return newWeight;
     }
 
+    /**
+     * @throws {RangeError} if the result would be meaningfully negative.
+     */
     subtractWeights(weightV1: Weight, weightV2: Weight): Weight {
         const diffWeights = weightV1.value - weightV2.value;
         if(diffWeights < 0 && Math.abs(diffWeights) > NULL_WEIGHT_TOLERANCE) {
@@ -43,6 +54,7 @@ export class WeightManagerSomeNullWeightStrategy {
         return newWeight;
     }
 
+    /** Preserves `strictlyPositive = true` only if the original weight is strictly positive and `scalar > 0`. */
     scaleWeight(weight: Weight, scalar: Real): Weight {
         let newWeight = new Weight();
         if(weight.strictlyPositive && scalar > 0) {
@@ -53,6 +65,7 @@ export class WeightManagerSomeNullWeightStrategy {
         return newWeight;
     }
 
+    /** Infers `strictlyPositive` flag from value: `false` for 0 or negative; `true` for positive values. */
     createWeightFromValueOnly(value: number): Weight {
         if (value < 0) {
             return new Weight(value, false);
@@ -63,12 +76,14 @@ export class WeightManagerSomeNullWeightStrategy {
         }
     }
 
+    /** Forces `weight` to 0 (non-strictly-positive) if its value is below `NULL_WEIGHT_TOLERANCE`. */
     forcesNullWeight(weight: Weight): Weight {
         let newWeight = weight.clone();
         if(weight.value < NULL_WEIGHT_TOLERANCE) newWeight = new Weight(0, false);
         return newWeight;
     }
 
+    /** Transitions a strictly-positive near-zero weight to `strictlyPositive = false`. */
     setWeightStatusToNullWeightStatus(weight: Weight): Weight {
         let newWeight = weight.clone();
         if(weight.value < NULL_WEIGHT_TOLERANCE && weight.strictlyPositive)
@@ -76,6 +91,7 @@ export class WeightManagerSomeNullWeightStrategy {
         return newWeight;
     }
 
+    /** Propagates `strictlyPositive` flags from operands to the resulting complex weight. */
     addComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
         let newWeightR = this.addWeights(weightV1.real, weightV2.real);
         let newWeightI = this.addWeights(weightV1.imaginary, weightV2.imaginary);
@@ -90,6 +106,7 @@ export class WeightManagerSomeNullWeightStrategy {
         return newWeight;
     }
 
+    /** Propagates `strictlyPositive` flags from operands to the resulting complex weight. */
     subtractComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
         let newWeightR = this.subtractWeights(weightV1.real, weightV2.real);
         let newWeightI = this.subtractWeights(weightV1.imaginary, weightV2.imaginary);

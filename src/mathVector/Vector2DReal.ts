@@ -64,7 +64,7 @@ export class Vector2DReal extends AbstractRealVector<2, RealVector2D>
         try{
             return getDefaultVectorSpace(this.spaceType, Vector2DReal.DIMENSION);
         } catch(error) {
-            return new RealVectorSpace(Vector2DReal.DIMENSION, true);
+            return new RealVectorSpace(2, true);
         }
     }
 

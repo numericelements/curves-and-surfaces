@@ -6,7 +6,7 @@ import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../namedConstants/ProjectiveComplexVectorSpace";
 import { WeightManagement } from "../namedConstants/ProjectiveRealVectorSpace";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import { ProjectiveComplexVectorSpace1DStrategy } from "./ProjectiveComplexVectorSpace1DStrategy";
+import { ProjectiveComplexVectorSpace1DStrategy } from "./projectiveComplexVectorSpaceStrategies/ProjectiveComplexVectorSpace1DStrategy";
 import type { ComplexDesc, ComplexWeightDesc } from "./VectorDescriptorConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
@@ -59,18 +59,16 @@ export class ProjectiveComplexVectorSpace<D extends number = number, PCVD extend
             this._id = resolveVectorSpace(this);
             this._name = name || PROJECTIVE_COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
-        switch (this.dim) {
-            case MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE:
-                this.strategy = new ProjectiveComplexVectorSpace1DStrategy() as unknown as ProjectiveComplexVectorSpaceStrategy<D, PCVD>;
-                break;
-            default:
-                const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
-                throw new RangeError(error.generateMessageString());
+        this.strategy = this.createStrategy(dimension) as ProjectiveComplexVectorSpaceStrategy<D, PCVD>;
+    }
+
+    private createStrategy(dimension: number): ProjectiveComplexVectorSpaceStrategy<number, ProjectiveComplexVectorDesc> {
+        switch (dimension) {
+            case MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE: return new ProjectiveComplexVectorSpace1DStrategy();
+            default: break;
         }
-        if (dimension < MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE || dimension > MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE) {
-            const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
-            throw new RangeError(error.generateMessageString());
-        }
+        const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
+        throw new RangeError(error.generateMessageString());
     }
 
     get id(): string { return this._id; }

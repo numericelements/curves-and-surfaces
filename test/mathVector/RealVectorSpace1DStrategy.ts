@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { RealVectorSpace1DStrategy } from "../../src/mathVector/RealVectorSpace1DStrategy";
+import { RealVectorSpace1DStrategy } from "../../src/mathVector/realVectorSpaceStrategies/RealVectorSpace1DStrategy";
 import { createTestRealVector } from "./RealVectorSpaceTestFactory";
 import { RealVector2D, RealVector3D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { isVector1D } from "../../src/mathVector/VectorSpaceUtilities";

@@ -1,14 +1,14 @@
-import { WeightManagement } from "../namedConstants/ProjectiveRealVectorSpace";
-import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
-import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
-import { ComplexWeight } from "./ComplexWeight";
-import type { ProjectiveComplexVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
-import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor } from "./VectorDescriptorFactory";
-import type { ComplexDesc, ComplexWeightDesc, ProjectiveComplexVector1D } from "./VectorDescriptorConstructorInterface";
-import { isVector2D } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
-import type { WeightManager } from "./WeightManager";
-import type { ComplexVector1D, ProjectiveComplexVectorDesc, Real } from "./utilityTypes/VectorDescriptorTypes";
+import { WeightManagement } from "../../namedConstants/ProjectiveRealVectorSpace";
+import { DEFAULT_WEIGHT_VALUE } from "../../namedConstants/Weight";
+import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, multiplyComplexWeightsUsingDescriptors, subtractComplexUsingDescriptors } from "../ComplexNumberFactory";
+import { ComplexWeight } from "../ComplexWeight";
+import type { ProjectiveComplexVectorSpaceStrategy } from "../interfaces/VectorSpaceStrategyInterfaces";
+import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor } from "../VectorDescriptorFactory";
+import type { ComplexDesc, ComplexWeightDesc, ProjectiveComplexVector1D } from "../VectorDescriptorConstructorInterface";
+import { isVector2D } from "../VectorSpaceUtilities";
+import { Weight } from "../Weight";
+import type { WeightManager } from "../WeightManager";
+import type { ComplexVector1D, ProjectiveComplexVectorDesc, Real } from "../utilityTypes/VectorDescriptorTypes";
 
 export class ProjectiveComplexVectorSpace1DStrategy implements ProjectiveComplexVectorSpaceStrategy<1, ProjectiveComplexVector1D> {
     // Implementation for 1D projective complex vectors

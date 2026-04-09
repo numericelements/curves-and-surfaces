@@ -1,12 +1,12 @@
-import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../ErrorMessages/ComplexVectorSpace";
-import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
-import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
-import type { ComplexVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
-import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor, createRealVector2DDescriptor } from "./VectorDescriptorFactory";
-import type { ComplexDesc, ComplexWeightDesc, RealVector2D, ProjectiveComplexVector1D } from "./VectorDescriptorConstructorInterface";
-import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
-import type { ComplexVector1D, ComplexVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
+import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../../ErrorMessages/ComplexVectorSpace";
+import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../../namedConstants/Weight";
+import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "../ComplexNumberFactory";
+import type { ComplexVectorSpaceStrategy } from "../interfaces/VectorSpaceStrategyInterfaces";
+import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor, createRealVector2DDescriptor } from "../VectorDescriptorFactory";
+import type { ComplexDesc, ComplexWeightDesc, RealVector2D, ProjectiveComplexVector1D } from "../VectorDescriptorConstructorInterface";
+import { isVector1D, sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import { Weight } from "../Weight";
+import type { ComplexVector1D, ComplexVectorDesc } from "../utilityTypes/VectorDescriptorTypes";
 
 export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<1, ComplexVector1D> {
 

@@ -1,14 +1,14 @@
-import { EM_PROJECTIVEREALVECTORS_DIFFERENT_DIM, EM_PROJECTIVEREALVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEREALVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/ProjectiveRealVectorSpace";
-import { EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
-import { WeightManagement } from "../namedConstants/ProjectiveRealVectorSpace";
-import { DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
-import type { ProjectiveRealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
-import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor, createProjectiveRealVector2DDescriptor, createRealVector2DDescriptor, createWeightDescriptor } from "./VectorDescriptorFactory";
-import type { ComplexWeightDesc, ProjectiveRealVector2D, WeightDesc, RealVector2D, ProjectiveComplexVector1D } from "./VectorDescriptorConstructorInterface";
-import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
-import type { WeightManager } from "./WeightManager";
-import type { ProjectiveRealVectorDesc, Real } from "./utilityTypes/VectorDescriptorTypes";
+import { EM_PROJECTIVEREALVECTORS_DIFFERENT_DIM, EM_PROJECTIVEREALVECTORS_NOT_IN_VECTORSPACE, EM_PROJECTIVEREALVECTORSPACE_DIMENSION_OUT_RANGE } from "../../ErrorMessages/ProjectiveRealVectorSpace";
+import { EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../../ErrorMessages/Weight";
+import { WeightManagement } from "../../namedConstants/ProjectiveRealVectorSpace";
+import { DEFAULT_WEIGHT_VALUE } from "../../namedConstants/Weight";
+import type { ProjectiveRealVectorSpaceStrategy } from "../interfaces/VectorSpaceStrategyInterfaces";
+import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor, createProjectiveRealVector2DDescriptor, createRealVector2DDescriptor, createWeightDescriptor } from "../VectorDescriptorFactory";
+import type { ComplexWeightDesc, ProjectiveRealVector2D, WeightDesc, RealVector2D, ProjectiveComplexVector1D } from "../VectorDescriptorConstructorInterface";
+import { isVector3D, sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import { Weight } from "../Weight";
+import type { WeightManager } from "../WeightManager";
+import type { ProjectiveRealVectorDesc, Real } from "../utilityTypes/VectorDescriptorTypes";
 
 
 export class ProjectiveRealVectorSpace2DStrategy implements ProjectiveRealVectorSpaceStrategy<3, ProjectiveRealVector2D> {

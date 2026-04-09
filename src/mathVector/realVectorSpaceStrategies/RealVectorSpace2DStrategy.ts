@@ -1,10 +1,10 @@
-import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/RealVectorSpace";
-import type { RealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
-import { createComplexVector1DDescriptor, createProjectiveRealVector2DDescriptor, createRealVector2DDescriptor } from "./VectorDescriptorFactory";
-import type { ProjectiveRealVector2D, RealVector2D } from "./VectorDescriptorConstructorInterface";
-import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
-import type { ComplexVector1D, Real, RealVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
+import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../../ErrorMessages/RealVectorSpace";
+import type { RealVectorSpaceStrategy } from "../interfaces/VectorSpaceStrategyInterfaces";
+import { createComplexVector1DDescriptor, createProjectiveRealVector2DDescriptor, createRealVector2DDescriptor } from "../VectorDescriptorFactory";
+import type { ProjectiveRealVector2D, RealVector2D } from "../VectorDescriptorConstructorInterface";
+import { isVector2D, sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import { Weight } from "../Weight";
+import type { ComplexVector1D, Real, RealVectorDesc } from "../utilityTypes/VectorDescriptorTypes";
 
 
 export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2, RealVector2D> {

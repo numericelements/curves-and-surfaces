@@ -1,10 +1,10 @@
-import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/RealVectorSpace";
-import type { RealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
-import type { ProjectiveRealVector3D, RealVector3D } from "./VectorDescriptorConstructorInterface";
-import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
-import { createProjectiveRealVector3DDescriptor, createRealVector3DDescriptor, createWeightDescriptor } from "./VectorDescriptorFactory";
-import type { Real, RealVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
+import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../../ErrorMessages/RealVectorSpace";
+import type { RealVectorSpaceStrategy } from "../interfaces/VectorSpaceStrategyInterfaces";
+import type { ProjectiveRealVector3D, RealVector3D } from "../VectorDescriptorConstructorInterface";
+import { isVector3D, sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import { Weight } from "../Weight";
+import { createProjectiveRealVector3DDescriptor, createRealVector3DDescriptor, createWeightDescriptor } from "../VectorDescriptorFactory";
+import type { Real, RealVectorDesc } from "../utilityTypes/VectorDescriptorTypes";
 
   
 export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3, RealVector3D> {

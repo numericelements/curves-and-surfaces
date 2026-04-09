@@ -52,7 +52,7 @@ export class Vector1DReal extends AbstractRealVector<1, RealVector1D>
         try{
             return getDefaultVectorSpace(this.spaceType, Vector1DReal.DIMENSION);
         } catch(error) {
-            return new RealVectorSpace(Vector1DReal.DIMENSION, true);
+            return new RealVectorSpace(1, true);
         }
     }
 

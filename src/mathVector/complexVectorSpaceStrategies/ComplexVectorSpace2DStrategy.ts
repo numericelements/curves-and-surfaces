@@ -1,10 +1,10 @@
-import { EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2, EM_TRANSFORMATION_NOT_AVAILABLE } from "../ErrorMessages/ComplexVectorSpace";
-import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
-import type { ComplexVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
-import { createComplexVector1DDescriptor, createComplexVector2DDescriptor } from "./VectorDescriptorFactory";
-import type { ComplexDesc, ComplexVector2D, ComplexWeightDesc } from "./VectorDescriptorConstructorInterface";
-import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import type { ComplexVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
+import { EM_DOT_PRODUCT_NOT_APPLICABLE_DIM2, EM_TRANSFORMATION_NOT_AVAILABLE } from "../../ErrorMessages/ComplexVectorSpace";
+import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "../ComplexNumberFactory";
+import type { ComplexVectorSpaceStrategy } from "../interfaces/VectorSpaceStrategyInterfaces";
+import { createComplexVector1DDescriptor, createComplexVector2DDescriptor } from "../VectorDescriptorFactory";
+import type { ComplexDesc, ComplexVector2D, ComplexWeightDesc } from "../VectorDescriptorConstructorInterface";
+import { isVector2D, sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import type { ComplexVectorDesc } from "../utilityTypes/VectorDescriptorTypes";
 
 
 export class ComplexVectorSpace2DStrategy implements ComplexVectorSpaceStrategy<2, ComplexVector2D> {

@@ -6,8 +6,8 @@ import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVect
 import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveRealVectorSpace";
 import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
 import { COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
-import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
-import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
+import { ComplexVectorSpace1DStrategy } from "./complexVectorSpaceStrategies/ComplexVectorSpace1DStrategy";
+import { ComplexVectorSpace2DStrategy } from "./complexVectorSpaceStrategies/ComplexVectorSpace2DStrategy";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
 import { createComplexWeightDescriptor } from "./VectorDescriptorFactory";
@@ -40,13 +40,13 @@ export class ComplexVectorSpace<D extends number = number, CVD extends ComplexVe
             this._id = resolveVectorSpace(this);
             this._name = name || COMPLEX_VECTOR_SPACE_NAME + dimension.toString();
         }
-        this.strategy = this.createStrategy(dimension);
+        this.strategy = this.createStrategy(dimension) as ComplexVectorSpaceStrategy<D, CVD>;
     }
 
-    private createStrategy(dimension: number): ComplexVectorSpaceStrategy<D, CVD> {
+    private createStrategy(dimension: number): ComplexVectorSpaceStrategy<number, ComplexVectorDesc> {
         switch (dimension) {
-            case MIN_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace1DStrategy() as unknown as ComplexVectorSpaceStrategy<D, CVD>;
-            case MAX_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace2DStrategy() as unknown as ComplexVectorSpaceStrategy<D, CVD>;
+            case MIN_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace1DStrategy();
+            case MAX_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace2DStrategy();
             default:
         }
         const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);

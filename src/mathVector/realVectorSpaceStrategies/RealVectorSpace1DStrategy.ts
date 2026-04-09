@@ -1,8 +1,8 @@
-import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../ErrorMessages/RealVectorSpace";
-import type { RealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
-import type { Real, RealVector1D, RealVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
-import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
+import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../../ErrorMessages/RealVectorSpace";
+import type { RealVectorSpaceStrategy } from "../interfaces/VectorSpaceStrategyInterfaces";
+import type { Real, RealVector1D, RealVectorDesc } from "../utilityTypes/VectorDescriptorTypes";
+import { isVector1D, sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import { Weight } from "../Weight";
 
 
 export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1, RealVector1D> {

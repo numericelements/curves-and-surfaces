@@ -1,13 +1,22 @@
-import { EM_TOGGLE_STATUS_INCOMPATIBLE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
-import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveRealVectorSpace";
-import { WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE } from "../WarningMessages/WeightManager";
-import { ComplexWeight } from "./ComplexWeight";
-import type { Real } from "./utilityTypes/VectorDescriptorTypes";
-import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
+import { EM_TOGGLE_STATUS_INCOMPATIBLE, EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT, EM_WEIGHT_SUBTRACTION_ERROR } from "../../ErrorMessages/WeightManager";
+import { NULL_WEIGHT_TOLERANCE } from "../../namedConstants/ProjectiveRealVectorSpace";
+import { WM_WEIGHT_COULD_BE_ASSIGNED_NULL_VALUE } from "../../WarningMessages/WeightManager";
+import { ComplexWeight } from "../ComplexWeight";
+import type { Real } from "../utilityTypes/VectorDescriptorTypes";
+import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import { Weight } from "../Weight";
 
+/**
+ * {@link WeightManagerStrategy} for the `AllPositiveWeights` policy.
+ *
+ * All weights must have `strictlyPositive = false` and a value ≥ 0.
+ * Zero weights are valid; toggling to null-weight status is not applicable.
+ */
 export class WeightManagerPositiveWeightStrategy {
 
+    /**
+     * @throws {RangeError} if either input weight has `strictlyPositive = true`.
+     */
     addWeights(weightV1: Weight, weightV2: Weight): Weight {
         if(weightV1.strictlyPositive === true || weightV2.strictlyPositive === true) {
             const error = sendRangeErrorMessage(this.constructor.name, 'addWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
@@ -24,6 +33,10 @@ export class WeightManagerPositiveWeightStrategy {
         return newWeight;
     }
 
+    /**
+     * @throws {RangeError} if either input weight has `strictlyPositive = true`,
+     *   or if the result would be strictly negative.
+     */
     subtractWeights(weightV1: Weight, weightV2: Weight): Weight {
         if(weightV1.strictlyPositive === true || weightV2.strictlyPositive === true) {
             const error = sendRangeErrorMessage(this.constructor.name, 'subtractWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
@@ -46,15 +59,20 @@ export class WeightManagerPositiveWeightStrategy {
         return newWeight;
     }
 
+    /** Returns a scaled non-strictly-positive weight. */
     scaleWeight(weight: Weight, scalar: Real): Weight {
         const newWeight = new Weight(weight.value * scalar, false);
         return newWeight;
     }
 
+    /** Returns `new Weight(value, false)` — non-strictly-positive. */
     createWeightFromValueOnly(value: number): Weight {
         return new Weight(value, false);
     }
 
+    /**
+     * @throws {RangeError} if `weight.strictlyPositive` is `true` (incompatible status).
+     */
     forcesNullWeight(weight: Weight): Weight {
         if(weight.strictlyPositive === true) {
             const error = sendRangeErrorMessage(this.constructor.name, 'forcesNullWeight', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
@@ -65,11 +83,15 @@ export class WeightManagerPositiveWeightStrategy {
         return newWeight;
     }
 
+    /** Always throws — status toggling is not applicable to the `AllPositiveWeights` policy. */
     setWeightStatusToNullWeightStatus(weight: Weight): Weight {
         const error = sendRangeErrorMessage(this.constructor.name, 'toggleWeightStatus', EM_TOGGLE_STATUS_INCOMPATIBLE);
         throw new RangeError(error.generateMessageString());
     }
 
+    /**
+     * @throws {RangeError} if any component of the inputs has `strictlyPositive = true`.
+     */
     addComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
         if(weightV1.real.strictlyPositive || weightV2.real.strictlyPositive) {
             const error = sendRangeErrorMessage(this.constructor.name, 'addComplexWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);
@@ -79,6 +101,9 @@ export class WeightManagerPositiveWeightStrategy {
         return newWeight;
     }
 
+    /**
+     * @throws {RangeError} if any component of the inputs has `strictlyPositive = true`.
+     */
     subtractComplexWeights(weightV1: ComplexWeight, weightV2: ComplexWeight): ComplexWeight {
         if(weightV1.real.strictlyPositive || weightV2.real.strictlyPositive) {
             const error = sendRangeErrorMessage(this.constructor.name, 'subtractComplexWeights', EM_WEIGHT_STATUS_INCOMPATIBLE_POSITIVE_MANAGEMENT);

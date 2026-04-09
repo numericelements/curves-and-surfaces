@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../src/namedConstants/RealVectorSpace";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
+import { createRealVectorSpace } from "../../src/mathVector/VectorSpaceFactory";
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../../src/ErrorMessages/RealVectorSpace";
 import { RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { isVector1D, isVector2D, isVector3D, isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
@@ -29,8 +30,8 @@ describe('RealVectorSpace', () => {
     describe('Constructor', () => {
 
         it('can generate a RealVectorSpace dimension between ' + MIN_DIMENSION_REALVECTORSPACE + ' and ' + MAX_DIMENSION_REALVECTORSPACE, () => {
-            expect(() => new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE)).to.not.throw()
-            expect(() => new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE)).to.not.throw()
+            expect(() => new RealVectorSpace(1)).to.not.throw()
+            expect(() => new RealVectorSpace(4)).to.not.throw()
         });
 
         it('cannot generate a RealVectorSpace outside dimension range', () => {
@@ -39,18 +40,18 @@ describe('RealVectorSpace', () => {
         });
 
         it('can generate a RealVectorSpace and get its dimension', () => {
-            const realVectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE + 1);
+            const realVectorSpace = new RealVectorSpace(2);
             expect(realVectorSpace.dimension()).to.eql(MIN_DIMENSION_REALVECTORSPACE + 1)
         });
 
         it(`can check that a user specific Real vector space has a default name containing ${REAL_VECTOR_SPACE_NAME}`, () => {
-            const vectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE);
+            const vectorSpace = new RealVectorSpace(1);
             expect(vectorSpace.isDefault).to.eql(false);
             expect(vectorSpace.name.includes(DEFAULT)).to.eql(false);
         });
 
         it(`can check that a default Real vector space has a default name containing ${DEFAULT_REAL_VECTOR_SPACE_NAME}`, () => {
-            const vectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE, true);
+            const vectorSpace = new RealVectorSpace(1, true);
             expect(vectorSpace.isDefault).to.eql(true);
             expect(vectorSpace.name.includes(DEFAULT_REAL_VECTOR_SPACE_NAME)).to.eql(true);
         });
@@ -87,77 +88,77 @@ describe('RealVectorSpace', () => {
     describe('Accesssors', () => {
 
         it(`can get the identifier of a user-defined RealVectorSpace`, () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE - 1);
+            const realVectorSpace = new RealVectorSpace(3);
             expect(realVectorSpace.id.includes(VECTOR_SPACE)).to.eql(true)
         });
 
         it(`can get the identifier of a default RealVectorSpace`, () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE - 1, true);
+            const realVectorSpace = new RealVectorSpace(3, true);
             expect(realVectorSpace.id.includes(DEFAULT)).to.eql(true)
         });
 
         it(`can get the default name of a user-defined RealVectorSpace`, () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(4);
             expect(realVectorSpace.name.includes(REAL_VECTOR_SPACE_NAME)).to.eql(true)
         });
 
         it(`can get the default name of a default RealVectorSpace`, () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE - 1, true);
+            const realVectorSpace = new RealVectorSpace(3, true);
             expect(realVectorSpace.name.includes(DEFAULT_REAL_VECTOR_SPACE_NAME)).to.eql(true)
         });
 
         it(`can get the status of a user-defined RealVectorSpace as not being default`, () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE - 1);
+            const realVectorSpace = new RealVectorSpace(3);
             expect(realVectorSpace.isDefault).to.eql(false)
         });
 
         it(`can get the status of a default RealVectorSpace as being default`, () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE - 1, true);
+            const realVectorSpace = new RealVectorSpace(3, true);
             expect(realVectorSpace.isDefault).to.eql(true)
         });
 
         it(`can get the vector space type of a user-defined RealVectorSpace`, () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(4);
             expect(realVectorSpace.spaceType).to.eql(VectorSpaceType.REAL);
         });
 
         it(`can get the vector space type of a default RealVectorSpace`, () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE, true);
+            const realVectorSpace = new RealVectorSpace(4, true);
             expect(realVectorSpace.spaceType).to.eql(VectorSpaceType.REAL);
         });
     });
 
     describe('Methods', () => {
         it('can get the dimension of a RealVectorSpace', () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE - 1);
+            const realVectorSpace = new RealVectorSpace(3);
             expect(realVectorSpace.dimension()).to.eql(MAX_DIMENSION_REALVECTORSPACE - 1)
         });
 
         // 1D RealVector Space Tests
         describe('1D Vector Space', () => {
             createCommonRealVectorSpaceTests(
-                (dim) => new RealVectorSpace(dim), 1
+                () => new RealVectorSpace(1), 1
             );
         });
 
         // 2D RealVector Space Tests
         describe('2D Vector Space', () => {
             createCommonRealVectorSpaceTests(
-                (dim) => new RealVectorSpace(dim), 2
+                () => new RealVectorSpace(2), 2
             );
         });
 
         // 3D RealVector Space Tests
         describe('3D Vector Space', () => {
             createCommonRealVectorSpaceTests(
-                (dim) => new RealVectorSpace(dim), 3
+                () => new RealVectorSpace(3), 3
             );
         });
 
         // 4D RealVector Space Tests
         describe('4D Vector Space', () => {
             createCommonRealVectorSpaceTests(
-                (dim) => new RealVectorSpace(dim),
+                () => new RealVectorSpace(4),
                 MAX_DIMENSION_REALVECTORSPACE
             );
         });
@@ -172,7 +173,7 @@ describe('RealVectorSpace', () => {
         });
 
         it('can check if two RealVectors of different coordinates are of same dimension 1D', () => {
-            const realVectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(1);
             const vec1: RealVector1D = 0;
             const vec2: RealVector1D = 1;
             expect(realVectorSpace.areSameDimension(vec1, vec2)).to.eql(true)
@@ -186,14 +187,14 @@ describe('RealVectorSpace', () => {
         });
 
         it('can check if two RealVectors of different coordinates are of same dimension 3D', () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE - 1);
+            const realVectorSpace = new RealVectorSpace(3);
             const vec1: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 0, 0]};
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 0]};
             expect(realVectorSpace.areSameDimension(vec1, vec2)).to.eql(true)
         });
 
         it('can check if two RealVectors of different coordinates are of same dimension 4D', () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(4);
             const vec1: RealVector4D = {type: REALVECTOR4D, coordinates: [0, 0, 0, 0]};
             const vec2: RealVector4D = {type: REALVECTOR4D, coordinates: [1, 0, 0, 1]};
             expect(realVectorSpace.areSameDimension(vec1, vec2)).to.eql(true)
@@ -207,7 +208,7 @@ describe('RealVectorSpace', () => {
         });
 
         it('can get a default RealVector of dimension ' + MIN_DIMENSION_REALVECTORSPACE, () => {
-            const realVectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(1);
             const vec1: RealVectorDesc = realVectorSpace.defaultVect();
             const vec1D = isVector1D(vec1);
             expect(vec1D).to.eql(true);
@@ -231,7 +232,7 @@ describe('RealVectorSpace', () => {
         });
 
         it('can get a default RealVector of dimension 4' + MAX_DIMENSION_REALVECTORSPACE, () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(4);
             const vec1: RealVectorDesc = realVectorSpace.defaultVect();
             const vec4D = isVector4D(vec1);
             expect(vec4D).to.eql(true);
@@ -239,7 +240,7 @@ describe('RealVectorSpace', () => {
         });
 
         it('can check if a RealVector of dimension 2 is not in the RealVectorSpace of different dimension', () => {
-            const realVectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(1);
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 0]};
             expect(realVectorSpace.isInVectorSpace(vec1 as unknown as RealVector1D)).to.eql(false)
             const vec2: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 0]};
@@ -336,7 +337,7 @@ describe('RealVectorSpace', () => {
         });
 
         it('cannot get the cross product of two RealVectors of dimension ' + MIN_DIMENSION_REALVECTORSPACE, () => {
-            const realVectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(1);
             const vec1 = 0;
             const vec2 = 0;
             const vec1D = isVector1D(vec1);
@@ -434,13 +435,13 @@ describe('RealVectorSpace', () => {
         });
 
         it('cannot transform a 1D RealVector into a ProjectiveRealVector', () => {
-            const realVectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(1);
             const vec1: RealVector1D = 1;
             expect(() => realVectorSpace.fromRealVSpaceToProjectiveRealVSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         });
 
         it('cannot transform a 4D RealVector into a ProjectiveRealVector', () => {
-            const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE);
+            const realVectorSpace = new RealVectorSpace(4);
             const vec1: RealVector4D = {type: REALVECTOR4D, coordinates: [1, 2, 3, 4]};
             expect(() => realVectorSpace.fromRealVSpaceToProjectiveRealVSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         });

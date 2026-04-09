@@ -32,7 +32,7 @@ export function createVector1DRealFromDescriptor(descriptor: RealVector1D, vecto
     return new Vector1DReal(descriptor, vectorSpace);
 }
 
-export function createVector2DRealFromDescriptor(descriptor: RealVector2D, vectorSpace?: RealVectorSpace<2>): RealVector<2> {
+export function createVector2DRealFromDescriptor(descriptor: RealVector2D, vectorSpace?: RealVectorSpace<2>): Vector2DReal {
     if (vectorSpace !== undefined && !isRealVectorSpace(vectorSpace, 2)) {
         const error = sendRangeErrorMessage('function', 'createVector2DRealFromDescriptor', EM_VECTORSPACE_TYPE_OR_DIMENSION_INCONSISTENT);
         throw new RangeError(error.generateMessageString());
@@ -43,7 +43,7 @@ export function createVector2DRealFromDescriptor(descriptor: RealVector2D, vecto
             vectorSpace);
 }
 
-export function createVector3DRealFromDescriptor(descriptor: RealVector3D, vectorSpace?: RealVectorSpace<3>): RealVector<3> {
+export function createVector3DRealFromDescriptor(descriptor: RealVector3D, vectorSpace?: RealVectorSpace<3>): Vector3DReal {
     if (vectorSpace !== undefined && !isRealVectorSpace(vectorSpace, 3)) {
         const error = sendRangeErrorMessage('function', 'createVector3DRealFromDescriptor', EM_VECTORSPACE_TYPE_OR_DIMENSION_INCONSISTENT);
         throw new RangeError(error.generateMessageString());

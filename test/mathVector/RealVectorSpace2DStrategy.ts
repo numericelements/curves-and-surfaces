@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { createTestRealVector, } from "./RealVectorSpaceTestFactory";
-import { RealVectorSpace2DStrategy } from "../../src/mathVector/RealVectorSpace2DStrategy";
+import { RealVectorSpace2DStrategy } from "../../src/mathVector/realVectorSpaceStrategies/RealVectorSpace2DStrategy";
 import { RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { isVector1D, isVector2D, isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../../src/ErrorMessages/RealVectorSpace";

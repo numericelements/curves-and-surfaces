@@ -58,7 +58,7 @@ export class Vector3DReal extends AbstractRealVector<3, RealVector3D>
         try{
             return getDefaultVectorSpace(this.spaceType, Vector3DReal.DIMENSION);
         } catch(error) {
-            return new RealVectorSpace(Vector3DReal.DIMENSION, true);
+            return new RealVectorSpace(3, true);
         }
     }
     

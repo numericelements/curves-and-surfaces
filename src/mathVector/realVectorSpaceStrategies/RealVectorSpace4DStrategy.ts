@@ -1,10 +1,10 @@
-import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../ErrorMessages/RealVectorSpace";
-import type { RealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
-import type { RealVector4D } from "./VectorDescriptorConstructorInterface";
-import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
-import { Weight } from "./Weight";
-import { createRealVector4DDescriptor } from "./VectorDescriptorFactory";
-import type { Real, RealVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
+import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../../ErrorMessages/RealVectorSpace";
+import type { RealVectorSpaceStrategy } from "../interfaces/VectorSpaceStrategyInterfaces";
+import type { RealVector4D } from "../VectorDescriptorConstructorInterface";
+import { isVector4D, sendRangeErrorMessage } from "../VectorSpaceUtilities";
+import { Weight } from "../Weight";
+import { createRealVector4DDescriptor } from "../VectorDescriptorFactory";
+import type { Real, RealVectorDesc } from "../utilityTypes/VectorDescriptorTypes";
 
 export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4, RealVector4D> {
 

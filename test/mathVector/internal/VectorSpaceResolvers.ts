@@ -267,12 +267,12 @@ describe('Resolving and checking vector space registration for user-defined vect
     it(`can check whether a real vector space is registered or not`, () => {
         for (let i = MIN_DIMENSION_REALVECTORSPACE; i <= MAX_DIMENSION_REALVECTORSPACE; i++) {
             const dim = i;
-            const projectiveComplexVS = new RealVectorSpace(dim);
-            expect(projectiveComplexVS.isDefault).to.eql(false);
-            expect(projectiveComplexVS.id).to.not.eql(INITIAL_VECTOR_SPACE_ID);
-            expect(projectiveComplexVS.dimension()).to.eql(dim);
-            expect(projectiveComplexVS.id.includes(`${projectiveComplexVS.spaceType}_${projectiveComplexVS.dimension()}_` + VECTOR_SPACE)).to.eql(true);
-            expect(isRegisteredRealVectorSpace(projectiveComplexVS)).to.eql(true);
+            const realVS = new RealVectorSpace(dim);
+            expect(realVS.isDefault).to.eql(false);
+            expect(realVS.id).to.not.eql(INITIAL_VECTOR_SPACE_ID);
+            expect(realVS.dimension()).to.eql(dim);
+            expect(realVS.id.includes(`${realVS.spaceType}_${realVS.dimension()}_` + VECTOR_SPACE)).to.eql(true);
+            expect(isRegisteredRealVectorSpace(realVS)).to.eql(true);
             const mockVectorSpace = {
                 dimension: () => dim,
                 spaceType: VectorSpaceType.REAL,
@@ -287,12 +287,12 @@ describe('Resolving and checking vector space registration for user-defined vect
     it(`can check whether a complex vector space is registered or not`, () => {
         for (let i = MIN_DIMENSION_COMPLEXVECTORSPACE; i <= MAX_DIMENSION_COMPLEXVECTORSPACE; i++) {
             const dim = i;
-            const projectiveComplexVS = new ComplexVectorSpace(dim);
-            expect(projectiveComplexVS.isDefault).to.eql(false);
-            expect(projectiveComplexVS.id).to.not.eql(INITIAL_VECTOR_SPACE_ID);
-            expect(projectiveComplexVS.dimension()).to.eql(dim);
-            expect(projectiveComplexVS.id.includes(`${projectiveComplexVS.spaceType}_${projectiveComplexVS.dimension()}_` + VECTOR_SPACE)).to.eql(true);
-            expect(isRegisteredComplexVectorSpace(projectiveComplexVS)).to.eql(true);
+            const complexVS = new ComplexVectorSpace(dim);
+            expect(complexVS.isDefault).to.eql(false);
+            expect(complexVS.id).to.not.eql(INITIAL_VECTOR_SPACE_ID);
+            expect(complexVS.dimension()).to.eql(dim);
+            expect(complexVS.id.includes(`${complexVS.spaceType}_${complexVS.dimension()}_` + VECTOR_SPACE)).to.eql(true);
+            expect(isRegisteredComplexVectorSpace(complexVS)).to.eql(true);
             const mockVectorSpace = {
                 dimension: () => dim,
                 spaceType: VectorSpaceType.COMPLEX,

@@ -57,7 +57,7 @@ export class Vector4DReal extends AbstractRealVector<4, RealVector4D>
         try{
             return getDefaultVectorSpace(this.spaceType, Vector4DReal.DIMENSION);
         } catch(error) {
-            return new RealVectorSpace(Vector4DReal.DIMENSION, true);
+            return new RealVectorSpace(4, true);
         }
     }
 
