@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { IComplex, ComplexVector1D, IComplexWeight, ComplexVector2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ComplexDesc, ComplexWeightDesc, ComplexVector2D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { createTestComplexVector } from "./ComplexVectorSpaceTestFactory";
 import { Weight } from "../../src/mathVector/Weight";
@@ -9,8 +9,8 @@ import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
 import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, REALVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 import { EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE } from "../../src/ErrorMessages/ComplexVectorSpace";
-import { DEFAULT } from "../../src/namedConstants/VectorSpaceIdentifierManager";
 import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
+import { ComplexVector1D } from "../../src/mathVector/utilityTypes/VectorDescriptorTypes";
 
 
 describe('ComplexVectorSpace1DStrategy', () => {
@@ -56,7 +56,7 @@ describe('ComplexVectorSpace1DStrategy', () => {
 
             it(`can scale a ${COMPLEX} vector with a complex and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestComplexVector(vectorDim, [[2, 3]]);
-                const scale: IComplex = { type: COMPLEX, real: 2, imaginary: 3 };
+                const scale: ComplexDesc = { type: COMPLEX, real: 2, imaginary: 3 };
                 const result = vectorSpace.scaleDescriptor(scale, vec1);
                 // Check coordinates
                 expect(result.real).to.eql(-5);
@@ -102,7 +102,7 @@ describe('ComplexVectorSpace1DStrategy', () => {
             it(`can generate the image of ${COMPLEX} vector into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D} with a user-defined weight`, () => {
                 const weightReal = new Weight(2);
                 const weightImaginary = new Weight(3);
-                const cWeight: IComplexWeight = { type: COMPLEXWEIGHT, real: weightReal, imaginary: weightImaginary };
+                const cWeight: ComplexWeightDesc = { type: COMPLEXWEIGHT, real: weightReal, imaginary: weightImaginary };
                 const vec1 = createTestComplexVector(vectorDim, [[2, 3]]) as ComplexVector1D;
                 const result = vectorSpace.fromComplexVectorSpaceToProjectiveComplexVectorSpace(vec1, cWeight);
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
@@ -119,7 +119,7 @@ describe('ComplexVectorSpace1DStrategy', () => {
             it(`can generate the image of ${COMPLEX} vector into the projective Complex vector space ${PROJECTIVECOMPLEXVECTOR1D} with a null complex weight`, () => {
                 const weightReal = new Weight(0, false);
                 const weightImaginary = new Weight(0, false);
-                const cWeight: IComplexWeight = { type: COMPLEXWEIGHT, real: weightReal, imaginary: weightImaginary };
+                const cWeight: ComplexWeightDesc = { type: COMPLEXWEIGHT, real: weightReal, imaginary: weightImaginary };
                 const vec1 = createTestComplexVector(vectorDim, [[2, 3]]) as ComplexVector1D;
                 const result = vectorSpace.fromComplexVectorSpaceToProjectiveComplexVectorSpace(vec1, cWeight);
                 expect(result.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);

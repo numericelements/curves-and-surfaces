@@ -1,15 +1,15 @@
 import { ComplexVectorSpace } from "../mathVector/ComplexVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../mathVector/ProjectiveComplexVectorSpace";
-import { ProjectiveVectorSpace } from "../mathVector/ProjectiveVectorSpace";
+import { ProjectiveRealVectorSpace } from "../mathVector/ProjectiveRealVectorSpace";
 import { RealVectorSpace } from "../mathVector/RealVectorSpace";
-import { IVector } from "../mathVector/Vector";
-import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { ControlPolygon } from "./ControlPolygon";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { fromStrictlyIncreasingtToIncreasingKnotSequenceOC } from "./KnotSequenceAndUtilities/fromStrictlyIncreasingtToIncreasingKnotSequenceOC";
 import { BSplineEvaluator } from "./OpenBSplineR1toRn";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 import { createVectorFromAnyDescriptor } from "../mathVector/VectorFromDescriptorFactory";
+import { VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 
 export type CurveCache = {
     flatCoordinates: Float64Array;
@@ -18,15 +18,15 @@ export type CurveCache = {
     workBuffer: Float64Array;
 };
 
-export class CoxDeBoorRealCoordinatesEvaluator<IV extends IVector<any, Vector>> extends BSplineEvaluator<IV> {
+export class CoxDeBoorRealCoordinatesEvaluator<V extends Vector<any, VectorDesc>> extends BSplineEvaluator<V> {
 
-    private _pointCache: { parameter: number; result: IV; knotSpanIndex: number } | null = null;
+    private _pointCache: { parameter: number; result: V; knotSpanIndex: number } | null = null;
     private _rangeCache: { samples: number; buffer: Float64Array } | null = null;
     private _curveCache: CurveCache | null = null;
     private readonly knotSequence: IncreasingOpenKnotSequenceOpenCurve
     
     constructor(
-        private readonly controlPolygon: ControlPolygon<IV>,
+        private readonly controlPolygon: ControlPolygon<V>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve,
         private readonly degree: number
     ) {
@@ -35,7 +35,7 @@ export class CoxDeBoorRealCoordinatesEvaluator<IV extends IVector<any, Vector>> 
     }
 
     // evaluate(parameter: number): RealVector {
-    evaluate(parameter: number): IV {
+    evaluate(parameter: number): V {
 
         // 1. Ensure curve-level cache is valid
         const cc = this._getCurveCache();
@@ -63,11 +63,11 @@ export class CoxDeBoorRealCoordinatesEvaluator<IV extends IVector<any, Vector>> 
 
         // 5. Build result vector
         const vectorSpace = this.controlPolygon.vectorSpace;
-        let result: IV;
+        let result: V;
         if (vectorSpace instanceof RealVectorSpace) {
-            result = createVectorFromAnyDescriptor(vectorSpace.createVector(resultCoords), vectorSpace) as IV;
-        } else if (vectorSpace instanceof ProjectiveVectorSpace) {
-            result = createVectorFromAnyDescriptor(vectorSpace.createVector(resultCoords), vectorSpace) as IV;
+            result = createVectorFromAnyDescriptor(vectorSpace.createVector(resultCoords), vectorSpace) as V;
+        } else if (vectorSpace instanceof ProjectiveRealVectorSpace) {
+            result = createVectorFromAnyDescriptor(vectorSpace.createVector(resultCoords), vectorSpace) as V;
         } else if (vectorSpace instanceof ComplexVectorSpace) {
             throw new Error("CoxDeBoorRealEvaluator does not support ComplexVectorSpace: use a dedicated complex evaluator");
         } else if (vectorSpace instanceof ProjectiveComplexVectorSpace) {
@@ -189,7 +189,7 @@ export class CoxDeBoorRealCoordinatesEvaluator<IV extends IVector<any, Vector>> 
         return result;
     }
 
-    private _writeToBuffer(buffer: Float64Array, offset: number, pt: IV): void {
+    private _writeToBuffer(buffer: Float64Array, offset: number, pt: V): void {
         const coords = (pt as any).coordinates as number[];
         for (let d = 0; d < coords.length; d++) buffer[offset + d] = coords[d];
     }

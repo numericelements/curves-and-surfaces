@@ -7,7 +7,7 @@ export const INVALID_VS_DIMENSION = -1;
 export enum VectorSpaceType {
     REAL = 'Real',
     COMPLEX = 'Complex',
-    PROJECTIVE = 'Projective',
+    PROJECTIVEREAL = 'Projective Real',
     PROJECTIVECOMPLEX = 'Projective Complex',
     UNKNOWN_VECTORSPACE = 'Unknown vector space type'
 }

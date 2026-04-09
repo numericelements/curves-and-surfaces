@@ -1,10 +1,10 @@
-import { IVector } from "../mathVector/Vector";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { VectorDescriptorCollection1D } from "../mathVector/VectorDescriptorCollection1D";
-import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { ControlPolygon } from "./ControlPolygon";
 import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { IncreasingOpenKnotSequence, IncreasingOpenKnotSequenceCCurve, IncreasingOpenKnotSequenceCCurve_allKnots, IncreasingOpenKnotSequenceUpToC0Discontinuity, IncreasingOpenKnotSequenceUpToC0DiscontinuityCCurve_allKnots, IncreasingPeriodicKnotSequence, StrictIncreasingPeriodicKnotSequence, StrictlyIncreasingOpenKnotSequence, StrictlyIncreasingOpenKnotSequenceCCurve, StrictlyIncreasingOpenKnotSequenceCCurvee_allKnots, StrictlyIncreasingOpenKnotSequenceUpToC0Discontinuity, StrictlyIncreasingOpenKnotSequenceUpToC0DiscontinuityCCurvee_allKnots } from "./KnotSequenceConstructorInterface";
 import { KnotSequenceInterface } from "./KnotSequenceInterface";
+import { VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 
 
 export const BSPL_CP_NO_KNOT = "OpenBSPL_CP_No_KnotSequence" as const;
@@ -168,26 +168,26 @@ export type BSpline_type = OpenBSpline_type | PeriodicBSplineOpenSeq_type | Clos
 export type BSplineR1toR1_type = OpenBSPLR1toR1_CP_OpenKnotSeq_C0Discontinuity | ClosedBSPLR1toR1_CP_OpenKnotSeq_allKnots_C0Discontinuity;
 
 
-export type ControlPointDescriptor<V extends Vector = Vector> = V;
-export type ControlPointObject<V extends Vector = Vector, D extends number = number> = IVector<D, V>;
+export type ControlPointDescriptor<VD extends VectorDesc = VectorDesc> = VD;
+export type ControlPointObject<VD extends VectorDesc = VectorDesc, D extends number = number> = Vector<D, VD>;
 
-export type ControlPoint<V extends Vector = Vector, D extends number = number> =
-    ControlPointDescriptor<V> | ControlPointObject<V, D>;
+export type ControlPoint<VD extends VectorDesc = VectorDesc, D extends number = number> =
+    ControlPointDescriptor<VD> | ControlPointObject<VD, D>;
 
-export type ControlPoints<IV extends IVector<any, Vector> = IVector<any, Vector>> =
-    ControlPolygonFromDescriptors | ControlPolygon<IV>;
+export type ControlPoints<V extends Vector<any, VectorDesc> = Vector<any, VectorDesc>> =
+    ControlPolygonFromDescriptors | ControlPolygon<V>;
 
 
 
-export interface BSplineFromVectorDescriptorParams<V extends Vector, D extends number> {
-    readonly controlPointDescriptors: ControlPolygonFromDescriptors<V, D>;
+export interface BSplineFromVectorDescriptorParams<VD extends VectorDesc, D extends number> {
+    readonly controlPointDescriptors: ControlPolygonFromDescriptors<VD, D>;
     readonly knotSequence: KnotSequenceInterface;
     readonly degree: number;
 }
 
 
-export interface BSplineFromVectorParams<IV extends IVector<any, Vector>> {
-    readonly controlPolygon: ControlPolygon<IV>;
+export interface BSplineFromVectorParams<V extends Vector<any, VectorDesc>> {
+    readonly controlPolygon: ControlPolygon<V>;
     readonly knotSequence: KnotSequenceInterface;
     readonly degree: number;
     readonly useCase?: "general" | "performance" | "precision" | "subdivision";

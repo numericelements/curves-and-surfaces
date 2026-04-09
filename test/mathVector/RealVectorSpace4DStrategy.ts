@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { createTestRealVector } from "./RealVectorSpaceTestFactory";
-import { RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { RealVectorSpace4DStrategy } from "../../src/mathVector/RealVectorSpace4DStrategy";
 import { isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../../src/ErrorMessages/RealVectorSpace";
@@ -136,7 +136,7 @@ describe('RealVectorSpac4DStrategy', () => {
         it('cannot transform a RealVector4D into a ProjectiveRealVector', () => {
             const vec1 = createTestRealVector(vectorType, [1, 2, 3, 4]);
             const weight = new Weight(2);
-            expect(() => vectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
+            expect(() => vectorSpace.fromRealVectorSpaceToProjectiveRealVectorSpace(vec1, weight)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         });
 
         it('cannot transform a 4D RealVector into a ComplexVector in a ComplexVectorSpace', () => {

@@ -1,22 +1,23 @@
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/RealVectorSpace";
-import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import { createComplexVector1DDescriptor, createProjectiveVector2DDescriptor, createRealVector2DDescriptor } from "./VectorDescriptorFactory";
-import type { ComplexVector1D, ProjectiveVector2D, Real, RealVector, RealVector2D } from "./VectorSpaceConstructorInterface";
+import type { RealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
+import { createComplexVector1DDescriptor, createProjectiveRealVector2DDescriptor, createRealVector2DDescriptor } from "./VectorDescriptorFactory";
+import type { ProjectiveRealVector2D, RealVector2D } from "./VectorDescriptorConstructorInterface";
 import { isVector2D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
+import type { ComplexVector1D, Real, RealVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
 
 
-export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2, RealVector2D> {
+export class RealVectorSpace2DStrategy implements RealVectorSpaceStrategy<2, RealVector2D> {
     readonly dimension = 2 as const;
 
     // Implementation for 2D vectors
 
-    areSameDimension(v1: RealVector, v2: RealVector): boolean {
+    areSameDimension(v1: RealVectorDesc, v2: RealVectorDesc): boolean {
         if(isVector2D(v1) && isVector2D(v2)) return true;
         return false;
     }
 
-    isInVectorSpace(v: RealVector): v is RealVector {
+    isInVectorSpace(v: RealVectorDesc): v is RealVectorDesc {
         if(isVector2D(v)) return true;
         return false;
     }
@@ -104,14 +105,14 @@ export class RealVectorSpace2DStrategy implements IRealVectorSpaceStrategy<2, Re
         }
     }
 
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector2D, weight: Weight = new Weight()): ProjectiveVector2D {
+    fromRealVectorSpaceToProjectiveRealVectorSpace(v: RealVector2D, weight: Weight = new Weight()): ProjectiveRealVector2D {
         if(isVector2D(v)) {
             if(weight.value === 0) {
-                return createProjectiveVector2DDescriptor(v.coordinates[0], v.coordinates[1], weight);
+                return createProjectiveRealVector2DDescriptor(v.coordinates[0], v.coordinates[1], weight);
             }
-            return createProjectiveVector2DDescriptor(v.coordinates[0] * weight.value, v.coordinates[1] * weight.value, weight);
+            return createProjectiveRealVector2DDescriptor(v.coordinates[0] * weight.value, v.coordinates[1] * weight.value, weight);
         } else {
-            const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveVectorSpace', EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveRealVectorSpace', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(error.generateMessageString());
         }
     }

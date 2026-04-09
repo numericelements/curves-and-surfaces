@@ -3,7 +3,8 @@
  * @internal
  */
 
-import { DefaultVectorSpaces, SupportedVectorSpace } from './DefaultVectorSpaces';
+import { DefaultVectorSpaces } from './DefaultVectorSpaces';
+import type { SupportedVectorSpace } from './DefaultVectorSpaces';
 import { VectorSpaceType } from '../../namedConstants/BSplineR1toRn';
 import type { 
     VectorSpaceForType,
@@ -12,19 +13,19 @@ import type {
     ProjectiveRealVectorSpaceOfDimension,
     ProjectiveComplexVectorSpaceOfDimension,
     AnyVectorSpace
-} from '../VectorSpaceTypes';
+} from '../conditionalTypes/VectorSpaceTypes';
 import { DEFAULT } from '../../namedConstants/VectorSpaceIdentifierManager';
 import { sendErrorMessage, sendRangeErrorMessage } from '../VectorSpaceUtilities';
 import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED, EM_INVALID_VECTOR_SPACE_DIMENSION, EM_INVALID_VECTOR_SPACE_TYPE } from '../../ErrorMessages/DefaultSpaceResolvers';
-import type { ComplexVectorSpaceInterface, ProjectiveComplexVectorSpaceInterface, ProjectiveVectorSpaceInterface, RealVectorSpaceInterface } from '../IVectorSpace';
 import { EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION } from '../../ErrorMessages/ComplexVectorSpace';
 import { EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION } from '../../ErrorMessages/RealVectorSpace';
-import { EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION } from '../../ErrorMessages/ProjectiveVectorSpace';
+import { EM_NO_DEFAULT_PROJECTIVEREALVECTORSPACE_FOR_DIMENSION } from '../../ErrorMessages/ProjectiveRealVectorSpace';
 import { EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION } from '../../ErrorMessages/ProjectiveComplexVectorSpace';
-import { RealVectorSpace } from '../RealVectorSpace';
-import { ComplexVectorSpace } from '../ComplexVectorSpace';
-import { ProjectiveVectorSpace } from '../ProjectiveVectorSpace';
-import { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
+import type { RealVectorSpace } from '../RealVectorSpace';
+import type { ComplexVectorSpace } from '../ComplexVectorSpace';
+import type { ProjectiveRealVectorSpace } from '../ProjectiveRealVectorSpace';
+import type { ProjectiveComplexVectorSpace } from '../ProjectiveComplexVectorSpace';
+import type { ComplexVectorSpaceInterface, ProjectiveComplexVectorSpaceInterface, ProjectiveRealVectorSpaceInterface, RealVectorSpaceInterface } from '../interfaces/VectorSpaceInterfaces';
 
 /**
  * Get default real vector space for given dimension
@@ -74,16 +75,16 @@ export function getDefaultComplexVectorSpace<D extends number>(dimension: D): Co
  * Get default projective real vector space for given dimension
  * @internal
  */
-export function getDefaultProjectiveRealVectorSpace(dimension: 3): ProjectiveVectorSpace<3>;
-export function getDefaultProjectiveRealVectorSpace(dimension: 4): ProjectiveVectorSpace<4>;
-export function getDefaultProjectiveRealVectorSpace<D extends number>(dimension: D): ProjectiveVectorSpace<D>;
+export function getDefaultProjectiveRealVectorSpace(dimension: 3): ProjectiveRealVectorSpace<3>;
+export function getDefaultProjectiveRealVectorSpace(dimension: 4): ProjectiveRealVectorSpace<4>;
+export function getDefaultProjectiveRealVectorSpace<D extends number>(dimension: D): ProjectiveRealVectorSpace<D>;
 
-export function getDefaultProjectiveRealVectorSpace<D extends number>(dimension: D): ProjectiveVectorSpace<D> {
+export function getDefaultProjectiveRealVectorSpace<D extends number>(dimension: D): ProjectiveRealVectorSpace<D> {
     try {
-        return DefaultVectorSpaces.getInstance().getProjectiveVectorSpace(dimension) as ProjectiveVectorSpace<D>;
+        return DefaultVectorSpaces.getInstance().getProjectiveRealVectorSpace(dimension) as ProjectiveRealVectorSpace<D>;
     } catch (error) {
-        if(error instanceof RangeError && error.message.includes(EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION)) {
-            const errorMessage = sendRangeErrorMessage('getDefaultProjectiveRealVectorSpace', 'getDefaultProjectiveRealVectorSpace', EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION);
+        if(error instanceof RangeError && error.message.includes(EM_NO_DEFAULT_PROJECTIVEREALVECTORSPACE_FOR_DIMENSION)) {
+            const errorMessage = sendRangeErrorMessage('getDefaultProjectiveRealVectorSpace', 'getDefaultProjectiveRealVectorSpace', EM_NO_DEFAULT_PROJECTIVEREALVECTORSPACE_FOR_DIMENSION);
             throw new RangeError(errorMessage.generateMessageString());
         }
         const errorMessage = sendRangeErrorMessage('getDefaultProjectiveRealVectorSpace', 'getDefaultProjectiveRealVectorSpace', EM_INVALID_VECTOR_SPACE_DIMENSION);
@@ -117,7 +118,7 @@ export function getDefaultProjectiveComplexVectorSpace<D extends number>(dimensi
  */
 export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.REAL, dimension: D): RealVectorSpace<D>;
 export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.COMPLEX, dimension: D): ComplexVectorSpace<D>;
-export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.PROJECTIVE, dimension: D): ProjectiveVectorSpace<D>;
+export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.PROJECTIVEREAL, dimension: D): ProjectiveRealVectorSpace<D>;
 export function getDefaultVectorSpace<D extends number>(spaceType: VectorSpaceType.PROJECTIVECOMPLEX, dimension: D): ProjectiveComplexVectorSpace<D>;
 
 // export function getDefaultVectorSpace<VS extends VectorSpaceType, D extends number>(spaceType: VS, dimension: D): VectorSpaceForType<VS, D>;
@@ -127,7 +128,7 @@ export function getDefaultVectorSpace(spaceType: VectorSpaceType, dimension: num
             return getDefaultRealVectorSpace(dimension);
         case VectorSpaceType.COMPLEX:
             return getDefaultComplexVectorSpace(dimension);
-        case VectorSpaceType.PROJECTIVE:
+        case VectorSpaceType.PROJECTIVEREAL:
             return getDefaultProjectiveRealVectorSpace(dimension);
         case VectorSpaceType.PROJECTIVECOMPLEX:
             return getDefaultProjectiveComplexVectorSpace(dimension);
@@ -145,7 +146,7 @@ export function getDefaultVectorSpace(spaceType: VectorSpaceType, dimension: num
 
 export function resolveDefaultVectorSpace<D extends number>(vectorSpace: ComplexVectorSpaceInterface<D>): string;
 export function resolveDefaultVectorSpace<D extends number>(vectorSpace: RealVectorSpaceInterface<D>): string;
-export function resolveDefaultVectorSpace<D extends number>(vectorSpace: ProjectiveVectorSpaceInterface<D>): string;
+export function resolveDefaultVectorSpace<D extends number>(vectorSpace: ProjectiveRealVectorSpaceInterface<D>): string;
 export function resolveDefaultVectorSpace<D extends number>(vectorSpace: ProjectiveComplexVectorSpaceInterface<D>): string;
 export function resolveDefaultVectorSpace(vectorSpace: SupportedVectorSpace): string {
     let defltVsId = "";

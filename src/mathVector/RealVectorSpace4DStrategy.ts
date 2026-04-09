@@ -1,22 +1,23 @@
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM4, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../ErrorMessages/RealVectorSpace";
-import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import type { Real, RealVector, RealVector4D } from "./VectorSpaceConstructorInterface";
+import type { RealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
+import type { RealVector4D } from "./VectorDescriptorConstructorInterface";
 import { isVector4D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 import { createRealVector4DDescriptor } from "./VectorDescriptorFactory";
+import type { Real, RealVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
 
-export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4, RealVector4D> {
+export class RealVectorSpace4DStrategy implements RealVectorSpaceStrategy<4, RealVector4D> {
 
     readonly dimension = 4 as const;
 
     // Implementation for 4D vectors
 
-    areSameDimension(a: RealVector, b: RealVector): boolean {
+    areSameDimension(a: RealVectorDesc, b: RealVectorDesc): boolean {
         if(isVector4D(a) && isVector4D(b)) return true;
         return false;
     }
 
-    isInVectorSpace(v: RealVector): v is RealVector {
+    isInVectorSpace(v: RealVectorDesc): v is RealVectorDesc {
         if(isVector4D(v)) return true;
         return false;
     }
@@ -99,8 +100,8 @@ export class RealVectorSpace4DStrategy implements IRealVectorSpaceStrategy<4, Re
         }
     }
 
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector4D, weight: Weight): never {
-        const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
+    fromRealVectorSpaceToProjectiveRealVectorSpace(v: RealVector4D, weight: Weight): never {
+        const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveRealVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         throw new RangeError(error.generateMessageString());
     }
 

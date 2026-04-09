@@ -1,12 +1,12 @@
 import { WarningLog } from "../errorProcessing/ErrorLoging";
 import { EM_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_DIM, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR, WM_VECTOR_NORM_TOO_SMALL } from "../namedConstants/Vectors";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
-import type { IVector } from "./Vector";
-import type { Vector } from "./VectorSpaceConstructorInterface";
+import type { Vector } from "./interfaces/VectorInterfaces";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import type { Complex } from "./Complex";
-import type { IdentifiableVectorSpace } from "./IVectorSpace";
 import { EM_DOT_PRODUCT_NOT_AVAILABLE } from "../ErrorMessages/ProjectiveVectors";
+import { IdentifiableVectorSpace } from "./interfaces/VectorSpaceInterfaces";
+import { VectorDesc } from "./utilityTypes/VectorDescriptorTypes";
 
 /**
  * Base abstract class implementing common IVector functionality
@@ -14,29 +14,29 @@ import { EM_DOT_PRODUCT_NOT_AVAILABLE } from "../ErrorMessages/ProjectiveVectors
 
 export abstract class AbstractVector <
         D extends number = number,
-        V extends Vector = Vector,
-        VS extends IdentifiableVectorSpace<V> = IdentifiableVectorSpace<V>
-    > implements IVector<D, V> {
+        VD extends VectorDesc = VectorDesc,
+        IVS extends IdentifiableVectorSpace<VD> = IdentifiableVectorSpace<VD>
+    > implements Vector<D, VD> {
     
-    protected abstract readonly _vectorSpace: VS;
+    protected abstract readonly _vectorSpace: IVS;
 
     abstract get dimension(): D;
     abstract get vectorType(): string;
-    abstract get vectorSpace(): VS;
+    abstract get vectorSpace(): IVS;
     abstract get spaceType(): VectorSpaceType;
-    abstract get descriptor(): V;
+    abstract get descriptor(): VD;
     abstract get coordinates(): readonly (number | Complex)[];
 
     abstract getCoordinate(index: number): number | Complex;
     abstract clone(): this;
 
-    add(other: IVector<D, V>): this {
+    add(other: Vector<D, VD>): this {
         this.validateCompatibility(other);
         const result = this._vectorSpace.addDescriptors(this.descriptor, other.descriptor);
         return this.createVectorFromDescriptor(result);
     }
 
-    subtract(other: IVector<D, V>): this {
+    subtract(other: Vector<D, VD>): this {
         this.validateCompatibility(other);
         const result = this._vectorSpace.subtractDescriptors(this.descriptor, other.descriptor);
         return this.createVectorFromDescriptor(result);
@@ -78,11 +78,11 @@ export abstract class AbstractVector <
      * 
      * @returns Distance in the user geometric space (2D/3D)
      */
-    abstract distanceTo(other: IVector<D, V>): number;
+    abstract distanceTo(other: Vector<D, VD>): number;
 
-    abstract affineDistance(other: IVector<D, V>): number;
+    abstract affineDistance(other: Vector<D, VD>): number;
 
-    dot(other: IVector<D, V>): number {
+    dot(other: Vector<D, VD>): number {
         this.validateCompatibility(other);
         if ('dotDescriptors' in this._vectorSpace && typeof this._vectorSpace.dotDescriptors === 'function') {
             return this._vectorSpace.dotDescriptors(this.descriptor, other.descriptor);
@@ -91,7 +91,7 @@ export abstract class AbstractVector <
         throw new RangeError(error.generateMessageString());
     }
 
-    equals(other: IVector<D, V>, tolerance?: number): boolean {
+    equals(other: Vector<D, VD>, tolerance?: number): boolean {
         if(this._vectorSpace !== other.vectorSpace) {
             const error = sendRangeErrorMessage(this.constructor.name, 'equals', EM_VECTORS_DIFFERENT_VECTOR_SPACES);
             throw new RangeError(error.generateMessageString());
@@ -111,15 +111,15 @@ export abstract class AbstractVector <
     // abstract distanceToPoint(point: Point): number;
     // abstract angleTo(other: IVector): number;
     // abstract isColinear(other: IVector, tolerance?: number): boolean;
-    abstract isOrthogonal(other: IVector<D, V>, tolerance?: number): boolean;
-    abstract isParallel(other: IVector<D, V>, tolerance?: number): boolean;
+    abstract isOrthogonal(other: Vector<D, VD>, tolerance?: number): boolean;
+    abstract isParallel(other: Vector<D, VD>, tolerance?: number): boolean;
     
     abstract toArray(): readonly number[];
     
     abstract toString(): string;
 
     // Enhanced validation that checks space identity
-    protected validateCompatibility(other: IVector<D, V>): void {
+    protected validateCompatibility(other: Vector<D, VD>): void {
         if (this.dimension !== other.dimension) {
             const error = sendRangeErrorMessage(this.constructor.name, 'validateCompatibility', EM_VECTORS_DIFFERENT_DIM);
             throw new RangeError(error.generateMessageString());
@@ -145,5 +145,5 @@ export abstract class AbstractVector <
     //     }
     // }
 
-    protected abstract createVectorFromDescriptor(descriptor: V): this;
+    protected abstract createVectorFromDescriptor(descriptor: VD): this;
 }

@@ -1,5 +1,5 @@
-import { IComplexVector, IProjectiveComplexVector, IProjectiveVector, IRealVector, IVector } from "../mathVector/Vector";
-import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { ComplexVector, ProjectiveComplexVector, ProjectiveRealVector, RealVector, Vector } from "../mathVector/interfaces/VectorInterfaces";
+import { ComplexVectorDesc, ProjectiveComplexVectorDesc, ProjectiveRealVectorDesc, RealVectorDesc, VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 
 // newBsplines/CurveEntitiesTypes.ts
 /**
@@ -7,19 +7,19 @@ import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, V
  * When V is concrete at a call site, TypeScript resolves the conditional
  * and getCoordinate() / coordinates return the exact scalar type.
  */
-export type CurvePoint<V extends Vector, D extends number> =
-    V extends RealVector              ? IRealVector<D> :
-    V extends ProjectiveVector        ? IProjectiveVector<D> :
-    V extends ComplexVector           ? IComplexVector<D> :
-    V extends ProjectiveComplexVector ? IProjectiveComplexVector<D> :
-    IVector<D, V>;
+export type CurvePoint<V extends VectorDesc, D extends number> =
+    V extends RealVectorDesc              ? RealVector<D> :
+    V extends ProjectiveRealVectorDesc        ? ProjectiveRealVector<D> :
+    V extends ComplexVectorDesc           ? ComplexVector<D> :
+    V extends ProjectiveComplexVectorDesc ? ProjectiveComplexVector<D> :
+    Vector<D, V>;
 
-export type ControlPoint<V extends Vector, D extends number> = CurvePoint<V, D>;
+export type ControlPoint<V extends VectorDesc, D extends number> = CurvePoint<V, D>;
 // Domain-specific narrowed forms:
-export type RealControlPoint<D extends number>              = IRealVector<D>;
-export type ComplexControlPoint<D extends number>           = IComplexVector<D>;
-export type ProjectiveRealControlPoint<D extends number>       = IProjectiveVector<D>;
-export type ProjectiveComplexControlPoint<D extends number>    = IProjectiveComplexVector<D>;
+export type RealControlPoint<D extends number>              = RealVector<D>;
+export type ComplexControlPoint<D extends number>           = ComplexVector<D>;
+export type ProjectiveRealControlPoint<D extends number>       = ProjectiveRealVector<D>;
+export type ProjectiveComplexControlPoint<D extends number>    = ProjectiveComplexVector<D>;
 
 // Narrowed types for distinction between R1toRn curves and R1toR1 curves:
-export type RealVectorN = Exclude<RealVector, number>;
+export type RealVectorN = Exclude<RealVectorDesc, number>;

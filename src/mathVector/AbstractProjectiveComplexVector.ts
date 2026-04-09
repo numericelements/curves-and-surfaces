@@ -5,43 +5,44 @@ import { AbstractVector } from "./AbstractVector";
 import { Complex } from "./Complex";
 import type { ComplexWeight } from "./ComplexWeight";
 import type { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
-import type { IComplexVector, IProjectiveComplexVector, IRealVector } from "./Vector";
-import type { ProjectiveComplexVector, ProjectiveComplexVectorOfDimension } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector, ProjectiveComplexVector } from "./interfaces/VectorInterfaces";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import type { ProjectiveComplexVectorOfDimension } from "./conditionalTypes/VectorDescriptorTypes";
+import type { ProjectiveComplexVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
 
 /**
  * Abstract base for projective complex vectors
  */
-export abstract class AbstractProjectiveComplexVector<D extends number, V extends ProjectiveComplexVector = ProjectiveComplexVectorOfDimension<D>>
-    extends AbstractVector<D, V, ProjectiveComplexVectorSpace<D, V>>
-    implements IProjectiveComplexVector<D, V>
+export abstract class AbstractProjectiveComplexVector<D extends number, PCVD extends ProjectiveComplexVectorDesc = ProjectiveComplexVectorOfDimension<D>>
+    extends AbstractVector<D, PCVD, ProjectiveComplexVectorSpace<D, PCVD>>
+    implements ProjectiveComplexVector<D, PCVD>
     {
 
     private static  readonly _spaceType = VectorSpaceType.PROJECTIVECOMPLEX;
     
-    protected abstract readonly _vectorSpace: ProjectiveComplexVectorSpace<D, V>;
+    protected abstract readonly _vectorSpace: ProjectiveComplexVectorSpace<D, PCVD>;
 
     get spaceType(): VectorSpaceType.PROJECTIVECOMPLEX { return AbstractProjectiveComplexVector._spaceType; }
 
-    abstract get vectorSpace(): ProjectiveComplexVectorSpace<D, V>;
-    abstract get descriptor(): V;
+    abstract get vectorSpace(): ProjectiveComplexVectorSpace<D, PCVD>;
+    abstract get descriptor(): PCVD;
     abstract get coordinates(): readonly Complex[];
     abstract get weight(): ComplexWeight;
     abstract get homogeneousComplexCoordinates(): readonly Complex[];
     abstract getCoordinate(index: number): Complex;
     abstract clone(): this;
     // abstract toRealVector(vectorSpace?: RealVectorSpace<any>): IRealVector<any>;
-    abstract toComplexVector(): IComplexVector<any>;
+    abstract toComplexVector(): ComplexVector<any>;
     abstract toString(): string;
     
-    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveComplexVectorSpace<D, V>): void {
+    protected checkVectorSpaceDimensionConsistency(vectorDim: number, vSpace: ProjectiveComplexVectorSpace<D, PCVD>): void {
         if(vSpace.dimension() !== vectorDim) {
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
         }
     }
 
-    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ProjectiveComplexVectorSpace<D, V>): void {
+    protected checkVectorSpaceConsistency(vectorDim: number, vSpace?: ProjectiveComplexVectorSpace<D, PCVD>): void {
         if(vSpace !== undefined && (vSpace.spaceType !== VectorSpaceType.PROJECTIVECOMPLEX || vSpace.dimension() !== vectorDim)) {
             const error = sendRangeErrorMessage(this.constructor.name, 'constructor', EM_VECTORSPACE_INCOMPATIBLE);
             throw new RangeError(error.generateMessageString());
@@ -51,7 +52,7 @@ export abstract class AbstractProjectiveComplexVector<D extends number, V extend
     scale(scalar: number): this;
     scale(scalar: Complex): this;
     scale(scalar: number | Complex): this {
-        let result: V;
+        let result: PCVD;
         if(scalar instanceof Complex) {
             const scalarDescriptor = scalar.toDescriptor();
             result = this._vectorSpace.scaleDescriptor(scalarDescriptor, this.descriptor);
@@ -61,11 +62,11 @@ export abstract class AbstractProjectiveComplexVector<D extends number, V extend
         return this.createVectorFromDescriptor(result);
     }
 
-    distanceTo(other: IProjectiveComplexVector<D, V>): number {
+    distanceTo(other: ProjectiveComplexVector<D, PCVD>): number {
         return this.affineDistance(other);
     }
 
-    affineDistance(other: IProjectiveComplexVector<D, V>): number {
+    affineDistance(other: ProjectiveComplexVector<D, PCVD>): number {
         // Denormalization then compute Hermitian distance
         const complexVector1 = this.toComplexVector(); // complex
         const complexVector2 = other.toComplexVector(); // complex
@@ -95,11 +96,11 @@ export abstract class AbstractProjectiveComplexVector<D extends number, V extend
         throw new RangeError(error.generateMessageString());
     }
 
-    equals(other: IProjectiveComplexVector<D, V>, tolerance?: number): boolean {
+    equals(other: ProjectiveComplexVector<D, PCVD>, tolerance?: number): boolean {
         return super.equals(other, tolerance);
     }
 
-    isParallel(other: IProjectiveComplexVector<D, V>, tolerance?: number): boolean {
+    isParallel(other: ProjectiveComplexVector<D, PCVD>, tolerance?: number): boolean {
         this.validateCompatibility(other);
         if( tolerance === undefined) tolerance = LINEAR_TOL_VECTOR;
         const thisNorm = this.norm();
@@ -112,7 +113,7 @@ export abstract class AbstractProjectiveComplexVector<D extends number, V extend
         return ratio >= 1 - tolerance;
     }
 
-    isOrthogonal(other: IProjectiveComplexVector<D, V>, angularTolerance?: number): boolean {
+    isOrthogonal(other: ProjectiveComplexVector<D, PCVD>, angularTolerance?: number): boolean {
         this.validateCompatibility(other);
         if( angularTolerance === undefined) angularTolerance = ANGULAR_TOL_VECTOR;
         const thisNorm = this.norm();

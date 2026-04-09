@@ -1,8 +1,9 @@
 import { expect } from "chai";
-import { ComplexVector, ComplexVector1D, ComplexVectorOfDimension } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
+import { ComplexVectorOfDimension } from "../../src/mathVector/conditionalTypes/VectorDescriptorTypes";
+import { ComplexVector1D, ComplexVectorDesc } from "../../src/mathVector/utilityTypes/VectorDescriptorTypes";
 
 
 export function createCommonComplexVectorSpaceTests<D extends 1 | 2>(
@@ -20,7 +21,7 @@ export function createCommonComplexVectorSpaceTests<D extends 1 | 2>(
 
         it(`can check if a ComplexVector of type ${dimension} is in the ComplexVectorSpace of same dimension`, () => {
             const vectorSpace = createComplexVectorSpace(dimension);
-            const vec1: ComplexVector = createTestComplexVector(dimension);
+            const vec1: ComplexVectorDesc = createTestComplexVector(dimension);
             expect(vectorSpace.isInVectorSpace(vec1)).to.eql(true)
         });
 

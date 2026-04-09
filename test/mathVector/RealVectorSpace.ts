@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../src/namedConstants/RealVectorSpace";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE, EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../../src/ErrorMessages/RealVectorSpace";
-import { ComplexVector, ProjectiveVector, RealVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { isVector1D, isVector2D, isVector3D, isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
 import { Weight } from "../../src/mathVector/Weight";
 import { createCommonRealVectorSpaceTests } from "./RealVectorSpaceTestFactory";
@@ -13,10 +13,11 @@ import { EM_DEFAULT_VECTOR_SPACE_ALREADY_REGISTERED } from "../../src/ErrorMessa
 import { DEFAULT, VECTOR_SPACE } from "../../src/namedConstants/VectorSpaceIdentifierManager";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
-import { PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
+import { PROJECTIVEREALVECTOR2D, PROJECTIVEREALVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
 import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
+import { ProjectiveRealVectorSpace } from "../../src/mathVector/ProjectiveRealVectorSpace";
+import { ComplexVectorDesc, ProjectiveRealVectorDesc, RealVector1D, RealVectorDesc } from "../../src/mathVector/utilityTypes/VectorDescriptorTypes";
 
 describe('RealVectorSpace', () => {
 
@@ -207,7 +208,7 @@ describe('RealVectorSpace', () => {
 
         it('can get a default RealVector of dimension ' + MIN_DIMENSION_REALVECTORSPACE, () => {
             const realVectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE);
-            const vec1: RealVector = realVectorSpace.defaultVect();
+            const vec1: RealVectorDesc = realVectorSpace.defaultVect();
             const vec1D = isVector1D(vec1);
             expect(vec1D).to.eql(true);
             expect(vec1).to.eql(0);
@@ -215,7 +216,7 @@ describe('RealVectorSpace', () => {
 
         it('can get a default RealVector of dimension 2', () => {
             const realVectorSpace = new RealVectorSpace(2);
-            const vec1: RealVector = realVectorSpace.defaultVect();
+            const vec1: RealVectorDesc = realVectorSpace.defaultVect();
             const vec2D = isVector2D(vec1);
             expect(vec2D).to.eql(true);
             expect(vec1).to.eql({type: REALVECTOR2D, coordinates: [0, 0]});
@@ -223,7 +224,7 @@ describe('RealVectorSpace', () => {
 
         it('can get a default RealVector of dimension 3', () => {
             const realVectorSpace = new RealVectorSpace(3);
-            const vec1: RealVector = realVectorSpace.defaultVect();
+            const vec1: RealVectorDesc = realVectorSpace.defaultVect();
             const vec3D = isVector3D(vec1);
             expect(vec3D).to.eql(true);
             expect(vec1).to.eql({type: REALVECTOR3D, coordinates: [0, 0, 0]});
@@ -231,7 +232,7 @@ describe('RealVectorSpace', () => {
 
         it('can get a default RealVector of dimension 4' + MAX_DIMENSION_REALVECTORSPACE, () => {
             const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE);
-            const vec1: RealVector = realVectorSpace.defaultVect();
+            const vec1: RealVectorDesc = realVectorSpace.defaultVect();
             const vec4D = isVector4D(vec1);
             expect(vec4D).to.eql(true);
             expect(vec1).to.eql({type: REALVECTOR4D, coordinates: [0, 0, 0, 0]});
@@ -407,16 +408,16 @@ describe('RealVectorSpace', () => {
         it('can transform a 2D RealVector into a ProjectiveRealVector with default weight', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 2]};
-            const vec2: ProjectiveVector = realVectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1);
-            expect(vec2.type).to.eql(PROJECTIVEVECTOR2D);
+            const vec2: ProjectiveRealVectorDesc = realVectorSpace.fromRealVSpaceToProjectiveRealVSpace(vec1);
+            expect(vec2.type).to.eql(PROJECTIVEREALVECTOR2D);
             expect(vec2.coordinates).to.eql([1, 2, {type: WEIGHT, weight: new Weight(1)}]);
         });
 
         it('can transform a 3D RealVector into a ProjectiveRealVector with default weight', () => {
             const realVectorSpace = new RealVectorSpace(3);
             const vec1: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 2, 3]};
-            const vec2: ProjectiveVector = realVectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1);
-            expect(vec2.type).to.eql(PROJECTIVEVECTOR3D);
+            const vec2: ProjectiveRealVectorDesc = realVectorSpace.fromRealVSpaceToProjectiveRealVSpace(vec1);
+            expect(vec2.type).to.eql(PROJECTIVEREALVECTOR3D);
             expect(vec2.coordinates).to.eql([1, 2, 3, {type: WEIGHT, weight: new Weight(1)}]);
         });
 
@@ -427,21 +428,21 @@ describe('RealVectorSpace', () => {
             const z = 3;
             const vec1: RealVector3D = {type: REALVECTOR3D, coordinates: [x, y, z]};
             const weight = new Weight(3);
-            const vec2: ProjectiveVector = realVectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight);
-            expect(vec2.type).to.eql(PROJECTIVEVECTOR3D);
+            const vec2: ProjectiveRealVectorDesc = realVectorSpace.fromRealVSpaceToProjectiveRealVSpace(vec1, weight);
+            expect(vec2.type).to.eql(PROJECTIVEREALVECTOR3D);
             expect(vec2.coordinates).to.eql([x * weight.value, y * weight.value, z * weight.value, {type: WEIGHT, weight: weight}]);
         });
 
         it('cannot transform a 1D RealVector into a ProjectiveRealVector', () => {
             const realVectorSpace = new RealVectorSpace(MIN_DIMENSION_REALVECTORSPACE);
             const vec1: RealVector1D = 1;
-            expect(() => realVectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
+            expect(() => realVectorSpace.fromRealVSpaceToProjectiveRealVSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         });
 
         it('cannot transform a 4D RealVector into a ProjectiveRealVector', () => {
             const realVectorSpace = new RealVectorSpace(MAX_DIMENSION_REALVECTORSPACE);
             const vec1: RealVector4D = {type: REALVECTOR4D, coordinates: [1, 2, 3, 4]};
-            expect(() => realVectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
+            expect(() => realVectorSpace.fromRealVSpaceToProjectiveRealVSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         });
 
         it('cannot transform a RealVector of dimension outside of RealVectorSpace dimension into a ProjectiveRealVector', () => {
@@ -449,19 +450,19 @@ describe('RealVectorSpace', () => {
             const vec3: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 0, 1]};
             const vec3D = isVector3D(vec3);
             expect(vec3D).to.eql(true);
-            expect(() => realVectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec3 as unknown as RealVector2D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace.fromRealVSpaceToProjectiveRealVSpace(vec3 as unknown as RealVector2D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
 
             const realVectorSpace2 = new RealVectorSpace(3);
             const vec4: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 0]};
             const vec2D = isVector2D(vec4);
             expect(vec2D).to.eql(true);
-            expect(() => realVectorSpace2.fromRealVectorSpaceToProjectiveVectorSpace(vec4 as unknown as RealVector3D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => realVectorSpace2.fromRealVSpaceToProjectiveRealVSpace(vec4 as unknown as RealVector3D)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
         });
 
         it('can transform a 2D RealVector into a ComplexVector in a ComplexVectorSpace', () => {
             const realVectorSpace = new RealVectorSpace(2);
             const vec1: RealVector2D = {type: REALVECTOR2D, coordinates: [1, 2]};
-            const vec2: ComplexVector = realVectorSpace.fromRealVectorSpaceToComplexVectorSpace(vec1);
+            const vec2: ComplexVectorDesc = realVectorSpace.fromRealVSpaceToComplexVSpace(vec1);
             expect(vec2.type).to.eql(COMPLEX);
             expect(vec2).to.eql({type: COMPLEX, real: 1, imaginary: 2});
         });
@@ -469,19 +470,19 @@ describe('RealVectorSpace', () => {
         it('cannot transform a 1D RealVector into a ComplexVector in a ComplexVectorSpace', () => {
             const realVectorSpace = new RealVectorSpace(1);
             const vec1: RealVector1D = 1;
-            expect(() => realVectorSpace.fromRealVectorSpaceToComplexVectorSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
+            expect(() => realVectorSpace.fromRealVSpaceToComplexVSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
         });
 
         it('cannot transform a 3D RealVector into a ComplexVector in a ComplexVectorSpace', () => {
             const realVectorSpace = new RealVectorSpace(3);
             const vec1: RealVector3D = {type: REALVECTOR3D, coordinates: [1, 2, 3]};
-            expect(() => realVectorSpace.fromRealVectorSpaceToComplexVectorSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
+            expect(() => realVectorSpace.fromRealVSpaceToComplexVSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
         });
 
         it('cannot transform a 4D RealVector into a ComplexVector in a ComplexVectorSpace', () => {
             const realVectorSpace = new RealVectorSpace(4);
             const vec1: RealVector4D = {type: REALVECTOR4D, coordinates: [1, 2, 3, 4]};
-            expect(() => realVectorSpace.fromRealVectorSpaceToComplexVectorSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
+            expect(() => realVectorSpace.fromRealVSpaceToComplexVSpace(vec1)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE);
         });
 
         it(`can create a RealVector when the number of coordinates is not equal to the dimension of the RealVectorSpace`, () => {
@@ -573,7 +574,7 @@ describe('RealVectorSpace', () => {
             expect(realVectorSpace.isIsomorphicTo(complexVS)).to.eql(false);
 
             const realVectorSpace2 = new RealVectorSpace(4);
-            const projectiveVS = new ProjectiveVectorSpace(4);
+            const projectiveVS = new ProjectiveRealVectorSpace(4);
             expect(realVectorSpace2.isIsomorphicTo(projectiveVS)).to.eql(false);
         });
     });

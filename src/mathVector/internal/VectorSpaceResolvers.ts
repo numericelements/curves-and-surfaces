@@ -8,8 +8,8 @@ import { VectorSpaceType } from '../../namedConstants/BSplineR1toRn';
 import { sendErrorMessage, sendRangeErrorMessage } from '../VectorSpaceUtilities';
 import { EM_INVALID_VECTOR_SPACE_TYPE } from '../../ErrorMessages/DefaultSpaceResolvers';
 import { EM_VECTOR_SPACE_ALREADY_REGISTERED } from '../../ErrorMessages/VectorSpaceResolvers';
-import type { ComplexVectorSpaceInterface, ProjectiveComplexVectorSpaceInterface, ProjectiveVectorSpaceInterface, RealVectorSpaceInterface } from '../IVectorSpace';
-import { SupportedVectorSpace } from './DefaultVectorSpaces';
+import type { SupportedVectorSpace } from './DefaultVectorSpaces';
+import type { ComplexVectorSpaceInterface, ProjectiveComplexVectorSpaceInterface, ProjectiveRealVectorSpaceInterface, RealVectorSpaceInterface } from '../interfaces/VectorSpaceInterfaces';
 
 /**
  * Register a real vector space for given dimension if not already registered
@@ -33,7 +33,7 @@ export function isRegisteredComplexVectorSpace<D extends number>(complexVS: Comp
  * Register a projective real vector space for given dimension if not already registered
  * @internal
  */
-export function isRegisteredProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveVectorSpaceInterface<D>): boolean {
+export function isRegisteredProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveRealVectorSpaceInterface<D>): boolean {
     const registered = !VectorSpaceIdentifierManager.getInstance().registerProjectiveRealVectorSpace(projectiveVS);
     return registered;
 }
@@ -57,7 +57,7 @@ export function isRegisteredVectorSpace(vectorSpace: SupportedVectorSpace): bool
             return isRegisteredRealVectorSpace(vectorSpace);
         case VectorSpaceType.COMPLEX:
             return isRegisteredComplexVectorSpace(vectorSpace);
-        case VectorSpaceType.PROJECTIVE:
+        case VectorSpaceType.PROJECTIVEREAL:
             return isRegisteredProjectiveRealVectorSpace(vectorSpace);
         case VectorSpaceType.PROJECTIVECOMPLEX:
             return isRegisteredProjectiveComplexVectorSpace(vectorSpace);

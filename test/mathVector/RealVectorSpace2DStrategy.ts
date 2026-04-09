@@ -1,13 +1,14 @@
 import { expect } from "chai";
 import { createTestRealVector, } from "./RealVectorSpaceTestFactory";
 import { RealVectorSpace2DStrategy } from "../../src/mathVector/RealVectorSpace2DStrategy";
-import { ComplexVector, ProjectiveVector, RealVector1D, RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { RealVector2D, RealVector3D, RealVector4D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { isVector1D, isVector2D, isVector4D } from "../../src/mathVector/VectorSpaceUtilities";
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../../src/ErrorMessages/RealVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
-import { PROJECTIVEVECTOR2D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
+import { PROJECTIVEREALVECTOR2D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
 import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
+import { ComplexVectorDesc, ProjectiveRealVectorDesc, RealVector1D } from "../../src/mathVector/utilityTypes/VectorDescriptorTypes";
 
 describe('RealVectorSpace2DStrategy', () => {
     
@@ -158,16 +159,16 @@ describe('RealVectorSpace2DStrategy', () => {
         it('can transform a 2D RealVector into a ProjectiveRealVector with custom strictly positive weight', () => {
             const vec1 = createTestRealVector(vectorDim, [1, 2])
             const weight = new Weight(3);
-            const vec2: ProjectiveVector = vectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight);
-            expect(vec2.type).to.eql(PROJECTIVEVECTOR2D);
+            const vec2: ProjectiveRealVectorDesc = vectorSpace.fromRealVectorSpaceToProjectiveRealVectorSpace(vec1, weight);
+            expect(vec2.type).to.eql(PROJECTIVEREALVECTOR2D);
             expect(vec2.coordinates).to.eql([1 * weight.value, 2 * weight.value, {type: WEIGHT, weight: weight}]);
         });
 
         it('can transform a 2D RealVector into a ProjectiveRealVector with custom positive weight', () => {
             const vec1 = createTestRealVector(vectorDim, [1, 2])
             const weight = new Weight(3, false);
-            const vec2: ProjectiveVector = vectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight);
-            expect(vec2.type).to.eql(PROJECTIVEVECTOR2D);
+            const vec2: ProjectiveRealVectorDesc = vectorSpace.fromRealVectorSpaceToProjectiveRealVectorSpace(vec1, weight);
+            expect(vec2.type).to.eql(PROJECTIVEREALVECTOR2D);
             expect(vec2.coordinates).to.eql([1 * weight.value, 2 * weight.value, {type: WEIGHT, weight: weight}]);
             expect(vec2.coordinates[2].weight.strictlyPositive).to.eql(false);
         });
@@ -175,20 +176,20 @@ describe('RealVectorSpace2DStrategy', () => {
         it('can transform a 2D RealVector into a ProjectiveRealVector with null weight', () => {
             const vec1 = createTestRealVector(vectorDim, [1, 2])
             const weight = new Weight(0, false);
-            const vec2: ProjectiveVector = vectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight);
-            expect(vec2.type).to.eql(PROJECTIVEVECTOR2D);
+            const vec2: ProjectiveRealVectorDesc = vectorSpace.fromRealVectorSpaceToProjectiveRealVectorSpace(vec1, weight);
+            expect(vec2.type).to.eql(PROJECTIVEREALVECTOR2D);
             expect(vec2.coordinates).to.eql([1, 2, {type: WEIGHT, weight: weight}]);
         });
 
         it('cannot transform a RealVector out of the current vector space into a ProjectiveRealVector with custom weight', () => {
             const vec1: RealVector3D = {type: REALVECTOR3D, coordinates: [0, 1, 0]};
             const weight = new Weight(2);
-            expect(() => vectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1 as unknown as RealVector2D, weight)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            expect(() => vectorSpace.fromRealVectorSpaceToProjectiveRealVectorSpace(vec1 as unknown as RealVector2D, weight)).to.throw(EM_REALVECTOR_NOT_IN_VECTORSPACE);
         });
 
         it('can transform a 2D RealVector into a ComplexVector in a ComplexVectorSpace', () => {
             const vec1 = createTestRealVector(vectorDim, [1, 2])
-            const vec2: ComplexVector = vectorSpace.fromRealVectorSpaceToComplexVectorSpace(vec1);
+            const vec2: ComplexVectorDesc = vectorSpace.fromRealVectorSpaceToComplexVectorSpace(vec1);
             expect(vec2.type).to.eql(COMPLEX);
             expect(vec2).to.eql({type: COMPLEX, real: 1, imaginary: 2});
         });

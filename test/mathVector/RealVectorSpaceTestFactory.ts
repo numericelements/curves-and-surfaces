@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { RealVectorOfDimension } from "../../src/mathVector/VectorSpaceConstructorInterface";
 import { REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
+import { RealVectorOfDimension } from "../../src/mathVector/conditionalTypes/VectorDescriptorTypes";
 
 
 export function createCommonRealVectorSpaceTests<D extends 1 | 2 | 3 | 4>(

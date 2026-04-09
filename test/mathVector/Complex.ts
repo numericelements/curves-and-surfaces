@@ -4,7 +4,7 @@ import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { TOLERANCE_MIN_MAGNITUDE } from "../../src/namedConstants/Complex";
 import { EM_MAGNITUDE_COMPLEX_TOO_SMALL } from "../../src/ErrorMessages/Complex";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
-import { WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { WeightManagement } from "../../src/namedConstants/ProjectiveRealVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_NEGATIVE_REAL_IMAGINARY_PARTS } from "../../src/ErrorMessages/ComplexWeight";
 

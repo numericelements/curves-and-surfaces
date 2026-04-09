@@ -1,22 +1,22 @@
-import { ProjectiveVectorSpace } from "../mathVector/ProjectiveVectorSpace";
-import { ProjectiveVector } from "../mathVector/VectorSpaceConstructorInterface";
+import { ProjectiveRealVectorSpace } from "../mathVector/ProjectiveRealVectorSpace";
+import { ProjectiveRealVectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 import { ControlPolygonFromDescriptors, ControlPolygonStrategy } from "./ControlPolygonFromDescriptors";
 
 
-export class ControlPolygonRealProjectiveVectorStrategy implements ControlPolygonStrategy<ProjectiveVector> {
+export class ControlPolygonRealProjectiveVectorStrategy implements ControlPolygonStrategy<ProjectiveRealVectorDesc> {
 
-    private vectorSpace: ProjectiveVectorSpace;
+    private vectorSpace: ProjectiveRealVectorSpace;
     private controlPolygon: ControlPolygonFromDescriptors;
 
     constructor(controlPolygon: ControlPolygonFromDescriptors ) {
         this.controlPolygon = controlPolygon;
-        this.vectorSpace = new ProjectiveVectorSpace(controlPolygon.spaceDimension);
+        this.vectorSpace = new ProjectiveRealVectorSpace(controlPolygon.spaceDimension);
     }
 
 
-    moveControlPoint(index: number, displacement: ProjectiveVector): ControlPolygonFromDescriptors<ProjectiveVector> {
-        const newVectors = [...this.controlPolygon.vectorCollection] as ProjectiveVector[];
-        newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index] as ProjectiveVector, displacement);
-        return new ControlPolygonFromDescriptors<ProjectiveVector>(newVectors);
+    moveControlPoint(index: number, displacement: ProjectiveRealVectorDesc): ControlPolygonFromDescriptors<ProjectiveRealVectorDesc> {
+        const newVectors = [...this.controlPolygon.vectorCollection] as ProjectiveRealVectorDesc[];
+        newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index] as ProjectiveRealVectorDesc, displacement);
+        return new ControlPolygonFromDescriptors<ProjectiveRealVectorDesc>(newVectors);
     }
 }

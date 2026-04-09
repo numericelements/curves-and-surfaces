@@ -3,9 +3,9 @@ import { createVectorCollection1D, VectorDescriptorCollection1D } from "../../sr
 import { INVALID_VS_DIMENSION, VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
+import { ProjectiveRealVectorSpace } from "../../src/mathVector/ProjectiveRealVectorSpace";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
-import { COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR1D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, UNDEFINED_VECTORTYPE } from "../../src/namedConstants/VectorTypeTags";
+import { COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVEREALVECTOR2D, PROJECTIVEREALVECTOR3D, REALVECTOR1D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, UNDEFINED_VECTORDESCRIPTOR } from "../../src/namedConstants/VectorTypeTags";
 import { WEIGHT } from "../../src/namedConstants/WeightTypeTags";
 
 describe('VectorCollection1D', () => {
@@ -20,10 +20,10 @@ describe('VectorCollection1D', () => {
             expect(vectorCollection.length).to.eql(0);
         });
 
-        it(`generates a valid VectorCollection1D without input data. Corresponding vector space dimension is invalid and vector space type is UNKNOWN_VECTORSPACE and vector type is ${UNDEFINED_VECTORTYPE}`, () => {
+        it(`generates a valid VectorCollection1D without input data. Corresponding vector space dimension is invalid and vector space type is UNKNOWN_VECTORSPACE and vector type is ${UNDEFINED_VECTORDESCRIPTOR}`, () => {
             const vectorCollection = new VectorDescriptorCollection1D();
             expect(vectorCollection.spaceDimension).to.eql(INVALID_VS_DIMENSION);
-            expect(vectorCollection.type).to.eql(UNDEFINED_VECTORTYPE);
+            expect(vectorCollection.type).to.eql(UNDEFINED_VECTORDESCRIPTOR);
             expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.UNKNOWN_VECTORSPACE);
         });
 
@@ -42,10 +42,10 @@ describe('VectorCollection1D', () => {
             expect(vectorCollection.length).to.eql(0);
         });
 
-        it(`generates a valid VectorCollection1D with a null length array as input. Corresponding vector space dimension is invalid and vector space type is UNKNOWN_VECTORSPACE and vector type is ${UNDEFINED_VECTORTYPE}`, () => {
+        it(`generates a valid VectorCollection1D with a null length array as input. Corresponding vector space dimension is invalid and vector space type is UNKNOWN_VECTORSPACE and vector type is ${UNDEFINED_VECTORDESCRIPTOR}`, () => {
             const vectorCollection = new VectorDescriptorCollection1D([]);
             expect(vectorCollection.spaceDimension).to.eql(INVALID_VS_DIMENSION);
-            expect(vectorCollection.type).to.eql(UNDEFINED_VECTORTYPE);
+            expect(vectorCollection.type).to.eql(UNDEFINED_VECTORDESCRIPTOR);
             expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.UNKNOWN_VECTORSPACE);
         });
 
@@ -161,10 +161,10 @@ describe('VectorCollection1D', () => {
         });
 
         describe('Projective vector space', () => {
-            it(`can generate a valid VectorCollection1D with an input array of ${PROJECTIVEVECTOR2D} of length 1`, () => {
-                const projectiveVS = new ProjectiveVectorSpace(3);
+            it(`can generate a valid VectorCollection1D with an input array of ${PROJECTIVEREALVECTOR2D} of length 1`, () => {
+                const projectiveVS = new ProjectiveRealVectorSpace(3);
                 const vec2D = projectiveVS.createVector([1, 0, 1]);
-                expect(vec2D.type).to.eql(PROJECTIVEVECTOR2D);
+                expect(vec2D.type).to.eql(PROJECTIVEREALVECTOR2D);
                 expect(vec2D.coordinates[0]).to.eql(1);
                 expect(vec2D.coordinates[1]).to.eql(0);
                 const weight = vec2D.coordinates[2];
@@ -174,15 +174,15 @@ describe('VectorCollection1D', () => {
                 const vectorCollection = new VectorDescriptorCollection1D([vec2D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(3);
-                expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.PROJECTIVE);
-                expect(vectorCollection.type).to.eql(PROJECTIVEVECTOR2D);
+                expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.PROJECTIVEREAL);
+                expect(vectorCollection.type).to.eql(PROJECTIVEREALVECTOR2D);
                 expect(vectorCollection.vectorCollection[0]).to.eql(vec2D);
             });
 
-            it(`can generate a valid VectorCollection1D with an input array of ${PROJECTIVEVECTOR3D} of length 1`, () => {
-                const complexVS = new ProjectiveVectorSpace(4);
+            it(`can generate a valid VectorCollection1D with an input array of ${PROJECTIVEREALVECTOR3D} of length 1`, () => {
+                const complexVS = new ProjectiveRealVectorSpace(4);
                 const vec3D = complexVS.createVector([1, 0, -1, 1.5]);
-                expect(vec3D.type).to.eql(PROJECTIVEVECTOR3D);
+                expect(vec3D.type).to.eql(PROJECTIVEREALVECTOR3D);
                 expect(vec3D.coordinates[0]).to.eql(1);
                 expect(vec3D.coordinates[1]).to.eql(0);
                 expect(vec3D.coordinates[2]).to.eql(-1);
@@ -193,8 +193,8 @@ describe('VectorCollection1D', () => {
                 const vectorCollection = new VectorDescriptorCollection1D([vec3D]);
                 expect(vectorCollection.length).to.eql(1);
                 expect(vectorCollection.spaceDimension).to.eql(4);
-                expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.PROJECTIVE);
-                expect(vectorCollection.type).to.eql(PROJECTIVEVECTOR3D);
+                expect(vectorCollection.vectorSpaceType).to.eql(VectorSpaceType.PROJECTIVEREAL);
+                expect(vectorCollection.type).to.eql(PROJECTIVEREALVECTOR3D);
                 expect(vectorCollection.vectorCollection[0]).to.eql(vec3D);
             });
         });

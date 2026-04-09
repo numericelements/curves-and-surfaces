@@ -1,5 +1,4 @@
 import { ComplexVectorSpace } from "../mathVector/ComplexVectorSpace";
-import { ComplexVector, RealVector } from "../mathVector/VectorSpaceConstructorInterface";
 // import { AbstractOPenBSplineR1toRnStrategy } from "./AbstractOPenBSplineR1toRnStrategy";
 import { BSpline_type } from "./BSplineR1toRnConstructorInterface";
 // import { BSplineEvaluator, CoxDeBoorProjectiveEvaluator, OpenBSplineR1toRn, OpenBSplineR1toRnStrategy } from "./OpenBSplineR1toRn";

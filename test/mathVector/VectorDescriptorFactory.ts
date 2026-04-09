@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { copyDescriptorComplexVector1D, copyDescriptorRealVector1D, copyDescriptorComplexVector2D, cloneDescriptorProjectiveComplexVector1D, cloneDescriptorProjectiveRealVector2D, copyDescriptorRealVector3D, cloneDescriptorProjectiveRealVector3D, copyDescriptorRealVector4D, createComplexVector1DDescriptor, createRealVector1DDescriptor, createComplexVector2DDescriptor, createProjectiveComplexVector1DDescriptor, createRealVector2DDescriptor, createProjectiveVector2DDescriptor, createRealVector3DDescriptor, createProjectiveVector3DDescriptor, createRealVector4DDescriptor, copyDescriptorRealVector2D, createComplexWeightDescriptor } from "../../src/mathVector/VectorDescriptorFactory";
-import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
+import { copyDescriptorComplexVector1D, copyDescriptorRealVector1D, copyDescriptorComplexVector2D, cloneDescriptorProjectiveComplexVector1D, cloneDescriptorProjectiveRealVector2D, copyDescriptorRealVector3D, cloneDescriptorProjectiveRealVector3D, copyDescriptorRealVector4D, createComplexVector1DDescriptor, createRealVector1DDescriptor, createComplexVector2DDescriptor, createProjectiveComplexVector1DDescriptor, createRealVector2DDescriptor, createProjectiveRealVector2DDescriptor, createRealVector3DDescriptor, createProjectiveRealVector3DDescriptor, createRealVector4DDescriptor, copyDescriptorRealVector2D, createComplexWeightDescriptor } from "../../src/mathVector/VectorDescriptorFactory";
+import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEREALVECTOR2D, PROJECTIVEREALVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../../src/namedConstants/VectorTypeTags";
 import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { EM_WEIGHT_VALUE_POSITIVE } from "../../src/ErrorMessages/Weight";
@@ -135,8 +135,8 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
         it(`can generate the descriptor of a projective real vector with user prescribed value and weight into a 3D vector space`, () => {
             const coordinates = [-1, 3, 2];
             const dimension = 3;
-            const descriptor = createProjectiveVector2DDescriptor(coordinates[0], coordinates[1], coordinates[2]);
-            expect(descriptor.type).to.eql(PROJECTIVEVECTOR2D);   
+            const descriptor = createProjectiveRealVector2DDescriptor(coordinates[0], coordinates[1], coordinates[2]);
+            expect(descriptor.type).to.eql(PROJECTIVEREALVECTOR2D);   
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(coordinates[i]);
             }
@@ -147,8 +147,8 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
         it(`can generate the descriptor of a projective real vector with user prescribed value and null weight into a 3D vector space`, () => {
             const coordinates = [-1, 3, 0];
             const dimension = 3;
-            const descriptor = createProjectiveVector2DDescriptor(coordinates[0], coordinates[1], coordinates[2]);
-            expect(descriptor.type).to.eql(PROJECTIVEVECTOR2D);   
+            const descriptor = createProjectiveRealVector2DDescriptor(coordinates[0], coordinates[1], coordinates[2]);
+            expect(descriptor.type).to.eql(PROJECTIVEREALVECTOR2D);   
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(coordinates[i]);
             }
@@ -157,9 +157,9 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
         });
 
         it(`can generate the descriptor of a projective real vector with a default value into a 3D vector space`, () => {
-            const descriptor = createProjectiveVector2DDescriptor();
+            const descriptor = createProjectiveRealVector2DDescriptor();
             const dimension = 3;
-            expect(descriptor.type).to.eql(PROJECTIVEVECTOR2D);
+            expect(descriptor.type).to.eql(PROJECTIVEREALVECTOR2D);
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(0);
             }
@@ -169,9 +169,9 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
 
         it(`can generate the descriptor of a projective real vector with user prescribed coordinates and default weight into a 3D vector space`, () => {
             const coordinates = [-1, 3];
-            const descriptor = createProjectiveVector2DDescriptor(coordinates[0], coordinates[1]);
+            const descriptor = createProjectiveRealVector2DDescriptor(coordinates[0], coordinates[1]);
             const dimension = 3;
-            expect(descriptor.type).to.eql(PROJECTIVEVECTOR2D);
+            expect(descriptor.type).to.eql(PROJECTIVEREALVECTOR2D);
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(coordinates[i]);
             }
@@ -182,15 +182,15 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
         it(`can copy the descriptor of a projective real vector into a 3D vector space`, () => {
             const coordinates = [-1, 3, 4];
             const dimension = 3;
-            const descriptor = createProjectiveVector2DDescriptor(coordinates[0], coordinates[1], coordinates[2]);
+            const descriptor = createProjectiveRealVector2DDescriptor(coordinates[0], coordinates[1], coordinates[2]);
             let descriptor1 = cloneDescriptorProjectiveRealVector2D(descriptor);
-            expect(descriptor1.type).to.eql(PROJECTIVEVECTOR2D);
+            expect(descriptor1.type).to.eql(PROJECTIVEREALVECTOR2D);
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(descriptor1.coordinates[i]);
             }
             expect(descriptor.coordinates[2].weight.value).to.eql(coordinates[2]);
             expect(descriptor.coordinates[2].weight.strictlyPositive).to.eql(true);
-            descriptor1 = createProjectiveVector2DDescriptor();
+            descriptor1 = createProjectiveRealVector2DDescriptor();
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.not.eql(descriptor1.coordinates[i]);
             }
@@ -201,8 +201,8 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
         it(`can generate the descriptor of a projective real vector with user prescribed value and weight into a 4D vector space`, () => {
             const coordinates = [-1, 3, 2, 4];
             const dimension = 4;
-            const descriptor = createProjectiveVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
-            expect(descriptor.type).to.eql(PROJECTIVEVECTOR3D);   
+            const descriptor = createProjectiveRealVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+            expect(descriptor.type).to.eql(PROJECTIVEREALVECTOR3D);   
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(coordinates[i]);
             }
@@ -213,8 +213,8 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
         it(`can generate the descriptor of a projective real vector with user prescribed value and null weight into a 4D vector space`, () => {
             const coordinates = [-1, 3, 4, 0];
             const dimension = 4;
-            const descriptor = createProjectiveVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
-            expect(descriptor.type).to.eql(PROJECTIVEVECTOR3D);   
+            const descriptor = createProjectiveRealVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+            expect(descriptor.type).to.eql(PROJECTIVEREALVECTOR3D);   
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(coordinates[i]);
             }
@@ -223,9 +223,9 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
         });
 
         it(`can generate the descriptor of a projective real vector with a default value into a 4D vector space`, () => {
-            const descriptor = createProjectiveVector3DDescriptor();
+            const descriptor = createProjectiveRealVector3DDescriptor();
             const dimension = 4;
-            expect(descriptor.type).to.eql(PROJECTIVEVECTOR3D);
+            expect(descriptor.type).to.eql(PROJECTIVEREALVECTOR3D);
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(0);
             }
@@ -235,9 +235,9 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
 
         it(`can generate the descriptor of a projective real vector with user prescribed coordinates and default weight into a 4D vector space`, () => {
             const coordinates = [-1, 3, 5];
-            const descriptor = createProjectiveVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2]);
+            const descriptor = createProjectiveRealVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2]);
             const dimension = 4;
-            expect(descriptor.type).to.eql(PROJECTIVEVECTOR3D);
+            expect(descriptor.type).to.eql(PROJECTIVEREALVECTOR3D);
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(coordinates[i]);
             }
@@ -248,15 +248,15 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
         it(`can copy the descriptor of a projective real vector into a 4D vector space`, () => {
             const coordinates = [-1, 3, 4, 2];
             const dimension = 4;
-            const descriptor = createProjectiveVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
+            const descriptor = createProjectiveRealVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
             let descriptor1 = cloneDescriptorProjectiveRealVector3D(descriptor);
-            expect(descriptor1.type).to.eql(PROJECTIVEVECTOR3D);
+            expect(descriptor1.type).to.eql(PROJECTIVEREALVECTOR3D);
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.eql(descriptor1.coordinates[i]);
             }
             expect(descriptor.coordinates[3].weight.value).to.eql(coordinates[3]);
             expect(descriptor.coordinates[3].weight.strictlyPositive).to.eql(true);
-            descriptor1 = createProjectiveVector3DDescriptor();
+            descriptor1 = createProjectiveRealVector3DDescriptor();
             for(let i = 0; i < dimension - 1; i++) {
                 expect(descriptor.coordinates[i]).to.not.eql(descriptor1.coordinates[i]);
             }
@@ -266,12 +266,12 @@ describe('Vector descriptor factory for all vector spaces and all valid space di
 
         it(`cannot generate the descriptor of a 3D projective real vector with a negative weight value`, () => {
             const coordinates = [-1, 3, -4];
-            expect(() => createProjectiveVector2DDescriptor(coordinates[0], coordinates[1], coordinates[2])).to.throw(EM_WEIGHT_VALUE_POSITIVE);
+            expect(() => createProjectiveRealVector2DDescriptor(coordinates[0], coordinates[1], coordinates[2])).to.throw(EM_WEIGHT_VALUE_POSITIVE);
         });
 
         it(`cannot generate the descriptor of a 4D projective real vector with a negative weight value`, () => {
             const coordinates = [-1, 3, 4, -1];
-            expect(() => createProjectiveVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], coordinates[3])).to.throw(EM_WEIGHT_VALUE_POSITIVE);
+            expect(() => createProjectiveRealVector3DDescriptor(coordinates[0], coordinates[1], coordinates[2], coordinates[3])).to.throw(EM_WEIGHT_VALUE_POSITIVE);
         });
     });
 

@@ -1,4 +1,3 @@
-import { RealVector, Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractBSplineR1toRn, normalizeDescriptorsToControlPolygon } from "./AbstractBSplineR1toRn";
 import { ControlPolygon } from "./ControlPolygon";
@@ -6,20 +5,21 @@ import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
 import { AlgorithmBootstrap } from "./AlgorithmBootstrap";
 import { BSplineEvaluator } from "./OpenBSplineR1toRn";
-import { IVector } from "../mathVector/Vector";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyIncreasingPeriodicKnotSequenceClosedCurve";
 import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { AlgorithmRegistry } from "./AlgorithmRegistry";
+import { VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 
-export class ClosedBSplineR1toRn<IV extends IVector<any, Vector>>
-    extends AbstractBSplineR1toRn<IV>
+export class ClosedBSplineR1toRn<V extends Vector<any, VectorDesc>>
+    extends AbstractBSplineR1toRn<V>
 {
     protected readonly _curveOrigin: number;
     protected readonly _knotSequence: StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
-    protected readonly _evaluator: BSplineEvaluator<IV>;
+    protected readonly _evaluator: BSplineEvaluator<V>;
 
     constructor(
-        controlPolygon: ControlPolygon<IV>,
+        controlPolygon: ControlPolygon<V>,
         knotSequence: StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
         degree: number,
         vectorSpace: VectorSpaceType,
@@ -44,30 +44,30 @@ export class ClosedBSplineR1toRn<IV extends IVector<any, Vector>>
 
     get curveOrigin(): number { return this._curveOrigin; }
     get knotSequence(): StrictlyIncreasingPeriodicKnotSequenceClosedCurve { return this._knotSequence; }
-    get controlPolygon(): ControlPolygon<IV> {
+    get controlPolygon(): ControlPolygon<V> {
         return this._controlPolygon;
     }
     get degree(): number {
         return this._degree;
     }
 
-    evaluate(u: number): IV {
+    evaluate(u: number): V {
         return this._evaluator.evaluate(u);
     }
 
-    evaluateWithAlgorithm(u: number, algorithmName?: string): IV {
+    evaluateWithAlgorithm(u: number, algorithmName?: string): V {
         const name = algorithmName
             ?? AlgorithmBootstrap.getRecommendedAlgorithm(this._vectorSpace, "general");
 
         const evaluator = AlgorithmRegistry.createEvaluator(
             name,
-            this._controlPolygon as ControlPolygon<IVector<any, Vector>>,
+            this._controlPolygon as ControlPolygon<Vector<any, VectorDesc>>,
             this._knotSequence,
             this._degree,
             this._vectorSpace
         );
 
-        return evaluator.evaluate(u) as IV;
+        return evaluator.evaluate(u) as V;
     }
 
     getAvailableAlgorithms(): string[] {
@@ -82,8 +82,8 @@ export class ClosedBSplineR1toRn<IV extends IVector<any, Vector>>
         AlgorithmRegistry.setDefaultAlgorithm(vectorSpaceType, algorithmName);
     }
 
-    withControlPolygon(controlPolygon: ControlPolygon<IV>): ClosedBSplineR1toRn<IV> {
-        return new ClosedBSplineR1toRn<IV>(
+    withControlPolygon(controlPolygon: ControlPolygon<V>): ClosedBSplineR1toRn<V> {
+        return new ClosedBSplineR1toRn<V>(
             controlPolygon,
             this._knotSequence,
             this._degree,
@@ -92,9 +92,9 @@ export class ClosedBSplineR1toRn<IV extends IVector<any, Vector>>
         );
     }
 
-    withKnots(knots: readonly number[]): ClosedBSplineR1toRn<IV> {
+    withKnots(knots: readonly number[]): ClosedBSplineR1toRn<V> {
         const knotSequence = this._knotSequence.insertKnot(knots as any);
-        return new ClosedBSplineR1toRn<IV>(
+        return new ClosedBSplineR1toRn<V>(
             this._controlPolygon,
             knotSequence,
             this._degree,
@@ -103,21 +103,21 @@ export class ClosedBSplineR1toRn<IV extends IVector<any, Vector>>
         );
     }
 
-    withControlPoints(controlPoints: ControlPolygonFromDescriptors | ControlPolygon<IV>): ClosedBSplineR1toRn<IV> {
+    withControlPoints(controlPoints: ControlPolygonFromDescriptors | ControlPolygon<V>): ClosedBSplineR1toRn<V> {
         return this.withControlPolygon(
-            ClosedBSplineR1toRn.toCanonicalControlPolygon(controlPoints as any) as ControlPolygon<IV>
+            ClosedBSplineR1toRn.toCanonicalControlPolygon(controlPoints as any) as ControlPolygon<V>
         );
     }
 
     euclideanDistances(): number[] {
         throw new Error("euclideanDistances: not yet implemented in this version");
     }
-    moveControlPoint(index: number, displacement: IV): ClosedBSplineR1toRn<IV> {
+    moveControlPoint(index: number, displacement: V): ClosedBSplineR1toRn<V> {
         return this.withControlPolygon(this._controlPolygon.withMovedControlPoint(index, displacement));
         // this.strategy.invalidate();
     }
 
-    private static toCanonicalControlPolygon<IV extends IVector<any, Vector>>(
+    private static toCanonicalControlPolygon<IV extends Vector<any, VectorDesc>>(
         cp: ControlPolygonFromDescriptors | ControlPolygon<IV>
     ): ControlPolygon<IV> {
         if (cp instanceof ControlPolygon) return cp;
@@ -129,7 +129,7 @@ export class ClosedBSplineR1toRn<IV extends IVector<any, Vector>>
         ) as ControlPolygon<IV>;
     }
 
-    private static toDescriptorPolygon<IV extends IVector<any, Vector>>(
+    private static toDescriptorPolygon<IV extends Vector<any, VectorDesc>>(
         cp: ControlPolygon<IV>
     ): ControlPolygonFromDescriptors {
         return new ControlPolygonFromDescriptors(cp as any);

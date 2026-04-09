@@ -7,9 +7,9 @@ import { Complex } from "../../src/mathVector/Complex";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
 import { DEFAULT_WEIGHT_VALUE } from "../../src/namedConstants/Weight";
-import { PROJECTIVEVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
-import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
-import { WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { PROJECTIVEREALVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
+import { ProjectiveRealVectorSpace } from "../../src/mathVector/ProjectiveRealVectorSpace";
+import { WeightManagement } from "../../src/namedConstants/ProjectiveRealVectorSpace";
 import { EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE } from "../../src/namedConstants/Vectors";
 
 describe('Vector factory to create real, projective real, complex, and projective complex vectors into corresponding vector spaces that can be either default ones or user-specified ones', () => {
@@ -384,13 +384,13 @@ describe('Vector factory to create real, projective real, complex, and projectiv
         expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
         expect(projRealVector.weight.strictlyPositive).to.eql(true);
         expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
-        expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
-        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+        expect(projRealVector.vectorType).to.eql(PROJECTIVEREALVECTOR2D);
+        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVEREAL);
         expect(projRealVector.vectorSpace.isDefault).to.eql(true);
     });
 
     it(`can generate a default projective real vector with a default weight into a user-defined 3D vector space`, () => {
-        const vSpace = new ProjectiveVectorSpace(dimension3);
+        const vSpace = new ProjectiveRealVectorSpace(dimension3);
         const projRealVector = projectiveRealVector3D(vSpace);
         expect(projRealVector.coordinates.length).to.eql(dimension3);
         expect(projRealVector.coordinates).to.eql([0, 0, 1]);
@@ -400,8 +400,8 @@ describe('Vector factory to create real, projective real, complex, and projectiv
         expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
         expect(projRealVector.weight.strictlyPositive).to.eql(true);
         expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
-        expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
-        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+        expect(projRealVector.vectorType).to.eql(PROJECTIVEREALVECTOR2D);
+        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVEREAL);
         expect(projRealVector.vectorSpace.isDefault).to.eql(false);
         expect(projRealVector.vectorSpace).to.eql(vSpace);
     });
@@ -418,8 +418,8 @@ describe('Vector factory to create real, projective real, complex, and projectiv
         expect(projRealVector.getCoordinate(2)).to.eql(new Weight().value);
         expect(projRealVector.weight.strictlyPositive).to.eql(true);
         expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
-        expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
-        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+        expect(projRealVector.vectorType).to.eql(PROJECTIVEREALVECTOR2D);
+        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVEREAL);
         expect(projRealVector.vectorSpace.isDefault).to.eql(true);
     });
 
@@ -427,7 +427,7 @@ describe('Vector factory to create real, projective real, complex, and projectiv
     it(`can generate an arbitrary projective real vector with default weight into a user-defined 3D vector space`, () => {
         const x = 0;
         const y = -2;
-        const vSpace = new ProjectiveVectorSpace(dimension3);
+        const vSpace = new ProjectiveRealVectorSpace(dimension3);
         const projRealVector = projectiveRealVector3D(x, y, vSpace);
         expect(projRealVector.coordinates.length).to.eql(dimension3);
         expect(projRealVector.coordinates).to.eql([x, y, DEFAULT_WEIGHT_VALUE]);
@@ -437,8 +437,8 @@ describe('Vector factory to create real, projective real, complex, and projectiv
         expect(projRealVector.getCoordinate(2)).to.eql(DEFAULT_WEIGHT_VALUE);
         expect(projRealVector.weight.strictlyPositive).to.eql(true);
         expect(projRealVector.weight.value).to.eql(DEFAULT_WEIGHT_VALUE);
-        expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
-        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+        expect(projRealVector.vectorType).to.eql(PROJECTIVEREALVECTOR2D);
+        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVEREAL);
         expect(projRealVector.vectorSpace.isDefault).to.eql(false);
         expect(projRealVector.vectorSpace).to.eql(vSpace);
     });
@@ -448,7 +448,7 @@ describe('Vector factory to create real, projective real, complex, and projectiv
         const weight = new Weight(2);
         const x = 0;
         const y = -2;
-        const vSpace = new ProjectiveVectorSpace(dimension3);
+        const vSpace = new ProjectiveRealVectorSpace(dimension3);
         const projRealVector = projectiveRealVector3D(x, y, weight, vSpace);
         expect(projRealVector.coordinates.length).to.eql(dimension3);
         expect(projRealVector.coordinates).to.eql([x, y, weight.value]);
@@ -458,14 +458,14 @@ describe('Vector factory to create real, projective real, complex, and projectiv
         expect(projRealVector.getCoordinate(2)).to.eql(weight.value);
         expect(projRealVector.weight.strictlyPositive).to.eql(true);
         expect(projRealVector.weight.value).to.eql(weight.value);
-        expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);
-        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVE);
+        expect(projRealVector.vectorType).to.eql(PROJECTIVEREALVECTOR2D);
+        expect(projRealVector.spaceType).to.eql(VectorSpaceType.PROJECTIVEREAL);
         expect(projRealVector.vectorSpace.isDefault).to.eql(false);
         expect(projRealVector.vectorSpace).to.eql(vSpace);
     });
 
     it(`cannot generate a projective real vector with a strictly positive weight with weight management ${WeightManagement.AllPositiveWeights} and default 3D projective real vector space`, () => {
-        const vSpace = new ProjectiveVectorSpace(dimension3, WeightManagement.AllPositiveWeights, true);
+        const vSpace = new ProjectiveRealVectorSpace(dimension3, WeightManagement.AllPositiveWeights, true);
         expect(vSpace.isDefault).to.eql(true);
         expect(() =>  projectiveRealVector3D(1, 2, new Weight(3, true), vSpace)).to.throw(EM_PROJECTIVE_VECTOR_WEIGHT_STATUS_INCOMPATIBLE);
         expect(() =>  projectiveRealVector3D(1, 2, new Weight(3, true), vSpace)).to.throw('projectiveRealVector3D');
@@ -477,8 +477,8 @@ describe('Vector factory to create real, projective real, complex, and projectiv
         const vSpace = new RealVectorSpace(dimension3);
         expect(vSpace.isDefault).to.eql(false);
         // Such type casting must be avoided by the users because they don't throw errors at compile time and at runtime
-        expect(() =>  projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveVectorSpace<3>)).to.throw();
-        // const projRealVector = projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveVectorSpace<3>);
+        expect(() =>  projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveRealVectorSpace<3>)).to.throw();
+        // const projRealVector = projectiveRealVector3D(x, 2, new Weight(), vSpace as unknown as ProjectiveRealVectorSpace<3>);
         // But the generated vector is not consistent though the user coordinates are correctly set
         // expect(projRealVector.getCoordinate(0)).to.eql(x);
         // expect(projRealVector.vectorType).to.eql(PROJECTIVEVECTOR2D);

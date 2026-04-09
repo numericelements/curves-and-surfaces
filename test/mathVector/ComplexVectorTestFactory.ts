@@ -1,12 +1,12 @@
 import { expect } from "chai";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { Vector1DTypeComplex } from "../../src/mathVector/Vector1DTypeComplex";
-import { Vector2DTypeComplex } from "../../src/mathVector/Vector2DTypeComplex";
-import { IComplexVector } from "../../src/mathVector/Vector";
+import { Vector1DComplex } from "../../src/mathVector/Vector1DComplex";
+import { Vector2DComplex } from "../../src/mathVector/Vector2DComplex";
+import { ComplexVector } from "../../src/mathVector/interfaces/VectorInterfaces";
 import { Complex } from "../../src/mathVector/Complex";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
-import { ComplexVector2D, IComplex } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ComplexVector2D, ComplexDesc } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { COMPLEXVECTOR1D } from "../../src/namedConstants/VectorTypeTags";
 
 let complex1 = new Complex(1, 2);
@@ -57,7 +57,7 @@ export function createCommonComplexVectorTests(
                 const complexVector = createTestComplexVector(dimension, vSpace, coordinates);
                 expect(complexVector.dimension).to.eql(dimension);
                 if(complexVector.vectorType === COMPLEXVECTOR1D) {
-                    const descriptor = complexVector.descriptor as IComplex;
+                    const descriptor = complexVector.descriptor as ComplexDesc;
                     expect(descriptor.real).to.eql(coordinates[0].real);
                     expect(descriptor.imaginary).to.eql(coordinates[0].imaginary);
                 } else {
@@ -338,12 +338,12 @@ export function createCommonComplexVectorTests(
 // Helper function to create test vectors
 export function createTestComplexVector(
     dimension: number, vectorSpace?: ComplexVectorSpace, coordinates?: Complex[]
-): IComplexVector {
+): ComplexVector {
     switch(dimension) {
         case 1:
-            return new Vector1DTypeComplex(coordinates ? coordinates[0] : defaultCoordinates[0], vectorSpace ? vectorSpace as ComplexVectorSpace<1>: undefined);
+            return new Vector1DComplex(coordinates ? coordinates[0] : defaultCoordinates[0], vectorSpace ? vectorSpace as ComplexVectorSpace<1>: undefined);
         case 2:
-            return new Vector2DTypeComplex(coordinates ? coordinates[0] : defaultCoordinates[0],
+            return new Vector2DComplex(coordinates ? coordinates[0] : defaultCoordinates[0],
                                         coordinates ? coordinates[1] : defaultCoordinates[1], vectorSpace ? vectorSpace as ComplexVectorSpace<2>: undefined);
         default:
             throw new Error(`createTestRealVector: Unsupported dimension: ${dimension}`);

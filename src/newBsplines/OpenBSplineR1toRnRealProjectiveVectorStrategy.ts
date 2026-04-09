@@ -1,5 +1,4 @@
-import { ProjectiveVectorSpace } from "../mathVector/ProjectiveVectorSpace";
-import { ProjectiveVector, RealVector } from "../mathVector/VectorSpaceConstructorInterface";
+import { ProjectiveRealVectorSpace } from "../mathVector/ProjectiveRealVectorSpace";
 // import { AbstractOPenBSplineR1toRnStrategy } from "./AbstractOPenBSplineR1toRnStrategy";
 import { BSpline_type } from "./BSplineR1toRnConstructorInterface";
 // import { BSplineEvaluator, CoxDeBoorProjectiveEvaluator, OpenBSplineR1toRn, OpenBSplineR1toRnStrategy } from "./OpenBSplineR1toRn";

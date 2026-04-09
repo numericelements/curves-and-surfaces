@@ -2,7 +2,7 @@ import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedCo
 import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { Complex } from "./Complex";
 import { createComplexWeightDescriptor } from "./VectorDescriptorFactory";
-import { IComplexWeight } from "./VectorSpaceConstructorInterface";
+import type { ComplexWeightDesc } from "./VectorDescriptorConstructorInterface";
 import { Weight } from "./Weight";
 
 export class ComplexWeight {
@@ -47,7 +47,7 @@ export class ComplexWeight {
         return COMPLEXWEIGHT + `(real: ${this._real.toString()}, imaginary: ${this._imaginary.toString()})`;
     }
 
-    toDescriptor(): IComplexWeight {
+    toDescriptor(): ComplexWeightDesc {
         return createComplexWeightDescriptor(this._real.clone(), this._imaginary.clone());
     }
 

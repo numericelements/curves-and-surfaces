@@ -1,23 +1,24 @@
 import { EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_NOT_IN_VECTORSPACE, EM_REALVECTORS_DIFFERENT_DIM, EM_REALVECTORS_NOT_IN_VECTORSPACE } from "../ErrorMessages/RealVectorSpace";
-import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import type { ProjectiveVector3D, Real, RealVector, RealVector3D } from "./VectorSpaceConstructorInterface";
+import type { RealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
+import type { ProjectiveRealVector3D, RealVector3D } from "./VectorDescriptorConstructorInterface";
 import { isVector3D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
-import { createProjectiveVector3DDescriptor, createRealVector3DDescriptor, createWeightDescriptor } from "./VectorDescriptorFactory";
+import { createProjectiveRealVector3DDescriptor, createRealVector3DDescriptor, createWeightDescriptor } from "./VectorDescriptorFactory";
+import type { Real, RealVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
 
   
-export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3, RealVector3D> {
+export class RealVectorSpace3DStrategy implements RealVectorSpaceStrategy<3, RealVector3D> {
 
     readonly dimension = 3 as const;
 
     // Implementation for 3D vectors
 
-    areSameDimension(v1: RealVector, v2: RealVector): boolean {
+    areSameDimension(v1: RealVectorDesc, v2: RealVectorDesc): boolean {
         if(isVector3D(v1) && isVector3D(v2)) return true;
         return false;
     }
 
-    isInVectorSpace(v: RealVector): v is RealVector {
+    isInVectorSpace(v: RealVectorDesc): v is RealVectorDesc {
         if(isVector3D(v)) return true;
         return false;
     }
@@ -110,15 +111,15 @@ export class RealVectorSpace3DStrategy implements IRealVectorSpaceStrategy<3, Re
         }
     }
 
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector3D, weight: Weight = new Weight()): ProjectiveVector3D {
+    fromRealVectorSpaceToProjectiveRealVectorSpace(v: RealVector3D, weight: Weight = new Weight()): ProjectiveRealVector3D {
         if(isVector3D(v)) {
             if(weight.value === 0) {
                 const weightDescriptor = weight.toDescriptor();
-                return createProjectiveVector3DDescriptor(v.coordinates[0], v.coordinates[1], v.coordinates[2], weightDescriptor);
+                return createProjectiveRealVector3DDescriptor(v.coordinates[0], v.coordinates[1], v.coordinates[2], weightDescriptor);
             }
-            return createProjectiveVector3DDescriptor(v.coordinates[0] * weight.value, v.coordinates[1] * weight.value, v.coordinates[2] * weight.value, weight.toDescriptor());
+            return createProjectiveRealVector3DDescriptor(v.coordinates[0] * weight.value, v.coordinates[1] * weight.value, v.coordinates[2] * weight.value, weight.toDescriptor());
         } else {
-            const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveVectorSpace', EM_REALVECTOR_NOT_IN_VECTORSPACE);
+            const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveRealVectorSpace', EM_REALVECTOR_NOT_IN_VECTORSPACE);
             throw new RangeError(error.generateMessageString());
         }
     }

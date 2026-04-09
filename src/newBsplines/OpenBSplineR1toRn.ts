@@ -1,5 +1,5 @@
-import { IVector } from "../mathVector/Vector";
-import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AbstractBSplineR1toRn, checkConsistency, normalizeDescriptorsToControlPolygon } from "./AbstractBSplineR1toRn";
 import { AlgorithmBootstrap } from "./AlgorithmBootstrap";
@@ -15,9 +15,9 @@ import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyInc
 
 
 
-export class BSplineEvaluator<IV extends IVector<any, Vector>> {
+export class BSplineEvaluator<V extends Vector<any, VectorDesc>> {
 
-    evaluate(parameter: number): IV {
+    evaluate(parameter: number): V {
         return null as any;
     };
 }
@@ -173,7 +173,7 @@ export type OpenBSplineCtorParams =
     | BSpline_CP_Deg_NonUniform;
 
 type PreparedOpenInit = {
-    controlPolygon: ControlPolygon<IVector<any, Vector>>;
+    controlPolygon: ControlPolygon<Vector<any, VectorDesc>>;
     knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;
     degree: number;
     knots: readonly number[];
@@ -183,7 +183,7 @@ type PreparedOpenInit = {
 };
 
 
-export class OpenBSplineR1toRn<IV extends IVector<any, Vector>>
+export class OpenBSplineR1toRn<IV extends Vector<any, VectorDesc>>
     extends AbstractBSplineR1toRn<IV>
 {
     protected readonly _curveOrigin: number;
@@ -221,7 +221,7 @@ export class OpenBSplineR1toRn<IV extends IVector<any, Vector>>
 
     private static prepareOpenInit(curveParameters: OpenBSplineCtorParams): PreparedOpenInit {
         const controlPolygon = OpenBSplineR1toRn.toCanonicalControlPolygon(
-            curveParameters.controlPoints as ControlPoints<IVector<any, Vector>>
+            curveParameters.controlPoints as ControlPoints<Vector<any, VectorDesc>>
         );
 
         let degree: number;
@@ -297,7 +297,7 @@ export class OpenBSplineR1toRn<IV extends IVector<any, Vector>>
 
         const evaluator = AlgorithmRegistry.createEvaluator(
             name,
-            this._controlPolygon as ControlPolygon<IVector<any, Vector>>,
+            this._controlPolygon as ControlPolygon<Vector<any, VectorDesc>>,
             this._knotSequence,
             this._degree,
             this._vectorSpace
@@ -368,7 +368,7 @@ export class OpenBSplineR1toRn<IV extends IVector<any, Vector>>
         // this.strategy.invalidate();
     }
 
-    private static toCanonicalControlPolygon<IV extends IVector<any, Vector>>(
+    private static toCanonicalControlPolygon<IV extends Vector<any, VectorDesc>>(
         cp: ControlPolygonFromDescriptors | ControlPolygon<IV>
     ): ControlPolygon<IV> {
         if (cp instanceof ControlPolygon) return cp;
@@ -380,21 +380,21 @@ export class OpenBSplineR1toRn<IV extends IVector<any, Vector>>
         ) as ControlPolygon<IV>;
     }
 
-    private static toDescriptorPolygon<IV extends IVector<any, Vector>>(
+    private static toDescriptorPolygon<IV extends Vector<any, VectorDesc>>(
         cp: ControlPolygon<IV>
     ): ControlPolygonFromDescriptors {
         return new ControlPolygonFromDescriptors(cp as any);
     }
 }
 
-export interface AlgorithmDescriptor<IV extends IVector<any, Vector>> {
+export interface AlgorithmDescriptor<IV extends Vector<any, VectorDesc>> {
     name: string;
     vectorSpaceTypes: VectorSpaceType[];
     description: string;
     factory: AlgorithmFactory<IV>;
 }
 
-export interface AlgorithmFactory<IV extends IVector<any, Vector>> {
+export interface AlgorithmFactory<IV extends Vector<any, VectorDesc>> {
     createEvaluator(
         controlPolygon: ControlPolygon<IV>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
@@ -404,10 +404,10 @@ export interface AlgorithmFactory<IV extends IVector<any, Vector>> {
 
 export interface AlgorithmFactoryInterface {
     createEvaluator(
-        controlPolygon: ControlPolygon<IVector<any, Vector>>,
+        controlPolygon: ControlPolygon<Vector<any, VectorDesc>>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
         degree: number
-    ): BSplineEvaluator<IVector<any, Vector>>;
+    ): BSplineEvaluator<Vector<any, VectorDesc>>;
 }
 
 export interface AlgorithmRegistration {

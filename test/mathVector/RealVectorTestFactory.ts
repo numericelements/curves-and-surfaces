@@ -1,10 +1,10 @@
 import { expect } from "chai";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { Vector2DTypeReal } from "../../src/mathVector/Vector2DTypeReal";
-import { Vector1DTypeReal } from "../../src/mathVector/Vector1DTypeReal";
-import { Vector3DTypeReal } from "../../src/mathVector/Vector3DTypeReal";
-import { Vector4DTypeReal } from "../../src/mathVector/Vector4DTypeReal";
-import { IRealVector } from "../../src/mathVector/Vector";
+import { Vector2DReal } from "../../src/mathVector/Vector2DReal";
+import { Vector1DReal } from "../../src/mathVector/Vector1DReal";
+import { Vector3DReal } from "../../src/mathVector/Vector3DReal";
+import { Vector4DReal } from "../../src/mathVector/Vector4DReal";
+import { RealVector } from "../../src/mathVector/interfaces/VectorInterfaces";
 import { VectorSpaceType } from "../../src/namedConstants/BSplineR1toRn";
 import { ANGULAR_TOL_VECTOR, EM_NORM_TOO_SMALL, EM_VECTOR_COORDINATE_INDEX_OUT_RANGE, EM_VECTOR_NORM_TOO_SMALL, EM_VECTORS_DIFFERENT_VECTOR_SPACES, EM_VECTORS_NOT_IN_SAME_VECTORSPACE, LINEAR_TOL_VECTOR } from "../../src/namedConstants/Vectors";
 import { COEF_TAKINGINTOACCOUNT_FLOATINGPT_ROUNDOFF, TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
@@ -593,19 +593,19 @@ export function createCommonRealVectorTests(
 // Helper function to create test vectors
 export function createTestRealVector(
     dimension: number, vectorSpace?: RealVectorSpace, coordinates?: number[]
-): IRealVector {
+): RealVector {
     switch(dimension) {
         case 1:
-            return new Vector1DTypeReal(coordinates ? coordinates[0] : defaultCoordinates[0], vectorSpace ? vectorSpace as RealVectorSpace<1>: undefined);
+            return new Vector1DReal(coordinates ? coordinates[0] : defaultCoordinates[0], vectorSpace ? vectorSpace as RealVectorSpace<1>: undefined);
         case 2:
-            return new Vector2DTypeReal(coordinates ? coordinates[0] : defaultCoordinates[0],
+            return new Vector2DReal(coordinates ? coordinates[0] : defaultCoordinates[0],
                                         coordinates ? coordinates[1] : defaultCoordinates[1], vectorSpace ? vectorSpace as RealVectorSpace<2>: undefined);
         case 3:
-            return new Vector3DTypeReal(coordinates ? coordinates[0] : defaultCoordinates[0],
+            return new Vector3DReal(coordinates ? coordinates[0] : defaultCoordinates[0],
                                         coordinates ? coordinates[1] : defaultCoordinates[1],
                                         coordinates ? coordinates[2] : defaultCoordinates[2], vectorSpace ? vectorSpace as RealVectorSpace<3>: undefined);
         case 4:
-            return new Vector4DTypeReal(coordinates ? coordinates[0] : defaultCoordinates[0],
+            return new Vector4DReal(coordinates ? coordinates[0] : defaultCoordinates[0],
                                         coordinates ? coordinates[1] : defaultCoordinates[1],
                                         coordinates ? coordinates[2] : defaultCoordinates[2],
                                         coordinates ? coordinates[3] : defaultCoordinates[3], vectorSpace ? vectorSpace as RealVectorSpace<4>: undefined);

@@ -1,16 +1,17 @@
 import { EM_WEIGHT_VALUE_POSITIVE } from "../ErrorMessages/Weight";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
-import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
+import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEREALVECTOR2D, PROJECTIVEREALVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
 import { COMPLEXWEIGHT, WEIGHT } from "../namedConstants/WeightTypeTags";
 import { hasType } from "../newBsplines/AbstractBSplineR1toRn";
-import { Complex } from "./Complex";
+import type { Complex } from "./Complex";
 import { ComplexWeight } from "./ComplexWeight";
-import { ComplexVector1D, ComplexVector2D, IComplex, IComplexWeight, IWeight, ProjectiveComplexVector1D, ProjectiveVector2D, ProjectiveVector3D, RealVector1D, RealVector2D, RealVector3D, RealVector4D } from "./VectorSpaceConstructorInterface";
+import type { ComplexVector1D, RealVector1D } from "./utilityTypes/VectorDescriptorTypes";
+import type { ComplexVector2D, ComplexDesc, ComplexWeightDesc, WeightDesc, ProjectiveComplexVector1D, ProjectiveRealVector2D, ProjectiveRealVector3D, RealVector2D, RealVector3D, RealVector4D } from "./VectorDescriptorConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
-export function createWeightDescriptor(value?: number, strictlyPositive?: boolean): IWeight {
+export function createWeightDescriptor(value?: number, strictlyPositive?: boolean): WeightDesc {
     if(value !== undefined && value < 0) {
         const error = sendRangeErrorMessage(('function'), 'createWeightDescriptor', EM_WEIGHT_VALUE_POSITIVE);
         throw new RangeError(error.generateMessageString());
@@ -23,17 +24,17 @@ export function createWeightDescriptor(value?: number, strictlyPositive?: boolea
     return { type: WEIGHT, weight: weight };
 }
 
-export function cloneDescriptorWeight(descriptor: IWeight): IWeight {
+export function cloneDescriptorWeight(descriptor: WeightDesc): WeightDesc {
     const weightCopy = descriptor.weight.clone();
     return createWeightDescriptor(weightCopy.value, weightCopy.strictlyPositive);
 }
 
-export function createComplexWeightDescriptor(): IComplexWeight;
-export function createComplexWeightDescriptor(realWeight: Weight, imaginaryWeight?: Weight): IComplexWeight;
-export function createComplexWeightDescriptor(realWeight: IWeight, imaginaryWeight: IWeight): IComplexWeight;
-export function createComplexWeightDescriptor(realWeight?: Weight | IWeight, imaginaryWeight?: Weight | IWeight): IComplexWeight {
+export function createComplexWeightDescriptor(): ComplexWeightDesc;
+export function createComplexWeightDescriptor(realWeight: Weight, imaginaryWeight?: Weight): ComplexWeightDesc;
+export function createComplexWeightDescriptor(realWeight: WeightDesc, imaginaryWeight: WeightDesc): ComplexWeightDesc;
+export function createComplexWeightDescriptor(realWeight?: Weight | WeightDesc, imaginaryWeight?: Weight | WeightDesc): ComplexWeightDesc {
     if (!(realWeight instanceof Weight) && hasType(realWeight, WEIGHT)) {
-        return { type: COMPLEXWEIGHT, real: realWeight.weight, imaginary: (imaginaryWeight as IWeight)?.weight ?? new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, true)};
+        return { type: COMPLEXWEIGHT, real: realWeight.weight, imaginary: (imaginaryWeight as WeightDesc)?.weight ?? new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, true)};
     }
     if (realWeight === undefined) {
         realWeight = new Weight(DEFAULT_WEIGHT_VALUE, true);
@@ -47,7 +48,7 @@ export function createComplexWeightDescriptor(realWeight?: Weight | IWeight, ima
     return { type: COMPLEXWEIGHT, real: realWeight, imaginary: imaginaryWeight};
 }
 
-export function cloneDescriptorComplexWeight(descriptor: IComplexWeight): IComplexWeight {
+export function cloneDescriptorComplexWeight(descriptor: ComplexWeightDesc): ComplexWeightDesc {
     const realWeightCopy = descriptor.real.clone();
     const imaginaryWeightCopy = descriptor.imaginary.clone();
     return createComplexWeightDescriptor(realWeightCopy, imaginaryWeightCopy);
@@ -110,15 +111,15 @@ export function copyDescriptorRealVector4D(descriptor: RealVector4D): RealVector
     ]};
 }
 
-export function createProjectiveVector2DDescriptor(): ProjectiveVector2D;
-export function createProjectiveVector2DDescriptor(x: number, y: number): ProjectiveVector2D;
-export function createProjectiveVector2DDescriptor(x: number, y: number, weight: Weight): ProjectiveVector2D;
-export function createProjectiveVector2DDescriptor(x: number, y: number, weight: IWeight): ProjectiveVector2D;
-export function createProjectiveVector2DDescriptor(x: number, y: number, weightValue: number, strictlyPositive?: boolean): ProjectiveVector2D;
-export function createProjectiveVector2DDescriptor(x?: number, y?: number, weightValOrWeightOrWeightDscr?: number | Weight | IWeight, strictlyPositive?: boolean): ProjectiveVector2D {
+export function createProjectiveRealVector2DDescriptor(): ProjectiveRealVector2D;
+export function createProjectiveRealVector2DDescriptor(x: number, y: number): ProjectiveRealVector2D;
+export function createProjectiveRealVector2DDescriptor(x: number, y: number, weight: Weight): ProjectiveRealVector2D;
+export function createProjectiveRealVector2DDescriptor(x: number, y: number, weight: WeightDesc): ProjectiveRealVector2D;
+export function createProjectiveRealVector2DDescriptor(x: number, y: number, weightValue: number, strictlyPositive?: boolean): ProjectiveRealVector2D;
+export function createProjectiveRealVector2DDescriptor(x?: number, y?: number, weightValOrWeightOrWeightDscr?: number | Weight | WeightDesc, strictlyPositive?: boolean): ProjectiveRealVector2D {
     const x1 = x ?? 0;
     const y1 = y ?? 0;
-    let weightDescriptor: IWeight;
+    let weightDescriptor: WeightDesc;
     if (weightValOrWeightOrWeightDscr === undefined) {
         // no weight provided: default
         weightDescriptor = createWeightDescriptor(DEFAULT_WEIGHT_VALUE, true);
@@ -127,7 +128,7 @@ export function createProjectiveVector2DDescriptor(x?: number, y?: number, weigh
         // overload: (x, y, weightValue, strictlyPositive?)
         const wVal = weightValOrWeightOrWeightDscr;
         if (wVal < 0) {
-            const error = sendRangeErrorMessage('function', 'createProjectiveVector2DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+            const error = sendRangeErrorMessage('function', 'createProjectiveRealVector2DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
             throw new RangeError(error.generateMessageString());
         }
         const sp = (wVal === 0) ? false : (strictlyPositive ?? true);
@@ -136,7 +137,7 @@ export function createProjectiveVector2DDescriptor(x?: number, y?: number, weigh
     } else if (weightValOrWeightOrWeightDscr instanceof Weight) {
         // overload: (x, y, weight: Weight)  ← instanceof distinguishes Weight from IWeight
         if (weightValOrWeightOrWeightDscr.value < 0) {
-            const error = sendRangeErrorMessage('function', 'createProjectiveVector2DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+            const error = sendRangeErrorMessage('function', 'createProjectiveRealVector2DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
             throw new RangeError(error.generateMessageString());
         }
         weightDescriptor = weightValOrWeightOrWeightDscr.toDescriptor();
@@ -144,35 +145,35 @@ export function createProjectiveVector2DDescriptor(x?: number, y?: number, weigh
     } else if (hasType(weightValOrWeightOrWeightDscr, WEIGHT)) {
         // overload: (x, y, weight: IWeight)  ← structural descriptor { type: WEIGHT, weight: Weight }
         if (weightValOrWeightOrWeightDscr.weight.value < 0) {
-            const error = sendRangeErrorMessage('function', 'createProjectiveVector2DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+            const error = sendRangeErrorMessage('function', 'createProjectiveRealVector2DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
             throw new RangeError(error.generateMessageString());
         }
         weightDescriptor = cloneDescriptorWeight(weightValOrWeightOrWeightDscr);
     } else {
-        const error = sendRangeErrorMessage('function', 'createProjectiveVector2DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+        const error = sendRangeErrorMessage('function', 'createProjectiveRealVector2DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
         throw new RangeError(error.generateMessageString());
     }
-    return { type: PROJECTIVEVECTOR2D, coordinates: [x1, y1, weightDescriptor]};
+    return { type: PROJECTIVEREALVECTOR2D, coordinates: [x1, y1, weightDescriptor]};
 }
 
-export function cloneDescriptorProjectiveRealVector2D(descriptor: ProjectiveVector2D): ProjectiveVector2D {
-    return {type: PROJECTIVEVECTOR2D, coordinates: [
+export function cloneDescriptorProjectiveRealVector2D(descriptor: ProjectiveRealVector2D): ProjectiveRealVector2D {
+    return {type: PROJECTIVEREALVECTOR2D, coordinates: [
         Number(descriptor.coordinates[0]), Number(descriptor.coordinates[1]),
         cloneDescriptorWeight(descriptor.coordinates[2])
     ]};
 }
 
 
-export function createProjectiveVector3DDescriptor(): ProjectiveVector3D;
-export function createProjectiveVector3DDescriptor(x: number, y: number, z: number): ProjectiveVector3D;
-export function createProjectiveVector3DDescriptor(x: number, y: number, z: number, weight: Weight): ProjectiveVector3D;
-export function createProjectiveVector3DDescriptor(x: number, y: number, z: number, weight: IWeight): ProjectiveVector3D;
-export function createProjectiveVector3DDescriptor(x: number, y: number, z: number, weightValue: number, strictlyPositive?: boolean): ProjectiveVector3D;
-export function createProjectiveVector3DDescriptor(x?: number, y?: number, z?: number, weightValOrWeightOrWeightDscr?: number | Weight | IWeight, strictlyPositive?: boolean): ProjectiveVector3D {
+export function createProjectiveRealVector3DDescriptor(): ProjectiveRealVector3D;
+export function createProjectiveRealVector3DDescriptor(x: number, y: number, z: number): ProjectiveRealVector3D;
+export function createProjectiveRealVector3DDescriptor(x: number, y: number, z: number, weight: Weight): ProjectiveRealVector3D;
+export function createProjectiveRealVector3DDescriptor(x: number, y: number, z: number, weight: WeightDesc): ProjectiveRealVector3D;
+export function createProjectiveRealVector3DDescriptor(x: number, y: number, z: number, weightValue: number, strictlyPositive?: boolean): ProjectiveRealVector3D;
+export function createProjectiveRealVector3DDescriptor(x?: number, y?: number, z?: number, weightValOrWeightOrWeightDscr?: number | Weight | WeightDesc, strictlyPositive?: boolean): ProjectiveRealVector3D {
     const x1 = x ?? 0;
     const y1 = y ?? 0;
     const z1 = z ?? 0;
-    let weightDescriptor: IWeight;
+    let weightDescriptor: WeightDesc;
     if (weightValOrWeightOrWeightDscr === undefined) {
         // no weight provided: default
         weightDescriptor = createWeightDescriptor(DEFAULT_WEIGHT_VALUE, true);
@@ -181,7 +182,7 @@ export function createProjectiveVector3DDescriptor(x?: number, y?: number, z?: n
         // overload: (x, y, weightValue, strictlyPositive?)
         const wVal = weightValOrWeightOrWeightDscr;
         if (wVal < 0) {
-            const error = sendRangeErrorMessage('function', 'createProjectiveVector3DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+            const error = sendRangeErrorMessage('function', 'createProjectiveRealVector3DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
             throw new RangeError(error.generateMessageString());
         }
         const sp = (wVal === 0) ? false : (strictlyPositive ?? true);
@@ -190,7 +191,7 @@ export function createProjectiveVector3DDescriptor(x?: number, y?: number, z?: n
     } else if (weightValOrWeightOrWeightDscr instanceof Weight) {
         // overload: (x, y, weight: Weight)  ← instanceof distinguishes Weight from IWeight
         if (weightValOrWeightOrWeightDscr.value < 0) {
-            const error = sendRangeErrorMessage('function', 'createProjectiveVector3DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+            const error = sendRangeErrorMessage('function', 'createProjectiveRealVector3DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
             throw new RangeError(error.generateMessageString());
         }
         weightDescriptor = weightValOrWeightOrWeightDscr.toDescriptor();
@@ -198,19 +199,19 @@ export function createProjectiveVector3DDescriptor(x?: number, y?: number, z?: n
     } else if (hasType(weightValOrWeightOrWeightDscr, WEIGHT)) {
         // overload: (x, y, weight: IWeight)  ← structural descriptor { type: WEIGHT, weight: Weight }
         if (weightValOrWeightOrWeightDscr.weight.value < 0) {
-            const error = sendRangeErrorMessage('function', 'createProjectiveVector3DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+            const error = sendRangeErrorMessage('function', 'createProjectiveRealVector3DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
             throw new RangeError(error.generateMessageString());
         }
         weightDescriptor = cloneDescriptorWeight(weightValOrWeightOrWeightDscr);
     } else {
-        const error = sendRangeErrorMessage('function', 'createProjectiveVector3DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
+        const error = sendRangeErrorMessage('function', 'createProjectiveRealVector3DDescriptor', EM_WEIGHT_VALUE_POSITIVE);
         throw new RangeError(error.generateMessageString());
     }
-    return { type: PROJECTIVEVECTOR3D, coordinates: [x1, y1, z1, weightDescriptor]};
+    return { type: PROJECTIVEREALVECTOR3D, coordinates: [x1, y1, z1, weightDescriptor]};
 }
 
-export function cloneDescriptorProjectiveRealVector3D(descriptor: ProjectiveVector3D): ProjectiveVector3D {
-    return {type: PROJECTIVEVECTOR3D, coordinates: [
+export function cloneDescriptorProjectiveRealVector3D(descriptor: ProjectiveRealVector3D): ProjectiveRealVector3D {
+    return {type: PROJECTIVEREALVECTOR3D, coordinates: [
         Number(descriptor.coordinates[0]), Number(descriptor.coordinates[1]), Number(descriptor.coordinates[2]),
         cloneDescriptorWeight(descriptor.coordinates[3])
     ]};
@@ -234,9 +235,9 @@ export function copyDescriptorComplexVector1D(descriptor: ComplexVector1D): Comp
 
 export function createComplexVector2DDescriptor(): ComplexVector2D;
 export function createComplexVector2DDescriptor(complex1: Complex, complex2: Complex): ComplexVector2D;
-export function createComplexVector2DDescriptor(Icomplex1: IComplex, Icomplex2: IComplex): ComplexVector2D;
+export function createComplexVector2DDescriptor(Icomplex1: ComplexDesc, Icomplex2: ComplexDesc): ComplexVector2D;
 export function createComplexVector2DDescriptor(real1: number, imaginary1: number, real2: number, imaginary2: number): ComplexVector2D;
-export function createComplexVector2DDescriptor(realOrComplex1OrIComplex1?: number | Complex | IComplex, imaginaryOrComplex1OrIComplex1?: number | Complex | IComplex, realOrComplex2?: number, imaginary2?: number): ComplexVector2D {
+export function createComplexVector2DDescriptor(realOrComplex1OrIComplex1?: number | Complex | ComplexDesc, imaginaryOrComplex1OrIComplex1?: number | Complex | ComplexDesc, realOrComplex2?: number, imaginary2?: number): ComplexVector2D {
     if (typeof realOrComplex1OrIComplex1 === 'object' && typeof imaginaryOrComplex1OrIComplex1 === 'object') {
         if('type' in realOrComplex1OrIComplex1 && 'type' in imaginaryOrComplex1OrIComplex1
             && realOrComplex1OrIComplex1.type === COMPLEX && imaginaryOrComplex1OrIComplex1.type === COMPLEX) {
@@ -261,10 +262,10 @@ export function copyDescriptorComplexVector2D(descriptor: ComplexVector2D): Comp
 
 export function createProjectiveComplexVector1DDescriptor(): ProjectiveComplexVector1D;
 export function createProjectiveComplexVector1DDescriptor(coordinates: Complex, complexW?: ComplexWeight): ProjectiveComplexVector1D;
-export function createProjectiveComplexVector1DDescriptor(coordinates: IComplex, complexW?: IComplexWeight): ProjectiveComplexVector1D;
-export function createProjectiveComplexVector1DDescriptor(coordinates?: Complex | IComplex, complexW?: ComplexWeight | IComplexWeight): ProjectiveComplexVector1D {
-    let coordinatesDescriptor: IComplex;
-    let complexWeightDescriptor: IComplexWeight;
+export function createProjectiveComplexVector1DDescriptor(coordinates: ComplexDesc, complexW?: ComplexWeightDesc): ProjectiveComplexVector1D;
+export function createProjectiveComplexVector1DDescriptor(coordinates?: Complex | ComplexDesc, complexW?: ComplexWeight | ComplexWeightDesc): ProjectiveComplexVector1D {
+    let coordinatesDescriptor: ComplexDesc;
+    let complexWeightDescriptor: ComplexWeightDesc;
     if(coordinates === undefined) {
         coordinatesDescriptor = createComplexVector1DDescriptor();
     } else if (typeof coordinates === 'object' && !('type' in coordinates)) {

@@ -1,22 +1,22 @@
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../ErrorMessages/RealVectorSpace";
-import type { IRealVectorSpaceStrategy } from "./strategies/interfaces/IRealVectorSpaceStrategy";
-import type { Real, RealVector, RealVector1D } from "./VectorSpaceConstructorInterface";
+import type { RealVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
+import type { Real, RealVector1D, RealVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
 
-export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1, RealVector1D> {
+export class RealVectorSpace1DStrategy implements RealVectorSpaceStrategy<1, RealVector1D> {
 
     readonly dimension = 1 as const;
     
     // Implementation for 1D vectors
 
-    areSameDimension(v1: RealVector, v2: RealVector): boolean {
+    areSameDimension(v1: RealVectorDesc, v2: RealVectorDesc): boolean {
         if(isVector1D(v1) && isVector1D(v2)) return true;
         return false;
     }
 
-    isInVectorSpace(v: RealVector): v is RealVector {
+    isInVectorSpace(v: RealVectorDesc): v is RealVectorDesc {
         if(isVector1D(v)) return true;
         return false;
     }
@@ -90,8 +90,8 @@ export class RealVectorSpace1DStrategy implements IRealVectorSpaceStrategy<1, Re
         }
     }
 
-    fromRealVectorSpaceToProjectiveVectorSpace(v: RealVector1D, weight: Weight): never {
-        const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
+    fromRealVectorSpaceToProjectiveRealVectorSpace(v: RealVector1D, weight: Weight): never {
+        const error = sendRangeErrorMessage(this.constructor.name, 'fromRealVectorSpaceToProjectiveRealVectorSpace', EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         throw new RangeError(error.generateMessageString());
     }
 

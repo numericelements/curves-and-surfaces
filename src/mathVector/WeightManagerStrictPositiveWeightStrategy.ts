@@ -1,8 +1,8 @@
 import { EM_FORCE_NULL_WEIGHT_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_NULL_WEIGHT_RESULTING_SUBTRACT_STRICTLY_POSITIVE_WEIGHTS, EM_SCALE_FACTOR_NULL, EM_TOGGLE_STATUS_INCOMPATIBLE, EM_WEIGHT_STATUS_INCOMPATIBLE_STRICTLY_POSITIVE_MANAGEMENT, EM_WEIGHT_SUBTRACTION_ERROR } from "../ErrorMessages/WeightManager";
-import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
+import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveRealVectorSpace";
 import { WM_WEIGHT_SMALLER_THAN_NULL_WEIGHT_TOLERANCE } from "../WarningMessages/WeightManager";
 import { ComplexWeight } from "./ComplexWeight";
-import type { Real } from "./VectorSpaceConstructorInterface";
+import type { Real } from "./utilityTypes/VectorDescriptorTypes";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 

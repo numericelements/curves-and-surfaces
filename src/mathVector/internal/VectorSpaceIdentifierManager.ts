@@ -2,10 +2,10 @@ import { EM_INVALID_VECTOR_SPACE_TYPE } from "../../ErrorMessages/DefaultSpaceRe
 import { EM_INVALID_VECTOR_SPACE_ID_STRUCTURE, EM_INVALID_VECTOR_SPACE_INDEX_VALUE } from "../../ErrorMessages/VectorSpaceIdentifierManager";
 import { VectorSpaceType } from "../../namedConstants/BSplineR1toRn";
 import { INITIAL_VECTOR_SPACE_ID, LOCATION_INDEX_INTO_VECTOR_SPACE_ID, VECTOR_SPACE, VSPACE_INDEX_INITIAL_VALUE } from "../../namedConstants/VectorSpaceIdentifierManager";
-import type { ComplexVectorSpaceInterface, IdentifiableVectorSpace, ProjectiveComplexVectorSpaceInterface, ProjectiveVectorSpaceInterface, RealVectorSpaceInterface } from "../IVectorSpace";
-import { Vector } from "../VectorSpaceConstructorInterface";
+import type { ComplexVectorSpaceInterface, IdentifiableVectorSpace, ProjectiveComplexVectorSpaceInterface, ProjectiveRealVectorSpaceInterface, RealVectorSpaceInterface } from "../interfaces/VectorSpaceInterfaces";
+import type { VectorDesc } from "../utilityTypes/VectorDescriptorTypes";
 import { sendRangeErrorMessage } from "../VectorSpaceUtilities";
-import { SupportedVectorSpace } from "./DefaultVectorSpaces";
+import type { SupportedVectorSpace } from "./DefaultVectorSpaces";
 
 
 /**
@@ -17,7 +17,7 @@ export class VectorSpaceIdentifierManager {
 
     private realSpaces: Map<number, RealVectorSpaceInterface<number>> = new Map();
     private complexSpaces: Map<number, ComplexVectorSpaceInterface<number>> = new Map();
-    private projectiveRealSpaces: Map<number, ProjectiveVectorSpaceInterface<number>> = new Map();
+    private projectiveRealSpaces: Map<number, ProjectiveRealVectorSpaceInterface<number>> = new Map();
     private projectiveComplexSpaces: Map<number, ProjectiveComplexVectorSpaceInterface<number>> = new Map();
 
     private constructor() {}
@@ -73,7 +73,7 @@ export class VectorSpaceIdentifierManager {
             case VectorSpaceType.COMPLEX:
                 this.registerComplexVectorSpace(vectorSpace);
                 return;
-            case VectorSpaceType.PROJECTIVE:
+            case VectorSpaceType.PROJECTIVEREAL:
                 this.registerProjectiveRealVectorSpace(vectorSpace);
                 return;
             case VectorSpaceType.PROJECTIVECOMPLEX:
@@ -105,7 +105,7 @@ export class VectorSpaceIdentifierManager {
         return false;
     }
 
-    registerProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveVectorSpaceInterface<D>): boolean {
+    registerProjectiveRealVectorSpace<D extends number>(projectiveVS: ProjectiveRealVectorSpaceInterface<D>): boolean {
         const vsIndex = this.getVectorSpaceIndex(projectiveVS);
         if ((vsIndex === undefined || !this.projectiveRealSpaces.has(vsIndex)) && this.nextIndex >= VSPACE_INDEX_INITIAL_VALUE) {
             this.projectiveRealSpaces.set(this.nextIndex, projectiveVS);
@@ -138,7 +138,7 @@ export class VectorSpaceIdentifierManager {
     /**
      * Get all default spaces (for debugging/testing)
      */
-    getAllVectorSpaces(): IdentifiableVectorSpace<Vector>[] {
+    getAllVectorSpaces(): IdentifiableVectorSpace<VectorDesc>[] {
         return [
             ...Array.from(this.realSpaces.values()),
             ...Array.from(this.complexSpaces.values()),
@@ -150,7 +150,7 @@ export class VectorSpaceIdentifierManager {
     /**
      * Check if a vector space is registered and managed by this singleton
      */
-    isARegisteredVectorSpace(space: IdentifiableVectorSpace<Vector>): boolean {
+    isARegisteredVectorSpace(space: IdentifiableVectorSpace<VectorDesc>): boolean {
         return (!space.isDefault) && this.getAllVectorSpaces().some(s => s.isSameSpace(space));
     }
 }

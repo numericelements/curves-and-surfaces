@@ -8,8 +8,8 @@ import { RealVectorSpace } from "../../../src/mathVector/RealVectorSpace";
 import { EM_VECTOR_SPACE_ALREADY_REGISTERED } from "../../../src/ErrorMessages/VectorSpaceResolvers";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../../src/namedConstants/ComplexVectorSpace";
 import { ComplexVectorSpace } from "../../../src/mathVector/ComplexVectorSpace";
-import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE } from "../../../src/namedConstants/ProjectiveVectorSpace";
-import { ProjectiveVectorSpace } from "../../../src/mathVector/ProjectiveVectorSpace";
+import { MAX_DIMENSION_PROJECTIVEREALVECTORSPACE, MIN_DIMENSION_PROJECTIVEREALVECTORSPACE } from "../../../src/namedConstants/ProjectiveRealVectorSpace";
+import { ProjectiveRealVectorSpace } from "../../../src/mathVector/ProjectiveRealVectorSpace";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../../src/namedConstants/ProjectiveComplexVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../../../src/mathVector/ProjectiveComplexVectorSpace";
 import { EM_INVALID_VECTOR_SPACE_TYPE } from "../../../src/ErrorMessages/DefaultSpaceResolvers";
@@ -59,22 +59,22 @@ describe('Resolving and checking vector space registration for user-defined vect
         }
     });
 
-    it(`can resolve a projective real vector space of dimensions ranging from ${MIN_DIMENSION_PROJECTIVEVECTORSPACE} to ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
-        const mockVectorSpaces: Array <ProjectiveVectorSpace> = [];
-        for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
+    it(`can resolve a projective real vector space of dimensions ranging from ${MIN_DIMENSION_PROJECTIVEREALVECTORSPACE} to ${MAX_DIMENSION_PROJECTIVEREALVECTORSPACE}`, () => {
+        const mockVectorSpaces: Array <ProjectiveRealVectorSpace> = [];
+        for (let i = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEREALVECTORSPACE; i++) {
             const dim = i;
             mockVectorSpaces[i - 3] = {
                 dimension: () => dim,
-                spaceType: VectorSpaceType.PROJECTIVE,
+                spaceType: VectorSpaceType.PROJECTIVEREAL,
                 isDefault: false,
                 name: 'mockRealVectorSpace',
                 id: INITIAL_VECTOR_SPACE_ID
-            } as ProjectiveVectorSpace<typeof dim>;
+            } as ProjectiveRealVectorSpace<typeof dim>;
         }
-        for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
-            const projectiveVectorSpace = resolveVectorSpace(mockVectorSpaces[i - 3]);
+        for (let i = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEREALVECTORSPACE; i++) {
+            const projectiveRealVectorSpace = resolveVectorSpace(mockVectorSpaces[i - 3]);
             expect(mockVectorSpaces[i - 3].isDefault).to.eql(false);
-            expect(projectiveVectorSpace.includes(`${mockVectorSpaces[i - 3].spaceType}_${mockVectorSpaces[i - 3].dimension()}_` + VECTOR_SPACE)).to.eql(true);
+            expect(projectiveRealVectorSpace.includes(`${mockVectorSpaces[i - 3].spaceType}_${mockVectorSpaces[i - 3].dimension()}_` + VECTOR_SPACE)).to.eql(true);
         }
     });
 
@@ -122,9 +122,9 @@ describe('Resolving and checking vector space registration for user-defined vect
     });
 
     it(`cannot resolve a projective vector space if it is already registered`, () => {
-        for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
+        for (let i = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEREALVECTORSPACE; i++) {
             const dim = i;
-            const projectiveVS = new ProjectiveVectorSpace(dim);
+            const projectiveVS = new ProjectiveRealVectorSpace(dim);
             expect(projectiveVS.isDefault).to.eql(false);
             expect(projectiveVS.id).to.not.eql(INITIAL_VECTOR_SPACE_ID);
             expect(projectiveVS.dimension()).to.eql(dim);
@@ -186,9 +186,9 @@ describe('Resolving and checking vector space registration for user-defined vect
     });
 
     it(`can check whether a projective vector space is registered or not`, () => {
-        for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
+        for (let i = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEREALVECTORSPACE; i++) {
             const dim = i;
-            const projectiveVS = new ProjectiveVectorSpace(dim);
+            const projectiveVS = new ProjectiveRealVectorSpace(dim);
             expect(projectiveVS.isDefault).to.eql(false);
             expect(projectiveVS.id).to.not.eql(INITIAL_VECTOR_SPACE_ID);
             expect(projectiveVS.dimension()).to.eql(dim);
@@ -196,11 +196,11 @@ describe('Resolving and checking vector space registration for user-defined vect
             expect(isRegisteredVectorSpace(projectiveVS)).to.eql(true);
             const mockVectorSpace = {
                 dimension: () => dim,
-                spaceType: VectorSpaceType.PROJECTIVE,
+                spaceType: VectorSpaceType.PROJECTIVEREAL,
                 isDefault: false,
-                name: 'mockProjectiveVectorSpace',
+                name: 'mockProjectiveRealVectorSpace',
                 id: INITIAL_VECTOR_SPACE_ID
-            } as ProjectiveVectorSpace<typeof dim>;
+            } as ProjectiveRealVectorSpace<typeof dim>;
             expect(isRegisteredVectorSpace(mockVectorSpace)).to.eql(false);
         }
     });
@@ -225,7 +225,7 @@ describe('Resolving and checking vector space registration for user-defined vect
         }
     });
 
-    it(`cannot check if a vector space is registered or not if its vector space type property is not of type ${VectorSpaceType.REAL}, ${VectorSpaceType.COMPLEX}, ${VectorSpaceType.PROJECTIVE} or ${VectorSpaceType.PROJECTIVECOMPLEX}`, () => {
+    it(`cannot check if a vector space is registered or not if its vector space type property is not of type ${VectorSpaceType.REAL}, ${VectorSpaceType.COMPLEX}, ${VectorSpaceType.PROJECTIVEREAL} or ${VectorSpaceType.PROJECTIVECOMPLEX}`, () => {
         const dim = 2;
         const mockVectorSpaceReal = {
             dimension: () => dim,
@@ -251,7 +251,7 @@ describe('Resolving and checking vector space registration for user-defined vect
             isDefault: false,
             name: 'mockVectorSpace',
             id: INITIAL_VECTOR_SPACE_ID
-        } as ProjectiveVectorSpace<typeof dim>;
+        } as ProjectiveRealVectorSpace<typeof dim>;
         expect(() => isRegisteredVectorSpace(mockVectorSpaceProjective)).to.throw(EM_INVALID_VECTOR_SPACE_TYPE);
 
         const mockVectorSpaceProjectiveComplex = {
@@ -305,9 +305,9 @@ describe('Resolving and checking vector space registration for user-defined vect
     });
 
     it(`can check whether a projective vector space is registered or not`, () => {
-        for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
+        for (let i = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEREALVECTORSPACE; i++) {
             const dim = i;
-            const projectiveVS = new ProjectiveVectorSpace(dim);
+            const projectiveVS = new ProjectiveRealVectorSpace(dim);
             expect(projectiveVS.isDefault).to.eql(false);
             expect(projectiveVS.id).to.not.eql(INITIAL_VECTOR_SPACE_ID);
             expect(projectiveVS.dimension()).to.eql(dim);
@@ -315,11 +315,11 @@ describe('Resolving and checking vector space registration for user-defined vect
             expect(isRegisteredProjectiveRealVectorSpace(projectiveVS)).to.eql(true);
             const mockVectorSpace = {
                 dimension: () => dim,
-                spaceType: VectorSpaceType.PROJECTIVE,
+                spaceType: VectorSpaceType.PROJECTIVEREAL,
                 isDefault: false,
-                name: 'mockProjectiveVectorSpace',
+                name: 'mockProjectiveRealVectorSpace',
                 id: INITIAL_VECTOR_SPACE_ID
-            } as ProjectiveVectorSpace<typeof dim>;
+            } as ProjectiveRealVectorSpace<typeof dim>;
             expect(isRegisteredProjectiveRealVectorSpace(mockVectorSpace)).to.eql(false);
         }
     });

@@ -2,10 +2,10 @@ import { expect } from "chai";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_COMPLEXVECTORS_DIFFERENT_DIM, EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE, EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_IMAGINARYWEIGHT_NEGATIVE, EM_INPUT_ARRAY_INCONSISTENT_LENGTH, EM_REALWEIGHT_NEGATIVE, EM_TRANSFORMATION_NOT_AVAILABLE } from "../../src/ErrorMessages/ComplexVectorSpace";
-import { IComplex, ComplexVector1D, ComplexVector2D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ComplexDesc, ComplexVector2D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { createCommonComplexVectorSpaceTests } from "./ComplexVectorSpaceTestFactory";
 import { Weight } from "../../src/mathVector/Weight";
-import { NULL_WEIGHT_TOLERANCE } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { NULL_WEIGHT_TOLERANCE } from "../../src/namedConstants/ProjectiveRealVectorSpace";
 import { COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/VectorSpaceResolvers";
 import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME } from "../../src/namedConstants/DefaultVectorSpaces";
 import { DefaultVectorSpaces } from "../../src/mathVector/internal/DefaultVectorSpaces";
@@ -17,6 +17,7 @@ import { COMPLEXWEIGHT } from "../../src/namedConstants/WeightTypeTags";
 import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
+import { ComplexVector1D } from "../../src/mathVector/utilityTypes/VectorDescriptorTypes";
 
 describe('ComplexVectorSpace', () => {
 
@@ -273,14 +274,14 @@ describe('ComplexVectorSpace', () => {
         it(`cannot scale a ComplexVector of dimension outside the current Complex vector space ${MAX_DIMENSION_COMPLEXVECTORSPACE} when the scale factor is Complex`, () => {
             const complexVectorSpace = new ComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE);
             const vec1: ComplexVector1D = {type: COMPLEX, real: 0, imaginary: 2};
-            const scale: IComplex = {type: COMPLEX, real: 0, imaginary: 2};
+            const scale: ComplexDesc = {type: COMPLEX, real: 0, imaginary: 2};
             expect(() => complexVectorSpace.scaleDescriptor(scale, vec1 as unknown as ComplexVector2D)).to.throw(EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE)
         });
 
         it(`cannot scale a ComplexVector of dimension outside the current Complex vector space ${MIN_DIMENSION_COMPLEXVECTORSPACE} when the scale factor is Complex`, () => {
             const complexVectorSpace = new ComplexVectorSpace(MIN_DIMENSION_COMPLEXVECTORSPACE);
             const vec1: ComplexVector2D = {type: COMPLEXVECTOR2D, coordinates: [{type: COMPLEX, real: 0, imaginary: 2}, {type: COMPLEX, real: 1, imaginary: 0}]};
-            const scale: IComplex = {type: COMPLEX, real: 0, imaginary: 2};
+            const scale: ComplexDesc = {type: COMPLEX, real: 0, imaginary: 2};
             expect(() => complexVectorSpace.scaleDescriptor(scale, vec1 as unknown as ComplexVector1D)).to.throw(EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE)
         });
 

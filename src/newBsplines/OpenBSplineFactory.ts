@@ -1,5 +1,4 @@
-import { IVector } from "../mathVector/Vector";
-import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { ControlPolygon } from "./ControlPolygon";
 import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
@@ -30,25 +29,26 @@ import {
 import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC } from "./KnotSequenceAndUtilities/fromIncreasingToStrictlyIncreasingOpenKnotSequenceOC";
+import { VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 
-export function createOpenBSplineFromParams<IV extends IVector<any, Vector>>(
-    params: { type: typeof BSPL_CP_NO_KNOT; controlPoints: ControlPolygon<IV> }
-): OpenBSplineR1toRn<IV>;
+export function createOpenBSplineFromParams<V extends Vector<any, VectorDesc>>(
+    params: { type: typeof BSPL_CP_NO_KNOT; controlPoints: ControlPolygon<V> }
+): OpenBSplineR1toRn<V>;
 export function createOpenBSplineFromParams(
     params: OpenBSpline_type
-): OpenBSplineR1toRn<IVector<any, Vector>>;
-export function createOpenBSplineFromParams<IV extends IVector<any, Vector>>(
+): OpenBSplineR1toRn<Vector<any, VectorDesc>>;
+export function createOpenBSplineFromParams<V extends Vector<any, VectorDesc>>(
         params: OpenBSpline_type
-    ): OpenBSplineR1toRn<IV> {
+    ): OpenBSplineR1toRn<V> {
 
-    const controlPolygon: ControlPolygon<IV> = 
+    const controlPolygon: ControlPolygon<V> = 
         params.controlPoints instanceof ControlPolygon
-            ? params.controlPoints as ControlPolygon<IV>
+            ? params.controlPoints as ControlPolygon<V>
                 : normalizeDescriptorsToControlPolygon(
                     params.controlPoints instanceof ControlPolygonFromDescriptors
                         ? params.controlPoints
                         : new ControlPolygonFromDescriptors(params.controlPoints)
-                    ) as ControlPolygon<IV>;
+                    ) as ControlPolygon<V>;
 
     let knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve;
     let degree: number;
@@ -135,7 +135,7 @@ export function createOpenBSplineFromParams<IV extends IVector<any, Vector>>(
     const vectorSpace = first.vectorSpace.spaceType as VectorSpaceType;
     const spaceDimension = first.dimension;
 
-    return new OpenBSplineR1toRn<IV>(
+    return new OpenBSplineR1toRn<V>(
         controlPolygon,
         knotSequence,
         degree,

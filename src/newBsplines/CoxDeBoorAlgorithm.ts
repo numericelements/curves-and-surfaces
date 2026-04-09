@@ -1,5 +1,5 @@
-import { IVector } from "../mathVector/Vector";
-import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { ControlPolygon } from "./ControlPolygon";
 import { IncreasingOpenKnotSequenceOpenCurve } from "./IncreasingOpenKnotSequenceOpenCurve";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
@@ -9,9 +9,9 @@ import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasin
  * Pure algorithm implementation - no caching, no performance optimizations
  * Just the mathematical algorithm
  */
-export class CoxDeBoorAlgorithm<IV extends IVector<any, Vector>> {
+export class CoxDeBoorAlgorithm<V extends Vector<any, VectorDesc>> {
     constructor(
-        private controlPolygon: ControlPolygon<IV>,
+        private controlPolygon: ControlPolygon<V>,
         private knotSequence: IncreasingOpenKnotSequenceOpenCurve,
         private degree: number
     ) {}

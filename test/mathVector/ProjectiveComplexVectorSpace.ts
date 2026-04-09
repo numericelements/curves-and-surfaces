@@ -1,9 +1,9 @@
 import { expect } from "chai";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../src/namedConstants/ProjectiveComplexVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../../src/mathVector/ProjectiveComplexVectorSpace";
-import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveVectorSpace";
+import { NULL_WEIGHT_TOLERANCE, WeightManagement } from "../../src/namedConstants/ProjectiveRealVectorSpace";
 import { EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLPOS, EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS, EM_PROJECTIVECOMPLEXVECTOR_DIMENSION_OUT_RANGE, EM_PROJECTIVECOMPLEXVECTOR_WITH_NEGATIVE_WEIGHT, EM_PROJECTIVECOMPLEXVECTORSPACE_DIMENSION_OUT_RANGE, EM_REAL_IMAGINARY_WEIGHT_MANAGEMENT_DIFFER } from "../../src/ErrorMessages/ProjectiveComplexVectorSpace";
-import { IComplex, ProjectiveComplexVector1D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ComplexDesc, ProjectiveComplexVector1D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { Weight } from "../../src/mathVector/Weight";
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../../src/ErrorMessages/ComplexOperators";
 import { TOLERANCE_FLOAT } from "../namedConstants/GeneralPurpose";
@@ -21,7 +21,7 @@ import { Complex } from "../../src/mathVector/Complex";
 import { ComplexWeight } from "../../src/mathVector/ComplexWeight";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
 import { RealVectorSpace } from "../../src/mathVector/RealVectorSpace";
-import { ProjectiveVectorSpace } from "../../src/mathVector/ProjectiveVectorSpace";
+import { ProjectiveRealVectorSpace } from "../../src/mathVector/ProjectiveRealVectorSpace";
 
 describe('ProjectiveComplexVectorSpace', () => {
    
@@ -558,7 +558,7 @@ describe('ProjectiveComplexVectorSpace', () => {
         it(`can scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllStrictlyPositiveWeights}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(2), imaginary: new Weight(1.5)}]};
-            const scaleFactor: IComplex = {type: COMPLEX, real: 2, imaginary: 1};
+            const scaleFactor: ComplexDesc = {type: COMPLEX, real: 2, imaginary: 1};
             const res = projectiveVectorSpace.scaleDescriptor(scaleFactor, vec1);
             expect(res.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
@@ -572,7 +572,7 @@ describe('ProjectiveComplexVectorSpace', () => {
         it(`can scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllPositiveWeights}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(1.5, false), imaginary: new Weight(0, false)}]};
-            const scaleFactor: IComplex = {type: COMPLEX, real: 2, imaginary: 1};
+            const scaleFactor: ComplexDesc = {type: COMPLEX, real: 2, imaginary: 1};
             const res = projectiveVectorSpace.scaleDescriptor(scaleFactor, vec1);
             expect(res.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
@@ -586,7 +586,7 @@ describe('ProjectiveComplexVectorSpace', () => {
         it(`can scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllPositiveWeights} producing some null real weight`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(3)}]};
-            const scaleFactor: IComplex = {type: COMPLEX, real: 2, imaginary: 1};
+            const scaleFactor: ComplexDesc = {type: COMPLEX, real: 2, imaginary: 1};
             const res = projectiveVectorSpace.scaleDescriptor(scaleFactor, vec1);
             expect(res.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
@@ -600,14 +600,14 @@ describe('ProjectiveComplexVectorSpace', () => {
         it(`cannot scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllStrictlyPositiveWeights} producing some null imaginery weight when the scale factor is a null complex`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllStrictlyPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(1.5), imaginary: new Weight(3)}]};
-            const scaleFactor: IComplex = {type: COMPLEX, real: 0, imaginary: 0};
+            const scaleFactor: ComplexDesc = {type: COMPLEX, real: 0, imaginary: 0};
             expect(() => projectiveVectorSpace.scaleDescriptor(scaleFactor, vec1)).to.throw(EM_COMPLEXWEIGHT_MANAGEMENT_INCOMPATIBLE_ALLSTRICTPOS);
         });
 
         it(`can scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllPositiveWeights} producing some null weight based on ${NULL_WEIGHT_TOLERANCE}`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(1.5 + NULL_WEIGHT_TOLERANCE / 3), imaginary: new Weight(3)}]};
-            const scaleFactor: IComplex = {type: COMPLEX, real: 2, imaginary: 1};
+            const scaleFactor: ComplexDesc = {type: COMPLEX, real: 2, imaginary: 1};
             const res = projectiveVectorSpace.scaleDescriptor(scaleFactor, vec1);
             expect(res.type).to.eql(PROJECTIVECOMPLEXVECTOR1D);
             expect(res.coordinates[0].type).to.eql(COMPLEX);
@@ -622,14 +622,14 @@ describe('ProjectiveComplexVectorSpace', () => {
         it(`cannot scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllPositiveWeights} if the resulting weight is negative`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, WeightManagement.AllPositiveWeights);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(0, false), imaginary: new Weight(1.5, false)}]};
-            const scaleFactor: IComplex = {type: COMPLEX, real: 2, imaginary: 1};
+            const scaleFactor: ComplexDesc = {type: COMPLEX, real: 2, imaginary: 1};
             expect(() => projectiveVectorSpace.scaleDescriptor(scaleFactor, vec1)).to.throw(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
         });
 
         it(`cannot scale a ProjectiveComplexVector with a complex with weight management ${WeightManagement.AllStrictlyPositiveWeights} if the resulting weight is negative`, () => {
             const projectiveVectorSpace = new ProjectiveComplexVectorSpace(MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE);
             const vec1: ProjectiveComplexVector1D = {type: PROJECTIVECOMPLEXVECTOR1D, coordinates: [{type: COMPLEX, real: 1, imaginary: 2}, {type: COMPLEXWEIGHT, real: new Weight(0.5), imaginary: new Weight(1.5)}]};
-            const scaleFactor: IComplex = {type: COMPLEX, real: 2, imaginary: 1};
+            const scaleFactor: ComplexDesc = {type: COMPLEX, real: 2, imaginary: 1};
             expect(() => projectiveVectorSpace.scaleDescriptor(scaleFactor, vec1)).to.throw(EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL);
         });
 
@@ -778,7 +778,7 @@ describe('ProjectiveComplexVectorSpace', () => {
             const realVS = new RealVectorSpace(3);
             expect(projectiveComplexVectorSpace.isIsomorphicTo(realVS)).to.eql(false);
 
-            const projectiveVS1 = new ProjectiveVectorSpace(4);
+            const projectiveVS1 = new ProjectiveRealVectorSpace(4);
             expect(projectiveComplexVectorSpace.isIsomorphicTo(projectiveVS1)).to.eql(false);
         });
 

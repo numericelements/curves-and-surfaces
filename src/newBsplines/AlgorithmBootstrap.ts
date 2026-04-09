@@ -1,5 +1,5 @@
-import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, RealVector2D, RealVector3D, RealVector4D, Vector } from "../mathVector/VectorSpaceConstructorInterface";
-import { IVector } from "../mathVector/Vector";
+import { ComplexVectorDesc, ProjectiveComplexVectorDesc, ProjectiveRealVectorDesc, RealVectorDesc, VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { AlgorithmRegistry } from "./AlgorithmRegistry";
 import { ControlPolygon } from "./ControlPolygon";
@@ -18,26 +18,26 @@ import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasin
  */
 
 export function isRealControlPolygon(
-    controlPolygon: ControlPolygon<IVector<any, Vector>>
-): controlPolygon is ControlPolygon<IVector<any, RealVector>> {
+    controlPolygon: ControlPolygon<Vector<any, VectorDesc>>
+): controlPolygon is ControlPolygon<Vector<any, RealVectorDesc>> {
     return controlPolygon.vectorSpace.spaceType === VectorSpaceType.REAL;
 }
 
 export function isProjectiveControlPolygon(
-    controlPolygon: ControlPolygon<IVector<any, Vector>>
-): controlPolygon is ControlPolygon<IVector<any, ProjectiveVector>> {
-    return controlPolygon.vectorSpace.spaceType === VectorSpaceType.PROJECTIVE;
+    controlPolygon: ControlPolygon<Vector<any, VectorDesc>>
+): controlPolygon is ControlPolygon<Vector<any, ProjectiveRealVectorDesc>> {
+    return controlPolygon.vectorSpace.spaceType === VectorSpaceType.PROJECTIVEREAL;
 }
 
 export function isComplexControlPolygon(
-    controlPolygon: ControlPolygon<IVector<any, Vector>>
-): controlPolygon is ControlPolygon<IVector<any, ComplexVector>> {
+    controlPolygon: ControlPolygon<Vector<any, VectorDesc>>
+): controlPolygon is ControlPolygon<Vector<any, ComplexVectorDesc>> {
     return controlPolygon.vectorSpace.spaceType === VectorSpaceType.COMPLEX;
 }
 
 export function isProjectiveComplexControlPolygon(
-    controlPolygon: ControlPolygon<IVector<any, Vector>>
-): controlPolygon is ControlPolygon<IVector<any, ProjectiveComplexVector>> {
+    controlPolygon: ControlPolygon<Vector<any, VectorDesc>>
+): controlPolygon is ControlPolygon<Vector<any, ProjectiveComplexVectorDesc>> {
     return controlPolygon.vectorSpace.spaceType === VectorSpaceType.PROJECTIVECOMPLEX;
 }
 
@@ -85,7 +85,7 @@ export class AlgorithmBootstrap {
             vectorSpaceTypes: [
                 VectorSpaceType.REAL,
                 VectorSpaceType.COMPLEX,
-                VectorSpaceType.PROJECTIVE,
+                VectorSpaceType.PROJECTIVEREAL,
                 VectorSpaceType.PROJECTIVECOMPLEX
             ],
             description: 'Cox-de Boor algorithm - Standard B-spline evaluation',

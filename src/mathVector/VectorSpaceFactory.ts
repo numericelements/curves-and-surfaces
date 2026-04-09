@@ -1,10 +1,10 @@
 import { EM_REALVECTORSPACE_DIMENSION_OUT_RANGE } from "../ErrorMessages/RealVectorSpace";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../namedConstants/RealVectorSpace";
 import { ComplexVectorSpace } from "./ComplexVectorSpace";
-import { IdentifiableVectorSpace } from "./IVectorSpace";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
-import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { ProjectiveRealVectorSpace } from "./ProjectiveRealVectorSpace";
 import { RealVectorSpace } from "./RealVectorSpace";
+import type { IdentifiableVectorSpace } from "./interfaces/VectorSpaceInterfaces";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 
 
@@ -25,8 +25,8 @@ export function isRealVectorSpace <D extends number> (vectorSpace: IdentifiableV
     return vectorSpace instanceof RealVectorSpace && vectorSpace.dimension() === dimension;
 }
 
-export function isProjectiveVectorSpace <D extends number> (vectorSpace: IdentifiableVectorSpace<any> | undefined, dimension: D): vectorSpace is ProjectiveVectorSpace<D> {
-    return vectorSpace instanceof ProjectiveVectorSpace&& vectorSpace.dimension() === dimension;
+export function isProjectiveRealVectorSpace <D extends number> (vectorSpace: IdentifiableVectorSpace<any> | undefined, dimension: D): vectorSpace is ProjectiveRealVectorSpace<D> {
+    return vectorSpace instanceof ProjectiveRealVectorSpace&& vectorSpace.dimension() === dimension;
 }
 
 export function isComplexVectorSpace <D extends number> (vectorSpace: IdentifiableVectorSpace<any> | undefined, dimension: D): vectorSpace is ComplexVectorSpace<D> {

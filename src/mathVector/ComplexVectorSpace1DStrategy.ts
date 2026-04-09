@@ -1,35 +1,34 @@
 import { EM_COMPLEXVECTOR_DIMENSION_OUT_RANGE } from "../ErrorMessages/ComplexVectorSpace";
-import { PROJECTIVECOMPLEXVECTOR1D } from "../namedConstants/VectorTypeTags";
 import { DEFAULT_IMAGINARY_WEIGHT_VALUE, DEFAULT_WEIGHT_VALUE } from "../namedConstants/Weight";
-import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { addComplexUsingDescriptors, multiplyComplexUsingDescriptors, subtractComplexUsingDescriptors } from "./ComplexNumberFactory";
-import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
+import type { ComplexVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
 import { createComplexVector1DDescriptor, createComplexWeightDescriptor, createProjectiveComplexVector1DDescriptor, createRealVector2DDescriptor } from "./VectorDescriptorFactory";
-import type { IComplex, ComplexVector, ComplexVector1D, IComplexWeight, RealVector2D, ProjectiveComplexVector1D } from "./VectorSpaceConstructorInterface";
+import type { ComplexDesc, ComplexWeightDesc, RealVector2D, ProjectiveComplexVector1D } from "./VectorDescriptorConstructorInterface";
 import { isVector1D, sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
+import type { ComplexVector1D, ComplexVectorDesc } from "./utilityTypes/VectorDescriptorTypes";
 
-export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy<1, ComplexVector1D> {
+export class ComplexVectorSpace1DStrategy implements ComplexVectorSpaceStrategy<1, ComplexVector1D> {
 
     // Implementation for 1D vectors
 
-    areSameDimension(v1: ComplexVector, v2: ComplexVector): boolean {
+    areSameDimension(v1: ComplexVectorDesc, v2: ComplexVectorDesc): boolean {
         if(isVector1D(v1) && isVector1D(v2)) return true;
         return false;
     }
 
-    isInVectorSpace(v: ComplexVector): v is IComplex {
+    isInVectorSpace(v: ComplexVectorDesc): v is ComplexDesc {
         if(isVector1D(v)) return true;
         return false;
     }
 
     createVector(coordinates: readonly (readonly number[])[]): ComplexVector1D {
-        let vector: IComplex = createComplexVector1DDescriptor(coordinates[0][0], coordinates[0][1]);
+        let vector: ComplexDesc = createComplexVector1DDescriptor(coordinates[0][0], coordinates[0][1]);
         return vector;
     }
 
     defaultVect(): ComplexVector1D {
-        const nullComplex: IComplex = createComplexVector1DDescriptor();
+        const nullComplex: ComplexDesc = createComplexVector1DDescriptor();
         return nullComplex;
     }
 
@@ -58,9 +57,9 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
     }
 
     // Overloaded scale method
-    scaleDescriptor(scaleFactor: IComplex, vector: ComplexVector1D): ComplexVector1D;
+    scaleDescriptor(scaleFactor: ComplexDesc, vector: ComplexVector1D): ComplexVector1D;
     scaleDescriptor(scaleFactor: number, vector: ComplexVector1D): ComplexVector1D;
-    scaleDescriptor(scaleFactor: IComplex | number, vector: ComplexVector1D): ComplexVector1D {
+    scaleDescriptor(scaleFactor: ComplexDesc | number, vector: ComplexVector1D): ComplexVector1D {
         if (typeof scaleFactor === 'number') {
             if(isVector1D(vector)) {
                 return createComplexVector1DDescriptor(scaleFactor * vector.real, scaleFactor * vector.imaginary);
@@ -103,7 +102,7 @@ export class ComplexVectorSpace1DStrategy implements IComplexVectorSpaceStrategy
     }
 
     fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: ComplexVector1D,
-        weight: IComplexWeight = createComplexWeightDescriptor(new Weight(DEFAULT_WEIGHT_VALUE), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false))): ProjectiveComplexVector1D {
+        weight: ComplexWeightDesc = createComplexWeightDescriptor(new Weight(DEFAULT_WEIGHT_VALUE), new Weight(DEFAULT_IMAGINARY_WEIGHT_VALUE, false))): ProjectiveComplexVector1D {
         
             if(isVector1D(vector)) {
             return createProjectiveComplexVector1DDescriptor(vector, weight);

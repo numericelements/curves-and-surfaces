@@ -3,30 +3,31 @@ import { EM_WEIGHT_VALUE_STRICTLY_POSITIVE } from "../ErrorMessages/Weight";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../namedConstants/ComplexVectorSpace";
 import { DEFAULT_COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/DefaultVectorSpaces";
-import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
+import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveRealVectorSpace";
 import { INITIAL_VECTOR_SPACE_ID } from "../namedConstants/VectorSpaceIdentifierManager";
 import { COMPLEX_VECTOR_SPACE_NAME } from "../namedConstants/VectorSpaceResolvers";
-import { COMPLEXWEIGHT } from "../namedConstants/WeightTypeTags";
 import { ComplexVectorSpace1DStrategy } from "./ComplexVectorSpace1DStrategy";
 import { ComplexVectorSpace2DStrategy } from "./ComplexVectorSpace2DStrategy";
 import { resolveDefaultVectorSpace } from "./internal/DefaultSpaceResolvers";
 import { resolveVectorSpace } from "./internal/VectorSpaceResolvers";
-import type { ComplexVectorSpaceInterface, IdentifiableVectorSpace } from "./IVectorSpace";
-import type { IComplexVectorSpaceStrategy } from "./strategies/interfaces/IComplexVectorSpaceStrategy";
 import { createComplexWeightDescriptor } from "./VectorDescriptorFactory";
-import type { IComplex, ComplexVector, ComplexVectorOfDimension, IComplexWeight, ProjectiveComplexVector, RealVector, Vector } from "./VectorSpaceConstructorInterface";
+import type { ComplexDesc, ComplexWeightDesc } from "./VectorDescriptorConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
+import type { ComplexVectorSpaceStrategy } from "./interfaces/VectorSpaceStrategyInterfaces";
+import type { ComplexVectorSpaceInterface, IdentifiableVectorSpace } from "./interfaces/VectorSpaceInterfaces";
+import type { ComplexVectorOfDimension } from "./conditionalTypes/VectorDescriptorTypes";
+import type { ComplexVectorDesc, ProjectiveComplexVectorDesc, RealVectorDesc, VectorDesc } from "./utilityTypes/VectorDescriptorTypes";
 
 
-export class ComplexVectorSpace<D extends number = number, V extends ComplexVector = ComplexVectorOfDimension<D>> implements ComplexVectorSpaceInterface<D, V> {
+export class ComplexVectorSpace<D extends number = number, CVD extends ComplexVectorDesc = ComplexVectorOfDimension<D>> implements ComplexVectorSpaceInterface<D, CVD> {
 
     private static readonly _spaceType = VectorSpaceType.COMPLEX as const;
     private readonly _id: string;
     private readonly _name: string;
     private readonly _isDefault: boolean;
     protected readonly dim: D;
-    protected readonly strategy: IComplexVectorSpaceStrategy<D, V>;
+    protected readonly strategy: ComplexVectorSpaceStrategy<D, CVD>;
 
     constructor(dimension: D, isDefault: boolean = false, name?: string) {
         this.dim = dimension;
@@ -42,10 +43,10 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         this.strategy = this.createStrategy(dimension);
     }
 
-    private createStrategy(dimension: number): IComplexVectorSpaceStrategy<D, V> {
+    private createStrategy(dimension: number): ComplexVectorSpaceStrategy<D, CVD> {
         switch (dimension) {
-            case MIN_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace1DStrategy() as unknown as IComplexVectorSpaceStrategy<D, V>;
-            case MAX_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace2DStrategy() as unknown as IComplexVectorSpaceStrategy<D, V>;
+            case MIN_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace1DStrategy() as unknown as ComplexVectorSpaceStrategy<D, CVD>;
+            case MAX_DIMENSION_COMPLEXVECTORSPACE: return new ComplexVectorSpace2DStrategy() as unknown as ComplexVectorSpaceStrategy<D, CVD>;
             default:
         }
         const error = sendRangeErrorMessage(this.constructor.name, 'createStrategy', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
@@ -58,11 +59,11 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
     get spaceType(): VectorSpaceType.COMPLEX { return ComplexVectorSpace._spaceType; }
 
     // Identity methods
-    isSameSpace(other: IdentifiableVectorSpace<Vector>): boolean {
+    isSameSpace(other: IdentifiableVectorSpace<VectorDesc>): boolean {
         return this._id === other.id;
     }
 
-    isIsomorphicTo(other: IdentifiableVectorSpace<Vector>): boolean {
+    isIsomorphicTo(other: IdentifiableVectorSpace<VectorDesc>): boolean {
         if(other.spaceType === VectorSpaceType.REAL && other.dimension() === 2
             && this.dim === 1) return true;
         return this.spaceType === other.spaceType && 
@@ -73,15 +74,15 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         return this.dim;
     }
 
-    areSameDimension(a: ComplexVector, b: ComplexVector): boolean {
+    areSameDimension(a: ComplexVectorDesc, b: ComplexVectorDesc): boolean {
         return this.strategy.areSameDimension(a, b);
     }
 
-    isInVectorSpace(v: ComplexVector): v is ComplexVector {
+    isInVectorSpace(v: ComplexVectorDesc): v is ComplexVectorDesc {
         return this.strategy.isInVectorSpace(v);
     }
 
-    createVector(coordinates: readonly (readonly number[])[]): V {
+    createVector(coordinates: readonly (readonly number[])[]): CVD {
         if(coordinates.length !== this.dim) {
             const message = sendRangeErrorMessage(this.constructor.name, 'createVector', EM_COMPLEXVECTORSPACE_DIMENSION_OUT_RANGE);
             throw new RangeError(message.generateMessageString());
@@ -96,7 +97,7 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         return vect;
     }
 
-    createComplexWeight(a: number, b: number): IComplexWeight {
+    createComplexWeight(a: number, b: number): ComplexWeightDesc {
         try {
             const realWeight = this.createWeight(a);
             const imagWeight = this.createWeight(b);
@@ -125,11 +126,11 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         return weight;
     }
 
-    defaultVect(): V {
+    defaultVect(): CVD {
         return this.strategy.defaultVect();
     }
 
-    addDescriptors(a: V, b: V): V {
+    addDescriptors(a: CVD, b: CVD): CVD {
         try {
             return this.strategy.addDescriptors(a, b);
         } catch (error) {
@@ -142,7 +143,7 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         }
     }
 
-    normDescriptor(vector: V): number {
+    normDescriptor(vector: CVD): number {
         try {
             return this.strategy.normDescriptor(vector);
         } catch(error) {
@@ -151,9 +152,9 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         }
     }
 
-    scaleDescriptor(scalar: IComplex, vector: V): V;
-    scaleDescriptor(scalar: number, vector: V): V;
-    scaleDescriptor(scalar: IComplex | number, vector: V): V {
+    scaleDescriptor(scalar: ComplexDesc, vector: CVD): CVD;
+    scaleDescriptor(scalar: number, vector: CVD): CVD;
+    scaleDescriptor(scalar: ComplexDesc | number, vector: CVD): CVD {
         try {
             return this.strategy.scaleDescriptor(scalar, vector);
         } catch(error) {
@@ -162,7 +163,7 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         }
     }
 
-    dotDescriptors(a: V, b: V): number {
+    dotDescriptors(a: CVD, b: CVD): number {
         try {
             return this.strategy.dotDescriptors(a, b);
         } catch(error) {
@@ -175,7 +176,7 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         }
     }
 
-    subtractDescriptors(a: V, b: V): V {
+    subtractDescriptors(a: CVD, b: CVD): CVD {
         try {
             return this.strategy.subtractDescriptors(a, b);
         } catch (error) {
@@ -188,7 +189,7 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         }
     }
 
-    cloneVector(vector: V): V {
+    cloneVector(vector: CVD): CVD {
         try {
             return this.strategy.cloneVector(vector);
         } catch(error) {
@@ -201,11 +202,11 @@ export class ComplexVectorSpace<D extends number = number, V extends ComplexVect
         return `${this._name} [ID: ${this._id}]`;
     }
 
-    fromComplexVectorSpaceToRealVectorSpace(vector: V): RealVector {
+    fromComplexVectorSpaceToRealVectorSpace(vector: CVD): RealVectorDesc {
         return this.strategy.fromComplexVectorSpaceToRealVectorSpace(vector);
     }
 
-    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: V, weight?: IComplexWeight): ProjectiveComplexVector {
+    fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector: CVD, weight?: ComplexWeightDesc): ProjectiveComplexVectorDesc {
         return this.strategy.fromComplexVectorSpaceToProjectiveComplexVectorSpace(vector, weight!);
     }
 }

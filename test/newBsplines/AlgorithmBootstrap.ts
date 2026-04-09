@@ -5,7 +5,7 @@ import { OpenBSplineR1toRn } from '../../src/newBsplines/OpenBSplineR1toRn';
 import { VectorSpaceType } from '../../src/namedConstants/BSplineR1toRn';
 import { RealVectorSpace } from '../../src/mathVector/RealVectorSpace';
 import { isVector2D } from '../../src/mathVector/VectorSpaceUtilities';
-import { RealVector2D } from '../../src/mathVector/VectorSpaceConstructorInterface';
+import { RealVector2D } from '../../src/mathVector/VectorDescriptorConstructorInterface';
 import { AlgorithmRegistry } from '../../src/newBsplines/AlgorithmRegistry';
 
 describe('Algorithm Library', () => {

@@ -1,9 +1,9 @@
 import { ComplexVectorSpace } from "../mathVector/ComplexVectorSpace";
-import { ComplexVector } from "../mathVector/VectorSpaceConstructorInterface";
+import { ComplexVectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 import { ControlPolygonFromDescriptors, ControlPolygonStrategy } from "./ControlPolygonFromDescriptors";
 
 
-export class ControlPolygonComplexVectorStrategy implements ControlPolygonStrategy<ComplexVector> {
+export class ControlPolygonComplexVectorStrategy implements ControlPolygonStrategy<ComplexVectorDesc> {
 
     private vectorSpace: ComplexVectorSpace;
     private controlPolygon: ControlPolygonFromDescriptors;
@@ -14,9 +14,9 @@ export class ControlPolygonComplexVectorStrategy implements ControlPolygonStrate
     }
 
 
-    moveControlPoint(index: number, displacement: ComplexVector): ControlPolygonFromDescriptors<ComplexVector> {
-        const newVectors = [...this.controlPolygon.vectorCollection] as ComplexVector[];
-        newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index] as ComplexVector, displacement);
-        return new ControlPolygonFromDescriptors<ComplexVector>(newVectors);
+    moveControlPoint(index: number, displacement: ComplexVectorDesc): ControlPolygonFromDescriptors<ComplexVectorDesc> {
+        const newVectors = [...this.controlPolygon.vectorCollection] as ComplexVectorDesc[];
+        newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index] as ComplexVectorDesc, displacement);
+        return new ControlPolygonFromDescriptors<ComplexVectorDesc>(newVectors);
     }
 }

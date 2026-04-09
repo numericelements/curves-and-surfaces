@@ -1,9 +1,9 @@
 import { ProjectiveComplexVectorSpace } from "../mathVector/ProjectiveComplexVectorSpace";
-import { ProjectiveComplexVector } from "../mathVector/VectorSpaceConstructorInterface";
+import { ProjectiveComplexVectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 import { ControlPolygonFromDescriptors, ControlPolygonStrategy } from "./ControlPolygonFromDescriptors";
 
 
-export class ControlPolygonComplexProjectiveVectorStrategy implements ControlPolygonStrategy<ProjectiveComplexVector> {
+export class ControlPolygonComplexProjectiveVectorStrategy implements ControlPolygonStrategy<ProjectiveComplexVectorDesc> {
 
     private vectorSpace: ProjectiveComplexVectorSpace;
     private controlPolygon: ControlPolygonFromDescriptors;
@@ -14,9 +14,9 @@ export class ControlPolygonComplexProjectiveVectorStrategy implements ControlPol
     }
 
 
-    moveControlPoint(index: number, displacement: ProjectiveComplexVector): ControlPolygonFromDescriptors<ProjectiveComplexVector> {
-        const newVectors = [...this.controlPolygon.vectorCollection] as ProjectiveComplexVector[];
-        newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index] as ProjectiveComplexVector, displacement);
-        return new ControlPolygonFromDescriptors<ProjectiveComplexVector>(newVectors);
+    moveControlPoint(index: number, displacement: ProjectiveComplexVectorDesc): ControlPolygonFromDescriptors<ProjectiveComplexVectorDesc> {
+        const newVectors = [...this.controlPolygon.vectorCollection] as ProjectiveComplexVectorDesc[];
+        newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index] as ProjectiveComplexVectorDesc, displacement);
+        return new ControlPolygonFromDescriptors<ProjectiveComplexVectorDesc>(newVectors);
     }
 }

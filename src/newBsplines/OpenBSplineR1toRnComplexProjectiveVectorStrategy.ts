@@ -1,8 +1,7 @@
 import { ComplexVectorSpace } from "../mathVector/ComplexVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../mathVector/ProjectiveComplexVectorSpace";
-import { ProjectiveComplexVector, RealVector } from "../mathVector/VectorSpaceConstructorInterface";
 import { WeightManager } from "../mathVector/WeightManager";
-import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
+import { WeightManagement } from "../namedConstants/ProjectiveRealVectorSpace";
 // import { AbstractOPenBSplineR1toRnStrategy } from "./AbstractOPenBSplineR1toRnStrategy";
 import { BSpline_type } from "./BSplineR1toRnConstructorInterface";
 import { BSplineEvaluator } from "./OpenBSplineR1toRn";

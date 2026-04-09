@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { RealVectorSpace1DStrategy } from "../../src/mathVector/RealVectorSpace1DStrategy";
 import { createTestRealVector } from "./RealVectorSpaceTestFactory";
-import { RealVector2D, RealVector3D } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { RealVector2D, RealVector3D } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { isVector1D } from "../../src/mathVector/VectorSpaceUtilities";
 import { EM_CROSS_PRODUCT_NOT_APPLICABLE_DIM1, EM_REALVECTOR_DIMENSION_INCOMPATIBLE, EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE } from "../../src/ErrorMessages/RealVectorSpace";
 import { Weight } from "../../src/mathVector/Weight";
@@ -131,7 +131,7 @@ describe('RealVectorSpace1DStrategy', () => {
         it('cannot transform a RealVector1D into a ProjectiveRealVector', () => {
             const vec1 = createTestRealVector(vectorType, [1]);
             const weight = new Weight(2);
-            expect(() => vectorSpace.fromRealVectorSpaceToProjectiveVectorSpace(vec1, weight)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
+            expect(() => vectorSpace.fromRealVectorSpaceToProjectiveRealVectorSpace(vec1, weight)).to.throw(EM_REALVECTOR_DIMENSION_INCOMPATIBLE_PROJSPACE);
         });
 
         it('cannot transform a 1D RealVector into a ComplexVector in a ComplexVectorSpace', () => {

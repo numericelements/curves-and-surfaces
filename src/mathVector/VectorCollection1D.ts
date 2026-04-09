@@ -1,18 +1,18 @@
 import { EM_VECTOR_SPACE_DIMENSION_DIFFER, EM_VECTOR_SPACE_IDENTIFIER_DIFFER, EM_VECTOR_SPACE_TYPE_DIFFER } from "../ErrorMessages/VectorCollection1D";
-import { WeightManagement } from "../namedConstants/ProjectiveVectorSpace";
-import { IdentifiableVectorSpace } from "./IVectorSpace";
+import { WeightManagement } from "../namedConstants/ProjectiveRealVectorSpace";
 import { ProjectiveComplexVectorSpace } from "./ProjectiveComplexVectorSpace";
-import { ProjectiveVectorSpace } from "./ProjectiveVectorSpace";
+import { ProjectiveRealVectorSpace } from "./ProjectiveRealVectorSpace";
 import { isIterable } from "../core-utils/TypeChecking";
-import { IVector } from "./Vector";
-import { Vector } from "./VectorSpaceConstructorInterface";
+import type { Vector } from "./interfaces/VectorInterfaces";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
+import type { IdentifiableVectorSpace } from "./interfaces/VectorSpaceInterfaces";
+import type { VectorDesc } from "./utilityTypes/VectorDescriptorTypes";
 
-export class VectorCollection1D< V extends IVector<any, Vector> = IVector<any, Vector> > 
+export class VectorCollection1D< V extends Vector<any, VectorDesc> = Vector<any, VectorDesc> > 
     implements Iterable<V>
 {
     protected readonly _vectors: ReadonlyArray<V>;
-    private readonly _vectorSpace: IdentifiableVectorSpace<Vector>;
+    private readonly _vectorSpace: IdentifiableVectorSpace<VectorDesc>;
     private readonly _weightManagement?: WeightManagement;
     private readonly _spaceDimension: number;
 
@@ -35,7 +35,7 @@ export class VectorCollection1D< V extends IVector<any, Vector> = IVector<any, V
         this._vectors = tmp;
         this._vectorSpace = this._vectors[0].vectorSpace;
         this._spaceDimension = this._vectorSpace.dimension();
-        if (this._vectorSpace instanceof ProjectiveVectorSpace || this._vectorSpace instanceof ProjectiveComplexVectorSpace) {
+        if (this._vectorSpace instanceof ProjectiveRealVectorSpace || this._vectorSpace instanceof ProjectiveComplexVectorSpace) {
             this._weightManagement = this._vectorSpace.weightManagement;
         }
         this.checkConsistency();
@@ -79,7 +79,7 @@ export class VectorCollection1D< V extends IVector<any, Vector> = IVector<any, V
 
     get length(): number { return this._vectors.length; }
 
-    get vectorSpace(): IdentifiableVectorSpace<Vector> {
+    get vectorSpace(): IdentifiableVectorSpace<VectorDesc> {
         return this._vectorSpace;
     }
 

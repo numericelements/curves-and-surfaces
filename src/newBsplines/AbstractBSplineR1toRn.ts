@@ -1,24 +1,24 @@
-import { IVector } from "../mathVector/Vector";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { createVector } from "../mathVector/VectorFactory";
-import { createComplexVector1DFromDescriptor, createComplexVector2DFromDescriptor, createProjectiveComplexVector1DFromDescriptor, createProjectiveVector2DFromDescriptor, createProjectiveVector3DFromDescriptor, createRealVector1DFromDescriptor, createRealVector2DFromDescriptor, createRealVector3DFromDescriptor, createRealVector4DFromDescriptor, createRealVectorFromDescriptor } from "../mathVector/VectorFromDescriptorFactory";
-import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
-import { getVectorTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
+import { createVector1DComlplexFromDescriptor, createVector2DComplexFromDescriptor, createProjectiveComplexVector1DFromDescriptor, createProjectiveRealVector2DFromDescriptor, createProjectiveRealVector3DFromDescriptor, createVector1DRealFromDescriptor, createVector2DRealFromDescriptor, createVector3DRealFromDescriptor, createVector4DRealFromDescriptor, createRealVectorFromDescriptor } from "../mathVector/VectorFromDescriptorFactory";
+import { getVectorSpaceTypeAndDimension } from "../mathVector/VectorSpaceUtilities";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
-import { COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
+import { COMPLEXVECTOR1D, COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEREALVECTOR2D, PROJECTIVEREALVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type, BSplineR1toR1_type, BSPLR1TOR1_CP_OPENKNOTSEQ_ALLKNOTS_C0DISCONTINUITY, ControlPoints } from "./BSplineR1toRnConstructorInterface";
 import { ControlPolygon } from "./ControlPolygon";
 import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyIncreasingPeriodicKnotSequenceClosedCurve";
+import { VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 
-type WrappedDescriptor = { vector: Vector };
+type WrappedDescriptor = { vector: VectorDesc };
 
-function unwrapDescriptor(d: unknown): number | Vector {
+function unwrapDescriptor(d: unknown): number | VectorDesc {
     if (typeof d === "object" && d !== null && "vector" in d) {
         return (d as WrappedDescriptor).vector;
     }
-    return d as number | Vector;
+    return d as number | VectorDesc;
 }
 
 function hasCoordinates(d: unknown): d is { coordinates: readonly number[] } {
@@ -32,31 +32,31 @@ export function hasType<T extends string>(d: unknown, t: T): d is { type: T } {
 // Normalize a ControlPolygonFromDescriptors into a canonical ControlPolygon<IVector<any, Vector>>
 export function normalizeDescriptorsToControlPolygon(
     descriptors: ControlPolygonFromDescriptors
-): ControlPolygon<IVector<any, Vector>> {
-    const vectors: IVector<any, Vector>[] = [];
+): ControlPolygon<Vector<any, VectorDesc>> {
+    const vectors: Vector<any, VectorDesc>[] = [];
 
     for (const item of descriptors) {
         const descriptor = unwrapDescriptor(item);
 
         if (typeof descriptor === "number") {
-            vectors.push(createRealVector1DFromDescriptor(descriptor));
+            vectors.push(createVector1DRealFromDescriptor(descriptor));
             continue;
         }
 
         if (hasType(descriptor, REALVECTOR2D) && hasCoordinates(descriptor)) {
-            vectors.push(createRealVector2DFromDescriptor(descriptor));
+            vectors.push(createVector2DRealFromDescriptor(descriptor));
         } else if (hasType(descriptor, REALVECTOR3D) && hasCoordinates(descriptor)) {
-            vectors.push(createRealVector3DFromDescriptor(descriptor));
+            vectors.push(createVector3DRealFromDescriptor(descriptor));
         } else if (hasType(descriptor, REALVECTOR4D) && hasCoordinates(descriptor)) {
-            vectors.push(createRealVector4DFromDescriptor(descriptor));
+            vectors.push(createVector4DRealFromDescriptor(descriptor));
         } else if (hasType(descriptor, COMPLEX) && hasCoordinates(descriptor)) {
-            vectors.push(createComplexVector1DFromDescriptor(descriptor));
+            vectors.push(createVector1DComlplexFromDescriptor(descriptor));
         } else if (hasType(descriptor, COMPLEXVECTOR2D) && hasCoordinates(descriptor)) {
-            vectors.push(createComplexVector2DFromDescriptor(descriptor));
-        } else if (hasType(descriptor, PROJECTIVEVECTOR2D) && hasCoordinates(descriptor)) {
-            vectors.push(createProjectiveVector2DFromDescriptor(descriptor));
-        } else if (hasType(descriptor, PROJECTIVEVECTOR3D) && hasCoordinates(descriptor)) {
-            vectors.push(createProjectiveVector3DFromDescriptor(descriptor));
+            vectors.push(createVector2DComplexFromDescriptor(descriptor));
+        } else if (hasType(descriptor, PROJECTIVEREALVECTOR2D) && hasCoordinates(descriptor)) {
+            vectors.push(createProjectiveRealVector2DFromDescriptor(descriptor));
+        } else if (hasType(descriptor, PROJECTIVEREALVECTOR3D) && hasCoordinates(descriptor)) {
+            vectors.push(createProjectiveRealVector3DFromDescriptor(descriptor));
         } else if (hasType(descriptor, PROJECTIVECOMPLEXVECTOR1D) && hasCoordinates(descriptor)) {
             vectors.push(createProjectiveComplexVector1DFromDescriptor(descriptor));
         } else {
@@ -65,7 +65,7 @@ export function normalizeDescriptorsToControlPolygon(
     }
 
     if (vectors.length === 0) throw new Error("Control polygon must contain at least one vector");
-    return new ControlPolygon<IVector<any, Vector>>(vectors);
+    return new ControlPolygon<Vector<any, VectorDesc>>(vectors);
 }
 
 // Derive degree from knot sequence length and control point count
@@ -90,7 +90,7 @@ function isValidVectorSpaceType(value: VectorSpaceType): boolean {
     switch (value) {
         case VectorSpaceType.REAL:
         case VectorSpaceType.COMPLEX:
-        case VectorSpaceType.PROJECTIVE:
+        case VectorSpaceType.PROJECTIVEREAL:
         case VectorSpaceType.PROJECTIVECOMPLEX:
             return true;
         default:
@@ -119,12 +119,12 @@ export function checkConsistency(
 }
 
 
-export abstract class AbstractBSplineR1toRn<IV extends IVector<any, Vector> = IVector<any, Vector>> {
+export abstract class AbstractBSplineR1toRn<V extends Vector<any, VectorDesc> = Vector<any, VectorDesc>> {
 
     protected readonly abstract _curveOrigin: number;
 
     // canonical internal model: always IVector-based
-    protected readonly _controlPolygon: ControlPolygon<IV>;
+    protected readonly _controlPolygon: ControlPolygon<V>;
     protected readonly _degree: number;
     protected readonly _vectorSpace: VectorSpaceType;
     protected readonly _spaceDimension: number;
@@ -133,7 +133,7 @@ export abstract class AbstractBSplineR1toRn<IV extends IVector<any, Vector> = IV
     protected _isDirty: boolean; // reserved for cache invalidation
 
     constructor(
-        controlPolygon: ControlPolygon<IV>,
+        controlPolygon: ControlPolygon<V>,
         knotSequence: StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve,
         degree: number,
         vectorSpace: VectorSpaceType,
@@ -153,11 +153,11 @@ export abstract class AbstractBSplineR1toRn<IV extends IVector<any, Vector> = IV
     get spaceDimension(): number { return this._spaceDimension; }
     abstract get knotSequence(): StrictlyIncreasingOpenKnotSequenceOpenCurve | StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
     get curveOrigin(): number { return this._curveOrigin; }
-    get controlPoints(): ReadonlyArray<IV> { return this._controlPolygon.controlPoints; }
+    get controlPoints(): ReadonlyArray<V> { return this._controlPolygon.controlPoints; }
 
     // immutable "update" operations
-    abstract withControlPolygon(controlPolygon: ControlPolygon<IV>): AbstractBSplineR1toRn<IV>;
-    abstract withKnots(knots: readonly number[]): AbstractBSplineR1toRn<IV>;
+    abstract withControlPolygon(controlPolygon: ControlPolygon<V>): AbstractBSplineR1toRn<V>;
+    abstract withKnots(knots: readonly number[]): AbstractBSplineR1toRn<V>;
 
     protected invalidate(): void { this._isDirty = true; }
 }

@@ -1,4 +1,3 @@
-import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { BSplineFromVectorParams } from "./BSplineR1toRnConstructorInterface";
 import { ControlPolygon } from "./ControlPolygon";

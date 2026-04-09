@@ -1,5 +1,5 @@
-import { IVector } from "../mathVector/Vector";
-import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { KNOT_SEQUENCE_ORIGIN } from "../namedConstants/KnotSequences";
 import { normalizeDescriptorsToControlPolygon } from "./AbstractBSplineR1toRn";
@@ -11,18 +11,18 @@ import { NO_KNOT_CLOSED_CURVE, NO_KNOT_PERIODIC_CURVE, UNIFORM_PERIODICKNOTSEQUE
 import { StrictlyIncreasingOpenKnotSequenceClosedCurve } from "./StrictlyIncreasingOpenKnotSequenceClosedCurve";
 import { StrictlyIncreasingPeriodicKnotSequenceClosedCurve } from "./StrictlyIncreasingPeriodicKnotSequenceClosedCurve";
 
-export function createClosedBSplineFromParams<IV extends IVector<any, Vector>>(
+export function createClosedBSplineFromParams<V extends Vector<any, VectorDesc>>(
         params: ClosedBSpline_type
-    ): ClosedBSplineR1toRn<IV> {
+    ): ClosedBSplineR1toRn<V> {
     if("controlPoints" in params) {
-        const controlPolygon: ControlPolygon<IV> = 
+        const controlPolygon: ControlPolygon<V> = 
             params.controlPoints instanceof ControlPolygon
-                ? params.controlPoints as ControlPolygon<IV>
+                ? params.controlPoints as ControlPolygon<V>
                     : normalizeDescriptorsToControlPolygon(
                         params.controlPoints instanceof ControlPolygonFromDescriptors
                             ? params.controlPoints
                             : new ControlPolygonFromDescriptors(params.controlPoints)
-                        ) as ControlPolygon<IV>;
+                        ) as ControlPolygon<V>;
 
         let knotSequence: StrictlyIncreasingPeriodicKnotSequenceClosedCurve;
         let degree: number;
@@ -119,7 +119,7 @@ export function createClosedBSplineFromParams<IV extends IVector<any, Vector>>(
         knotSequence = new StrictlyIncreasingPeriodicKnotSequenceClosedCurve(
             degree + 1, { type: NO_KNOT_PERIODIC_CURVE });
 
-        return new ClosedBSplineR1toRn<IV>(
+        return new ClosedBSplineR1toRn<V>(
             controlPolygon,
             knotSequence,
             degree,

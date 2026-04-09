@@ -1,5 +1,5 @@
-import { IVector } from "../mathVector/Vector";
-import { Vector } from "../mathVector/VectorSpaceConstructorInterface";
+import { VectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
+import { Vector } from "../mathVector/interfaces/VectorInterfaces";
 import { AbstractBSplineR1toRn } from "./AbstractBSplineR1toRn";
 import { BSPL_CP_DEG_NONUNIFORM, BSPL_CP_DEG_UNIFORM, BSPL_CP_DEG_UNIFORM_EUCLIDEAN, BSPL_CP_NO_KNOT, BSpline_type } from "./BSplineR1toRnConstructorInterface";
 import { ControlPolygonFromDescriptors } from "./ControlPolygonFromDescriptors";
@@ -7,14 +7,14 @@ import { NO_KNOT_OPEN_CURVE, UNIFORM_OPENKNOTSEQUENCE, UNIFORMLYSPREADINTERKNOTS
 import { BSplineEvaluator, OpenBSplineR1toRn } from "./OpenBSplineR1toRn";
 import { StrictlyIncreasingOpenKnotSequenceOpenCurve } from "./StrictlyIncreasingOpenKnotSequenceOpenCurve";
 
-export abstract class AbstractOPenBSplineR1toRnStrategy<IV extends IVector<any, Vector>> {
+export abstract class AbstractOPenBSplineR1toRnStrategy<V extends Vector<any, VectorDesc>> {
 
     protected _isDirty: boolean = true;
-    private _evaluatorCache: Map<string, BSplineEvaluator<IV>> = new Map();
+    private _evaluatorCache: Map<string, BSplineEvaluator<V>> = new Map();
     // protected openBSplineR1toRn: OpenBSplineR1toRn<IV>;
     protected _defaultAlgorithm: string = 'coxdeboor';
     // strategy owns its own working copy: mutable, derived from the immutable curve
-    protected readonly _controlPoints: ReadonlyArray<IV>;
+    protected readonly _controlPoints: ReadonlyArray<V>;
     // protected readonly _knots: readonly number[];
     protected readonly _degree: number;
 
@@ -22,7 +22,7 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<IV extends IVector<any, 
     //     this.openBSplineR1toRn = openBSplineR1toRn;
     //     this.initializeControlPolygonAndKnots(curveParameters);
     // }
-    constructor(protected readonly curve: AbstractBSplineR1toRn<IV>) {
+    constructor(protected readonly curve: AbstractBSplineR1toRn<V>) {
         // initialize from immutable curve getters (read only, no write)
         // this.initializeControlPolygonAndKnots();
         this._controlPoints = curve.controlPoints;
@@ -37,9 +37,9 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<IV extends IVector<any, 
     //     this._degree = this.curve.degree;
     // }
 
-    withCurve(curve: AbstractBSplineR1toRn<IV>): this {
+    withCurve(curve: AbstractBSplineR1toRn<V>): this {
         // return new strategy instance bound to new curve
-        return new (this.constructor as new (curve: AbstractBSplineR1toRn<IV>) => this)(curve);
+        return new (this.constructor as new (curve: AbstractBSplineR1toRn<V>) => this)(curve);
     }
 
     // private initializeControlPolygonAndKnots(curveParameters: BSpline_type): void {
@@ -68,7 +68,7 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<IV extends IVector<any, 
     //     }
     // }
 
-    evaluateWithAlgorithm(u: number, algorithmName: string): IV {
+    evaluateWithAlgorithm(u: number, algorithmName: string): V {
         const evaluator = this.getEvaluatorView(algorithmName);
         return evaluator.evaluate(u);
     }
@@ -79,15 +79,15 @@ export abstract class AbstractOPenBSplineR1toRnStrategy<IV extends IVector<any, 
         this.invalidate();
     }
 
-    abstract evaluate(u: number): IV;
+    abstract evaluate(u: number): V;
 
     // evaluate(u: number): RealVector {
     //     return this.evaluateWithAlgorithm(u, this._defaultAlgorithm);
     // }
 
-    protected abstract createEvaluator(algorithmName: string): BSplineEvaluator<IV>;
+    protected abstract createEvaluator(algorithmName: string): BSplineEvaluator<V>;
 
-    getEvaluatorView<T extends BSplineEvaluator<IV>>(algorithmName: string): T {
+    getEvaluatorView<T extends BSplineEvaluator<V>>(algorithmName: string): T {
         if (this._isDirty || !this._evaluatorCache.has(algorithmName)) {
             const evaluator = this.createEvaluator(algorithmName);
             this._evaluatorCache.set(algorithmName, evaluator);

@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { DefaultVectorSpaces } from "../../../src/mathVector/internal/DefaultVectorSpaces";
 import { RealVectorSpace } from "../../../src/mathVector/RealVectorSpace";
 import { ComplexVectorSpace } from "../../../src/mathVector/ComplexVectorSpace";
-import { ProjectiveVectorSpace } from "../../../src/mathVector/ProjectiveVectorSpace";
+import { ProjectiveRealVectorSpace } from "../../../src/mathVector/ProjectiveRealVectorSpace";
 import { ProjectiveComplexVectorSpace } from "../../../src/mathVector/ProjectiveComplexVectorSpace";
 import { DEFAULT, INITIAL_VECTOR_SPACE_ID, VECTOR_SPACE } from "../../../src/namedConstants/VectorSpaceIdentifierManager";
 import { VectorSpaceType } from "../../../src/namedConstants/BSplineR1toRn";
@@ -10,11 +10,11 @@ import { EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE, EM_INVALID_DEFAULT_VECTOR_
 import { DEFAULT_VSPACE_INDEX_INITIAL_VALUE } from "../../../src/namedConstants/DefaultVectorSpaces";
 import { MAX_DIMENSION_REALVECTORSPACE, MIN_DIMENSION_REALVECTORSPACE } from "../../../src/namedConstants/RealVectorSpace";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE, MIN_DIMENSION_COMPLEXVECTORSPACE } from "../../../src/namedConstants/ComplexVectorSpace";
-import { MAX_DIMENSION_PROJECTIVEVECTORSPACE, MIN_DIMENSION_PROJECTIVEVECTORSPACE } from "../../../src/namedConstants/ProjectiveVectorSpace";
+import { MAX_DIMENSION_PROJECTIVEREALVECTORSPACE, MIN_DIMENSION_PROJECTIVEREALVECTORSPACE } from "../../../src/namedConstants/ProjectiveRealVectorSpace";
 import { MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE, MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE } from "../../../src/namedConstants/ProjectiveComplexVectorSpace";
 import { EM_NO_DEFAULT_REALVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/RealVectorSpace";
 import { EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ComplexVectorSpace";
-import { EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ProjectiveVectorSpace";
+import { EM_NO_DEFAULT_PROJECTIVEREALVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ProjectiveRealVectorSpace";
 import { EM_NO_DEFAULT_PROJECTIVECOMPLEXVECTORSPACE_FOR_DIMENSION } from "../../../src/ErrorMessages/ProjectiveComplexVectorSpace";
 
 describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring their uniqueness and distinguishing default vector spaces from others', () => {
@@ -79,7 +79,7 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
 
     it(`cannot register an instance of a default projective real vector space that is already registered`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
-        const projectiveVS = new ProjectiveVectorSpace(3, true);
+        const projectiveVS = new ProjectiveRealVectorSpace(3, true);
         expect(vectorSpace.isDefaultSpace(projectiveVS)).to.eql(true);
         const hasbeenRegistered = vectorSpace.registerProjectiveRealVectorSpace(projectiveVS);
         expect(hasbeenRegistered).to.eql(false);
@@ -113,7 +113,7 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
 
     it(`can get the index of a projective real vector space if the index is not undefined`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
-        const projectiveVS = new ProjectiveVectorSpace(3, true);
+        const projectiveVS = new ProjectiveRealVectorSpace(3, true);
         const vsIndex = vectorSpace.getVectorSpaceIndex(projectiveVS);
         expect(vsIndex).to.eql(1); // The first registered vector space should have index 1
     });
@@ -121,7 +121,7 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
     it(`cannot get the index of a vector space if the index has the initial value ${INITIAL_VECTOR_SPACE_ID}`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
         const dimension = 3;
-        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, INITIAL_VECTOR_SPACE_ID) as ProjectiveVectorSpace<typeof dimension>;
+        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, INITIAL_VECTOR_SPACE_ID) as ProjectiveRealVectorSpace<typeof dimension>;
         const vsIndex = vectorSpace.getVectorSpaceIndex(projectiveVS);
         expect(vsIndex).to.eql(undefined); // The first registered vector space should have index 1
     });
@@ -129,23 +129,23 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
     it(`cannot get the index of a vector space if the index is not the fourth sub-string in the string forming the index`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
         const dimension = 3;
-        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, 'subString1_subString2_subString3') as ProjectiveVectorSpace<typeof dimension>;
+        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, 'subString1_subString2_subString3') as ProjectiveRealVectorSpace<typeof dimension>;
         expect(() => vectorSpace.getVectorSpaceIndex(projectiveVS)).to.throw(EM_INVALID_DEFAULT_VECTOR_SPACE_ID_STRUCTURE);
     });
 
     it(`cannot get the index of a vector space if the string index cannot be converted into a number`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
         const dimension = 3;
-        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, 'subString1_subString2_subString3_notANumber') as ProjectiveVectorSpace<typeof dimension>;
+        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, 'subString1_subString2_subString3_notANumber') as ProjectiveRealVectorSpace<typeof dimension>;
         expect(() => vectorSpace.getVectorSpaceIndex(projectiveVS)).to.throw(EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
     });
 
     it(`cannot get the index of a vector space if the index is smaller than ${DEFAULT_VSPACE_INDEX_INITIAL_VALUE}`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
         const dimension = 3;
-        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, 'subString1_subString2_subString3_0') as ProjectiveVectorSpace<typeof dimension>;
+        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, 'subString1_subString2_subString3_0') as ProjectiveRealVectorSpace<typeof dimension>;
         expect(() => vectorSpace.getVectorSpaceIndex(projectiveVS)).to.throw(EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
-        const projectiveVS1 = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, 'subString1_subString2_subString3_2') as ProjectiveVectorSpace<typeof dimension>;
+        const projectiveVS1 = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, 'subString1_subString2_subString3_2') as ProjectiveRealVectorSpace<typeof dimension>;
         expect(() => vectorSpace.getVectorSpaceIndex(projectiveVS1)).to.throw(EM_INVALID_DEFAULT_VECTOR_SPACE_INDEX_VALUE);
     });
 
@@ -153,7 +153,7 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
         const vectorSpace = DefaultVectorSpaces.getInstance();
         const dimension = 2;
         const incorrectVSType = "IncorrectType" as VectorSpaceType;
-        const realVS = createMockVectorSpace(dimension, incorrectVSType, 'subString1_subString2_subString3_0') as ProjectiveVectorSpace<typeof dimension>;
+        const realVS = createMockVectorSpace(dimension, incorrectVSType, 'subString1_subString2_subString3_0') as ProjectiveRealVectorSpace<typeof dimension>;
         expect(() => vectorSpace.registerVectorSpace(realVS)).to.throw(EM_INVALID_VECTOR_SPACE_TYPE);
     });
 
@@ -224,33 +224,33 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
     });
 
     it(`cannot register a projective real vector space if the vector space dimension value has already been used`, () => {
-        const dimension = MIN_DIMENSION_PROJECTIVEVECTORSPACE;
-        let projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, INITIAL_VECTOR_SPACE_ID) as ProjectiveVectorSpace<typeof dimension>;
+        const dimension = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE;
+        let projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, INITIAL_VECTOR_SPACE_ID) as ProjectiveRealVectorSpace<typeof dimension>;
         const vectorSpace = DefaultVectorSpaces.getInstance();
         expect(vectorSpace.registerProjectiveRealVectorSpace(projectiveVS)).to.eql(true);
         expect(vectorSpace.getVectorSpaceIndex(projectiveVS)).to.be.eql(undefined);
-        const projectiveVS2 = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, DEFAULT + `${VectorSpaceType.PROJECTIVE}_${dimension}_` + VECTOR_SPACE + DEFAULT_VSPACE_INDEX_INITIAL_VALUE.toString()) as ProjectiveVectorSpace<typeof dimension>;
+        const projectiveVS2 = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, DEFAULT + `${VectorSpaceType.PROJECTIVEREAL}_${dimension}_` + VECTOR_SPACE + DEFAULT_VSPACE_INDEX_INITIAL_VALUE.toString()) as ProjectiveRealVectorSpace<typeof dimension>;
         expect(vectorSpace.registerProjectiveRealVectorSpace(projectiveVS2)).to.eql(false);
     });
 
-    it(`cannot register a projective real vector space if the vector space dimension is greater than the max dimension ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
-        const dimension = MAX_DIMENSION_PROJECTIVEVECTORSPACE + 1;
-        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, INITIAL_VECTOR_SPACE_ID) as ProjectiveVectorSpace<typeof dimension>;
+    it(`cannot register a projective real vector space if the vector space dimension is greater than the max dimension ${MAX_DIMENSION_PROJECTIVEREALVECTORSPACE}`, () => {
+        const dimension = MAX_DIMENSION_PROJECTIVEREALVECTORSPACE + 1;
+        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, INITIAL_VECTOR_SPACE_ID) as ProjectiveRealVectorSpace<typeof dimension>;
         const vectorSpace = DefaultVectorSpaces.getInstance();
         expect(vectorSpace.registerProjectiveRealVectorSpace(projectiveVS)).to.eql(false);
     });
 
-    it(`cannot register a projective real vector space if the vector space dimension is smaller than the minimal dimension ${MIN_DIMENSION_PROJECTIVEVECTORSPACE}`, () => {
-        const dimension = MIN_DIMENSION_PROJECTIVEVECTORSPACE - 1;
-        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, INITIAL_VECTOR_SPACE_ID) as ProjectiveVectorSpace<typeof dimension>;
+    it(`cannot register a projective real vector space if the vector space dimension is smaller than the minimal dimension ${MIN_DIMENSION_PROJECTIVEREALVECTORSPACE}`, () => {
+        const dimension = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE - 1;
+        const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, INITIAL_VECTOR_SPACE_ID) as ProjectiveRealVectorSpace<typeof dimension>;
         const vectorSpace = DefaultVectorSpaces.getInstance();
         expect(vectorSpace.registerProjectiveRealVectorSpace(projectiveVS)).to.eql(false);
     });
 
-    it(`can register a projective real vector space if the vector space dimension fall within the interval [${MIN_DIMENSION_PROJECTIVEVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}]`, () => {
+    it(`can register a projective real vector space if the vector space dimension fall within the interval [${MIN_DIMENSION_PROJECTIVEREALVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEREALVECTORSPACE}]`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
-        for(let dimension = MIN_DIMENSION_PROJECTIVEVECTORSPACE; dimension <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; dimension++) {
-            const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, INITIAL_VECTOR_SPACE_ID) as ProjectiveVectorSpace<typeof dimension>;
+        for(let dimension = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE; dimension <= MAX_DIMENSION_PROJECTIVEREALVECTORSPACE; dimension++) {
+            const projectiveVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, INITIAL_VECTOR_SPACE_ID) as ProjectiveRealVectorSpace<typeof dimension>;
             expect(vectorSpace.registerProjectiveRealVectorSpace(projectiveVS)).to.eql(true);
             expect(vectorSpace.getVectorSpaceIndex(projectiveVS)).to.be.eql(undefined);
         }
@@ -262,12 +262,12 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
         const vectorSpace = DefaultVectorSpaces.getInstance();
         expect(vectorSpace.registerProjectiveComplexVectorSpace(projectiveComplexVS)).to.eql(true);
         expect(vectorSpace.getVectorSpaceIndex(projectiveComplexVS)).to.be.eql(undefined);
-        const projectiveComplexVS2 = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVE, DEFAULT + `${VectorSpaceType.PROJECTIVE}_${dimension}_` + VECTOR_SPACE + DEFAULT_VSPACE_INDEX_INITIAL_VALUE.toString()) as ProjectiveComplexVectorSpace<typeof dimension>;
+        const projectiveComplexVS2 = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVEREAL, DEFAULT + `${VectorSpaceType.PROJECTIVEREAL}_${dimension}_` + VECTOR_SPACE + DEFAULT_VSPACE_INDEX_INITIAL_VALUE.toString()) as ProjectiveComplexVectorSpace<typeof dimension>;
         expect(vectorSpace.registerProjectiveComplexVectorSpace(projectiveComplexVS2)).to.eql(false);
     });
 
     it(`cannot register a projective complex vector space if the vector space dimension is greater than the max dimension ${MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}`, () => {
-        const dimension = MAX_DIMENSION_PROJECTIVEVECTORSPACE + 1;
+        const dimension = MAX_DIMENSION_PROJECTIVEREALVECTORSPACE + 1;
         const projectiveComplexVS = createMockVectorSpace(dimension, VectorSpaceType.PROJECTIVECOMPLEX, INITIAL_VECTOR_SPACE_ID) as ProjectiveComplexVectorSpace<typeof dimension>;
         const vectorSpace = DefaultVectorSpaces.getInstance();
         expect(vectorSpace.registerProjectiveComplexVectorSpace(projectiveComplexVS)).to.eql(false);
@@ -301,10 +301,10 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
         expect(() => vectorSpace.getComplexVectorSpace(MAX_DIMENSION_COMPLEXVECTORSPACE + 1)).to.throw(RangeError);
     });
 
-    it(`cannot get a projective real vector space for a space dimension outside the interval [${MIN_DIMENSION_PROJECTIVEVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}]`, () => {
+    it(`cannot get a projective real vector space for a space dimension outside the interval [${MIN_DIMENSION_PROJECTIVEREALVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEREALVECTORSPACE}]`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
-        expect(() => vectorSpace.getProjectiveVectorSpace(MIN_DIMENSION_PROJECTIVEVECTORSPACE - 1)).to.throw(RangeError);
-        expect(() => vectorSpace.getProjectiveVectorSpace(MAX_DIMENSION_PROJECTIVEVECTORSPACE + 1)).to.throw(RangeError);
+        expect(() => vectorSpace.getProjectiveRealVectorSpace(MIN_DIMENSION_PROJECTIVEREALVECTORSPACE - 1)).to.throw(RangeError);
+        expect(() => vectorSpace.getProjectiveRealVectorSpace(MAX_DIMENSION_PROJECTIVEREALVECTORSPACE + 1)).to.throw(RangeError);
     });
 
     it(`cannot get a projective complex vector space for a space dimension outside the interval [${MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE}]`, () => {
@@ -332,13 +332,13 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
             expect(() => vectorSpace.getComplexVectorSpace(dimension)).to.throw(EM_NO_DEFAULT_COMPLEXVECTORSPACE_FOR_DIMENSION);
         }
     });
-    it(`cannot get a projective real vector space for a space dimension within the interval [${MIN_DIMENSION_PROJECTIVEVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEVECTORSPACE}]`, () => {
+    it(`cannot get a projective real vector space for a space dimension within the interval [${MIN_DIMENSION_PROJECTIVEREALVECTORSPACE}, ${MAX_DIMENSION_PROJECTIVEREALVECTORSPACE}]`, () => {
         const vectorSpace = DefaultVectorSpaces.getInstance();
         const allVectorSpaces = vectorSpace.getAllDefaultSpaces();
         const projectiveRealVectorSpaces = allVectorSpaces[0];
         expect(projectiveRealVectorSpaces).to.eql(undefined);
-        for(let dimension = MIN_DIMENSION_PROJECTIVEVECTORSPACE; dimension <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; dimension++) {
-            expect(() => vectorSpace.getProjectiveVectorSpace(dimension)).to.throw(EM_NO_DEFAULT_PROJECTIVEVECTORSPACE_FOR_DIMENSION);
+        for(let dimension = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE; dimension <= MAX_DIMENSION_PROJECTIVEREALVECTORSPACE; dimension++) {
+            expect(() => vectorSpace.getProjectiveRealVectorSpace(dimension)).to.throw(EM_NO_DEFAULT_PROJECTIVEREALVECTORSPACE_FOR_DIMENSION);
         }
     });
 
@@ -364,10 +364,10 @@ describe('DefaultVectorSpaces. Identifier Manager of vector space ids ensuring t
             expect(vectorSpace.isDefaultSpace(complexVS)).to.eql(true);
             const defVectorSpace = vectorSpace.getComplexVectorSpace(i);
         }
-        for (let i = MIN_DIMENSION_PROJECTIVEVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEVECTORSPACE; i++) {
-            const projectiveVS = new ProjectiveVectorSpace(i, true);
+        for (let i = MIN_DIMENSION_PROJECTIVEREALVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVEREALVECTORSPACE; i++) {
+            const projectiveVS = new ProjectiveRealVectorSpace(i, true);
             expect(vectorSpace.isDefaultSpace(projectiveVS)).to.eql(true);
-            const defVectorSpace = vectorSpace.getProjectiveVectorSpace(i);
+            const defVectorSpace = vectorSpace.getProjectiveRealVectorSpace(i);
         }
         for (let i = MIN_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i <= MAX_DIMENSION_PROJECTIVECOMPLEXVECTORSPACE; i++) {
             const projectiveComplexVS = new ProjectiveComplexVectorSpace(i, true);

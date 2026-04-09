@@ -1,8 +1,8 @@
 import { ErrorLog } from "../errorProcessing/ErrorLoging";
 import { VectorSpaceType } from "../namedConstants/BSplineR1toRn";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
-import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEVECTOR2D, PROJECTIVEVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D } from "../namedConstants/VectorTypeTags";
-import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, Vector, Vector1D, Vector2D, Vector3D, Vector4D, VECTOR_TYPE_INFO } from "./VectorSpaceConstructorInterface";
+import { COMPLEXVECTOR2D, PROJECTIVECOMPLEXVECTOR1D, PROJECTIVEREALVECTOR2D, PROJECTIVEREALVECTOR3D, REALVECTOR2D, REALVECTOR3D, REALVECTOR4D, VECTOR_DESCRIPTOR_INFO } from "../namedConstants/VectorTypeTags";
+import type { ComplexVectorDesc, ProjectiveComplexVectorDesc, ProjectiveRealVectorDesc, RealVectorDesc, VectorDesc, VectorDesc1D, VectorDesc2D, VectorDesc3D, VectorDesc4D } from "./utilityTypes/VectorDescriptorTypes";
 
 // ------------ Type Guards ------------
 
@@ -11,7 +11,7 @@ import { ComplexVector, ProjectiveComplexVector, ProjectiveVector, RealVector, V
  * @param v Vector to check
  * @returns True if vector is 1D (Real or Complex)
  */
-export function isVector1D(v: Vector): v is Vector1D {
+export function isVector1D(v: VectorDesc): v is VectorDesc1D {
     return typeof v === 'number' || v.type === COMPLEX};
 
 /**
@@ -19,7 +19,7 @@ export function isVector1D(v: Vector): v is Vector1D {
  * @param v Vector to check
  * @returns True if vector is 2D (Real or Complex)
  */
-export function isVector2D(v: Vector): v is Vector2D {
+export function isVector2D(v: VectorDesc): v is VectorDesc2D {
     if (typeof v === 'number') return false;
     return v.type === REALVECTOR2D || v.type === COMPLEXVECTOR2D || v.type === PROJECTIVECOMPLEXVECTOR1D;
 }
@@ -29,9 +29,9 @@ export function isVector2D(v: Vector): v is Vector2D {
  * @param v Vector to check
  * @returns True if vector is 3D (Real or Complex)
  */
-export function isVector3D(v: Vector): v is Vector3D {
+export function isVector3D(v: VectorDesc): v is VectorDesc3D {
     if (typeof v === 'number') return false;
-    return v.type === REALVECTOR3D || v.type === PROJECTIVEVECTOR2D;
+    return v.type === REALVECTOR3D || v.type === PROJECTIVEREALVECTOR2D;
 }
 
 /**
@@ -39,9 +39,9 @@ export function isVector3D(v: Vector): v is Vector3D {
  * @param v Vector to check
  * @returns True if vector is 4D (Real or Complex)
  */
-export function isVector4D(v: Vector): v is Vector4D {
+export function isVector4D(v: VectorDesc): v is VectorDesc4D {
     if (typeof v === 'number') return false;
-    return v.type === REALVECTOR4D || v.type === PROJECTIVEVECTOR3D;
+    return v.type === REALVECTOR4D || v.type === PROJECTIVEREALVECTOR3D;
 }
 
 
@@ -50,7 +50,7 @@ export function isVector4D(v: Vector): v is Vector4D {
  * @param v Vector to check
  * @returns True if vector contains real numbers and belongs to a real vector space
  */
-export function isRealVector(v: Vector): v is RealVector {
+export function isRealVector(v: VectorDesc): v is RealVectorDesc {
     return typeof v === 'number' || v.type === REALVECTOR2D || v.type === REALVECTOR3D || v.type === REALVECTOR4D;
 }
 
@@ -59,7 +59,7 @@ export function isRealVector(v: Vector): v is RealVector {
  * @param v Vector to check
  * @returns True if vector contains complex numbers and belongs to a complex vector space
  */
-export function isComplexVector(v: Vector): v is ComplexVector {
+export function isComplexVector(v: VectorDesc): v is ComplexVectorDesc {
     if (typeof v === 'number') return false;
     return v.type === COMPLEX || v.type === COMPLEXVECTOR2D;
 }
@@ -69,9 +69,9 @@ export function isComplexVector(v: Vector): v is ComplexVector {
  * @param v Vector to check
  * @returns True if vector contains a weight as last component and belongs to a projective vector space
  */
-export function isProjectiveVector(v: Vector): v is ProjectiveVector {
+export function isProjectiveRealVector(v: VectorDesc): v is ProjectiveRealVectorDesc {
     if (typeof v === 'number') return false;
-    return v.type === PROJECTIVEVECTOR2D || v.type === PROJECTIVEVECTOR3D;
+    return v.type === PROJECTIVEREALVECTOR2D || v.type === PROJECTIVEREALVECTOR3D;
 }
 
 /**
@@ -79,7 +79,7 @@ export function isProjectiveVector(v: Vector): v is ProjectiveVector {
  * @param v Vector to check
  * @returns True if vector contains complex numbers and belongs to a projective complex vector space
  */
-export function isProjectiveComplexVector(v: Vector): v is ProjectiveComplexVector {
+export function isProjectiveComplexVector(v: VectorDesc): v is ProjectiveComplexVectorDesc {
     if (typeof v === 'number') return false;
     return v.type === PROJECTIVECOMPLEXVECTOR1D;
 }
@@ -96,7 +96,7 @@ export function sendErrorMessage(constructorName: string, functionName: string, 
     return error;
 }
 
-export function areSameVSpaceAndDimension(v1: Vector, v2: Vector): boolean {
+export function areSameVSpaceAndDimension(v1: VectorDesc, v2: VectorDesc): boolean {
     if (isRealVector(v1) && isRealVector(v2)) {
         if((isVector1D(v1) && isVector1D(v2)) ||
             (isVector2D(v1) && isVector2D(v2)) ||
@@ -109,7 +109,7 @@ export function areSameVSpaceAndDimension(v1: Vector, v2: Vector): boolean {
             (isVector2D(v1) && isVector2D(v2))) {
             return true;
         } else return false;
-    } else if(isProjectiveVector(v1) && isProjectiveVector(v2)) {
+    } else if(isProjectiveRealVector(v1) && isProjectiveRealVector(v2)) {
         if((isVector3D(v1) && isVector3D(v2)) ||
             (isVector4D(v1) && isVector4D(v2))) {
             return true;
@@ -121,7 +121,7 @@ export function areSameVSpaceAndDimension(v1: Vector, v2: Vector): boolean {
     } else return false;
 }
 
-export function getVectorTypeAndDimension(vector: Vector): {type: VectorSpaceType, dimension: number} {
+export function getVectorSpaceTypeAndDimension(vector: VectorDesc): {type: VectorSpaceType, dimension: number} {
     if(isRealVector(vector)) {
         const type = VectorSpaceType.REAL;
         if(isVector1D(vector)) {
@@ -135,8 +135,8 @@ export function getVectorTypeAndDimension(vector: Vector): {type: VectorSpaceTyp
         } else {
             throw new Error("Unsupported vector space dimension");
         }
-    } else if(isProjectiveVector(vector)) {
-        const type = VectorSpaceType.PROJECTIVE;
+    } else if(isProjectiveRealVector(vector)) {
+        const type = VectorSpaceType.PROJECTIVEREAL;
         if(isVector3D(vector)){
             return {type: type, dimension: 3};
         } else if(isVector4D(vector)) {
@@ -165,18 +165,18 @@ export function getVectorTypeAndDimension(vector: Vector): {type: VectorSpaceTyp
     }
 }
 
-export function getVectorTypeInfo(vector: Vector): typeof VECTOR_TYPE_INFO[keyof typeof VECTOR_TYPE_INFO] {
+export function getVectorDescriptorInfo(vector: VectorDesc): typeof VECTOR_DESCRIPTOR_INFO[keyof typeof VECTOR_DESCRIPTOR_INFO] {
     if (typeof vector === 'number') {
-        return VECTOR_TYPE_INFO.RealVector1D;
+        return VECTOR_DESCRIPTOR_INFO.RealVector1D;
     }
     if (typeof vector === 'object' && vector !== null && 'type' in vector) {
-        const typeKey = Object.keys(VECTOR_TYPE_INFO).find(key => 
-            VECTOR_TYPE_INFO[key as keyof typeof VECTOR_TYPE_INFO].typeString === vector.type
+        const typeKey = Object.keys(VECTOR_DESCRIPTOR_INFO).find(key => 
+            VECTOR_DESCRIPTOR_INFO[key as keyof typeof VECTOR_DESCRIPTOR_INFO].typeString === vector.type
         );
         if (typeKey) {
-            return VECTOR_TYPE_INFO[typeKey as keyof typeof VECTOR_TYPE_INFO];
+            return VECTOR_DESCRIPTOR_INFO[typeKey as keyof typeof VECTOR_DESCRIPTOR_INFO];
         }
     }
-    return VECTOR_TYPE_INFO.UndefinedVectorType;
+    return VECTOR_DESCRIPTOR_INFO.UndefinedVectorType;
 }
 

@@ -1,11 +1,12 @@
 import { expect } from "chai";
 import { ComplexVectorSpace } from "../../src/mathVector/ComplexVectorSpace";
-import { ComplexVector1D, ComplexVector2D, IComplex } from "../../src/mathVector/VectorSpaceConstructorInterface";
+import { ComplexVector2D, ComplexDesc } from "../../src/mathVector/VectorDescriptorConstructorInterface";
 import { MAX_DIMENSION_COMPLEXVECTORSPACE } from "../../src/namedConstants/ComplexVectorSpace";
 import { createTestComplexVector } from "./ComplexVectorSpaceTestFactory";
 import { COMPLEX } from "../../src/namedConstants/ComplexTypeTag";
 import { COMPLEXVECTOR2D } from "../../src/namedConstants/VectorTypeTags";
 import { EM_COMPLEXVECTORS_NOT_IN_VECTORSPACE } from "../../src/ErrorMessages/ComplexVectorSpace";
+import { ComplexVector1D } from "../../src/mathVector/utilityTypes/VectorDescriptorTypes";
 
 
 describe('ComplexVectorSpace2DStrategy', () => {
@@ -59,7 +60,7 @@ describe('ComplexVectorSpace2DStrategy', () => {
 
             it(`can scale a ${COMPLEXVECTOR2D} vector with a complex and check the coordinates of the resulting vector`, () => {
                 const vec1 = createTestComplexVector(vectorDim, [[2, 3], [4, 5]]);
-                const scale: IComplex = { type: COMPLEX, real: 2, imaginary: 3 };
+                const scale: ComplexDesc = { type: COMPLEX, real: 2, imaginary: 3 };
                 const result = vectorSpace.scaleDescriptor(scale, vec1);
                 // Check coordinates
                 expect(result.type).to.eql(COMPLEXVECTOR2D);

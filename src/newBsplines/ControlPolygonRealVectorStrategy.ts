@@ -1,8 +1,8 @@
 import { RealVectorSpace } from "../mathVector/RealVectorSpace";
-import { RealVector } from "../mathVector/VectorSpaceConstructorInterface";
+import { RealVectorDesc } from "../mathVector/utilityTypes/VectorDescriptorTypes";
 import { ControlPolygonFromDescriptors, ControlPolygonStrategy } from "./ControlPolygonFromDescriptors";
 
-export class ControlPolygonRealVectorStrategy implements ControlPolygonStrategy<RealVector> {
+export class ControlPolygonRealVectorStrategy implements ControlPolygonStrategy<RealVectorDesc> {
 
     private vectorSpace: RealVectorSpace;
     private controlPolygon: ControlPolygonFromDescriptors;
@@ -13,9 +13,9 @@ export class ControlPolygonRealVectorStrategy implements ControlPolygonStrategy<
     }
 
 
-    moveControlPoint(index: number, displacement: RealVector): ControlPolygonFromDescriptors<RealVector> {
-        const newVectors = [...this.controlPolygon.vectorCollection] as RealVector[];
+    moveControlPoint(index: number, displacement: RealVectorDesc): ControlPolygonFromDescriptors<RealVectorDesc> {
+        const newVectors = [...this.controlPolygon.vectorCollection] as RealVectorDesc[];
         newVectors[index] = this.vectorSpace.addDescriptors(newVectors[index], displacement);
-        return new ControlPolygonFromDescriptors<RealVector>(newVectors);
+        return new ControlPolygonFromDescriptors<RealVectorDesc>(newVectors);
     }
 }

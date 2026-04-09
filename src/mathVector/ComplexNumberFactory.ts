@@ -2,10 +2,10 @@
 
 import { EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_IMAGINERY, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL, EM_COMPLEXWEIGHT_SUBTRACT_NEGATIVE_REAL_IMAGINERY } from "../ErrorMessages/ComplexOperators";
 import { COMPLEX } from "../namedConstants/ComplexTypeTag";
-import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveVectorSpace";
+import { NULL_WEIGHT_TOLERANCE } from "../namedConstants/ProjectiveRealVectorSpace";
 import { Complex } from "./Complex";
 import { createComplexWeightDescriptor } from "./VectorDescriptorFactory";
-import type { IComplex, IComplexWeight } from "./VectorSpaceConstructorInterface";
+import type { ComplexDesc, ComplexWeightDesc } from "./VectorDescriptorConstructorInterface";
 import { sendRangeErrorMessage } from "./VectorSpaceUtilities";
 import { Weight } from "./Weight";
 
@@ -16,7 +16,7 @@ import { Weight } from "./Weight";
 /**
  * Creates the descriptor of a complex number from two real numbers
  */
-export function createComplexDescriptor(real: number, imaginary: number): IComplex {
+export function createComplexDescriptor(real: number, imaginary: number): ComplexDesc {
     return {type: COMPLEX, real: real, imaginary: imaginary};
 }
 
@@ -30,14 +30,14 @@ export function createComplex(real: number, imaginary: number): Complex {
 /**
  * Add two complex numbers using their descriptors
  */
-export function addComplexUsingDescriptors(a: IComplex, b: IComplex): IComplex {
+export function addComplexUsingDescriptors(a: ComplexDesc, b: ComplexDesc): ComplexDesc {
     return createComplexDescriptor(a.real + b.real, a.imaginary + b.imaginary);
 }
 
 /**
  * Multiply two complex numbers using their descriptors
  */
-export function multiplyComplexUsingDescriptors(a: IComplex, b: IComplex): IComplex {
+export function multiplyComplexUsingDescriptors(a: ComplexDesc, b: ComplexDesc): ComplexDesc {
     return createComplexDescriptor(
         a.real * b.real - a.imaginary * b.imaginary,
         a.real * b.imaginary + a.imaginary * b.real
@@ -47,14 +47,14 @@ export function multiplyComplexUsingDescriptors(a: IComplex, b: IComplex): IComp
 /**
  * Subtract two complex numbers using their descriptors
  */
-export function subtractComplexUsingDescriptors(a: IComplex, b: IComplex): IComplex {
+export function subtractComplexUsingDescriptors(a: ComplexDesc, b: ComplexDesc): ComplexDesc {
     return createComplexDescriptor(a.real - b.real, a.imaginary - b.imaginary);
 }
 
 /**
  * Returns the complex conjugate using its descriptor
  */
-export function conjugateUsingDescriptor(a: IComplex): IComplex {
+export function conjugateUsingDescriptor(a: ComplexDesc): ComplexDesc {
         return createComplexDescriptor(a.real, -a.imaginary);
 }
 
@@ -63,7 +63,7 @@ export function conjugateUsingDescriptor(a: IComplex): IComplex {
  * @param a
  * @returns
  */
-export function magnitudeUsingDescriptor(a: IComplex): number {
+export function magnitudeUsingDescriptor(a: ComplexDesc): number {
     return Math.sqrt(a.real * a.real + a.imaginary * a.imaginary);
 }
 
@@ -71,7 +71,7 @@ export function magnitudeUsingDescriptor(a: IComplex): number {
 /**
  * Adds two complex weights using their descriptors
  */
-export function addComplexWeightsUsingDescriptors(a: IComplexWeight, b: IComplexWeight): IComplexWeight {
+export function addComplexWeightsUsingDescriptors(a: ComplexWeightDesc, b: ComplexWeightDesc): ComplexWeightDesc {
     const realRes = a.real.value + b.real.value;
     const imaginaryRes = a.imaginary.value + b.imaginary.value;
     if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && Math.abs(imaginaryRes) >= NULL_WEIGHT_TOLERANCE) {
@@ -88,7 +88,7 @@ export function addComplexWeightsUsingDescriptors(a: IComplexWeight, b: IComplex
 /**
  * Subtracts two complex numbers using their descriptors
  */
-export function subtractComplexWeightsUsingDescriptors(a: IComplexWeight, b: IComplexWeight): IComplexWeight {
+export function subtractComplexWeightsUsingDescriptors(a: ComplexWeightDesc, b: ComplexWeightDesc): ComplexWeightDesc {
     const realRes = a.real.value - b.real.value;
     const imaginaryRes = a.imaginary.value - b.imaginary.value;
     if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && imaginaryRes >= NULL_WEIGHT_TOLERANCE) {
@@ -113,7 +113,7 @@ export function subtractComplexWeightsUsingDescriptors(a: IComplexWeight, b: ICo
 /**
  * Multiplies a complex weight by a complex number using their descriptors
  */
-export function multiplyComplexWeightsUsingDescriptors(a: IComplex, b: IComplexWeight): IComplexWeight {
+export function multiplyComplexWeightsUsingDescriptors(a: ComplexDesc, b: ComplexWeightDesc): ComplexWeightDesc {
     const realRes = a.real * b.real.value - a.imaginary * b.imaginary.value;
     const imaginaryRes = a.real * b.imaginary.value + a.imaginary * b.real.value;
     if(Math.abs(realRes) < NULL_WEIGHT_TOLERANCE && imaginaryRes >= NULL_WEIGHT_TOLERANCE) {
